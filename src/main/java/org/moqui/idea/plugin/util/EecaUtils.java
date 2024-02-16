@@ -12,7 +12,7 @@ public final class EecaUtils {
 
 
     public static boolean isEecasFile(@Nullable PsiFile file){
-        return DomUtils.isSpecialXmlFile(file,Eecas.TAG_NAME);
+        return MyDomUtils.isSpecialXmlFile(file,Eecas.TAG_NAME);
 
     }
 

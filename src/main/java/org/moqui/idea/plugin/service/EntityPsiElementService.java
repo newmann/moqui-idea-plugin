@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.service;
 import org.moqui.idea.plugin.dom.model.Entities;
 import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.dom.model.ViewEntity;
-import org.moqui.idea.plugin.util.DomUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.EntityUtils;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.trim;
-
+@Deprecated
 @Service(Service.Level.PROJECT)
 public final class EntityPsiElementService {
     private final Project project;
@@ -23,7 +23,7 @@ public final class EntityPsiElementService {
     private Map<String, ViewEntity> viewTags = new HashMap<>();
     public EntityPsiElementService(Project project) {
         this.project = project;
-        List<DomFileElement<Entities>> fileElementList = DomUtils.findDomFileElementsByRootClass(project,Entities.class);
+        List<DomFileElement<Entities>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Entities.class);
         fileElementList.forEach(entities -> updateTagsFromFile(entities));
     }
 

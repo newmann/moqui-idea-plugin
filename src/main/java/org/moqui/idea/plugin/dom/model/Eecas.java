@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface Eecas extends DomElement {
     public static final String TAG_NAME = "eecas";
+
     @NotNull
-    @SubTagList(Eecas.TAG_NAME)
-    List<Eeca> getEecas();
+    @SubTagList(Eeca.TAG_NAME)
+    List<Eeca> getEecaList();
 }

@@ -10,7 +10,7 @@ import com.intellij.psi.impl.source.xml.XmlTagImpl;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.xml.util.XmlUtil;
 import org.jetbrains.annotations.NotNull;
-
+@Deprecated
 public class GotoMapperXmlSchemaTypeRendererProvider implements GotoTargetRendererProvider {
     @Override
     public PsiElementListCellRenderer getRenderer(@NotNull PsiElement element, @NotNull GotoTargetHandler.GotoData gotoData) {

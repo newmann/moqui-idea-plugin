@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.util.*;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,9 +49,12 @@ public class ServiceCallTagFindRelatedItemService implements FindRelatedItemServ
 
     XmlToken xmlToken = (XmlToken) psiElement;
     XmlTag xmlTag =(XmlTag) xmlToken.getParent();
+    if (xmlTag == null) return new ArrayList<>();
 
     final String fullName = xmlTag.getAttributeValue(ServiceCall.ATTR_NAME);
-    Optional<String> optEntityName = getEntityName(fullName);
+    if (fullName == null) return new ArrayList<>();
+
+    Optional<String> optEntityName = EntityUtils.getEntityNameFromServiceCallName(fullName);
     if (optEntityName.isEmpty()) {
       //按查找service的方式查找
       crudServiceCall = false;
@@ -64,24 +68,24 @@ public class ServiceCallTagFindRelatedItemService implements FindRelatedItemServ
 
   }
 
-  /**
-   *  从对Entity的标准操作中获取EntityName
-   *  格式为create/update/delete#mantle.order.OrderItem
-   * @param fullName
-   * @return
-   */
-  private Optional<String> getEntityName(@NotNull String fullName) {
-    String[] names = fullName.split("#");
-
-    if(names.length != 2) return Optional.empty();
-
-    if((names[0].indexOf(".") < 0) && (names[1].indexOf(".") > 0)) {
-      return  Optional.of(names[1]);
-    }else {
-      return Optional.empty();
-    }
-
-  }
+//  /**
+//   *  从对Entity的标准操作中获取EntityName
+//   *  格式为create/update/delete#mantle.order.OrderItem
+//   * @param fullName
+//   * @return
+//   */
+//  private Optional<String> getEntityName(@NotNull String fullName) {
+//    String[] names = fullName.split("#");
+//
+//    if(names.length != 2) return Optional.empty();
+//
+//    if((names[0].indexOf(".") < 0) && (names[1].indexOf(".") > 0)) {
+//      return  Optional.of(names[1]);
+//    }else {
+//      return Optional.empty();
+//    }
+//
+//  }
   @Override
   public Icon getNagavitorToIcon() {
     if(crudServiceCall) {

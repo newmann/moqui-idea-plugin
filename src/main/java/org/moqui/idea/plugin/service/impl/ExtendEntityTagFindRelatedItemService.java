@@ -5,13 +5,13 @@ import org.moqui.idea.plugin.service.FindRelatedItemService;
 import org.moqui.idea.plugin.util.EntityUtils;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
-import com.intellij.psi.xml.XmlToken;
+import org.moqui.idea.plugin.util.MyDomUtils;
 
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.List;
-
-import static com.intellij.psi.xml.XmlTokenType.XML_NAME;
+import java.util.Optional;
 
 public class ExtendEntityTagFindRelatedItemService implements FindRelatedItemService {
   public static ExtendEntityTagFindRelatedItemService INSTANCE = new ExtendEntityTagFindRelatedItemService();
@@ -23,12 +23,21 @@ public class ExtendEntityTagFindRelatedItemService implements FindRelatedItemSer
   public boolean isSupport(PsiElement psiElement) {
 
 
-    if(!(psiElement instanceof XmlToken)) return false;
-    XmlToken token = (XmlToken) psiElement;
-    if(!token.getTokenType().equals(XML_NAME)) return false;
-    if(!(token.getText().equals(ExtendEntity.TAG_NAME))) return false;
+//    if(!(psiElement instanceof XmlToken)) return false;
+//    XmlToken token = (XmlToken) psiElement;
+//    if(!token.getTokenType().equals(XML_NAME)) return false;
 
-    if(!(psiElement.getParent() instanceof XmlTag))  return false;
+    if(MyDomUtils.isNotTagName(psiElement)) return false;
+
+//    if(!(token.getText().equals(ExtendEntity.TAG_NAME))) return false;
+    Optional<String> optTagName = MyDomUtils.getCurrentTagName(psiElement);
+    if(optTagName.isEmpty()) return false;
+
+    if(!optTagName.get().equals(ExtendEntity.TAG_NAME)) return false;
+
+//    if(!MyDomUtils.getTagName(psiElement).equals(ExtendEntity.TAG_NAME)) return false;
+
+//    if(!(psiElement.getParent() instanceof XmlTag))  return false;
 
     if(!EntityUtils.isEntitiesFile(psiElement.getContainingFile())) return false;
 
@@ -39,27 +48,17 @@ public class ExtendEntityTagFindRelatedItemService implements FindRelatedItemSer
   @Override
   public List<PsiElement> findRelatedItem(PsiElement psiElement) {
 //    List<PsiElement> resultList = new ArrayList<>();
-    XmlToken xmlToken = (XmlToken) psiElement;
-    XmlTag xmlTag =(XmlTag) xmlToken.getParent();
+    if(!(psiElement instanceof XmlTag xmlTag)) return new ArrayList<>();
 
-    final String entityName = xmlTag.getAttributeValue(ExtendEntity.ATTR_NAME_ENTITY_NAME);
-    final String packageName = xmlTag.getAttributeValue(ExtendEntity.ATTR_NAME_PACKAGE);
+    if (!xmlTag.isValid()) return new ArrayList<>();
+
+    final String entityName = xmlTag.getAttributeValue(ExtendEntity.ATTR_ENTITY_NAME);
+    final String packageName = xmlTag.getAttributeValue(ExtendEntity.ATTR_PACKAGE);
     final String fullName = packageName + "." + entityName;
 
     return EntityUtils.getRelatedEntity(psiElement,fullName);
 
-//    EntityPsiElementService entityPsiElementService =
-//            psiElement.getProject().getService(EntityPsiElementService.class);
-//
-//    DomElement target = entityPsiElementService.getPsiElementByFullName(fullName);
-//    if (target == null) {
-//      CustomNotifier.warn(psiElement.getProject(), "发现找不到的Entity，fullName：" + fullName +", 所在文件："
-//              +psiElement.getContainingFile().getVirtualFile().getPath());
-//    }else {
-//      resultList.add((PsiElement) target.getXmlElement());
-//    }
 
-//    return resultList;
   }
 
   @Override

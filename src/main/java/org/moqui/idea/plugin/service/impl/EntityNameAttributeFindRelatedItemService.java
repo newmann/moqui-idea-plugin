@@ -24,6 +24,7 @@ public class EntityNameAttributeFindRelatedItemService implements FindRelatedIte
     if(!(psiElement instanceof XmlToken)) return false;
     XmlToken token = (XmlToken) psiElement;
     if(!token.getTokenType().equals(XML_NAME)) return false;
+
     if(!(token.getText().equals("entity-name"))) return false;
     PsiElement tokenParent = token.getParent();
     if(tokenParent == null) return false;

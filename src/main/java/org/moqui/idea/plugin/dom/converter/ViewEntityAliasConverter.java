@@ -1,0 +1,92 @@
+package org.moqui.idea.plugin.dom.converter;
+
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
+import com.intellij.util.xml.ConvertContext;
+import com.intellij.util.xml.CustomReferenceConverter;
+import com.intellij.util.xml.GenericDomValue;
+import com.intellij.util.xml.ResolvingConverter;
+import icons.MoquiIcons;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.dom.converter.insert.ExtendEntityNameAndPackageInsertionHandler;
+import org.moqui.idea.plugin.dom.model.AbstractEntity;
+import org.moqui.idea.plugin.dom.model.AbstractMemberEntity;
+import org.moqui.idea.plugin.dom.model.Entity;
+import org.moqui.idea.plugin.dom.model.MemberEntity;
+import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.util.EntityUtils;
+
+import javax.swing.*;
+import java.util.Collection;
+import java.util.Optional;
+
+/**
+ * ViewEntity定义中的alias处理
+ * alias在MemberEntity的属性EntityAlias中定义
+ * alias只在当前的ViewEntity中定义
+ */
+
+public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberEntity> implements CustomReferenceConverter {
+    @Override
+    public @Nullable AbstractMemberEntity fromString(@Nullable @NonNls String s, ConvertContext context) {
+        if(s == null) return null;
+        return EntityUtils.getViewEntityAbstractMemberEntityByAlias(context,s)
+                .orElse(null);
+
+    }
+
+    @Override
+    public @NotNull Collection<? extends AbstractMemberEntity> getVariants(ConvertContext context) {
+        return EntityUtils.getViewEntityAbstractMemberEntity(context);
+    }
+
+    @Override
+    public @Nullable String toString(@Nullable AbstractMemberEntity entity, ConvertContext context) {
+        return entity.getEntityAlias().getXmlAttributeValue().getValue();
+    }
+
+    @Override
+    public @Nullable LookupElement createLookupElement(AbstractMemberEntity entity) {
+        if(entity == null) {
+            return super.createLookupElement(entity);
+        }else{
+            String s = entity.getEntityAlias().getXmlAttributeValue().getValue();
+            Icon icon = AllIcons.Ide.Gift;//todo 配置一个更合适的icon
+            return LookupElementBuilder.create(entity,s)
+                    .withIcon(icon)
+                    .withCaseSensitivity(false);
+        }
+    }
+
+    @Override
+    public @Nullable PsiElement getPsiElement(@Nullable AbstractMemberEntity resolvedValue) {
+        if(resolvedValue == null) return null;
+
+        return resolvedValue.getEntityAlias().getXmlAttributeValue().getOriginalElement();
+    }
+
+    @Override
+    public PsiReference @NotNull [] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
+        String aliasName = value.getStringValue();
+        Optional<AbstractMemberEntity> optEntity = EntityUtils.getViewEntityAbstractMemberEntityByAlias(context,aliasName);
+        if (optEntity.isEmpty()) return PsiReference.EMPTY_ARRAY;
+
+        PsiReference[] psiReferences = new PsiReference[1];
+
+        AbstractMemberEntity entityCommonAttribute = optEntity.get();
+
+        psiReferences[0] = new PsiRef(element,
+                new TextRange(1,
+                        aliasName.length()+1),
+                entityCommonAttribute.getEntityAlias().getXmlAttributeValue());
+
+        return psiReferences;
+
+    }
+}

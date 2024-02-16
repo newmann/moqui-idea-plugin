@@ -17,6 +17,7 @@ import java.util.Optional;
  * @param <T> the type parameter
  * @author yanglin
  */
+@Deprecated
 public abstract class SimpleLineMarkerProvider<F extends PsiElement, T> extends RelatedItemLineMarkerProvider {
 
     @Override

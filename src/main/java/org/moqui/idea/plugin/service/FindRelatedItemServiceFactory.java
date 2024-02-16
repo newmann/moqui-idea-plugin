@@ -16,7 +16,10 @@ public class FindRelatedItemServiceFactory {
     findRelatedItemServiceList.add(MemberEntityTagFindRelatedItemService.INSTANCE);
     findRelatedItemServiceList.add(ServiceCallTagFindRelatedItemService.INSTANCE);
     findRelatedItemServiceList.add(EntityNameAttributeFindRelatedItemService.INSTANCE);
-
+    findRelatedItemServiceList.add(EecaTagFindRelatedItemService.INSTANCE);
+    findRelatedItemServiceList.add(SecaTagFindRelatedItemService.INSTANCE);
+    findRelatedItemServiceList.add(SubScreensItemTagFindRelatedItemService.INSTANCE);
+    findRelatedItemServiceList.add(TransitionIncludeTagFindRelatedItemService.INSTANCE);
   }
 
   public static FindRelatedItemService getFindRelatedItemService(PsiElement psiElement) {

@@ -3,21 +3,20 @@ package org.moqui.idea.plugin.reference;
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiReference;
 
-import java.util.List;
-
 public class PsiReferenceData {
     private Long modificationStamp;
-    private List<PsiReference> psiReferences;
-    PsiReferenceData(Long modificationStamp, List<PsiReference> psiReferences) {
+    private PsiReference[] psiReferences;
+    PsiReferenceData(Long modificationStamp, PsiReference[] psiReferences) {
         this.psiReferences = psiReferences;
         this.modificationStamp = modificationStamp;
     }
 
-    public static final Key<PsiReferenceData> ENTITY_REFERENCES = Key.create("ENTITY_REFERENCES");
-
+    public static final Key<PsiReferenceData> MOQUI_ENTITY_REFERENCES = Key.create("MOQUI_ENTITY_REFERENCES");
+    public static final Key<PsiReferenceData> MOQUI_SERVICE_REFERENCES = Key.create("MOQUI_SERVICE_REFERENCES");
+    public static final Key<PsiReferenceData> MOQUI_LOCATION_REFERENCES = Key.create("MOQUI_LOCATION_REFERENCES");
     public Long getModificationStamp() {return modificationStamp;}
 
-    public List<PsiReference> getPsiReferences() {
+    public PsiReference[] getPsiReferences() {
         return psiReferences;
     }
 

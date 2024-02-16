@@ -23,6 +23,7 @@ import java.util.Optional;
  *
  * @author yanglin
  */
+@Deprecated
 public class StatementLineMarkerProvider extends SimpleLineMarkerProvider<XmlToken, PsiElement> {
     public static final Logger logger = LoggerFactory.getLogger(StatementLineMarkerProvider.class);
 
@@ -66,9 +67,9 @@ public class StatementLineMarkerProvider extends SimpleLineMarkerProvider<XmlTok
         if (xmlTag == null) {return Optional.empty(); }
 
         if (ExtendEntity.TAG_NAME.equals(xmlTag.getName())) {
-            return EntityUtils.findEntityByNameAndPackage(from.getProject(),
-                    xmlTag.getAttributeValue(Entity.ATTR_NAME_ENTITY_NAME),
-                    xmlTag.getAttributeValue(Entity.ATTR_NAME_PACKAGE));
+            return EntityUtils.findEntityElementsByNameAndPackage(from.getProject(),
+                    xmlTag.getAttributeValue(Entity.ATTR_ENTITY_NAME),
+                    xmlTag.getAttributeValue(Entity.ATTR_PACKAGE));
         }
 
         return Optional.empty();

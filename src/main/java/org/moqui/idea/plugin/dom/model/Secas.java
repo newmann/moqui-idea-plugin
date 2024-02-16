@@ -9,6 +9,6 @@ import java.util.List;
 public interface Secas extends DomElement {
     public static final String TAG_NAME = "secas";
     @NotNull
-    @SubTagList(Secas.TAG_NAME)
-    List<Seca> getSecas();
+    @SubTagList(Seca.TAG_NAME)
+    List<Seca> getSecaList();
 }

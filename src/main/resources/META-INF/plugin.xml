@@ -1,11 +1,11 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
   <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-  <id>org.example.plugin</id>
+  <id>org.moqui.idea.plugin</id>
 
   <!-- Public plugin name should be written in Title Case.
        Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-  <name>MyPlugin</name>
+  <name>Moqui Dev Tools</name>
 
   <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
   <vendor email="support@beiyelin.com" url="https://www.beiyelin.com">Beiyelin</vendor>
@@ -42,17 +42,49 @@
                         rootTagName="eecas"
                         implementation="org.moqui.idea.plugin.dom.description.EecasDescription"/>
 
+      <dom.fileMetaData id="myPlugin.ScreenDescription"
+                        rootTagName="screen"
+                        implementation="org.moqui.idea.plugin.dom.description.ScreenDescription"/>
+      <dom.fileMetaData id="myPlugin.MoquiConfDescription"
+                        rootTagName="moqui-conf"
+                        implementation="org.moqui.idea.plugin.dom.description.MoquiConfDescription"/>
+      <dom.fileMetaData id="myPlugin.RestApiDescription"
+                        rootTagName="resource"
+                        implementation="org.moqui.idea.plugin.dom.description.RestApiDescription"/>
+      <dom.fileMetaData id="myPlugin.EmecasDescription"
+                        rootTagName="emecas"
+                        implementation="org.moqui.idea.plugin.dom.description.EmecasDescription"/>
+      <dom.fileMetaData id="myPlugin.ComponentDescription"
+                        rootTagName="component"
+                        implementation="org.moqui.idea.plugin.dom.description.ComponentDescription"/>
+
       <codeInsight.lineMarkerProvider id="myPlugin.XmlFileLineMarkerProvider" language="XML"
                                       implementationClass="org.moqui.idea.plugin.provider.XmlFileLineMarkerProvider"/>
 
-<!--    Ctrl+B 转跳-->
-<!--      <definitionsScopedSearch id="myPlugin.EntitySearch"-->
-<!--                               implementation="definitionsearch.system.org.moqui.idea.plugin.EntitySearch"/>-->
+<!--      <annotator language="XML" implementationClass="org.moqui.idea.plugin.annotator.EntityAnnotator"/>-->
 
+<!--  TODO:??? -->
+<!--      <definitionsScopedSearch id="myPlugin.EntitySearch"-->
+<!--                               implementation="org.moqui.idea.plugin.search.EntitySearch"/>-->
+
+<!--没有什么用，还不清楚具体原因-->
+<!--      <refactoring.elementListenerProvider implementation="org.moqui.idea.plugin.refactoring.EntityNameUpdatedRefactoringProvider"-->
+<!--                                           id="myPlugin.EntityNameUpdatedRefactoring"/>-->
 <!--      <gotoTargetRendererProvider implementation="provider.org.moqui.idea.plugin.GotoMapperXmlSchemaTypeRendererProvider" order="first"/>-->
 
-      <psi.referenceContributor id="myPlugin.ReferenceContributor" language="XML" order="first"
-                                implementation="org.moqui.idea.plugin.reference.ContextHashMarkReferenceContributor"/>
+<!--      <psi.referenceContributor id="myPlugin.ReferenceContributor" language="XML" order="first"-->
+<!--                                implementation="org.moqui.idea.plugin.reference.ContextHashMarkReferenceContributor"/>-->
+
+<!--      没有发现有什么用，先不启用-->
+<!--      <typedHandler implementation="org.moqui.idea.plugin.typedHandler.ServiceCallTypedHandler" id="myPlugin.ServiceCallTypedHandler"/>-->
+
+<!--      转跳 ctrl+click，ctrl+b-->
+<!--      <psi.referenceContributor id="myPlugin.EntityReferenceContributor" language="XML" order="first"-->
+<!--                                implementation="org.moqui.idea.plugin.reference.EntityReferenceContributor"/>-->
+<!--      <psi.referenceContributor id="myPlugin.ServiceReferenceContributor" language="XML" order="first"-->
+<!--                                implementation="org.moqui.idea.plugin.reference.ServiceReferenceContributor"/>-->
+<!--      <psi.referenceContributor id="myPlugin.LocationReferenceContributor" language="XML" order="first"-->
+<!--                                implementation="org.moqui.idea.plugin.reference.LocationReferenceContributor"/>-->
 
 <!--      修改文件的icon-->
       <iconProvider implementation="org.moqui.idea.plugin.provider.XmlFileIconProvider"
@@ -60,31 +92,80 @@
 
       <notificationGroup id="Custom Notification Group" displayType="BALLOON" key="notification.group.name"/>
 
-      <applicationService serviceInterface="org.moqui.idea.plugin.service.MyDomService"
-                          serviceImplementation="org.moqui.idea.plugin.service.impl.MyDomServiceImpl"/>
+<!--      <applicationService serviceInterface="org.moqui.idea.plugin.service.MyDomService"-->
+<!--                          serviceImplementation="org.moqui.idea.plugin.service.impl.MyDomServiceImpl"/>-->
+<!--      <completion.contributor language="XML"-->
+<!--                              implementationClass="org.moqui.idea.plugin.contributor.EntityNameAndServiceCallNameCompletionContributor"/>-->
+
       <completion.contributor language="XML"
-                              implementationClass="org.moqui.idea.plugin.contributor.EntityNameCompletionContributor"/>
-<!-- 不能生效，不知原因           <completion.contributor language="XML"-->
-<!--                                    implementationClass="com.example.plugin.contributor.EntityNameBasicCompletionContributor"/>-->
+                                    implementationClass="org.moqui.idea.plugin.contributor.OrderByCompletionContributor"/>
+
+      <renameHandler implementation="org.moqui.idea.plugin.refactoring.MoquiDomAttributeRenameHandler" order="first"/>
+
+<!--      静态检查-->
+<!--      <localInspection language="XML" shortName="EecasFilesInspection"-->
+<!--                       id="myPlugin.EecasFileInspection"-->
+<!--                       displayName="Eecas files inspection"-->
+<!--                       groupName="MoquiIdeaPlugin" enabledByDefault="true" level="ERROR"-->
+<!--                       hasStaticDescription="true"-->
+<!--                       implementationClass="org.moqui.idea.plugin.inspection.EecasFilesInspection"/>-->
+<!--      <localInspection language="XML" shortName="EntityFilesInspection"-->
+<!--                       id="myPlugin.EntityFilesInspection"-->
+<!--                       displayName="Entity files inspection"-->
+<!--                       groupName="MoquiIdeaPlugin" enabledByDefault="true" level="ERROR"-->
+<!--                       hasStaticDescription="true"-->
+<!--                       implementationClass="org.moqui.idea.plugin.inspection.EntitiesFilesInspection"/>-->
+<!--      <localInspection language="XML" shortName="SecasFilesInspection"-->
+<!--                       id="myPlugin.SecasFilesInspection"-->
+<!--                       displayName="Secas files inspection"-->
+<!--                       groupName="MoquiIdeaPlugin" enabledByDefault="true" level="ERROR"-->
+<!--                       hasStaticDescription="true"-->
+<!--                       implementationClass="org.moqui.idea.plugin.inspection.SecasFilesInspection"/>-->
+<!--      <localInspection language="XML" shortName="ServicesFilesInspection"-->
+<!--                       id="myPlugin.ServicesFilesInspection"-->
+<!--                       displayName="Services files inspection"-->
+<!--                       groupName="MoquiIdeaPlugin" enabledByDefault="true" level="ERROR"-->
+<!--                       hasStaticDescription="true"-->
+<!--                       implementationClass="org.moqui.idea.plugin.inspection.ServicesFilesInspection"/>-->
+<!--      <localInspection language="XML" shortName="ScreenFilesInspection"-->
+<!--                       id="myPlugin.ScreenFilesInspection"-->
+<!--                       displayName="Screen files inspection"-->
+<!--                       groupName="MoquiIdeaPlugin" enabledByDefault="true" level="ERROR"-->
+<!--                       hasStaticDescription="true"-->
+<!--                       implementationClass="org.moqui.idea.plugin.inspection.ScreenFilesInspection"/>-->
+
+      <standardResourceProvider implementation="org.moqui.idea.plugin.dom.xsd.MoquiXsdProvider"/>
 
   </extensions>
   <actions>
-    <group id="IDEAPluginTools" text="IDEA增强插件" popup="true">
-      <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-      <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
-    </group>
+      <group id="MoquiIdeaPlugin" text="Moqui Support Tools" popup="true">
+          <add-to-group group-id="ToolsMenu" anchor="first"/>
+      </group>
+
+<!--    <group id="IDEAPluginTools" text="IDEA增强插件" popup="true">-->
+<!--      <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
+<!--      <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>-->
+<!--    </group>-->
     <action id="org.moqui.idea.plugin.MyPluginClass" class="org.moqui.idea.plugin.MyPluginClass" text="MyPluginName"
             description="MyPlugin Description">
-      <add-to-group group-id="IDEAPluginTools" anchor="last"/>
-      <add-to-group group-id="HelpMenu" anchor="after" relative-to-action="About"/>
-      <add-to-group group-id="MainMenu" relative-to-action="HelpMenu" anchor="after"/>
+        <add-to-group group-id="MoquiIdeaPlugin" anchor="last"/>
+<!--      <add-to-group group-id="IDEAPluginTools" anchor="last"/>-->
+<!--      <add-to-group group-id="HelpMenu" anchor="after" relative-to-action="About"/>-->
+<!--      <add-to-group group-id="MainMenu" relative-to-action="ToolsMenu" anchor="after"/>-->
 
     </action>
 
-      <action id="ReplaceText" class="org.moqui.idea.plugin.ReplaceText" text="MyReplaceTextPlugin"
-              description="My ReplaceText Plugin">
-          <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-      </action>
+<!--      <action id="ReplaceText" class="org.moqui.idea.plugin.ReplaceText" text="MyReplaceTextPlugin"-->
+<!--              description="My ReplaceText Plugin">-->
+<!--          <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
+<!--      </action>-->
 
   </actions>
+
+<!--    暂时没有什么用-->
+<!--    <projectListeners>-->
+<!--        <listener-->
+<!--                class="org.moqui.idea.plugin.listener.FileListener"-->
+<!--                topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>-->
+<!--    </projectListeners>-->
 </idea-plugin>

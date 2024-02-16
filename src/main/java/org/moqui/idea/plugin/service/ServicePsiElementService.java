@@ -2,7 +2,7 @@ package org.moqui.idea.plugin.service;
 
 import org.moqui.idea.plugin.dom.model.Services;
 import org.moqui.idea.plugin.util.CustomNotifier;
-import org.moqui.idea.plugin.util.DomUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
@@ -11,7 +11,7 @@ import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-
+@Deprecated
 @Service(Service.Level.PROJECT)
 public final class ServicePsiElementService {
     private final Project project;
@@ -20,7 +20,7 @@ public final class ServicePsiElementService {
     private Map<String, org.moqui.idea.plugin.dom.model.Service> interfaceTags = new HashMap<>();
     public ServicePsiElementService(Project project) {
         this.project = project;
-        List<DomFileElement<Services>> fileElementList = DomUtils.findDomFileElementsByRootClass(project,Services.class);
+        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
         fileElementList.forEach(fileElement -> updateTagsFromFile(fileElement));
     }
 
@@ -59,10 +59,10 @@ public final class ServicePsiElementService {
         }
 
         //添加新对象
-        for(org.moqui.idea.plugin.dom.model.Service serviceItem: fileElement.getRootElement().getServices()) {
+        for(org.moqui.idea.plugin.dom.model.Service serviceItem: fileElement.getRootElement().getServiceList()) {
             String fullName = className+"." + serviceItem.getVerb().getValue()
                     + "#" + serviceItem.getNoun().getValue();
-            String type = serviceItem.getType().getValue();
+            String type = serviceItem.getServiceType().getValue();
 
             if( (type != null) && type.equals("interface")) {
                 interfaceTags.put(fullName,serviceItem);

@@ -25,7 +25,7 @@ public class EntitiesDescription  extends DomFileDescription<Entities> {
 //    }
 //    @Override
 //    protected void initializeFileDescription() {
-//        registerNamespacePolicy("EntitiesXml", "http://mybatis.org/dtd/mybatis-3-mapper.dtd");
+//        registerNamespacePolicy("xsi:noNamespaceSchemaLocation", "http://moqui.org/xsd/entity-definition-3.xsd");
 //    }
 
 }

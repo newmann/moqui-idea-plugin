@@ -17,7 +17,7 @@ import org.moqui.idea.plugin.dom.model.Services;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
+@Deprecated
 public class MyDomServiceImpl implements MyDomService {
 
   public static final String IDEA_INPUT_TAG = "IntellijIdeaRulezzz";

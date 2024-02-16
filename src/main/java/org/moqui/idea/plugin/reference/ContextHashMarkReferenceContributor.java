@@ -1,5 +1,6 @@
 package org.moqui.idea.plugin.reference;
 
+import com.intellij.psi.xml.XmlTokenType;
 import org.moqui.idea.plugin.dom.model.Services;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.PlatformPatterns;
@@ -10,7 +11,7 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
-
+@Deprecated
 public class ContextHashMarkReferenceContributor extends PsiReferenceContributor {
     private static final String ENTITY_NAME_PREFIX_STR = "entity-name";
     public static final PsiElementPattern.Capture<XmlAttribute> PATTERN_ATTR_ENTITY_NAME = PlatformPatterns.psiElement(XmlAttribute.class)

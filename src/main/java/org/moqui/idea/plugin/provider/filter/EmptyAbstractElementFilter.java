@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
-
+@Deprecated
 public class EmptyAbstractElementFilter extends AbstractElementFilter{
     @Override
     protected Collection<? extends DomElement> getResults(@NotNull PsiElement element) {

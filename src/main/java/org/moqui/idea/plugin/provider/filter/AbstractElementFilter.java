@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
+@Deprecated
 public abstract class AbstractElementFilter {
 
     protected abstract Collection<? extends DomElement> getResults(@NotNull PsiElement element);
