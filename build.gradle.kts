@@ -4,8 +4,8 @@ plugins {
   id("org.jetbrains.intellij") version "1.16.1"
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+group = "com.beiyelin"
+version = "20240331.01"
 
 repositories {
   maven { setUrl("https://maven.aliyun.com/repository/central/")}

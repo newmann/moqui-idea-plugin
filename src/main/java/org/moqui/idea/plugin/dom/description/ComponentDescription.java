@@ -6,7 +6,10 @@ import com.intellij.util.xml.DomFileDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Component;
+import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.util.ComponentUtils;
+
+import javax.swing.*;
 
 public class ComponentDescription extends DomFileDescription<Component> {
 
@@ -19,6 +22,11 @@ public class ComponentDescription extends DomFileDescription<Component> {
         return ComponentUtils.isComponentFile(file);
     }
 
+    @Override
+    public @Nullable Icon getFileIcon(int flags) {
+        return MyIcons.FILE_ICON_COMPONENT;
+//        return super.getFileIcon(flags);
+    }
 //    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 

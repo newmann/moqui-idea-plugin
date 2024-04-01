@@ -1,11 +1,12 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
-import com.intellij.util.xml.ConvertContext;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomFileElement;
+import com.intellij.psi.xml.XmlFile;
+import com.intellij.psi.xml.XmlTag;
+import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import com.intellij.util.xml.highlighting.DomHighlightingHelper;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
+import static org.moqui.idea.plugin.util.MyDomUtils.getSubTagList;
 
 
 public final class ScreenUtils {
@@ -38,6 +40,57 @@ public final class ScreenUtils {
         return "Navigating to Screen definition";
     }
 
+    /**
+     * 判断url字符串是否为Transition，
+     * @param url
+     * @return
+     */
+    public static boolean isValidTransitionFormat(@NotNull String url){
+        if(url.equals(".")) return false;
+
+        if(url.contains("..")) return false;
+
+        if(url.contains("/")) return false;
+
+        if(url.contains("$")) return false;
+
+        return true;
+    }
+    /**
+     * 根据当前位置找到所在screen的所有可用的Transition
+     *
+     * @param context
+     * @return
+     */
+    public static List<AbstractTransition> getTransitionList(ConvertContext context) {
+
+        List<AbstractTransition> result = new ArrayList<AbstractTransition>();
+
+
+        Screen screen = ScreenUtils.getCurrentScreen(context).orElse(null);
+        if(screen != null){
+            result.addAll(screen.getTransitionList());
+            result.addAll(screen.getTransitionIncludeList());
+        }
+        return result;
+    }
+    /**
+     * 根据当前位置和名称对应的Transition
+     * @param transitionName
+     * @param context
+     * @return
+     */
+    public static Optional<AbstractTransition> getTransitionByName(String transitionName, ConvertContext context) {
+        List<AbstractTransition> transitionList = getTransitionList(context);
+        return transitionList.stream().filter(
+                item->{
+                    String str = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
+                            .orElse(MyStringUtils.EMPTY_STRING);
+                    return str.equals(transitionName);
+                }
+        ).findFirst();
+
+    }
     /**
      * 根据location，找到对应的文件
      * location格式为：component://xxxx
@@ -156,6 +209,101 @@ public final class ScreenUtils {
     }
 
     /**
+     * 获取某个Screen中所有的FormSingle定义
+     * @param fileElement
+     * @return
+     */
+    public static List<FormSingle> getFormSingleListFromScreenFile(@NotNull DomFileElement<Screen> fileElement){
+        Widgets widgets = fileElement.getRootElement().getWidgets();
+        return DomUtil.getChildrenOf(widgets,FormSingle.class);
+    }
+
+    public static List<FormSingle> getFormSingleListFromScreenFile(PsiFile file){
+        List<FormSingle> formSingleList = new ArrayList<>();
+        List<XmlTag> formSingleTagList = new ArrayList<>();
+
+        if(file instanceof XmlFile xmlFile) {
+            XmlTag rootTag = xmlFile.getRootTag();
+            if (rootTag!=null) {
+                formSingleTagList = getSubTagList(rootTag,FormSingle.TAG_NAME);
+            }
+            for(XmlTag child : formSingleTagList) {
+                DomElement domElement = DomUtil.getDomElement(child);
+                if(domElement instanceof FormSingle formSingle) {
+                    formSingleList.add(formSingle);
+                }
+            }
+//            DomFileElement<Screen> screen = DomManager.getDomManager(file.getProject())
+//                    .getFileElement(xmlFile, Screen.class);
+//            if(screen != null) {
+//                return getFormSingleListFromScreenFile(screen);
+//            }
+        }
+
+        return formSingleList;
+
+    }
+
+
+    public static Optional<FormSingle> getFormSingleFromScreenFileByName(@NotNull DomFileElement<Screen> fileElement,@NotNull String formSingleName){
+        List<FormSingle> formSingleList = getFormSingleListFromScreenFile(fileElement);
+        return formSingleList.stream().filter(item->{
+            final String name = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
+                    .orElse(MyStringUtils.EMPTY_STRING);
+            return name.equals(formSingleName);
+        }).findFirst();
+    }
+    public static Optional<FormSingle> getFormSingleFromScreenFileByName(@NotNull PsiFile file,@NotNull String formSingleName){
+        List<FormSingle> formSingleList = getFormSingleListFromScreenFile(file);
+        return formSingleList.stream().filter(item->{
+            final String name = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
+                    .orElse(MyStringUtils.EMPTY_STRING);
+            return name.equals(formSingleName);
+        }).findFirst();
+    }
+
+    public static List<FormList> getFormListListFromScreenFile(@NotNull DomFileElement<Screen> fileElement){
+        Widgets widgets = fileElement.getRootElement().getWidgets();
+        return DomUtil.getChildrenOfType(widgets,FormList.class);
+    }
+    public static Optional<FormList> getFormListFromScreenFileByName(@NotNull DomFileElement<Screen> fileElement,@NotNull String formListName){
+        List<FormList> formListList = getFormListListFromScreenFile(fileElement);
+        return formListList.stream().filter(item->{
+            final String name = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
+                    .orElse(MyStringUtils.EMPTY_STRING);
+            return name.equals(formListName);
+        }).findFirst();
+    }
+    public static List<FormList> getFormListListFromScreenFile(PsiFile file){
+
+        List<FormList> formListList = new ArrayList<>();
+        List<XmlTag> formListTagList = new ArrayList<>();
+
+        if(file instanceof XmlFile xmlFile) {
+            XmlTag rootTag = xmlFile.getRootTag();
+            if (rootTag!=null) {
+                formListTagList = getSubTagList(rootTag,FormList.TAG_NAME);
+            }
+            for(XmlTag child : formListTagList) {
+                DomElement domElement = DomUtil.getDomElement(child);
+                if(domElement instanceof FormList formList) {
+                    formListList.add(formList);
+                }
+            }
+        }
+
+        return formListList;
+
+    }
+    public static Optional<FormList> getFormListFromScreenFileByName(@NotNull PsiFile file,@NotNull String formListName){
+        List<FormList> formSingleList = getFormListListFromScreenFile(file);
+        return formSingleList.stream().filter(item->{
+            final String name = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
+                    .orElse(MyStringUtils.EMPTY_STRING);
+            return name.equals(formListName);
+        }).findFirst();
+    }
+    /**
      * 用在Inspection中
      * 根据指定的属性来进行location位置的验证
      *
@@ -197,6 +345,45 @@ public final class ScreenUtils {
 
         }
 
+    }
+
+    /**
+     * 获取FormSingle的Field定义，
+     * @param abstractForm
+     * @return
+     */
+    public static List<Field> getFieldListFromForm(@NotNull AbstractForm abstractForm){
+        List<Field> result = new ArrayList<>();
+        final String extendsStr = MyDomUtils.getXmlAttributeValueString(abstractForm.getExtends()).orElse(MyStringUtils.EMPTY_STRING);
+        if(MyStringUtils.isNotEmpty(extendsStr)){
+            //根据extends，找到FormSingle的定义
+            final int poundIndex = extendsStr.indexOf("#");
+            if(poundIndex>=0) {
+                final String location = extendsStr.substring(0, poundIndex);
+                final String extendFormName = extendsStr.substring(poundIndex+1);
+
+                PsiFile psiFile = MyDomUtils.getFileFromLocation(abstractForm.getXmlElement().getProject(),location).orElse(null);
+                if(psiFile != null) {
+                    AbstractForm extendForm;
+                    if(abstractForm instanceof FormSingle) {
+                        extendForm = getFormSingleFromScreenFileByName(psiFile, extendFormName).orElse(null);
+                    }else {
+                        extendForm = getFormListFromScreenFileByName(psiFile, extendFormName).orElse(null);
+                    }
+
+                    if(extendForm != null) {
+                        //嵌套调用
+                        result.addAll(getFieldListFromForm(extendForm));
+                    }
+
+                }
+
+            }
+
+        }
+
+        result.addAll(abstractForm.getFieldList());
+        return result;
     }
 
     public static Optional<Screen> getCurrentScreen(ConvertContext context){

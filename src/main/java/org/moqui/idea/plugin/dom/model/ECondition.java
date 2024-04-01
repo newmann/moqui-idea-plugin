@@ -8,8 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityFieldNameConverter;
 import org.moqui.idea.plugin.dom.converter.ViewEntityAliasConverter;
 
-import java.util.function.BiConsumer;
-
 public interface ECondition extends DomElement {
     public static final String TAG_NAME = "econdition";
     public static final String ATTR_ENTITY_ALIAS = "entity-alias";

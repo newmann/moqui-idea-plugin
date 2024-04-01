@@ -1,6 +1,5 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.openapi.util.NlsContexts;
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.DomElement;

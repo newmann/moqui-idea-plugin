@@ -3,20 +3,22 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.FieldRefConverter;
+import org.moqui.idea.plugin.dom.converter.LocationConverter;
 import org.moqui.idea.plugin.dom.converter.TransitionConverter;
 import org.moqui.idea.plugin.dom.presentation.FormSinglePresentationProvider;
 import org.moqui.idea.plugin.dom.presentation.SectionPresentationProvider;
 
 import java.util.List;
 @Presentation(provider = FormSinglePresentationProvider.class)
-public interface FormSingle extends DomElement {
+public interface FormSingle extends AbstractForm {
     public static final String TAG_NAME = "form-single";
 
-    public static final String ATTR_NAME = "name";
-    public static final String ATTR_EXTENDS = "extends";
+//    public static final String ATTR_NAME = "name";
+//    public static final String ATTR_EXTENDS = "extends";
     public static final String ATTR_OWNER_FORM = "owner-name";
 
-    public static final String ATTR_TRANSITION = "transition";
+//    public static final String ATTR_TRANSITION = "transition";
     public static final String ATTR_MAP = "map";
     public static final String ATTR_FOCUS_FIELD = "focus-field";
 
@@ -32,24 +34,26 @@ public interface FormSingle extends DomElement {
     public static final String ATTR_BODY_PARAMETERS = "body-parameters";
     public static final String ATTR_PASS_THROUGH_PARAMETERS = "pass-through-parameters";
     public static final String ATTR_EXCLUDE_EMPTY_FIELDS = "exclude-empty-fields";
-    @NotNull
-    @Attribute(ATTR_NAME)
-    GenericAttributeValue<String> getName();
-    @NotNull
-    @Attribute(ATTR_EXTENDS)
-    GenericAttributeValue<String> getExtends();
+//    @NotNull
+//    @Attribute(ATTR_NAME)
+//    GenericAttributeValue<String> getName();
+//    @NotNull
+//    @Attribute(ATTR_EXTENDS)
+//    @Convert(LocationConverter.class)
+//    GenericAttributeValue<String> getExtends();
     @NotNull
     @Attribute(ATTR_OWNER_FORM)
     GenericAttributeValue<String> getOwnerForm();
-    @NotNull
-    @Attribute(ATTR_TRANSITION)
-    @Convert(TransitionConverter.class)
-    GenericAttributeValue<String> getTransition();
+//    @NotNull
+//    @Attribute(ATTR_TRANSITION)
+//    @Convert(TransitionConverter.class)
+//    GenericAttributeValue<String> getTransition();
     @NotNull
     @Attribute(ATTR_MAP)
     GenericAttributeValue<String> getMap();
     @NotNull
     @Attribute(ATTR_FOCUS_FIELD)
+    @Convert(FieldRefConverter.class)
     GenericAttributeValue<String> getFocusField();
     @NotNull
     @Attribute(ATTR_SKIP_START)
@@ -91,9 +95,9 @@ public interface FormSingle extends DomElement {
     @NotNull
     @SubTagList(AutoFieldsEntity.TAG_NAME)
     List<AutoFieldsEntity> getAutoFieldsEntityList();
-    @NotNull
-    @SubTagList(Field.TAG_NAME)
-    List<Field> getFieldList();
+//    @NotNull
+//    @SubTagList(Field.TAG_NAME)
+//    List<Field> getFieldList();
 
     @NotNull
     @SubTag(FieldLayout.TAG_NAME)

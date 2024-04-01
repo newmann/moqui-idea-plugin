@@ -5,15 +5,12 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.xml.XmlAttribute;
-import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.PsiRef;
-import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
@@ -24,9 +21,9 @@ import java.util.List;
 import java.util.Optional;
 
 
-public class TransitionConverter extends ResolvingConverter<TransitionAbstract> implements CustomReferenceConverter {
+public class TransitionConverter extends ResolvingConverter<AbstractTransition> implements CustomReferenceConverter {
     @Override
-    public @Nullable TransitionAbstract fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public @Nullable AbstractTransition fromString(@Nullable @NonNls String s, ConvertContext context) {
         if(s == null) return null;
         return getTransition(s,context)
                 .orElse(null);
@@ -34,18 +31,18 @@ public class TransitionConverter extends ResolvingConverter<TransitionAbstract> 
     }
 
     @Override
-    public @NotNull Collection<? extends TransitionAbstract> getVariants(ConvertContext context) {
+    public @NotNull Collection<? extends AbstractTransition> getVariants(ConvertContext context) {
         return getTransitionList(context);
     }
 
     @Override
-    public @Nullable String toString(@Nullable TransitionAbstract transition, ConvertContext context) {
+    public @Nullable String toString(@Nullable AbstractTransition transition, ConvertContext context) {
         if (transition == null) return null;
         return transition.getName().getXmlAttributeValue().getValue();
     }
 
     @Override
-    public @Nullable LookupElement createLookupElement(TransitionAbstract transition) {
+    public @Nullable LookupElement createLookupElement(AbstractTransition transition) {
         if(transition == null) {
             return super.createLookupElement(transition);
         }else {
@@ -57,7 +54,7 @@ public class TransitionConverter extends ResolvingConverter<TransitionAbstract> 
     }
 
     @Override
-    public @Nullable PsiElement getPsiElement(@Nullable TransitionAbstract resolvedValue) {
+    public @Nullable PsiElement getPsiElement(@Nullable AbstractTransition resolvedValue) {
         return super.getPsiElement(resolvedValue);
     }
 
@@ -66,10 +63,10 @@ public class TransitionConverter extends ResolvingConverter<TransitionAbstract> 
         String related = value.getStringValue();
         if (related == null) return PsiReference.EMPTY_ARRAY;
 
-        Optional<TransitionAbstract> optTransition = getTransition(related,context);
+        Optional<AbstractTransition> optTransition = getTransition(related,context);
         if (optTransition.isEmpty()) return PsiReference.EMPTY_ARRAY;
 
-        final TransitionAbstract transition = optTransition.get();
+        final AbstractTransition transition = optTransition.get();
         PsiReference[] psiReferences = new PsiReference[1];
         psiReferences[0] = new PsiRef(element,
                 new TextRange(1,
@@ -85,9 +82,9 @@ public class TransitionConverter extends ResolvingConverter<TransitionAbstract> 
      * @param context
      * @return
      */
-    private List<TransitionAbstract> getTransitionList(ConvertContext context) {
+    private List<AbstractTransition> getTransitionList(ConvertContext context) {
 
-        List<TransitionAbstract> result = new ArrayList<TransitionAbstract>();
+        List<AbstractTransition> result = new ArrayList<AbstractTransition>();
 
 
         Screen screen = ScreenUtils.getCurrentScreen(context).orElse(null);
@@ -103,8 +100,8 @@ public class TransitionConverter extends ResolvingConverter<TransitionAbstract> 
      * @param context
      * @return
      */
-    private Optional<TransitionAbstract> getTransition(String related, ConvertContext context) {
-        List<TransitionAbstract> transitionList = getTransitionList(context);
+    private Optional<AbstractTransition> getTransition(String related, ConvertContext context) {
+        List<AbstractTransition> transitionList = getTransitionList(context);
         return transitionList.stream().filter(
                 item->{
                     String str = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())

@@ -1,6 +1,8 @@
 package org.moqui.idea.plugin.dom.converter;
 
+import com.intellij.codeInspection.util.InspectionMessage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlElement;
@@ -9,6 +11,7 @@ import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
@@ -24,6 +27,18 @@ import static com.intellij.codeInsight.completion.CompletionUtil.DUMMY_IDENTIFIE
  * 2、针对Entity的CRUD，动作#EntityFullName
  */
 public class ServiceCallConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter {
+    @Override
+    public String fromString(String s, ConvertContext context) {
+        if(s==null) return super.fromString(s, context);
+
+        if(ServiceUtils.isValidServiceCallStr(context.getProject(),s)){
+            return s;
+        }else{
+            return null;
+        }
+
+    }
+
     @Override
     public @NotNull Collection<? extends String> getVariants(ConvertContext context) {
         Project project = context.getProject();
@@ -144,5 +159,14 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
             resultSet.clear();
             resultSet.addAll(ServiceUtils.getServiceFullNameInClass(project,filterClassName));
         }
+    }
+
+    @Override
+    public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
+        return new HtmlBuilder()
+                .append("根据")
+                .append(s)
+                .append("找不到对应的Service定义。")
+                .toString();
     }
 }

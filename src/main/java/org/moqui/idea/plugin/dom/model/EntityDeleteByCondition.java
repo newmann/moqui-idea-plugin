@@ -1,14 +1,11 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTag;
-import com.intellij.util.xml.SubTagList;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface EntityDeleteByCondition extends DomElement {
+public interface EntityDeleteByCondition extends AbstractEntityName {
     public static final String TAG_NAME = "entity-delete-by-condition";
 
 
@@ -29,7 +26,9 @@ public interface EntityDeleteByCondition extends DomElement {
     List<EConditionObject> getEConditionObjectList();
 
 
-    @NotNull GenericAttributeValue<String> getEntityName();
+//    @NotNull
+//    @Convert(EntityFullNameConverter.class)
+//    GenericAttributeValue<String> getEntityName();
 
 
 }

@@ -2,7 +2,9 @@ package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.codeInspection.util.InspectionMessage;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.ConvertContext;
@@ -30,7 +32,7 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
     @Override
     public @Nullable Field fromString(@Nullable @NonNls String s, ConvertContext context) {
         if(s == null) return null;
-        return getTransition(s,context)
+        return getField(s,context)
                 .orElse(null);
 
     }
@@ -68,7 +70,7 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
         String related = value.getStringValue();
         if (related == null) return PsiReference.EMPTY_ARRAY;
 
-        Optional<Field> optField = getTransition(related,context);
+        Optional<Field> optField = getField(related,context);
         if (optField.isEmpty()) return PsiReference.EMPTY_ARRAY;
 
         final Field field = optField.get();
@@ -82,7 +84,7 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
 
     }
     /**
-     * 根据当前位置找到所有可用的Transition
+     * 根据当前位置找到所有可用的Field
      *
      * @param context
      * @return
@@ -91,26 +93,26 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
 
         List<Field> result = new ArrayList<>();
 
-
         FormSingle formSingle = ScreenUtils.getCurrentFormSingle(context).orElse(null);
         if(formSingle == null){
             //再判断FormList
             FormList formList = ScreenUtils.getCurrentFormList(context).orElse(null);
             if(formList != null){
-                result.addAll(formList.getFieldList());
+                result.addAll(ScreenUtils.getFieldListFromForm(formList));
             }
         }else {
-            result.addAll(formSingle.getFieldList());
+            result.addAll(ScreenUtils.getFieldListFromForm(formSingle));
         }
+
         return result;
     }
     /**
-     * 根据当前位置对应的Relationship
+     * 根据当前位置对应的Field
      * @param related
      * @param context
      * @return
      */
-    private Optional<Field> getTransition(String related, ConvertContext context) {
+    private Optional<Field> getField(String related, ConvertContext context) {
         List<Field> fieldList = getFieldList(context);
         return fieldList.stream().filter(
                 item->{
@@ -122,5 +124,12 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
 
     }
 
-
+    @Override
+    public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
+        return new HtmlBuilder()
+                .append("根据")
+                .append("[" + s + "]")
+                .append("找不到对应的Field定义。")
+                .toString();
+    }
 }

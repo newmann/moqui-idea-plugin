@@ -37,10 +37,14 @@ public class MoquiDomAttributeRenameHandler extends PsiElementRenameHandler {
 
     private static PsiElement findTarget(DataContext dataContext){
         Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
+        if(editor==null) return null;
         PsiFile psiFile = CommonDataKeys.PSI_FILE.getData(dataContext);
+        if(psiFile==null) return null;
 
         PsiElement psiElement = psiFile.findElementAt(editor.getCaretModel().getOffset());
+        if(psiElement==null) return null;
         XmlAttributeValue attributeValue = PsiTreeUtil.getParentOfType(psiElement, XmlAttributeValue.class);
+        if(attributeValue==null) return null;
 
         //表示当前的element指向了一个PsiElement，是converter生成，不需要进行处理，由缺省的converter过程进行处理
         if(attributeValue.getReference()== null) {

@@ -1,13 +1,13 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import com.intellij.util.xml.highlighting.DomHighlightingHelper;
-import org.apache.logging.log4j.util.Strings;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.reference.PsiRef;
@@ -431,7 +431,7 @@ public final class EntityUtils {
                 }
             };
             //添加ExtendEntity的Relationship
-            for(ExtendEntity extendEntity: fileElement.getRootElement().getExtendEntities()) {
+            for(ExtendEntity extendEntity:fileElement.getRootElement().getExtendEntities()) {
 
                 if(isThisExtendEntityName(extendEntity,entityName)) {
                     relationshipList.addAll(
@@ -655,36 +655,48 @@ public final class EntityUtils {
 
     }
     public static @NotNull List<AbstractField> getViewEntityFieldList(@NotNull Project project, @NotNull ViewEntity viewEntity){
-        List<AbstractField> fieldList = new LinkedList<>();
         //添加alias
-        fieldList.addAll(viewEntity.getAliasList());
+        List<AbstractField> fieldList = new LinkedList<>(viewEntity.getAliasList());
 
         //对AliasAll进行处理
         List<AliasAll> aliasAllList = viewEntity.getAliasAllList();
 
         for(AliasAll aliasAll : aliasAllList) {
-            String alias = aliasAll.getEntityAlias().getXmlAttributeValue().getValue();
+            String alias = MyDomUtils.getXmlAttributeValueString(aliasAll.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING);
+            if(MyStringUtils.isEmpty(alias)) continue;
+
             List<AbstractField> aliasAllFieldList = new ArrayList<>();
-            //先查找MemberEntity，再操作MemberRelationship
+            //先查找MemberEntity，再查找MemberRelationship
             MemberEntity memberEntity = getMemberEntityByAlias(viewEntity, alias);
             if(memberEntity == null) {
                 MemberRelationship memberRelationship = getMemberRelationshipByAlias(viewEntity,alias);
                 if(memberRelationship != null){
-                    MemberEntity relationshipMemberEntity = getMemberEntityByAlias(viewEntity
-                            ,memberRelationship.getJoinFromAlias().getXmlAttributeValue().getValue());
+                    final String joinFromAlias = MyDomUtils.getXmlAttributeValueString(memberRelationship.getJoinFromAlias())
+                            .orElse(MyStringUtils.EMPTY_STRING);
+                    if(MyStringUtils.isEmpty(joinFromAlias)) continue;
+                    //找到最终定义的那个MemberEntity，可以跳过中间有多个MemberRelationship
+                    MemberEntity relationshipMemberEntity = getDefinedMemberEntityByAlias(viewEntity,joinFromAlias);
+
+                    if(relationshipMemberEntity==null) continue;
+
+                    final String entityName = MyDomUtils.getXmlAttributeValueString(relationshipMemberEntity.getEntityName())
+                                    .orElse(MyStringUtils.EMPTY_STRING);
+                    final String relationship = MyDomUtils.getXmlAttributeValueString(memberRelationship.getRelationship())
+                                    .orElse(MyStringUtils.EMPTY_STRING);
+
+                    if(MyStringUtils.isEmpty(entityName) || MyStringUtils.isEmpty(relationship)) continue;
+
                     aliasAllFieldList.addAll(
-                            getEntityRelationshipFieldList(
-                                    project
-                                    ,relationshipMemberEntity.getEntityName().getXmlAttributeValue().getValue()
-                                    ,memberRelationship.getRelationship().getXmlAttributeValue().getValue()
-                            )
+                            getEntityRelationshipFieldList(project,entityName,relationship)
                     );
 
                 }
             }else {
+                final String entityName = MyDomUtils.getXmlAttributeValueString(memberEntity.getEntityName())
+                                .orElse(MyStringUtils.EMPTY_STRING);
+                if(MyStringUtils.isEmpty(entityName)) continue;
                 aliasAllFieldList.addAll(
-                        getEntityOrViewEntityFields(viewEntity.getXmlTag().getProject()
-                                ,memberEntity.getEntityName().getXmlAttributeValue().getValue())
+                        getEntityOrViewEntityFields(project,entityName)
                 );
             }
 
@@ -705,31 +717,36 @@ public final class EntityUtils {
      * @param alias
      * @return
      */
-    public static MemberEntity getMemberEntityByAlias(@NotNull ViewEntity viewEntity, @NotNull String alias){
+    public static MemberEntity getDefinedMemberEntityByAlias(@NotNull ViewEntity viewEntity, @NotNull String alias){
         AbstractMemberEntity abstractMemberEntity = getViewEntityAbstractMemberEntityByAlias(viewEntity,alias).orElse(null);
         if(abstractMemberEntity == null) return null;
         if(abstractMemberEntity instanceof MemberEntity) return (MemberEntity)abstractMemberEntity;
 
         if(abstractMemberEntity instanceof MemberRelationship memberRelationship) {
 
-            return getMemberEntityByAlias(viewEntity,
+            return getDefinedMemberEntityByAlias(viewEntity,
                     memberRelationship.getJoinFromAlias().getXmlAttributeValue().getValue());
 
 
         };
         return null;
 
-//        MemberEntity memberEntity =  viewEntity.getMemberEntityList().stream()
-//                .filter(item->{final String itemAlias =item.getEntityAlias().getXmlAttributeValue().getValue();
-//                    if (MyStringUtils.isEmpty(itemAlias)) {
-//                        return false;
-//                    }else {
-//                        return alias.equals(itemAlias);
-//                    }})
-//                .findFirst().orElse(null);
+    }
+    /**
+     * 根据别名找到MemberEntity，不对MemberRelationship进行处理
+     * @param viewEntity
+     * @param alias
+     * @return
+     */
+    public static MemberEntity getMemberEntityByAlias(@NotNull ViewEntity viewEntity, @NotNull String alias){
+
+        return viewEntity.getMemberEntityList().stream()
+                .filter(item->{
+                    final String itemAlias =MyDomUtils.getXmlAttributeValueString(item.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING);
+                    return alias.equals(itemAlias);})
+                .findFirst().orElse(null);
 
     }
-
     /**
      * 获取Entity的relationship的字段列表
      * @param project
@@ -770,12 +787,9 @@ public final class EntityUtils {
     public static MemberRelationship getMemberRelationshipByAlias(@NotNull ViewEntity viewEntity, @NotNull String alias){
         return viewEntity.getMemberRelationshipList().stream()
                 .filter(item->{
-                    final String itemAlias =item.getEntityAlias().getXmlAttributeValue().getValue();
-                    if(MyStringUtils.isEmpty(itemAlias)) {
-                        return false;
-                    }else {
-                        return alias.equals(itemAlias);
-                    }})
+                    final String itemAlias = MyDomUtils.getXmlAttributeValueString(item.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING);
+                    return alias.equals(itemAlias);
+                    })
                 .findFirst().orElse(null);
     }
 
@@ -792,6 +806,13 @@ public final class EntityUtils {
 
 
     }
+
+    /**
+     * 获取所有视图名称，filterStr是视图名称的过滤条件
+     * @param project
+     * @param filterStr
+     * @return
+     */
     public static @NotNull Set<String> getViewEntityFullNames(@NotNull Project project,@Nullable String filterStr){
         Set<String> viewEntityNames = new HashSet<String>();
         GlobalSearchScope scope = GlobalSearchScope.allScope(project);
@@ -1161,7 +1182,7 @@ public final class EntityUtils {
             final XmlAttributeValue attributeValue = member.getJoinFromAlias().getXmlAttributeValue();
             if(attributeValue == null) return result;
 
-            MemberEntity alias = getMemberEntityByAlias(viewEntity
+            MemberEntity alias = getDefinedMemberEntityByAlias(viewEntity
                     ,attributeValue.getValue());
             name = alias.getEntityName().getXmlAttributeValue().getValue();
 
@@ -1206,7 +1227,7 @@ public final class EntityUtils {
     }
     public static List<AbstractField> getFieldListFromAbstractMemberEntity(@NotNull AbstractMemberEntity member){
         List<AbstractField> result = new ArrayList<>();
-        Project project = member.getXmlTag().getProject();
+//        Project project = member.getXmlTag().getProject();
 
         if(member instanceof MemberEntity) {
             MemberEntity memberEntity=(MemberEntity)member;
@@ -1305,6 +1326,10 @@ public final class EntityUtils {
     }
     public static Optional<Alias> getCurrentAlias(ConvertContext context){
         return getLocalDomElementByConvertContext(context,Alias.class);
+
+    }
+    public static Optional<AliasAll> getCurrentAliasAll(ConvertContext context){
+        return getLocalDomElementByConvertContext(context,AliasAll.class);
 
     }
     public static Optional<ComplexAliasField> getCurrentComplexAliasField(ConvertContext context){

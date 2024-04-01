@@ -3,18 +3,19 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.LocationConverter;
 import org.moqui.idea.plugin.dom.converter.TransitionConverter;
 import org.moqui.idea.plugin.dom.presentation.FormListPresentationProvider;
 import org.moqui.idea.plugin.dom.presentation.SectionPresentationProvider;
 
 import java.util.List;
 @Presentation(provider = FormListPresentationProvider.class)
-public interface FormList extends DomElement {
+public interface FormList extends AbstractForm {
     public static final String TAG_NAME = "form-list";
 
-    public static final String ATTR_NAME = "name";
-    public static final String ATTR_EXTENDS = "extends";
-    public static final String ATTR_TRANSITION = "transition";
+//    public static final String ATTR_NAME = "name";
+//    public static final String ATTR_EXTENDS = "extends";
+//    public static final String ATTR_TRANSITION = "transition";
 
     public static final String ATTR_TRANSITION_FIRST_ROW = "transition-first-row";
     public static final String ATTR_TRANSITION_SECOND_ROW = "transition-second-row";
@@ -45,16 +46,17 @@ public interface FormList extends DomElement {
     public static final String ATTR_SHOW_PAGE_SIZE = "show-page-size";
 
 
-    @NotNull
-    @Attribute(ATTR_NAME)
-    GenericAttributeValue<String> getName();
-    @NotNull
-    @Attribute(ATTR_EXTENDS)
-    GenericAttributeValue<String> getExtends();
-    @NotNull
-    @Attribute(ATTR_TRANSITION)
-    @Convert(TransitionConverter.class)
-    GenericAttributeValue<String> getTransition();
+//    @NotNull
+//    @Attribute(ATTR_NAME)
+//    GenericAttributeValue<String> getName();
+//    @NotNull
+//    @Attribute(ATTR_EXTENDS)
+//    @Convert(LocationConverter.class)
+//    GenericAttributeValue<String> getExtends();
+//    @NotNull
+//    @Attribute(ATTR_TRANSITION)
+//    @Convert(TransitionConverter.class)
+//    GenericAttributeValue<String> getTransition();
 
     @NotNull
     @Attribute(ATTR_TRANSITION_FIRST_ROW)
@@ -137,14 +139,31 @@ public interface FormList extends DomElement {
     GenericAttributeValue<String> getShowPageSize();
 
     @NotNull
+    @SubTag(EntityFind.TAG_NAME)
+    EntityFind getEntityFind();
+    @NotNull
+    @SubTag(RowActions.TAG_NAME)
+    RowActions getRowActions();
+    //看定义，只能有一个RowActions
+//    @SubTagList(RowActions.TAG_NAME)
+//    List<RowActions> getRowActionsList();
+    @NotNull
+    @SubTag(RowSelection.TAG_NAME)
+    RowSelection getRowSelection();
+
+    @NotNull
+    @SubTag(HideParameters.TAG_NAME)
+    HideParameters getHideParameters();
+
+    @NotNull
     @SubTagList(AutoFieldsService.TAG_NAME)
     List<AutoFieldsService> getAutoFieldsServiceList();
     @NotNull
     @SubTagList(AutoFieldsEntity.TAG_NAME)
     List<AutoFieldsEntity> getAutoFieldsEntityList();
-    @NotNull
-    @SubTagList(Field.TAG_NAME)
-    List<Field> getFieldList();
+//    @NotNull
+//    @SubTagList(Field.TAG_NAME)
+//    List<Field> getFieldList();
 
     @NotNull
     @SubTagList(FormListColumn.TAG_NAME)
@@ -153,13 +172,9 @@ public interface FormList extends DomElement {
     @NotNull
     @SubTagList(Columns.TAG_NAME)
     List<Columns> getColumnsList();
-    @NotNull
-    @SubTagList(RowActions.TAG_NAME)
-    List<RowActions> getRowActionsList();
 
-    @NotNull
-    @SubTag(RowSelection.TAG_NAME)
-    RowSelection getRowSelection();
+
+
 
 
 

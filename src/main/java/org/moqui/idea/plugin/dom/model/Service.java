@@ -3,12 +3,13 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.LocationConverter;
 import org.moqui.idea.plugin.dom.converter.ServiceCallConverter;
 import org.moqui.idea.plugin.dom.presentation.ServicePresentationProvider;
 
 import java.util.List;
 @Presentation(icon="MoquiIcons.ServiceTag", provider = ServicePresentationProvider.class)
-public interface Service extends DomElement {
+public interface Service extends AbstractLocation {
     public static final String TAG_NAME = "service";
     public static final String ATTR_VERB = "verb";
     public static final String ATTR_NOUN = "noun";
@@ -16,7 +17,7 @@ public interface Service extends DomElement {
     public static final String ATTR_DISPLAY_NAME = "displayName";
 
     public static final String ATTR_TYPE = "type";
-    public static final String ATTR_LOCATION = "location";
+//    public static final String ATTR_LOCATION = "location";
     public static final String ATTR_METHOD = "method";
     public static final String ATTR_AUTHENTICATE = "authenticate";
     public static final String ATTR_AUTHZ_ACTION = "authz-action";
@@ -54,9 +55,10 @@ public interface Service extends DomElement {
     @NotNull
     @Attribute(ATTR_TYPE)
     GenericAttributeValue<String> getServiceType();
-    @NotNull
-    @Attribute(ATTR_LOCATION)
-    GenericAttributeValue<String> getLocation();
+//    @NotNull
+//    @Attribute(ATTR_LOCATION)
+//    @Convert(LocationConverter.class)
+//    GenericAttributeValue<String> getLocation();
     @NotNull
     @Attribute(ATTR_METHOD)
     GenericAttributeValue<String> getMethod();

@@ -14,9 +14,16 @@
        Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
        Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
   <description><![CDATA[
-    Just for test!<br>
-    测试测试测试测试测试测试测试测试测试测试测试测试<br>
-    <em>OK!!!</em>
+    Moqui Development Plugin<br>
+    For Moqui version 3.0.0.RC1<br>
+    <em>Support following function:</em>
+    <ol>
+        <li>Auto Complete </li>
+        <li>Rename </li>
+        <li>Ctrl+B (Ctrl+click) </li>
+        <li>Inspection</li>
+
+    </ol>
   ]]></description>
 
   <!-- Product and plugin compatibility requirements.
@@ -57,9 +64,16 @@
       <dom.fileMetaData id="myPlugin.ComponentDescription"
                         rootTagName="component"
                         implementation="org.moqui.idea.plugin.dom.description.ComponentDescription"/>
+      <dom.fileMetaData id="myPlugin.WidgetTemplatesDescription"
+                        rootTagName="widget-templates"
+                        implementation="org.moqui.idea.plugin.dom.description.WidgetTemplatesDescription"/>
 
-      <codeInsight.lineMarkerProvider id="myPlugin.XmlFileLineMarkerProvider" language="XML"
-                                      implementationClass="org.moqui.idea.plugin.provider.XmlFileLineMarkerProvider"/>
+      //很有意思的功能，后续再进一步研究
+<!--      <fileEditorProvider id="myPlugin.ScreenEditor" implementation="org.moqui.idea.plugin.editor.ScreenEditorProvider"></fileEditorProvider>-->
+
+      //没有什么大作用，先屏蔽掉
+<!--      <codeInsight.lineMarkerProvider id="myPlugin.XmlFileLineMarkerProvider" language="XML"-->
+<!--                                      implementationClass="org.moqui.idea.plugin.provider.XmlFileLineMarkerProvider"/>-->
 
 <!--      <annotator language="XML" implementationClass="org.moqui.idea.plugin.annotator.EntityAnnotator"/>-->
 
@@ -87,10 +101,10 @@
 <!--                                implementation="org.moqui.idea.plugin.reference.LocationReferenceContributor"/>-->
 
 <!--      修改文件的icon-->
-      <iconProvider implementation="org.moqui.idea.plugin.provider.XmlFileIconProvider"
-                    id="myPlugin.XmlIconProvider"/>
+<!--      <iconProvider implementation="org.moqui.idea.plugin.provider.XmlFileIconProvider"-->
+<!--                    id="myPlugin.XmlIconProvider"/>-->
 
-      <notificationGroup id="Custom Notification Group" displayType="BALLOON" key="notification.group.name"/>
+      <notificationGroup id="Custom Notification Group" displayType="BALLOON" bundle="messages.MoquiDomBundle" key="notification.group.name"/>
 
 <!--      <applicationService serviceInterface="org.moqui.idea.plugin.service.MyDomService"-->
 <!--                          serviceImplementation="org.moqui.idea.plugin.service.impl.MyDomServiceImpl"/>-->
@@ -98,7 +112,7 @@
 <!--                              implementationClass="org.moqui.idea.plugin.contributor.EntityNameAndServiceCallNameCompletionContributor"/>-->
 
       <completion.contributor language="XML"
-                                    implementationClass="org.moqui.idea.plugin.contributor.OrderByCompletionContributor"/>
+                                    implementationClass="org.moqui.idea.plugin.contributor.MultiFieldNameCompletionContributor"/>
 
       <renameHandler implementation="org.moqui.idea.plugin.refactoring.MoquiDomAttributeRenameHandler" order="first"/>
 
@@ -133,6 +147,15 @@
 <!--                       groupName="MoquiIdeaPlugin" enabledByDefault="true" level="ERROR"-->
 <!--                       hasStaticDescription="true"-->
 <!--                       implementationClass="org.moqui.idea.plugin.inspection.ScreenFilesInspection"/>-->
+<!--      <localInspection language="XML" shortName="EntitiesDomInspection" bundle="messages.MoquiDomBundle" key="inspection.entities"-->
+<!--                       groupKey="inspection.group"-->
+<!--                       enabledByDefault="true" level="ERROR"-->
+<!--                       implementationClass="org.moqui.idea.plugin.dom.inspection.EntitiesDomInspection"/>-->
+      //这里的shortName需要和 MoquiDomCheckResoleInspection的getShortName返回值保持一致，否则报warning
+      <localInspection language="XML" shortName="CheckResoleInspection" bundle="messages.MoquiDomBundle" key="inspection.MoquiDomCheckResole"
+                             groupKey="inspection.group"
+                             enabledByDefault="true" level="ERROR"
+                             implementationClass="org.moqui.idea.plugin.dom.inspection.MoquiDomCheckResoleInspection"/>
 
       <standardResourceProvider implementation="org.moqui.idea.plugin.dom.xsd.MoquiXsdProvider"/>
 

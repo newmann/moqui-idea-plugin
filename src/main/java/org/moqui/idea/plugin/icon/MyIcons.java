@@ -16,7 +16,7 @@ public final class MyIcons {
     public static final Icon FILE_ICON_SECAS = iconManager.getIcon("/icons/file-icon-secas.svg", MyIcons.class);
     public static final Icon FILE_ICON_VIEW = iconManager.getIcon("/icons/file-icon-view.svg", MyIcons.class);
     public static final Icon FILE_ICON_SCREEN = iconManager.getIcon("/icons/file-icon-screen.svg", MyIcons.class);
-
+    public static final Icon FILE_ICON_WIDGET_TEMPLATES = iconManager.getIcon("/icons/file-icon-widget-templates.svg", MyIcons.class);
     public static final Icon FILE_ICON_MOQUI_CONF = iconManager.getIcon("/icons/file-icon-conf.svg", MyIcons.class);
     public static final Icon FILE_ICON_REST_API = iconManager.getIcon("/icons/file-icon-rest.svg", MyIcons.class);
     public static final Icon FILE_ICON_EMECAS = iconManager.getIcon("/icons/file-icon-email.svg", MyIcons.class);

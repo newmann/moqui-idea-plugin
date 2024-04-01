@@ -10,9 +10,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.Optional;
-
+@Deprecated
 public class XmlFileIconProvider extends IconProvider {
-
+//转移到各个Description中去
     @Override
     public @Nullable Icon getIcon(@NotNull PsiElement element, int flags) {
         final Optional<String> rootTagName = MyDomUtils.getRootTagName(element.getContainingFile());
@@ -38,6 +38,8 @@ public class XmlFileIconProvider extends IconProvider {
                 return MyIcons.FILE_ICON_EMECAS;
             case Component.TAG_NAME:
                 return MyIcons.FILE_ICON_COMPONENT;
+            case WidgetTemplates.TAG_NAME:
+                return MyIcons.FILE_ICON_WIDGET_TEMPLATES;
             default:
                 return null;
         }

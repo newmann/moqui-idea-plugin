@@ -34,6 +34,7 @@ import static com.intellij.psi.xml.XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN;
  * 显示实体的全名，即：包名+表名
  * 显示服务全名，即：包名.动作#名称
  */
+@Deprecated
 public class EntityNameAndServiceCallNameCompletionContributor extends CompletionContributor {
 //  private static final String IDEA_INPUT_TAG = "IntellijIdeaRulezzz";
   @Override

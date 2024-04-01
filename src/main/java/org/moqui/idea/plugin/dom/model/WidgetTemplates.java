@@ -11,7 +11,7 @@ public interface WidgetTemplates extends DomElement {
 
     @NotNull
     @SubTagList(WidgetTemplate.TAG_NAME)
-    List<WidgetTemplate> getWidgetemplateList();
+    List<WidgetTemplate> getWidgetTemplateList();
 
 
 }

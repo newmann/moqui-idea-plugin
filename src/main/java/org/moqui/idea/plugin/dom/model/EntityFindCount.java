@@ -7,7 +7,7 @@ import org.moqui.idea.plugin.dom.presentation.EntityFindCountPresentationProvide
 
 import java.util.List;
 @Presentation(provider = EntityFindCountPresentationProvider.class)
-public interface EntityFindCount extends EntityFindAbstract {
+public interface EntityFindCount extends AbstractEntityName {
     public static final String TAG_NAME = "entity-find-count";
 
 

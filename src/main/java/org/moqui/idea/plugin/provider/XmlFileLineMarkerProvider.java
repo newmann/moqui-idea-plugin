@@ -19,7 +19,7 @@ public class XmlFileLineMarkerProvider extends RelatedItemLineMarkerProvider {
     FindRelatedItemService findRelatedItemService = FindRelatedItemServiceFactory.getFindRelatedItemService(element);
 
     List<PsiElement> resultList = findRelatedItemService.findRelatedItem(element);
-    if (resultList.size() > 0) {
+    if (!resultList.isEmpty()) {
       NavigationGutterIconBuilder<PsiElement> builder =
           NavigationGutterIconBuilder.create(findRelatedItemService.getNagavitorToIcon())
               .setTargets(resultList)

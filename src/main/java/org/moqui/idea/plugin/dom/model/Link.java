@@ -3,7 +3,9 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
 import org.moqui.idea.plugin.dom.converter.TransitionConverter;
+import org.moqui.idea.plugin.dom.converter.UrlConverter;
 import org.moqui.idea.plugin.dom.presentation.LinkPresentationProvider;
 import org.moqui.idea.plugin.dom.presentation.SectionPresentationProvider;
 
@@ -26,7 +28,7 @@ public interface Link extends DomElement {
     @NotNull GenericAttributeValue<String> getLinkType();
 
     @NotNull
-    @Convert(TransitionConverter.class)
+    @Convert(UrlConverter.class)
     GenericAttributeValue<String> getUrl();
 
     @NotNull GenericAttributeValue<String> getUrlType();
@@ -46,7 +48,10 @@ public interface Link extends DomElement {
     @NotNull GenericAttributeValue<String> getBtnStyle();
     @NotNull GenericAttributeValue<String> getDynamicLoadId();
     @NotNull GenericAttributeValue<String> getCondition();
-    @NotNull GenericAttributeValue<String> getEntityName();
+    @NotNull
+    @Convert(EntityFullNameConverter.class)
+    GenericAttributeValue<String> getEntityName();
+
     @NotNull GenericAttributeValue<String> getEntityKeyName();
     @NotNull GenericAttributeValue<Boolean> getEntityUseCache();
 

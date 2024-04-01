@@ -6,7 +6,10 @@ import com.intellij.util.xml.DomFileDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Screen;
+import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.util.ScreenUtils;
+
+import javax.swing.*;
 
 public class ScreenDescription extends DomFileDescription<Screen> {
 
@@ -19,6 +22,11 @@ public class ScreenDescription extends DomFileDescription<Screen> {
         return ScreenUtils.isScreenFile(file);
     }
 
+    @Override
+    public @Nullable Icon getFileIcon(int flags) {
+//        return super.getFileIcon(flags);
+        return MyIcons.FILE_ICON_SCREEN;
+    }
 //    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 

@@ -10,6 +10,7 @@ import org.moqui.idea.plugin.dom.converter.AllPackageConverter;
 public interface AbstractField extends DomElement {
     public static final String ATTR_NAME = "name";
 
+    @NameValue
     @Required
     @NotNull
     @Attribute(ATTR_NAME)

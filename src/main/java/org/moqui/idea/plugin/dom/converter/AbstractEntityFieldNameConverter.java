@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.codeInspection.util.InspectionMessage;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -109,6 +110,13 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
         return psiReferences;
     }
 
+    @Override
+    public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
+        if(MyStringUtils.isEmpty(s)) {
+            return super.getErrorMessage(s, context);
+        }else {
+            return "找不到" + s + "的定义";
+        }
 
-
+    }
 }

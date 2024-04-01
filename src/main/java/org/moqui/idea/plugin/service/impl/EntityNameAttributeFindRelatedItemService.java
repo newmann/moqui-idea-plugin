@@ -1,5 +1,8 @@
 package org.moqui.idea.plugin.service.impl;
 
+import org.moqui.idea.plugin.dom.model.AbstractEntity;
+import org.moqui.idea.plugin.dom.model.AbstractEntityName;
+import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.service.FindRelatedItemService;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
@@ -9,6 +12,7 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlToken;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.intellij.psi.xml.XmlTokenType.XML_NAME;
@@ -16,46 +20,59 @@ import static com.intellij.psi.xml.XmlTokenType.XML_NAME;
 public class EntityNameAttributeFindRelatedItemService implements FindRelatedItemService {
   public static EntityNameAttributeFindRelatedItemService INSTANCE = new EntityNameAttributeFindRelatedItemService();
 
+  private AbstractEntity abstractEntity;
   private EntityNameAttributeFindRelatedItemService() {
   }
 
   @Override
   public boolean isSupport(PsiElement psiElement) {
-    if(!(psiElement instanceof XmlToken)) return false;
-    XmlToken token = (XmlToken) psiElement;
-    if(!token.getTokenType().equals(XML_NAME)) return false;
+    if(!(psiElement instanceof XmlToken xmlToken)) return false;
+    if(!xmlToken.getTokenType().equals(XML_NAME)) return false;
 
-    if(!(token.getText().equals("entity-name"))) return false;
-    PsiElement tokenParent = token.getParent();
+    if(!(xmlToken.getText().equals(AbstractEntityName.ATTR_ENTITY_NAME))) return false;
+    PsiElement tokenParent = xmlToken.getParent();
     if(tokenParent == null) return false;
     if(!(tokenParent instanceof XmlAttribute))  return false;
 
-    if(!(ServiceUtils.isServicesFile(psiElement.getContainingFile())
-            || ScreenUtils.isScreenFile(psiElement.getContainingFile())
-    )) return false;
-
-    return true;
+    return ServiceUtils.isServicesFile(psiElement.getContainingFile())
+              || ScreenUtils.isScreenFile(psiElement.getContainingFile());
   }
 
   @Override
   public List<PsiElement> findRelatedItem(PsiElement psiElement) {
-//    List<PsiElement> resultList = new ArrayList<>();
+    List<PsiElement> resultList = new ArrayList<>();
     XmlToken xmlToken = (XmlToken) psiElement;
     XmlAttribute xmlAttribute =(XmlAttribute) xmlToken.getParent();
 
     final String fullName = xmlAttribute.getValue();
-    return EntityUtils.getRelatedEntity(psiElement,fullName);
+    if(fullName == null) return resultList;
+    abstractEntity= EntityUtils.findEntityAndViewEntityByFullName(psiElement.getProject(),fullName)
+            .orElse(null);
+    if(abstractEntity == null) return resultList;
+
+    resultList.add(abstractEntity.getXmlElement());
+    return resultList;
+//    return EntityUtils.getRelatedEntity(psiElement,fullName);
 
   }
 
   @Override
   public Icon getNagavitorToIcon() {
-    return EntityUtils.getNagavitorToEntityIcon();
+    if(abstractEntity instanceof Entity) {
+      return EntityUtils.getNagavitorToEntityIcon();
+    }else {
+      return EntityUtils.getNagavitorToViewIcon();
+    }
   }
 
   @Override
   public String getToolTips() {
-    return EntityUtils.getNagavitorToEntityToolTips();
+    if(abstractEntity instanceof Entity) {
+      return EntityUtils.getNagavitorToEntityToolTips();
+    }else {
+      return EntityUtils.getNagavitorToViewToolTips();
+    }
+
   }
 
 

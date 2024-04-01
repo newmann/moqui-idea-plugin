@@ -176,7 +176,7 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
         if(secondTagName.equals(ViewEntity.TAG_NAME) && firstTagName.equals(MemberRelationship.TAG_NAME)) {
             ViewEntity currentViewEntity = EntityUtils.getCurrentViewEntity(context).orElse(null);
             MemberRelationship memberRelationship = EntityUtils.getCurrentMemberRelationship(context).orElse(null);
-            MemberEntity memberEntity = EntityUtils.getMemberEntityByAlias(currentViewEntity,
+            MemberEntity memberEntity = EntityUtils.getDefinedMemberEntityByAlias(currentViewEntity,
                     memberRelationship.getJoinFromAlias().getXmlAttributeValue().getValue());
             if(memberEntity != null) {
                 result.addAll(EntityUtils.getEntityRelationshipList(context.getProject(),

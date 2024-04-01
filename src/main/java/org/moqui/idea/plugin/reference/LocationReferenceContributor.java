@@ -20,7 +20,7 @@ import org.moqui.idea.plugin.util.ServiceUtils;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
+@Deprecated
 public class LocationReferenceContributor extends PsiReferenceContributor {
 
 //    public static final PsiElementPattern.Capture<XmlAttribute> PATTERN_ATTR_ENTITY_NAME =

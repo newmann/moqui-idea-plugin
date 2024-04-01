@@ -2,8 +2,10 @@ package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.codeInspection.util.InspectionMessage;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.ConvertContext;
@@ -88,5 +90,14 @@ public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberE
 
         return psiReferences;
 
+    }
+
+    @Override
+    public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
+        return new HtmlBuilder()
+                .append("根据")
+                .append("[" + s+"]")
+                .append("找不到对应的Alias定义。")
+                .toString();
     }
 }

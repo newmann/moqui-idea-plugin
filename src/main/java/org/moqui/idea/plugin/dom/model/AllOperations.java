@@ -6,7 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface AllOperations extends CallOperations,
         EnvOperations,EntityMiscOperations,EntityFindOperations,
-        EntityValueOperations,EntityListOperations,
+        EntityValueOperations,
+//        EntityListOperations,
         ControlOperations,IfBasicOperations,IfOtherOperations,OtherOperations
     {
 

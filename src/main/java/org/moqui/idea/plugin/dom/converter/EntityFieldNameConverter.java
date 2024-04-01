@@ -2,11 +2,12 @@ package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.util.xml.ConvertContext;
-import org.apache.logging.log4j.util.Strings;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
@@ -22,7 +23,9 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
 
 
         return fields.stream().filter(item->{
-            return item.getName().getXmlAttributeValue().getValue().equals(s);
+            final String fieldName = MyDomUtils.getXmlAttributeValueString(item.getName())
+                    .orElse(MyStringUtils.EMPTY_STRING);
+            return fieldName.equals(s);
         }).findFirst().orElse(null);
 
     }
@@ -33,32 +36,14 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
     }
 
     private Collection<AbstractField> getFields(ConvertContext context) {
-//        Set<String> AllowedFourthTagName = new HashSet<>();
-//        Set<String> AllowedThirdTagName = new HashSet<>();
-//        Set<String> AllowedSecondTagName = new HashSet<>();
-//        Set<String> AllowedFirstTagName = new HashSet<>();
-//        Set<String> AllowedAttributeName = new HashSet<>();
-//
-//        Set.of(Entity.TAG_NAME, ExtendEntity.TAG_NAME,ViewEntity.TAG_NAME,MemberEntity.TAG_NAME);
-//        Set.of(Relationship.TAG_NAME, Index.TAG_NAME,MemberEntity.TAG_NAME,EntityCondition.TAG_NAME);
-//        Set.of(KeyMap.TAG_NAME, IndexField.TAG_NAME,KeyValue.TAG_NAME,ECondition.TAG_NAME);
-//        Set.of(KeyMap.ATTR_RELATED, KeyMap.ATTR_FIELD_NAME,IndexField.ATTR_NAME,ECondition.ATTR_TO_FIELD_NAME);//KeyValue的Related名称和keyMap相同
-
-        Collection<AbstractField> result = new ArrayList<AbstractField>();
+        Collection<AbstractField> result = new ArrayList<>();
 
 
         String curAttributeName = getCurrentAttributeName(context).orElse(MyStringUtils.EMPTY_STRING);
 
-//        if(!AllowedAttributeName.contains(curAttributeName)) return Collections.EMPTY_LIST;
-
         final String firstTagName = getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
-//        if(!AllowedFirstTagName.contains(firstTagName)) return Collections.EMPTY_LIST;
-
         final String secondTagName = getSecondParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
-//        if(!AllowedSecondTagName.contains(secondTagName)) return Collections.EMPTY_LIST;
-
         final String thirdTagName = getThirdParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
-//        if(!AllowedThirdTagName.contains(thirdTagName)) return Collections.EMPTY_LIST;
         final String fourthTagName = getFourthParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
         final String fifthTagName = getFifthParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
 
@@ -72,8 +57,7 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
                 firstTagName.equals(IndexField.TAG_NAME) && curAttributeName.equals(IndexField.ATTR_NAME) )
         )
         {
-            Entity curEntity = getCurrentEntity(context).orElse(null);
-            result.addAll(curEntity.getFieldList());
+            getCurrentEntity(context).ifPresent(curEntity -> result.addAll(curEntity.getFieldList()));
             return result;
         }
         //Entity-Relationship-keyMap（related）
@@ -88,10 +72,10 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
                 && curAttributeName.equals(KeyMap.ATTR_RELATED)
         ){
             Relationship curRelationship = getCurrentRelationship(context).orElse(null);
-            if (curRelationship == null) return Collections.EMPTY_LIST;
+            if (curRelationship == null) return result;
 
             String relatedEntityName = curRelationship.getRelated().getStringValue();
-            if(MyStringUtils.isEmpty(relatedEntityName)) return Collections.EMPTY_LIST;
+            if(MyStringUtils.isEmpty(relatedEntityName)) return result;
 
             result.addAll(EntityUtils.getEntityFieldList(context.getProject(),relatedEntityName));
             return result;
@@ -107,12 +91,11 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
         )
         {
             ExtendEntity curExtendEntity = getCurrentExtendEntity(context).orElse(null);
-            if (curExtendEntity == null) return Collections.EMPTY_LIST;
+            if (curExtendEntity == null) return result;
 
             result.addAll(curExtendEntity.getFieldList());
 
-            Entity sourceEntity = getCurrentExtendEntitySourceEntity(context).orElse(null);
-            if (sourceEntity != null) result.addAll(sourceEntity.getFieldList());
+            getCurrentExtendEntitySourceEntity(context).ifPresent(sourceEntity -> result.addAll(sourceEntity.getFieldList()));
 
             return result;
         }
@@ -127,13 +110,13 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
        )
         {
             MemberEntity curMemberEntity = getCurrentMemberEntity(context).orElse(null);
-            if (curMemberEntity == null) return Collections.EMPTY_LIST;
+            if (curMemberEntity == null) return result;
 
             if(curAttributeName.equals(KeyMap.ATTR_FIELD_NAME)) {
-                //fieldName，取MembrEntity属性joinFromAlias对应表的字段
+                //fieldName，取MemberEntity属性joinFromAlias对应表的字段
                 result.addAll(EntityUtils.getFieldListFromMemberEntity(curMemberEntity,MemberEntity.ATTR_JOIN_FROM_ALIAS));
             }else {
-                //related，取MembrEntity属性entityName对应表的字段
+                //related，取MemberEntity属性entityName对应表的字段
                 result.addAll(EntityUtils.getFieldListFromMemberEntity(curMemberEntity,MemberEntity.ATTR_ENTITY_NAME));
             }
             return result;
@@ -148,9 +131,9 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
         )
         {
             ECondition curECondition = getCurrentECondition(context).orElse(null);
-            if (curECondition == null) return Collections.EMPTY_LIST;
+            if (curECondition == null) return result;
             ViewEntity viewEntity = getCurrentViewEntity(context).orElse(null);
-            if(viewEntity == null) return Collections.EMPTY_LIST;
+            if(viewEntity == null) return result;
             String alias ;
             if(curECondition.getEntityAlias().getXmlAttributeValue() == null) {
                 alias = MyStringUtils.EMPTY_STRING;
@@ -162,94 +145,55 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
                 //没有alias，就去当前ViewEntity的所有Fields
                 result.addAll(EntityUtils.getViewEntityFieldList(context.getProject(),viewEntity));
             }else {
-                MemberEntity memberEntity = EntityUtils.getMemberEntityByAlias(viewEntity,alias);
-                result.addAll(EntityUtils.getFieldListFromMemberEntity(memberEntity,MemberEntity.ATTR_ENTITY_NAME));
+                MemberEntity memberEntity = EntityUtils.getDefinedMemberEntityByAlias(viewEntity,alias);
+                if(memberEntity != null) {
+                    result.addAll(EntityUtils.getFieldListFromMemberEntity(memberEntity, MemberEntity.ATTR_ENTITY_NAME));
+                }
 
             }
 
             return result;
         }
-        //ViewEntity-EntityCondition-OrderBy（fieldName）
-//        if (
-//                thirdTagName.equals(ViewEntity.TAG_NAME)
-//                        && secondTagName.equals(EntityCondition.TAG_NAME)
-//                        && firstTagName.equals(OrderBy.TAG_NAME)
-//                        && curAttributeName.equals(OrderBy.ATTR_FIELD_NAME)
-//        )
-//        {
-//            ECondition curECondition = getCurrentECondition(context).orElse(null);
-//            if (curECondition == null) return Collections.EMPTY_LIST;
-//            ViewEntity viewEntity = getCurrentViewEntity(context).orElse(null);
-//            if(viewEntity == null) return Collections.EMPTY_LIST;
-//            String alias ;
-//            if(curECondition.getEntityAlias().getXmlAttributeValue() == null) {
-//                alias = MyStringUtils.EMPTY_STRING;
-//            }else {
-//                alias= curECondition.getEntityAlias().getXmlAttributeValue().getValue();
-//            }
-//
-//            if(MyStringUtils.isEmpty(alias)) {
-//                //没有alias，就去当前ViewEntity的所有Fields
-//                result.addAll(EntityUtils.getViewEntityFieldList(context.getProject(),viewEntity));
-//            }else {
-//                MemberEntity memberEntity = EntityUtils.getMemberEntityByAlias(viewEntity,alias);
-//                result.addAll(EntityUtils.getFieldListFromMemberEntity(memberEntity,MemberEntity.ATTR_ENTITY_NAME));
-//
-//            }
-//
-//            return result;
-//        }
+
         //ViewEntity-MemberEntity-EntityCondition-ECondition（fieldName）
         //ViewEntity-MemberEntity-EntityCondition-ECondition（toFieldName）
         //ViewEntity-MemberEntity-EntityCondition-EConditions-ECondition（fieldName）
         //ViewEntity-MemberEntity-EntityCondition-EConditions-ECondition（toFieldName）
 
-        if ((
-                fourthTagName.equals(ViewEntity.TAG_NAME)
-                && thirdTagName.equals(MemberEntity.TAG_NAME)
-                        && secondTagName.equals(EntityCondition.TAG_NAME)
-                        && firstTagName.equals(ECondition.TAG_NAME)
-                        && (curAttributeName.equals(ECondition.ATTR_FIELD_NAME) || curAttributeName.equals(ECondition.ATTR_TO_FIELD_NAME) )
-        )||(
-                fifthTagName.equals(ViewEntity.TAG_NAME)
-                        &&fourthTagName.equals(MemberEntity.TAG_NAME)
-                        && thirdTagName.equals(EntityCondition.TAG_NAME)
-                        && secondTagName.equals(EConditions.TAG_NAME)
-                        && firstTagName.equals(ECondition.TAG_NAME)
-                        && (curAttributeName.equals(ECondition.ATTR_FIELD_NAME) || curAttributeName.equals(ECondition.ATTR_TO_FIELD_NAME) )
-
-        ))
-        {
-            ECondition curECondition = getCurrentECondition(context).orElse(null);
-            if (curECondition == null) return Collections.EMPTY_LIST;
-            ViewEntity viewEntity = getCurrentViewEntity(context).orElse(null);
-            if(viewEntity == null) return Collections.EMPTY_LIST;
-            MemberEntity memberEntity;
-            if(curAttributeName.equals(ECondition.ATTR_FIELD_NAME)) {
-                memberEntity = EntityUtils.getMemberEntityByAlias(viewEntity
-                        ,curECondition.getEntityAlias().getXmlAttributeValue().getValue());
-
-            }else {
-                memberEntity = EntityUtils.getMemberEntityByAlias(viewEntity
-                        ,curECondition.getToEntityAlias().getXmlAttributeValue().getValue());
-
-            }
-
-            result.addAll(EntityUtils.getFieldListFromMemberEntity(memberEntity,MemberEntity.ATTR_ENTITY_NAME));
-
-            return result;
-        }
-        //ViewEntity-EntityCondition-OrderBy（fieldName）
-        if (
-                thirdTagName.equals(ViewEntity.TAG_NAME)
-                        && secondTagName.equals(EntityCondition.TAG_NAME)
-                        && firstTagName.equals(OrderBy.TAG_NAME)
-                        && curAttributeName.equals(OrderBy.ATTR_FIELD_NAME)
+        if (  (firstTagName.equals(ECondition.TAG_NAME)
+                && (curAttributeName.equals(ECondition.ATTR_FIELD_NAME) || curAttributeName.equals(ECondition.ATTR_TO_FIELD_NAME)))
+                &&
+                (
+                        (fourthTagName.equals(ViewEntity.TAG_NAME)
+                            && thirdTagName.equals(MemberEntity.TAG_NAME)
+                                    && secondTagName.equals(EntityCondition.TAG_NAME))
+                        ||
+                        (fifthTagName.equals(ViewEntity.TAG_NAME)
+                            &&fourthTagName.equals(MemberEntity.TAG_NAME)
+                            && thirdTagName.equals(EntityCondition.TAG_NAME)
+                            && secondTagName.equals(EConditions.TAG_NAME))
+                )
         )
         {
+            ECondition curECondition = getCurrentECondition(context).orElse(null);
+            if (curECondition == null) return result;
             ViewEntity viewEntity = getCurrentViewEntity(context).orElse(null);
-            if(viewEntity == null) return Collections.EMPTY_LIST;
-            result.addAll(EntityUtils.getViewEntityFieldList(context.getProject(),viewEntity));
+            if(viewEntity == null) return result;
+            MemberEntity memberEntity;
+            if(curAttributeName.equals(ECondition.ATTR_FIELD_NAME)) {
+                memberEntity = EntityUtils.getDefinedMemberEntityByAlias(viewEntity
+                        ,MyDomUtils.getXmlAttributeValueString(curECondition.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING));
+
+            }else {
+                memberEntity = EntityUtils.getDefinedMemberEntityByAlias(viewEntity
+                        ,MyDomUtils.getXmlAttributeValueString(curECondition.getToEntityAlias()).orElse(MyStringUtils.EMPTY_STRING));
+
+
+            }
+            if(memberEntity != null) {
+                result.addAll(EntityUtils.getFieldListFromMemberEntity(memberEntity, MemberEntity.ATTR_ENTITY_NAME));
+            }
+
             return result;
         }
 
@@ -261,21 +205,43 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
         )
         {
             Alias curAlias = getCurrentAlias(context).orElse(null);
-            if(curAlias == null) return Collections.EMPTY_LIST;
+            if(curAlias == null) return result;
             ViewEntity viewEntity = getCurrentViewEntity(context).orElse(null);
-            if(viewEntity == null) return Collections.EMPTY_LIST;
+            if(viewEntity == null) return result;
 
             AbstractMemberEntity memberEntity = EntityUtils.getViewEntityAbstractMemberEntityByAlias(
                     viewEntity,
-                    curAlias.getEntityAlias().getXmlAttributeValue().getValue()
+                    MyDomUtils.getXmlAttributeValueString(curAlias.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING)
             ).orElse(null);
-            if(memberEntity == null) return Collections.EMPTY_LIST;
+            if(memberEntity == null) return result;
 
             result.addAll(EntityUtils.getFieldListFromAbstractMemberEntity(memberEntity));
 
             return result;
         }
+        //ViewEntity-AliasAll-Exclude（Field）
+        if (
+                thirdTagName.equals(ViewEntity.TAG_NAME)
+                && secondTagName.equals(AliasAll.TAG_NAME)
+                        && firstTagName.equals(Exclude.TAG_NAME)
+                        && curAttributeName.equals(Exclude.ATTR_FIELD)
+        )
+        {
+            AliasAll curAliasAll = getCurrentAliasAll(context).orElse(null);
+            if(curAliasAll == null) return result;
+            ViewEntity viewEntity = getCurrentViewEntity(context).orElse(null);
+            if(viewEntity == null) return result;
 
+            AbstractMemberEntity memberEntity = EntityUtils.getViewEntityAbstractMemberEntityByAlias(
+                    viewEntity,
+                    MyDomUtils.getXmlAttributeValueString(curAliasAll.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING)
+            ).orElse(null);
+            if(memberEntity == null) return result;
+
+            result.addAll(EntityUtils.getFieldListFromAbstractMemberEntity(memberEntity));
+
+            return result;
+        }
         //ViewEntity-Alias-ComplexAlias-ComplexAliasField(field)
         if (
                 fourthTagName.equals(ViewEntity.TAG_NAME)
@@ -286,14 +252,17 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
         )
         {
             ComplexAliasField curComplexAliasField = getCurrentComplexAliasField(context).orElse(null);
-            if (curComplexAliasField == null) return Collections.EMPTY_LIST;
+            if (curComplexAliasField == null) return result;
             ViewEntity viewEntity = getCurrentViewEntity(context).orElse(null);
-            if(viewEntity == null) return Collections.EMPTY_LIST;
+            if(viewEntity == null) return result;
             MemberEntity memberEntity;
-            memberEntity = EntityUtils.getMemberEntityByAlias(viewEntity
-                    ,curComplexAliasField.getEntityAlias().getXmlAttributeValue().getValue());
+            memberEntity = EntityUtils.getDefinedMemberEntityByAlias(viewEntity
+                    ,MyDomUtils.getXmlAttributeValueString(curComplexAliasField.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING));
 
-            result.addAll(EntityUtils.getFieldListFromMemberEntity(memberEntity,MemberEntity.ATTR_ENTITY_NAME));
+            if(memberEntity != null) {
+                result.addAll(EntityUtils.getFieldListFromMemberEntity(memberEntity,MemberEntity.ATTR_ENTITY_NAME));
+            }
+
 
             return result;
         }
@@ -307,15 +276,28 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
         {
             AutoParameters curAutoParameters = EntityUtils.getCurrentAutoParameters(context).orElse(null);
 
-            if(curAutoParameters == null) return Collections.EMPTY_LIST;
-            XmlAttributeValue attributeValue = curAutoParameters.getEntityName().getXmlAttributeValue();
-            if(attributeValue == null) return Collections.EMPTY_LIST;
-            final String entityName = attributeValue.getValue();
+            if(curAutoParameters == null) return result;
+            String entityName = MyDomUtils.getXmlAttributeValueString(curAutoParameters.getEntityName().getXmlAttributeValue())
+                    .orElse(MyStringUtils.EMPTY_STRING);
+            if(MyStringUtils.EMPTY_STRING.equals(entityName)) {
+                //如果当前的AutoParameters中没有定义entityName，则有可能是在Service的inParameters中，这时，service的noun就是EntityName
+                Service service = ServiceUtils.getCurrentService(context).orElse(null);
+                if(service == null) return result;
+                entityName = MyDomUtils.getXmlAttributeValueString(service.getNoun().getXmlAttributeValue())
+                        .orElse(MyStringUtils.EMPTY_STRING);
+
+                if(entityName.equals(MyStringUtils.EMPTY_STRING)) return result;
+            }
+
+
+
 
             result.addAll(EntityUtils.getEntityOrViewEntityFields(context.getProject(),entityName));
             return result;
 
         }
+        //todo：Service下的 ServiceCall-FieldMap（FieldName）
+
 
         //Service下的EntityFindOne , FieldMap (FieldName)
         if (
@@ -326,9 +308,9 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
         {
             EntityFindOne curEntityFindOne = ServiceUtils.getCurrentEntityFindOne(context).orElse(null);
 
-            if(curEntityFindOne == null) return Collections.EMPTY_LIST;
+            if(curEntityFindOne == null) return result;
             XmlAttributeValue attributeValue = curEntityFindOne.getEntityName().getXmlAttributeValue();
-            if(attributeValue == null) return Collections.EMPTY_LIST;
+            if(attributeValue == null) return result;
             final String entityName = attributeValue.getValue();
 
             result.addAll(EntityUtils.getEntityOrViewEntityFields(context.getProject(),entityName));
@@ -336,57 +318,67 @@ public class EntityFieldNameConverter extends AbstractEntityFieldNameConverter{
 
         }
 
-        //Service下的EntityFind , Econdition (FieldName)
-        if (
-                secondTagName.equals(EntityFind.TAG_NAME)
-                        && firstTagName.equals(ECondition.TAG_NAME)
-                        && curAttributeName.equals(ECondition.ATTR_FIELD_NAME)
-        )
-        {
-            EntityFind curEntityFind = ServiceUtils.getCurrentEntityFind(context).orElse(null);
+        //ECondition的处理：
+        if(firstTagName.equals(ECondition.TAG_NAME)) {
 
-            if(curEntityFind == null) return Collections.EMPTY_LIST;
-            XmlAttributeValue attributeValue = curEntityFind.getEntityName().getXmlAttributeValue();
-            if(attributeValue == null) return Collections.EMPTY_LIST;
-            final String entityName = attributeValue.getValue();
+            AbstractEntityName nameAbstract = null;
+            //Service下的EntityFind , ECondition (FieldName)
+            //Service下的EntityFind , EConditions，ECondition (FieldName)
+            //Service下的EntityFind , HavingEConditions，ECondition (FieldName)
+            if (
+                    (secondTagName.equals(EntityFind.TAG_NAME)
+                            && curAttributeName.equals(ECondition.ATTR_FIELD_NAME))
+                            ||
+                    (thirdTagName.equals(EntityFind.TAG_NAME)
+                            && secondTagName.equals(EConditions.TAG_NAME)
+                            && curAttributeName.equals(ECondition.ATTR_FIELD_NAME))
+                        ||
+                    (thirdTagName.equals(EntityFind.TAG_NAME)
+                            && secondTagName.equals(HavingEConditions.TAG_NAME)
+                            && curAttributeName.equals(ECondition.ATTR_FIELD_NAME))
 
-            result.addAll(EntityUtils.getEntityOrViewEntityFields(context.getProject(),entityName));
+            ) {
+                nameAbstract  = ServiceUtils.getCurrentEntityFind(context).orElse(null);
+
+
+
+            }
+            //Service下的EntityDeleteByCondition，ECondition（FieldName）
+            if (
+                    secondTagName.equals(EntityDeleteByCondition.TAG_NAME)
+                            && curAttributeName.equals(ECondition.ATTR_FIELD_NAME)
+            ) {
+                nameAbstract  = ServiceUtils.getCurrentEntityDeleteByCondition(context).orElse(null);
+
+
+
+            }
+            //Service下的EntityFindCount - ECondition (FieldName)
+            //Service下的EntityFindCount -EConditions - ECondition (FieldName)
+            if (
+                    (secondTagName.equals(EntityFindCount.TAG_NAME)
+                            && curAttributeName.equals(ECondition.ATTR_FIELD_NAME))
+                            ||
+                    (thirdTagName.equals(EntityFindCount.TAG_NAME)
+                            && secondTagName.equals(EConditions.TAG_NAME)
+                            && curAttributeName.equals(ECondition.ATTR_FIELD_NAME))
+            ) {
+                nameAbstract  = ServiceUtils.getCurrentEntityFindCount(context).orElse(null);
+
+
+            }
+            if (nameAbstract == null) return result;
+            final String entityName = MyDomUtils.getXmlAttributeValueString(nameAbstract.getEntityName().getXmlAttributeValue())
+                        .orElse(MyStringUtils.EMPTY_STRING);
+            if (MyStringUtils.EMPTY_STRING.equals(entityName)) return result;
+
+            result.addAll(EntityUtils.getEntityOrViewEntityFields(context.getProject(), entityName));
             return result;
 
         }
 
 
-//        if (
-//                fifthTagName.equals(ViewEntity.TAG_NAME)
-//                &&fourthTagName.equals(MemberEntity.TAG_NAME)
-//                        && thirdTagName.equals(EntityCondition.TAG_NAME)
-//                        && secondTagName.equals(EConditions.TAG_NAME)
-//                        && firstTagName.equals(ECondition.TAG_NAME)
-//                        && (curAttributeName.equals(ECondition.ATTR_FIELD_NAME) || curAttributeName.equals(ECondition.ATTR_TO_FIELD_NAME) )
-//        )
-//        {
-//            ECondition curECondition = getCurrentECondition(context).orElse(null);
-//            if (curECondition == null) return Collections.EMPTY_LIST;
-//            ViewEntity viewEntity = getCurrentViewEntity(context).orElse(null);
-//            if(viewEntity == null) return Collections.EMPTY_LIST;
-//            MemberEntity memberEntity;
-//            if(curAttributeName.equals(ECondition.ATTR_FIELD_NAME)) {
-//                 memberEntity = EntityUtils.getMemberEntityByAlias(viewEntity
-//                        ,curECondition.getEntityAlias().getXmlAttributeValue().getValue());
-//
-//            }else {
-//                memberEntity = EntityUtils.getMemberEntityByAlias(viewEntity
-//                        ,curECondition.getToEntityAlias().getXmlAttributeValue().getValue());
-//
-//            }
-//
-//            result.addAll(EntityUtils.getFieldListFromMemberEntity(memberEntity,MemberEntity.ATTR_ENTITY_NAME));
-//
-//            return result;
-//        }
-
-
-        return Collections.EMPTY_LIST;
+        return result;
 
     }
 }

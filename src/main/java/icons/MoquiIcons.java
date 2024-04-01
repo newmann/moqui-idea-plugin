@@ -30,4 +30,5 @@ public interface MoquiIcons {
     Icon ServiceTypeRemoteJsonRpc = IconLoader.getIcon("/icons/service-type-RemoteJsonRpc.svg", MoquiIcons.class);
     Icon ServiceTypeCamel = IconLoader.getIcon("/icons/service-type-Camel.svg", MoquiIcons.class);
     Icon ServiceTypeInline = IconLoader.getIcon("/icons/service-type-Inline.svg", MoquiIcons.class);
+    Icon WidgetTemplate = IconLoader.getIcon("/icons/file-icon-widget-templates.svg", MoquiIcons.class);
 }

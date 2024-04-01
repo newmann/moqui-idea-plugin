@@ -13,7 +13,7 @@ import java.util.Collection;
 /**
  * 对应到Entity的名称
  */
-
+@Deprecated
 public class EntityNameConverter extends ResolvingConverter<String> {
     @Override
     public @Nullable String fromString(@Nullable @NonNls String s, ConvertContext context) {

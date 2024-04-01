@@ -58,10 +58,12 @@ public class EntityFullNameConverter extends ResolvingConverter<AbstractEntity> 
         //Entities下的RMemberEntity
         //Services下的EntityFindOne，EntityFind
         //Serivces下的AutoParameters
+        //Services下的Link
         //Resouce下的Entity
         final java.util.Set<String> entityAndViewAllowedSet = java.util.Set.of(MemberEntity.TAG_NAME
                 ,EntityFind.TAG_NAME,EntityFindOne.TAG_NAME
                 ,AutoParameters.TAG_NAME
+                ,Link.TAG_NAME
                 ,Entity.TAG_NAME
         );
 
@@ -120,7 +122,7 @@ public class EntityFullNameConverter extends ResolvingConverter<AbstractEntity> 
     public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
         return new HtmlBuilder()
                 .append("根据")
-                .append(s)
+                .append("[" + s+"]")
                 .append("找不到对应的Entity定义。")
                 .toString();
 //        if(s == null )return null;

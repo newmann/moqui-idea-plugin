@@ -3,12 +3,11 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
 import org.moqui.idea.plugin.dom.presentation.EntityFindOnePresentationProvider;
 
 import java.util.List;
 @Presentation(provider = EntityFindOnePresentationProvider.class)
-public interface EntityFindOne extends EntityFindAbstract {
+public interface EntityFindOne extends AbstractEntityName {
     public static final String TAG_NAME = "entity-find-one";
 //    public static final String ATTR_ENTITY_NAME = "entity-name";
     public static final String ATTR_VALUE_FIELD = "value-field";

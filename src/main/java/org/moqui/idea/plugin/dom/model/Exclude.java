@@ -15,6 +15,7 @@ public interface Exclude extends DomElement {
 
     @NotNull
     @Attribute(ATTR_FIELD)
+    @Convert(EntityFieldNameConverter.class)
     GenericAttributeValue<String> getField();
 
     /**

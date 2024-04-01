@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.util.CustomNotifier;
-
+@Deprecated
 public class EntityNameUpdatedRefactoringProvider implements RefactoringElementListenerProvider {
     @Override
     public @Nullable RefactoringElementListener getListener(PsiElement element) {

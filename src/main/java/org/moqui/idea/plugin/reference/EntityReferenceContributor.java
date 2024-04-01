@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+@Deprecated
 public class EntityReferenceContributor extends PsiReferenceContributor {
 
 //    public static final PsiElementPattern.Capture<XmlAttribute> PATTERN_ATTR_ENTITY_NAME =

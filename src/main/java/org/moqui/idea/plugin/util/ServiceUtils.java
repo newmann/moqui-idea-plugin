@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.*;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByPsiElement;
@@ -116,6 +118,40 @@ public final class ServiceUtils {
         return !isService(service);
     }
 
+    /**
+     * 判断一个字符串是否为一个有效的ServiceCall字符串
+     * @param project
+     * @param auditStr
+     * @return
+     */
+    public static boolean isValidServiceCallStr(@NotNull Project project,@NotNull String auditStr){
+
+        int slashIndex = auditStr.indexOf('#');
+        String[] slashSplit = auditStr.split("#");
+
+        if(slashIndex >= 0) {
+            //#存在，需要进行进一步判断
+            int pointIndex = slashSplit[0].lastIndexOf('.');
+            if(pointIndex<0) {
+                //标准操作,CRUD
+                //操作不存在，则返回false
+                if(! ServiceUtils.STANDARD_CRUD_COMMANDER.contains(slashSplit[0])) return false;
+                //操作存在，则验证entityName是否有效
+                if(slashSplit.length==1) {
+                    return false;
+                }else {
+
+                    return EntityUtils.findEntityByFullName(project,slashSplit[1]).map(item->true).orElse(false);
+                }
+
+            }else{
+                //Service Call
+                return findServiceByFullName(project,auditStr).map(item -> true).orElse(false);
+            }
+        }else {
+            return false;
+        }
+    }
 //    /**
 //     * 根据实体名和包名找到对应的实体定义的XmlElement
 //     * @param project
@@ -163,7 +199,7 @@ public final class ServiceUtils {
             if(className.isEmpty()) continue;
             if(!className.get().equals(serviceDescriptor.className)) continue;
 
-            for(Service service: fileElement.getRootElement().getServiceList()) {
+            for(Service service:fileElement.getRootElement().getServiceList()) {
                 if(service.getVerb().getValue().equals(serviceDescriptor.verb)
                         && service.getNoun().getValue().equals(serviceDescriptor.noun)) {
 
@@ -350,7 +386,7 @@ public final class ServiceUtils {
         Collection<Service> result = new ArrayList<Service>();
         List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
         for(DomFileElement<Services> fileElement : fileElementList) {
-            for(Service service: fileElement.getRootElement().getServiceList()) {
+            for(Service service: fileElement.getRootElement().getServiceList()){
                 if(isInterface(service)){
                     result.add(service);
                 }
@@ -497,6 +533,14 @@ public final class ServiceUtils {
         return getLocalDomElementByConvertContext(context,EntityFind.class);
 
     }
+    public static Optional<EntityFindCount> getCurrentEntityFindCount(@NotNull ConvertContext context){
+        return getLocalDomElementByConvertContext(context,EntityFindCount.class);
+
+    }
+    public static Optional<EntityFindCount> getCurrentEntityFindCount(@NotNull PsiElement psiElement){
+        return getLocalDomElementByPsiElement(psiElement,EntityFindCount.class);
+
+    }
     public static Optional<EntityFind> getCurrentEntityFind(@NotNull PsiElement psiElement){
         return getLocalDomElementByPsiElement(psiElement,EntityFind.class);
 
@@ -505,8 +549,14 @@ public final class ServiceUtils {
         return getLocalDomElementByConvertContext(context,EntityFindOne.class);
 
     }
+    public static Optional<EntityDeleteByCondition> getCurrentEntityDeleteByCondition(@NotNull ConvertContext context){
+        return getLocalDomElementByConvertContext(context,EntityDeleteByCondition.class);
 
+    }
+    public static Optional<Service> getCurrentService(@NotNull ConvertContext context){
+        return getLocalDomElementByConvertContext(context,Service.class);
 
+    }
     /**
      * 创建EntityName对应的psiReference
      * EntityName可能是下列3种形式：

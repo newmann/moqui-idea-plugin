@@ -2,7 +2,7 @@ package org.moqui.idea.plugin.reference;
 
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiReference;
-
+@Deprecated
 public class PsiReferenceData {
     private Long modificationStamp;
     private PsiReference[] psiReferences;
