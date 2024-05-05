@@ -9,6 +9,7 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import com.intellij.util.xml.highlighting.DomHighlightingHelper;
+import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import com.intellij.psi.PsiFile;
@@ -31,10 +32,11 @@ public final class ScreenUtils {
 
 
     public static boolean isScreenFile(@Nullable PsiFile file){
+        if(file == null) return false;
         return MyDomUtils.isSpecialXmlFile(file, Screen.TAG_NAME);
     }
     public static Icon getNagavitorToScreenIcon() {
-        return MyIcons.NAVIGATE_TO_SCREEN;
+        return MoquiIcons.NavigateToScreen; //MyIcons.NAVIGATE_TO_SCREEN;
     }
     public static String getNagavitorToEntityToolTips() {
         return "Navigating to Screen definition";

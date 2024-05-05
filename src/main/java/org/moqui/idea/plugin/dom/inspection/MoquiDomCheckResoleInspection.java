@@ -47,7 +47,7 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
                 || EmecaUtils.isEmecasFile(xmlFile)
                 || WidgetTemplateUtils.isWidgetTemplateFile(xmlFile)
                 || RestApiUtils.isRestApiFile(xmlFile)
-                || MoquiConfUtils.isConfFile(xmlFile)
+                || MoquiConfUtils.isMoquiConfFile(xmlFile)
                 || ComponentUtils.isComponentFile(xmlFile);
     }
     @Override

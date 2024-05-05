@@ -2,6 +2,7 @@
 
 package org.moqui.idea.plugin.reference;
 
+import kotlinx.html.A;
 import org.moqui.idea.plugin.util.EntityUtils;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
@@ -34,20 +35,20 @@ final class EntityReference extends PsiReferenceBase<PsiElement> {
 
 
   public  @NotNull ResolveResult[] multiResolve(boolean incompleteCode) {
-    Project project = myElement.getProject();
-//    final List<SimpleProperty> properties = SimpleUtil.findProperties(project, key);
-    Optional<XmlElement[]> element = EntityUtils.findEntityByEntityDescriptor(project,entityDescriptor);
-    List<ResolveResult> results = new ArrayList<>();
-    if (element.isEmpty()) {
-      return results.toArray(new ResolveResult[0]);
-    }else {
-      for (XmlElement item : element.get()) {
-        results.add(new PsiElementResolveResult(item));
-      }
-      ResolveResult[] resultArray = new ResolveResult[results.size()];
-      return results.toArray(resultArray);
-    }
-
+//    Project project = myElement.getProject();
+////    final List<SimpleProperty> properties = SimpleUtil.findProperties(project, key);
+//    Optional<XmlElement[]> element = EntityUtils.findEntityByFullName(project,entityFullName);
+//    List<ResolveResult> results = new ArrayList<>();
+//    if (element.isEmpty()) {
+//      return results.toArray(new ResolveResult[0]);
+//    }else {
+//      for (XmlElement item : element.get()) {
+//        results.add(new PsiElementResolveResult(item));
+//      }
+//      ResolveResult[] resultArray = new ResolveResult[results.size()];
+//      return results.toArray(resultArray);
+//    }
+    return new ResolveResult[0];
   }
 
   @Nullable
@@ -59,27 +60,27 @@ final class EntityReference extends PsiReferenceBase<PsiElement> {
 
   @Override
   public Object @NotNull [] getVariants() {
-    Project project = myElement.getProject();
-//    List<SimpleProperty> properties = SimpleUtil.findProperties(project);
-    Optional<XmlElement[]> element = EntityUtils.findEntityByEntityDescriptor(project,entityDescriptor);
+//    Project project = myElement.getProject();
+////    List<SimpleProperty> properties = SimpleUtil.findProperties(project);
+//    Optional<XmlElement[]> element = EntityUtils.findEntityByEntityDescriptor(project,entityDescriptor);
     List<LookupElement> variants = new ArrayList<>();
-    if(!element.isEmpty()) {
-      for (XmlElement item : element.get()) {
-        variants.add(LookupElementBuilder
-                .create(item).withIcon(AllIcons.Ide.Gift)
-                .withTypeText(item.getText()));
-
-      }
-
-    }
-//    for (final SimpleProperty property : properties) {
-//      if (property.getKey() != null && property.getKey().length() > 0) {
+//    if(!element.isEmpty()) {
+//      for (XmlElement item : element.get()) {
 //        variants.add(LookupElementBuilder
-//            .create(property).withIcon(SimpleIcons.FILE)
-//            .withTypeText(property.getContainingFile().getName())
-//        );
+//                .create(item).withIcon(AllIcons.Ide.Gift)
+//                .withTypeText(item.getText()));
+//
 //      }
+//
 //    }
+////    for (final SimpleProperty property : properties) {
+////      if (property.getKey() != null && property.getKey().length() > 0) {
+////        variants.add(LookupElementBuilder
+////            .create(property).withIcon(SimpleIcons.FILE)
+////            .withTypeText(property.getContainingFile().getName())
+////        );
+////      }
+////    }
     return variants.toArray();
   }
 

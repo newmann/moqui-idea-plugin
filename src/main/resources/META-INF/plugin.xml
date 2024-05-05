@@ -31,6 +31,8 @@
   <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.xml</depends>
     <depends>com.intellij.java</depends>
+    <depends>org.intellij.groovy</depends>
+    <depends>org.intellij.intelliLang</depends>
   <!-- Extension points defined by the plugin.
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
   <extensions defaultExtensionNs="com.intellij">
@@ -67,6 +69,11 @@
       <dom.fileMetaData id="myPlugin.WidgetTemplatesDescription"
                         rootTagName="widget-templates"
                         implementation="org.moqui.idea.plugin.dom.description.WidgetTemplatesDescription"/>
+      <platform.backend.documentation.psiTargetProvider id="MoquiPsiDocumentationTargetProvider"
+                                                        implementation="org.moqui.idea.plugin.quickDoc.MoquiPsiDocumentationTargetProvider"/>
+
+      <lang.foldingBuilder language="XML"
+                           implementationClass="org.moqui.idea.plugin.foldingBuilder.MoquiFoldingBuilder"/>
 
       //很有意思的功能，后续再进一步研究
 <!--      <fileEditorProvider id="myPlugin.ScreenEditor" implementation="org.moqui.idea.plugin.editor.ScreenEditorProvider"></fileEditorProvider>-->
@@ -114,6 +121,10 @@
       <completion.contributor language="XML"
                                     implementationClass="org.moqui.idea.plugin.contributor.MultiFieldNameCompletionContributor"/>
 
+      <completion.contributor order="first" language="Groovy" implementationClass="org.moqui.idea.plugin.completion.contributor.GroovyCompletionContributor"/>
+
+      <completion.contributor order="first" language="JAVA" implementationClass="org.moqui.idea.plugin.completion.contributor.JavaCompletionContributor"/>
+
       <renameHandler implementation="org.moqui.idea.plugin.refactoring.MoquiDomAttributeRenameHandler" order="first"/>
 
 <!--      静态检查-->
@@ -159,6 +170,12 @@
 
       <standardResourceProvider implementation="org.moqui.idea.plugin.dom.xsd.MoquiXsdProvider"/>
 
+      <toolWindow factoryClass="org.moqui.idea.plugin.action.AdminToolWindowFactory"
+                  id="Moqui Admin"
+                  anchor="right"
+                  icon="MoquiIcons.ComponentTag"
+
+      />
   </extensions>
   <actions>
       <group id="MoquiIdeaPlugin" text="Moqui Support Tools" popup="true">
@@ -178,6 +195,14 @@
 
     </action>
 
+<!--      <action id="org.moqui.idea.plugin.action.componentManagement.ComponentDependsAction" class="org.moqui.idea.plugin.action.componentManagement.ComponentDependsAction" text="Component DependsOn Management"-->
+<!--              description="Manage component depends">-->
+<!--          <add-to-group group-id="MoquiIdeaPlugin" anchor="last"/>-->
+          <!--      <add-to-group group-id="IDEAPluginTools" anchor="last"/>-->
+          <!--      <add-to-group group-id="HelpMenu" anchor="after" relative-to-action="About"/>-->
+          <!--      <add-to-group group-id="MainMenu" relative-to-action="ToolsMenu" anchor="after"/>-->
+
+<!--      </action>-->
 <!--      <action id="ReplaceText" class="org.moqui.idea.plugin.ReplaceText" text="MyReplaceTextPlugin"-->
 <!--              description="My ReplaceText Plugin">-->
 <!--          <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
@@ -191,4 +216,11 @@
 <!--                class="org.moqui.idea.plugin.listener.FileListener"-->
 <!--                topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>-->
 <!--    </projectListeners>-->
+
+        <projectListeners>
+            <listener
+                    class="org.moqui.idea.plugin.listener.MoquiProjectCloseListener"
+                    topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        </projectListeners>
+
 </idea-plugin>

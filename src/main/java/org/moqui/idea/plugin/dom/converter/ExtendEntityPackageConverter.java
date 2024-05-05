@@ -37,7 +37,11 @@ public class ExtendEntityPackageConverter extends AbstractExtendEntityAttributeC
 
     @Override
     @Nullable String getToString(@Nullable Entity entity, ConvertContext context) {
-        return MyDomUtils.getXmlAttributeValueString(entity.getPackage()).orElse(MyStringUtils.EMPTY_STRING);
+        if(entity == null) {return null;
+        }else {
+            return entity.getPackage().getStringValue();
+        }
+
     }
 
     @Override

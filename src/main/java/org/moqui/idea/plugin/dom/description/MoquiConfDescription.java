@@ -3,6 +3,7 @@ package org.moqui.idea.plugin.dom.description;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomFileDescription;
+import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.MoquiConf;
@@ -27,11 +28,11 @@ public class MoquiConfDescription extends DomFileDescription<MoquiConf> {
     @Override
     public @Nullable Icon getFileIcon(int flags) {
 //        return super.getFileIcon(flags);
-        return MyIcons.FILE_ICON_MOQUI_CONF;
+        return MoquiIcons.MoquiConfTag; // MyIcons.FILE_ICON_MOQUI_CONF;
     }
 
     @Override
     public boolean isMyFile(@NotNull XmlFile file, @Nullable Module module) {
-        return MoquiConfUtils.isConfFile(file);
+        return MoquiConfUtils.isMoquiConfFile(file);
     }
 }

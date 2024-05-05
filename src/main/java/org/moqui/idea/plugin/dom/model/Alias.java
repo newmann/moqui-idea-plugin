@@ -16,7 +16,7 @@ public interface Alias extends AbstractField {
 //    public static final String ATTR_NAME = "name";
     public static final String ATTR_FUNCTION = "function";
     public static final String ATTR_IS_AGGREGATE = "is-aggregate";
-    public static final String ATTR_TYPE = "type";
+//    public static final String ATTR_TYPE = "type";
     public static final String ATTR_DEFAULT_DISPLAY = "default-display";
     public static final String ATTR_PG_EXPRESSION = "pg-expression";
     @NotNull
@@ -37,9 +37,9 @@ public interface Alias extends AbstractField {
     @NotNull
     @Attribute(ATTR_IS_AGGREGATE)
     GenericAttributeValue<Boolean> getIsAggregate();
-    @NotNull
-    @Attribute(ATTR_TYPE)
-    GenericAttributeValue<String> getType();
+//    @NotNull
+//    @Attribute(ATTR_TYPE)
+//    GenericAttributeValue<String> getType();
     @NotNull
     @Attribute(ATTR_DEFAULT_DISPLAY)
     GenericAttributeValue<String> getDefaultDisplay();

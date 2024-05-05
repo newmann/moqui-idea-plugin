@@ -12,6 +12,7 @@ public final class RestApiUtils {
 
 
     public static boolean isRestApiFile(@Nullable PsiFile file){
+        if(file == null) return false;
         return MyDomUtils.isSpecialXmlFile(file, Resource.TAG_NAME);
     }
 

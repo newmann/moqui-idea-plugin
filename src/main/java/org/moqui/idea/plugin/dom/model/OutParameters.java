@@ -10,7 +10,7 @@ public interface OutParameters extends CommonActions {
 
     @NotNull
     @SubTagList(Parameter.TAG_NAME)
-    List<Parameter> getParameters();
+    List<Parameter> getParametersList();
     @NotNull
     @SubTagList(AutoParameters.TAG_NAME)
     List<AutoParameters> getAutoParametersList();

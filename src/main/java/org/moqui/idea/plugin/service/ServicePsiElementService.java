@@ -62,7 +62,7 @@ public final class ServicePsiElementService {
         for(org.moqui.idea.plugin.dom.model.Service serviceItem: fileElement.getRootElement().getServiceList()) {
             String fullName = className+"." + serviceItem.getVerb().getValue()
                     + "#" + serviceItem.getNoun().getValue();
-            String type = serviceItem.getServiceType().getValue();
+            String type = serviceItem.getType().getValue();
 
             if( (type != null) && type.equals("interface")) {
                 interfaceTags.put(fullName,serviceItem);

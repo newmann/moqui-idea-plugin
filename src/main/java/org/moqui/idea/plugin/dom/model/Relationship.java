@@ -26,7 +26,7 @@ public interface Relationship extends DomElement {
     @NotNull
     @Attribute(ATTR_RELATED)
     @Convert(EntityFullNameConverter.class)
-    GenericAttributeValue<Entity> getRelated();
+    GenericAttributeValue<String> getRelated();
     @NotNull
     @Attribute(ATTR_FK_NAME)
     GenericAttributeValue<String> getFkName();

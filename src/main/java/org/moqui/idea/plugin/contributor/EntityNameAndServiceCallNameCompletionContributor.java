@@ -251,7 +251,7 @@ public class EntityNameAndServiceCallNameCompletionContributor extends Completio
     });
     serviceSet.forEach(item->{
       LookupElementBuilder lookupElementBuilder = LookupElementBuilder.create(item)
-              .withCaseSensitivity(true).withIcon(MyIcons.NAVIGATE_TO_SERVICE);
+              .withCaseSensitivity(true).withIcon(MoquiIcons.NavigateToService);
       lookupElementBuilders.add(lookupElementBuilder);
 
     });

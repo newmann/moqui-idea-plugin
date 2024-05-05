@@ -3,7 +3,6 @@ package org.moqui.idea.plugin.dom.converter;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.util.InspectionMessage;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.converter.insert.ExtendEntityNameAndPackageInsertionHandler;
-import org.moqui.idea.plugin.dom.model.AbstractEntity;
 import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.dom.model.ExtendEntity;
 import org.moqui.idea.plugin.reference.PsiRef;
@@ -96,7 +94,7 @@ public abstract class AbstractExtendEntityAttributeConverter extends ResolvingCo
     }
     protected Optional<Entity> getEntity(ConvertContext context){
         Optional<String> opEntityFullName = getEntityFullName(context);
-        return opEntityFullName.map(s -> EntityUtils.findEntityByFullName(context.getProject(), s)).orElse(null);
+        return opEntityFullName.map(s -> EntityUtils.findEntityByName(context.getProject(), s)).orElse(null);
 
     }
     @Override

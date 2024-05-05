@@ -3,7 +3,6 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.LocationConverter;
 import org.moqui.idea.plugin.dom.converter.ServiceCallConverter;
 import org.moqui.idea.plugin.dom.presentation.ServicePresentationProvider;
 
@@ -54,7 +53,7 @@ public interface Service extends AbstractLocation {
     GenericAttributeValue<String> getDisplayName();
     @NotNull
     @Attribute(ATTR_TYPE)
-    GenericAttributeValue<String> getServiceType();
+    GenericAttributeValue<String> getType();
 //    @NotNull
 //    @Attribute(ATTR_LOCATION)
 //    @Convert(LocationConverter.class)

@@ -165,4 +165,14 @@ public final class MyStringUtils {
     public static String formatPresentationName(String tagName,String str){
         return tagName +": " + str;
     }
+
+    /**
+     * 对xml字符串进行转化，以便能在html中显示
+     * @param xml
+     * @return
+     */
+    public static String formatXmlForHtml(@NotNull String xml){
+        return xml.replaceAll("<","&lt;")
+                .replaceAll(">","&gt;");
+    }
 }

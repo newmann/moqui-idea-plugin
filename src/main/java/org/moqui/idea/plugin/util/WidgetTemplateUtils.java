@@ -24,6 +24,7 @@ public final class WidgetTemplateUtils {
 
 
     public static boolean isWidgetTemplateFile(@Nullable PsiFile file){
+        if(file == null) return false;
         return MyDomUtils.isSpecialXmlFile(file, WidgetTemplates.TAG_NAME);
 
     }

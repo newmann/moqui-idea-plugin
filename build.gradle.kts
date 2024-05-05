@@ -1,11 +1,12 @@
 plugins {
   id("java")
+  id("groovy")
   id("org.jetbrains.kotlin.jvm") version "1.9.21"
   id("org.jetbrains.intellij") version "1.16.1"
 }
 
 group = "com.beiyelin"
-version = "20240331.01"
+version = "20240505.01"
 
 repositories {
   maven { setUrl("https://maven.aliyun.com/repository/central/")}
@@ -15,7 +16,14 @@ repositories {
   maven { setUrl("https://maven.aliyun.com/repository/gradle-plugin")}
   mavenCentral()
 }
-
+dependencies {
+  // 使用 Maven Central 仓库中的依赖
+  implementation("org.apache.groovy:groovy:4.0.13")
+}
+java {
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+}
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
@@ -24,7 +32,9 @@ intellij {
 
   plugins.set(listOf(/* Plugin Dependencies */
     "java",
-    "com.intellij.java"
+    "com.intellij.java",
+    "org.intellij.groovy",
+    "org.intellij.intelliLang"
   ))
 }
 

@@ -1,11 +1,14 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -13,40 +16,59 @@ import com.intellij.psi.xml.*;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.Eeca;
-import org.moqui.idea.plugin.dom.model.Eecas;
+import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.dom.model.*;
 
 import java.util.*;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.intellij.psi.xml.XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN;
+import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 public final class MyDomUtils {
     public static String COMPONENT_LOCATION_PREFIX = "component://";
     private MyDomUtils() {
         throw new UnsupportedOperationException();
     }
-    /**
-     * Find dom elements collection.
-     *
-     * @param <T>     the type parameter
-     * @param project the project
-     * @param rootClazz   the clazz
-     * @return the collection
-     */
-    @NotNull
-    @NonNls
-    public static <T extends DomElement> Collection<T> findDomElementsByRootClass(@NotNull Project project, Class<T> rootClazz) {
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-        List<DomFileElement<T>> elements = DomService.getInstance().getFileElements(rootClazz, project, scope);
-        return elements.stream().map(DomFileElement::getRootElement).collect(Collectors.toList());
-    }
+//    /**
+//     * Find dom elements collection.
+//     *
+//     * @param <T>     the type parameter
+//     * @param project the project
+//     * @param rootClazz   the clazz
+//     * @return the collection
+//     */
+//    @NotNull
+//    @NonNls
+//    public static <T extends DomElement> Collection<T> findDomElementsByRootClass(@NotNull Project project, Class<T> rootClazz) {
+//        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//        List<DomFileElement<T>> elements = DomService.getInstance().getFileElements(rootClazz, project, scope);
+//        return elements.stream().map(DomFileElement::getRootElement).collect(Collectors.toList());
+//    }
 
     @NotNull
     @NonNls
     public static <T extends DomElement> List<DomFileElement<T>> findDomFileElementsByRootClass(@NotNull Project project, Class<T> rootClazz) {
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-        return DomService.getInstance().getFileElements(rootClazz,project,scope);
+
+
+        DumbService dumbService = DumbService.getInstance(project);
+        return dumbService.runReadActionInSmartMode((Computable<List<DomFileElement<T>>>) ()->{
+            GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+            return DomService.getInstance().getFileElements(rootClazz,project,scope);
+
+        });
+
+
+//        return ApplicationManager.getApplication().runReadAction((Computable<List<DomFileElement<T>>>) ()->{
+//            return DomService.getInstance().getFileElements(rootClazz,project,scope);
+//        });
+
+//        final List<DomFileElement<T>>[] result = new List[]{new ArrayList<>()};
+//        ApplicationManager.getApplication().runReadAction(() -> {
+//            result[0] = DomService.getInstance().getFileElements(rootClazz,project,scope);
+//        });
+//        return result[0];
 
     }
 
@@ -106,11 +128,12 @@ public final class MyDomUtils {
      * @return
      */
     public static Boolean isAttributeValue(@NotNull PsiElement psiElement){
-        Boolean result = false;
-        if (psiElement instanceof XmlToken) {
-            if(((XmlToken) psiElement).getTokenType().equals(XML_ATTRIBUTE_VALUE_TOKEN)) result = true;
-        }
-        return result;
+        return psiElement instanceof XmlAttributeValue;
+//        Boolean result = false;
+//        if (psiElement instanceof XmlToken) {
+//            if(((XmlToken) psiElement).getTokenType().equals(XML_ATTRIBUTE_VALUE_TOKEN)) result = true;
+//        }
+//        return result;
     }
     public static boolean isNotAttributeValue(@NotNull PsiElement psiElement){
         return !isAttributeValue(psiElement);
@@ -150,6 +173,28 @@ public final class MyDomUtils {
         return Optional.ofNullable(PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class));
     }
     public static Optional<String> getCurrentTagName(@NotNull PsiElement psiElement){
+        return getParentTag(psiElement).map(XmlTag::getName);
+//        XmlTag xmlTag;
+//        if(psiElement instanceof XmlTag) {
+//            xmlTag = (XmlTag) psiElement;
+//        }else {
+//            xmlTag = PsiTreeUtil.getParentOfType(psiElement, XmlTag.class);
+//        }
+//
+//        if (xmlTag == null ) {
+//            return Optional.empty();
+//        }else {
+//            return Optional.of(xmlTag.getName());
+//        }
+
+    }
+
+    /**
+     * 获取当前psiElement的父tag
+     * @param psiElement
+     * @return
+     */
+    public static Optional<XmlTag> getParentTag(@NotNull PsiElement psiElement){
         XmlTag xmlTag;
         if(psiElement instanceof XmlTag) {
             xmlTag = (XmlTag) psiElement;
@@ -157,13 +202,10 @@ public final class MyDomUtils {
             xmlTag = PsiTreeUtil.getParentOfType(psiElement, XmlTag.class);
         }
 
-        if (xmlTag == null ) {
-            return Optional.empty();
-        }else {
-            return Optional.of(xmlTag.getName());
-        }
+        return Optional.ofNullable(xmlTag);
 
     }
+
     public static Optional<String> getRootTagName(@NotNull PsiElement psiElement){
         //获取RootTag名
         return getRootTagName(psiElement.getContainingFile());
@@ -256,11 +298,27 @@ public final class MyDomUtils {
         return Optional.of(value.getValue());
 
     }
+
+    public static Optional<String> getXmlTagAttributeValueByAttributeName(@Nullable XmlTag xmlTag, @Nullable String attributeName, @Nullable String filter){
+        if((xmlTag == null)||(attributeName == null)) return Optional.empty();
+        String xmlAttributeValue = xmlTag.getAttributeValue(attributeName);
+        if(xmlAttributeValue == null) return Optional.empty();
+        if (isNotEmpty(filter)) {
+            if (!xmlAttributeValue.contains(filter)) {
+                Optional.empty();
+            }
+        }
+        return Optional.of(xmlAttributeValue);
+    }
+
     public static Optional<String> getXmlAttributeValueString(GenericAttributeValue<String> value){
         if(value == null) return Optional.empty();
         if(value.getXmlAttributeValue() == null) return Optional.empty();
         return Optional.of(value.getXmlAttributeValue().getValue());
 
+    }
+    public static @NotNull String getValueOrEmptyString(GenericAttributeValue<String> value){
+        return getXmlAttributeValueString(value).orElse(MyStringUtils.EMPTY_STRING);
     }
 
     /**
@@ -421,5 +479,46 @@ public final class MyDomUtils {
             }
         }
         return tagList;
+    }
+
+    /**
+     * 判断一个psiFile是否为moqui的定义文件
+     * @param psiFile
+     * @return
+     */
+    public static boolean isMoquiXmFile(@NotNull PsiFile psiFile){
+        Optional<String> rootTag = getRootTagName(psiFile);
+        return rootTag.filter(s -> Set.of(
+                Entities.TAG_NAME, Services.TAG_NAME, Screen.TAG_NAME,
+                Eecas.TAG_NAME, Secas.TAG_NAME, Emecas.TAG_NAME,
+                WidgetTemplates.TAG_NAME, Resource.TAG_NAME, MoquiConf.TAG_NAME, Component.TAG_NAME
+        ).contains(s)).isPresent();
+    }
+    public static boolean isNotMoquiXmlFile(@NotNull PsiFile psiFile){
+        return ! isMoquiXmFile(psiFile);
+    }
+
+//    public static String getStringFromPsiFile(@NotNull PsiFile psiFile, @NotNull TextRange textRange){
+//        psiFile.getVirtualFile().
+//    }
+
+    /**
+     * 根据某个DomElement打开对应的文件
+     * @param element
+     */
+    public static void openFileForDomElement(@NotNull DomElement element){
+        Project project = element.getXmlElement().getProject();
+        if (project == null) return;
+
+        FileEditorManager editorManager = FileEditorManager.getInstance(element.getXmlElement().getProject());
+
+
+        OpenFileDescriptor descriptor = new OpenFileDescriptor(project,
+            element.getXmlElement().getContainingFile().getVirtualFile(),
+            element.getXmlElement().getTextOffset());
+
+        editorManager.openTextEditor(descriptor,true);
+
+
     }
 }

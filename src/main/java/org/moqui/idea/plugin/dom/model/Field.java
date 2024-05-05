@@ -14,7 +14,7 @@ public interface Field extends AbstractField,FormFieldSingle,FormFieldList {
     public static final String TAG_NAME = "field";
 //    public static final String ATTR_NAME = "name";
     public static final String ATTR_COLUMN_NAME = "column-name";
-    public static final String ATTR_TYPE = "type";
+//    public static final String ATTR_TYPE = "type";
     public static final String ATTR_IS_PK = "is-pk";
     public static final String ATTR_NOT_NULL = "not-null";
     public static final String ATTR_ENCRYPT = "encrypt";
@@ -30,9 +30,9 @@ public interface Field extends AbstractField,FormFieldSingle,FormFieldList {
     @Attribute(ATTR_COLUMN_NAME)
     GenericAttributeValue<String> getColumnName();
 
-    @NotNull
-    @Attribute(ATTR_TYPE)
-    GenericAttributeValue<String> getType();
+//    @NotNull
+//    @Attribute(ATTR_TYPE)
+//    GenericAttributeValue<String> getType();
     @NotNull
     @Attribute(ATTR_IS_PK)
     GenericAttributeValue<Boolean> getIsPk();

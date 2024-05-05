@@ -11,7 +11,8 @@ public final class MoquiConfUtils {
     }
 
 
-    public static boolean isConfFile(@Nullable PsiFile file){
+    public static boolean isMoquiConfFile(@Nullable PsiFile file){
+        if(file == null) return false;
         return MyDomUtils.isSpecialXmlFile(file, MoquiConf.TAG_NAME);
     }
 

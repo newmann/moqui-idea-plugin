@@ -1,17 +1,19 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.lang.annotation.HighlightSeverity;
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import com.intellij.util.xml.highlighting.DomHighlightingHelper;
+import icons.MoquiIcons;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.reference.PsiRef;
-import org.moqui.idea.plugin.service.EntityPsiElementService;
+import org.moqui.idea.plugin.service.IndexEntity;
+import org.moqui.idea.plugin.service.IndexViewEntity;
+import org.moqui.idea.plugin.service.MoquiIndexService;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -30,6 +32,7 @@ import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 
 public final class EntityUtils {
+    public static final String  ENTITY_NAME_DOT = ".";
     private EntityUtils() {
         throw new UnsupportedOperationException();
     }
@@ -65,97 +68,93 @@ public final class EntityUtils {
     }
 
     public static boolean isEntitiesFile(@Nullable PsiFile file){
+        if(file == null) return false;
         return MyDomUtils.isSpecialXmlFile(file, Entities.TAG_NAME);
     }
 
-    /**
-     * 根据实体名和包名找到对应的实体
-     * @param project 当前项目
-     * @param entityName 实体名
-     * @param entityPackage 包名
-     * @return Collection<Entity>
-     */
-    public static Collection<Entity> findEntitiesByName(@NotNull Project project, @NotNull String entityName,
-                                                        @NotNull String entityPackage){
-        Collection<Entity> result = new ArrayList<Entity>();
-        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            for(Entity entity: fileElement.getRootElement().getEntities()) {
-                if(entity.getEntityName().getValue().equals(entityName)
-                && entity.getPackage().getValue().equals(entityPackage)) {
-                    result.add(entity);
-                }
-            };
-        }
-        return result;
-    }
+//    /**
+//     * 根据实体名和包名找到对应的实体
+//     * @param project 当前项目
+//     * @param entityName 实体名
+//     * @param entityPackage 包名
+//     * @return Collection<Entity>
+//     */
+//    public static Collection<Entity> findEntitiesByName(@NotNull Project project, @NotNull String entityName,
+//                                                        @NotNull String entityPackage){
+//        Collection<Entity> result = new ArrayList<Entity>();
+//        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            for(Entity entity: fileElement.getRootElement().getEntities()) {
+//                if(entity.getEntityName().getValue().equals(entityName)
+//                && entity.getPackage().getValue().equals(entityPackage)) {
+//                    result.add(entity);
+//                }
+//            };
+//        }
+//        return result;
+//    }
     /**
      * 根据所有的实体
      * @param project 当前项目
      * @return Collection<Entity>
      */
     public static Collection<Entity> findAllEntity(@NotNull Project project){
-        Collection<Entity> result = new ArrayList<>();
-        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            for(Entity entity: fileElement.getRootElement().getEntities()) {
-                result.add(entity);
-            };
-        }
-        return result;
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        return moquiIndexService.getAllEntity().orElse(new ArrayList<>());
+
+//        Collection<Entity> result = new ArrayList<>();
+//        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            for(Entity entity: fileElement.getRootElement().getEntities()) {
+//                result.add(entity);
+//            };
+//        }
+//        return result;
     }
     public static Collection<AbstractEntity> findAllEntityAndViewEntity(@NotNull Project project){
-        Collection<AbstractEntity> result = new ArrayList<>();
-        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            for(Entity entity: fileElement.getRootElement().getEntities()) {
-                result.add(entity);
-            };
-            for(ViewEntity viewEntity: fileElement.getRootElement().getViewEntities()) {
-                result.add(viewEntity);
-            };
-        }
-        return result;
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        return moquiIndexService.getAllEntityAndViewEntity();
+
+//        Collection<AbstractEntity> result = new ArrayList<>();
+//        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            for(Entity entity: fileElement.getRootElement().getEntities()) {
+//                result.add(entity);
+//            };
+//            for(ViewEntity viewEntity: fileElement.getRootElement().getViewEntities()) {
+//                result.add(viewEntity);
+//            };
+//        }
+//        return result;
     }
 
-//    public static Map<String, DomElement> findAllEntityDomElement(@NotNull Project project) {
-//        Map<String, DomElement> result = new HashMap<String, DomElement>();
-//        Collection<DomElement> domElements = findAllEntity(project);
-//
-//        domElements.forEach(domElement -> {
-//            result.put(getFullEntityNameFromDomElement(domElement), domElement);
-//        }  );
-//
-//        return result;
-//
-//    }
 
 
     /**
      * 从Entity定义中拼接出完整名称
      */
     public static String getFullNameFromEntity(AbstractEntity entity) {
-        return entity.getPackage().getXmlAttributeValue().getValue()
-                + "." + entity.getEntityName().getXmlAttributeValue().getValue();
+        return MyDomUtils.getValueOrEmptyString(entity.getPackage())
+                + ENTITY_NAME_DOT + MyDomUtils.getValueOrEmptyString(entity.getEntityName());
     }
     public static String getFullNameFromViewEntity(ViewEntity entity) {
-        return entity.getPackage().getXmlAttributeValue().getValue()
-                + "." + entity.getEntityName().getXmlAttributeValue().getValue();
+        return MyDomUtils.getValueOrEmptyString(entity.getPackage())
+                + ENTITY_NAME_DOT + MyDomUtils.getValueOrEmptyString(entity.getEntityName());
     }
     public static String getFullNameFromExtendEntity(ExtendEntity entity) {
-        return entity.getPackage().getXmlAttributeValue().getValue()
-                + "." + entity.getEntityName().getXmlAttributeValue().getValue();
+        return MyDomUtils.getValueOrEmptyString(entity.getPackage())
+                + ENTITY_NAME_DOT + MyDomUtils.getValueOrEmptyString(entity.getEntityName());
     }
 
-    /**
-     * 从Entity或View对应的DomElement中拼接出完整名称
-     * 统一的属性名称是：entity-name和package
-     */
-    public static String getFullEntityNameFromDomElement(DomElement domElement) {
-        String packageName = domElement.getXmlTag().getAttributeValue("package");
-        String name = domElement.getXmlTag().getAttributeValue("entity-name");
-        return packageName + "." + name;
-    }
+//    /**
+//     * 从Entity或View对应的DomElement中拼接出完整名称
+//     * 统一的属性名称是：entity-name和package
+//     */
+//    public static String getFullEntityNameFromDomElement(DomElement domElement) {
+//        String packageName = domElement.getXmlTag().getAttributeValue("package");
+//        String name = domElement.getXmlTag().getAttributeValue("entity-name");
+//        return packageName + "." + name;
+//    }
 
 
 //    /**
@@ -167,29 +166,37 @@ public final class EntityUtils {
 //     */
     public static Optional<XmlElement[]> findEntityElementsByNameAndPackage(@NotNull Project project, @NotNull String entityName,
                                                                             @NotNull String entityPackage){
-
-        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            for(Entity entity: fileElement.getRootElement().getEntities()) {
-                if(entity.getEntityName().getValue().equals(entityName)
-                        && entity.getPackage().getValue().equals(entityPackage)) {
-                    XmlElement[] result = {entity.getXmlElement()};
-
-                    return Optional.of(result);
-                }
-            };
-            //如果在实体中没有找到，在视图中再查找
-            for(ViewEntity viewEntity: fileElement.getRootElement().getViewEntities()) {
-                if(viewEntity.getEntityName().getValue().equals(entityName)
-                        && viewEntity.getPackage().getValue().equals(entityPackage)) {
-                    XmlElement[] viewElement = {viewEntity.getXmlElement()};
-
-                    return Optional.of(viewElement);
-                }
-            };
-
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        Optional<AbstractEntity> entity = moquiIndexService.getEntityOrViewEntity(entityName);
+        if(entity.isPresent()) {
+            XmlElement[] result = {entity.get().getXmlElement()};
+            return Optional.of(result);
+        }else {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+//        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            for(Entity entity: fileElement.getRootElement().getEntities()) {
+//                if(entity.getEntityName().getValue().equals(entityName)
+//                        && entity.getPackage().getValue().equals(entityPackage)) {
+//                    XmlElement[] result = {entity.getXmlElement()};
+//
+//                    return Optional.of(result);
+//                }
+//            };
+//            //如果在实体中没有找到，在视图中再查找
+//            for(ViewEntity viewEntity: fileElement.getRootElement().getViewEntities()) {
+//                if(viewEntity.getEntityName().getValue().equals(entityName)
+//                        && viewEntity.getPackage().getValue().equals(entityPackage)) {
+//                    XmlElement[] viewElement = {viewEntity.getXmlElement()};
+//
+//                    return Optional.of(viewElement);
+//                }
+//            };
+//
+//        }
+//        return Optional.empty();
     }
 
     /**
@@ -220,10 +227,12 @@ public final class EntityUtils {
     public static Optional<XmlElement> findEntityAndViewEntityXmlElementByNameAndPackage(@NotNull Project project, @NotNull String entityName,
                                                                                          @NotNull String entityPackage){
 
-        Optional<AbstractEntity> entity = findEntityAndViewEntityByNameAndPackage(project, entityName, entityPackage);
-        if(entity.isPresent()) {
-            return Optional.of(entity.get().getXmlElement());
-        }
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+
+        Optional<AbstractEntity> entity = moquiIndexService.getEntityOrViewEntity(entityName);
+        return entity.map(AbstractEntity::getXmlElement);
+
+
 //        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
 //        for(DomFileElement<Entities> fileElement : fileElementList) {
 //            for(Entity entity: fileElement.getRootElement().getEntities()) {
@@ -242,7 +251,7 @@ public final class EntityUtils {
 //            };
 //
 //        }
-        return Optional.empty();
+
     }
 
     /**
@@ -253,92 +262,96 @@ public final class EntityUtils {
      */
     public static Optional<AbstractEntity> findEntityAndViewEntityByFullName(@NotNull Project project
             , @NotNull String fullName){
-//        EntityDescriptor descriptor = new EntityDescriptor(fullName);
-//        return findEntityAndViewEntityByNameAndPackage(project,descriptor.entityName,descriptor.entityPackage);
-        return findAllEntityAndViewEntity(project).stream().filter(item->{
-                return isThisEntityName(item,fullName);
-        }).findFirst();
-    }
-
-    /**
-     * 找到指定的Entity或ViewEntity
-     * @param project
-     * @param entityName
-     * @param entityPackage
-     * @return
-     */
-    public static Optional<AbstractEntity> findEntityAndViewEntityByNameAndPackage(@NotNull Project project, @NotNull String entityName,
-                                                              @NotNull String entityPackage){
-        EntityDescriptor entityDescriptor = new EntityDescriptor(entityName,entityPackage);
-
-        return findEntityAndViewEntityByFullName(project,entityDescriptor.getFullName());
+        MoquiIndexService moqiIndexService = project.getService(MoquiIndexService.class);
+        return moqiIndexService.getEntityOrViewEntity(fullName);
 
 //        return findAllEntityAndViewEntity(project).stream().filter(item->{
-//            if(entityPackage.equals(MyStringUtils.EMPTY_STRING)) {
-//                return entityName.equals(item.getEntityName().getValue());
-//            }else {
-//                return entityName.equals(item.getEntityName().getValue())
-//                        && entityPackage.equals(item.getPackage().getValue());
-//            }
+//                return isThisEntityName(item,fullName);
 //        }).findFirst();
     }
 
+//    /**
+//     * 找到指定的Entity或ViewEntity
+//     * @param project
+//     * @param entityName
+//     * @param entityPackage
+//     * @return
+//     */
+//    public static Optional<AbstractEntity> findEntityAndViewEntityByNameAndPackage(@NotNull Project project, @NotNull String entityName,
+//                                                              @NotNull String entityPackage){
+//        EntityDescriptor entityDescriptor = new EntityDescriptor(entityName,entityPackage);
+//
+//        return findEntityAndViewEntityByFullName(project,entityDescriptor.getFullName());
+//
+////        return findAllEntityAndViewEntity(project).stream().filter(item->{
+////            if(entityPackage.equals(MyStringUtils.EMPTY_STRING)) {
+////                return entityName.equals(item.getEntityName().getValue());
+////            }else {
+////                return entityName.equals(item.getEntityName().getValue())
+////                        && entityPackage.equals(item.getPackage().getValue());
+////            }
+////        }).findFirst();
+//    }
+
     /**
      * 根据全名找到指定的Entity
-     * @param project
-     * @param fullName
-     * @return
+     * @param project 当前的Project
+     * @param name 待查找的名称，可以带packageName，也可以不带
+     * @return 对应的Entity
      */
-    public static Optional<Entity> findEntityByFullName(@NotNull Project project
-            , @NotNull String fullName){
-        EntityDescriptor descriptor = new EntityDescriptor(fullName);
-        return findEntityByNameAndPackage(project,descriptor.entityName,descriptor.entityPackage);
+    public static Optional<Entity> findEntityByName(@NotNull Project project
+            , @NotNull String name){
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        return moquiIndexService.getEntityByName(name);
+
+//        EntityDescriptor descriptor = new EntityDescriptor(fullName);
+//        return findEntityByNameAndPackage(project,descriptor.entityName,descriptor.entityPackage);
 
     }
 
-    /**
-     * 找到指定的Entity
-     * @param project
-     * @param entityName
-     * @param entityPackage
-     * @return
-     */
-    public static Optional<Entity> findEntityByNameAndPackage(@NotNull Project project, @NotNull String entityName,
-                                                                            @NotNull String entityPackage){
+//    /**
+//     * 找到指定的Entity
+//     * @param project
+//     * @param entityName
+//     * @param entityPackage
+//     * @return
+//     */
+//    public static Optional<Entity> findEntityByNameAndPackage(@NotNull Project project, @NotNull String entityName,
+//                                                                            @NotNull String entityPackage){
+//
+//        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            for(Entity entity: fileElement.getRootElement().getEntities()) {
+//                if(entityPackage.equals(MyStringUtils.EMPTY_STRING)) {
+//                    if (entity.getEntityName().getValue().equals(entityName)) {
+//                        return Optional.of(entity);
+//                    }
+//
+//                }else {
+//                    if (entity.getEntityName().getValue().equals(entityName)
+//                            && entity.getPackage().getValue().equals(entityPackage)) {
+//
+//                        return Optional.of(entity);
+//                    }
+//                }
+//            };
+//        }
+//        return Optional.empty();
+//    }
 
-        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            for(Entity entity: fileElement.getRootElement().getEntities()) {
-                if(entityPackage.equals(MyStringUtils.EMPTY_STRING)) {
-                    if (entity.getEntityName().getValue().equals(entityName)) {
-                        return Optional.of(entity);
-                    }
-
-                }else {
-                    if (entity.getEntityName().getValue().equals(entityName)
-                            && entity.getPackage().getValue().equals(entityPackage)) {
-
-                        return Optional.of(entity);
-                    }
-                }
-            };
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * 根据EntityDescriptor找到对应的XmlElement
-     * @param project
-     * @param entityDescriptor
-     * @return
-     */
-    public static Optional<XmlElement[]> findEntityByEntityDescriptor(@NotNull Project project, @NotNull EntityDescriptor entityDescriptor){
-        if(entityDescriptor.entityName == null || entityDescriptor.entityPackage == null) {
-            return Optional.empty();
-        }
-
-        return findEntityElementsByNameAndPackage(project, entityDescriptor.entityName,entityDescriptor.entityPackage);
-    }
+//    /**
+//     * 根据EntityDescriptor找到对应的XmlElement
+//     * @param project
+//     * @param entityDescriptor
+//     * @return
+//     */
+//    public static Optional<XmlElement[]> findEntityByEntityDescriptor(@NotNull Project project, @NotNull EntityDescriptor entityDescriptor){
+//        if(entityDescriptor.entityName == null || entityDescriptor.entityPackage == null) {
+//            return Optional.empty();
+//        }
+//
+//        return findEntityElementsByNameAndPackage(project, entityDescriptor.entityName,entityDescriptor.entityPackage);
+//    }
 
     /**
      * 将一个字符串转化成EntityDescriptor
@@ -398,7 +411,7 @@ public final class EntityUtils {
      * @return
      */
     public static @NotNull Set<String> getRelationshipShortAliases(@NotNull Project project,@NotNull String entityName){
-        Set<String> attrNames = new HashSet<String>();
+//        Set<String> attrNames = new HashSet<String>();
         List<Relationship> relationshipList = getEntityRelationshipList(project,entityName);
 
         return  relationshipList.stream().map(Relationship::getShortAlias)
@@ -414,33 +427,36 @@ public final class EntityUtils {
      * @return
      */
     public static @NotNull List<Relationship> getEntityRelationshipList(@NotNull Project project,@NotNull String entityName){
-        List<Relationship> relationshipList = new LinkedList<>();
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        return moquiIndexService.getRelationshipListByEntityName(entityName).orElse(new ArrayList<Relationship>());
 
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-
-        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
-
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            //添加实体的Relationship
-            for(Entity entity: fileElement.getRootElement().getEntities()) {
-
-                if(isThisEntityName(entity,entityName)) {
-                    relationshipList.addAll(
-                            entity.getRelationshipList()
-                    );
-                }
-            };
-            //添加ExtendEntity的Relationship
-            for(ExtendEntity extendEntity:fileElement.getRootElement().getExtendEntities()) {
-
-                if(isThisExtendEntityName(extendEntity,entityName)) {
-                    relationshipList.addAll(
-                            extendEntity.getRelationshipList()
-                    );
-                }
-            };
-        }
-        return relationshipList;
+//        List<Relationship> relationshipList = new LinkedList<>();
+//
+//        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//
+//        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
+//
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            //添加实体的Relationship
+//            for(Entity entity: fileElement.getRootElement().getEntities()) {
+//
+//                if(isThisEntityName(entity,entityName)) {
+//                    relationshipList.addAll(
+//                            entity.getRelationshipList()
+//                    );
+//                }
+//            };
+//            //添加ExtendEntity的Relationship
+//            for(ExtendEntity extendEntity:fileElement.getRootElement().getExtendEntities()) {
+//
+//                if(isThisExtendEntityName(extendEntity,entityName)) {
+//                    relationshipList.addAll(
+//                            extendEntity.getRelationshipList()
+//                    );
+//                }
+//            };
+//        }
+//        return relationshipList;
     }
     /**
      * 获取所有定义的ViewEntity某个属性的内容
@@ -450,28 +466,36 @@ public final class EntityUtils {
      * @return
      */
     public static @NotNull Set<String> getViewEntityAttributes(@NotNull Project project,@NotNull String attributeName,@Nullable String filterStr){
-        Set<String> attrNames = new HashSet<String>();
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-
-        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
-
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-
-            //添加视图实体的包名
-            for(ViewEntity entity: fileElement.getRootElement().getViewEntities()) {
-                var name = entity.getXmlTag().getAttribute(attributeName).getValue();
-                if(name != null) {
-                    if (isNotEmpty(filterStr)) {
-                        if (name.contains(filterStr)) {
-                            attrNames.add(name);
-                        }
-                    } else {
-                        attrNames.add(name);
-                    }
-                }
-            };
-        }
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        List<ViewEntity> viewEntityList = moquiIndexService.getAllViewEntity().orElse(new ArrayList<>());
+                Set<String> attrNames = new HashSet<String>();
+        for(ViewEntity entity: viewEntityList) {
+            MyDomUtils.getXmlTagAttributeValueByAttributeName(entity.getXmlTag(), attributeName, filterStr)
+                .ifPresent(attrNames::add);
+        };
         return attrNames;
+//        Set<String> attrNames = new HashSet<String>();
+//        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//
+//        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
+//
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//
+//            //添加视图实体的包名
+//            for(ViewEntity entity: fileElement.getRootElement().getViewEntities()) {
+//                var name = entity.getXmlTag().getAttribute(attributeName).getValue();
+//                if(name != null) {
+//                    if (isNotEmpty(filterStr)) {
+//                        if (name.contains(filterStr)) {
+//                            attrNames.add(name);
+//                        }
+//                    } else {
+//                        attrNames.add(name);
+//                    }
+//                }
+//            };
+//        }
+//        return attrNames;
     }
 
     /**
@@ -483,58 +507,80 @@ public final class EntityUtils {
      */
     public static @NotNull Set<String> getEntityAndViewEntityAttributes(@NotNull Project project,@NotNull String attributeName,@Nullable String filterStr){
         Set<String> attrNames = new HashSet<String>();
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-
-        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
-
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            //添加实体的属性名
-            for(Entity entity: fileElement.getRootElement().getEntities()) {
-                var name = entity.getXmlTag().getAttribute(attributeName).getValue();
-                if(name != null) {
-                    if(isNotEmpty(filterStr)) {
-                        if(name.contains(filterStr)) {attrNames.add(name);}
-                    }else {
-                        attrNames.add(name);
-                    }
-                }
-
-            };
-            //添加视图实体的包名
-            for(ViewEntity entity: fileElement.getRootElement().getViewEntities()) {
-                var name = entity.getXmlTag().getAttribute(attributeName).getValue();
-                if(name != null) {
-                    if (isNotEmpty(filterStr)) {
-                        if (name.contains(filterStr)) {
-                            attrNames.add(name);
-                        }
-                    } else {
-                        attrNames.add(name);
-                    }
-                }
-            };
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        List<Entity> entityList = moquiIndexService.getAllEntity().orElse(new ArrayList<>());
+        for(Entity entity:entityList) {
+            MyDomUtils.getXmlTagAttributeValueByAttributeName(entity.getXmlTag(), attributeName, filterStr)
+                    .ifPresent(attrNames::add);
         }
+        List<ViewEntity> viewEntityList = moquiIndexService.getAllViewEntity().orElse(new ArrayList<ViewEntity>());
+        for(ViewEntity entity:viewEntityList) {
+            MyDomUtils.getXmlTagAttributeValueByAttributeName(entity.getXmlTag(), attributeName, filterStr)
+                    .ifPresent(attrNames::add);
+        }
+//        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//
+//        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
+//
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            //添加实体的属性名
+//            for(Entity entity: fileElement.getRootElement().getEntities()) {
+//                var name = entity.getXmlTag().getAttribute(attributeName).getValue();
+//                if(name != null) {
+//                    if(isNotEmpty(filterStr)) {
+//                        if(name.contains(filterStr)) {attrNames.add(name);}
+//                    }else {
+//                        attrNames.add(name);
+//                    }
+//                }
+//
+//            };
+//            //添加视图实体的包名
+//            for(ViewEntity entity: fileElement.getRootElement().getViewEntities()) {
+//                var name = entity.getXmlTag().getAttribute(attributeName).getValue();
+//                if(name != null) {
+//                    if (isNotEmpty(filterStr)) {
+//                        if (name.contains(filterStr)) {
+//                            attrNames.add(name);
+//                        }
+//                    } else {
+//                        attrNames.add(name);
+//                    }
+//                }
+//            };
+//        }
         return attrNames;
     }
     public static @NotNull Set<String> getEntityFullNames(@NotNull Project project,@Nullable String filterStr){
         Set<String> entityNames = new HashSet<String>();
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-
-        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
-
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            //添加实体
-            for(Entity entity: fileElement.getRootElement().getEntities()) {
-                var entityName = getFullNameFromEntity(entity);
-                if(isNotEmpty(filterStr)) {
-                    if(entityName.contains(filterStr)) {entityNames.add(entityName);}
-                }else {
-                    entityNames.add(entityName);
-                }
-
-            };
-
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        Map<String, IndexEntity> entityMap = moquiIndexService.getIndexEntityMap();
+        for(String key : entityMap.keySet()){
+            String fullName =entityMap.get(key).getFullName();
+            if(isNotEmpty(filterStr)){
+                 if(fullName.contains(filterStr)) {entityNames.add(fullName);}
+            }else {
+                entityNames.add(fullName);
+            }
         }
+
+//        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//
+//        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
+//
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            //添加实体
+//            for(Entity entity: fileElement.getRootElement().getEntities()) {
+//                var entityName = getFullNameFromEntity(entity);
+//                if(isNotEmpty(filterStr)) {
+//                    if(entityName.contains(filterStr)) {entityNames.add(entityName);}
+//                }else {
+//                    entityNames.add(entityName);
+//                }
+//
+//            };
+//
+//        }
         return entityNames;
     }
 
@@ -564,30 +610,35 @@ public final class EntityUtils {
      * @return
      */
     public static @NotNull List<Field> getEntityFieldList(@NotNull Project project,@NotNull String entityName){
-        List<Field> fieldList = new LinkedList<>();
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        Optional<IndexEntity> indexEntity = moquiIndexService.getIndexEntityByName(entityName);
+        return indexEntity.map(entity -> entity.getFieldList().orElse(new ArrayList<>())).orElseGet(ArrayList::new);
 
-        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
 
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            //添加实体
-            fieldList.addAll(
-                    fileElement.getRootElement().getEntities().stream()
-                            .filter(e->isThisEntityName(e,entityName))
-                            .flatMap(e-> {return e.getFieldList().stream();})
-                            .toList()
-            );
-
-            //add ExtendEntity
-            fieldList.addAll(
-                    fileElement.getRootElement().getExtendEntities().stream()
-                            .filter(e->isThisExtendEntityName(e,entityName))
-                            .flatMap(e-> {return e.getFieldList().stream();})
-                            .toList()
-            );
-
-        }
-        return fieldList;
+//        List<Field> fieldList = new LinkedList<>();
+//        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//
+//        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
+//
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            //添加实体
+//            fieldList.addAll(
+//                    fileElement.getRootElement().getEntities().stream()
+//                            .filter(e->isThisEntityName(e,entityName))
+//                            .flatMap(e-> {return e.getFieldList().stream();})
+//                            .toList()
+//            );
+//
+//            //add ExtendEntity
+//            fieldList.addAll(
+//                    fileElement.getRootElement().getExtendEntities().stream()
+//                            .filter(e->isThisExtendEntityName(e,entityName))
+//                            .flatMap(e-> {return e.getFieldList().stream();})
+//                            .toList()
+//            );
+//
+//        }
+//        return fieldList;
     }
 
     /**
@@ -597,51 +648,70 @@ public final class EntityUtils {
      * @return
      */
     public static @NotNull List<AbstractField> getViewEntityFieldList(@NotNull Project project, @NotNull String name){
-        List<AbstractField> fieldList = new LinkedList<>();
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        Optional<IndexViewEntity> indexViewEntity = moquiIndexService.getIndexViewEntityByName(name);
+        return indexViewEntity.map(entity->entity.getAbstractFieldList().orElse(new ArrayList<>())).orElseGet(ArrayList::new);
 
-        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
-        ViewEntity viewEntity = null;
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            //添加实体
-             viewEntity= fileElement.getRootElement().getViewEntities().stream()
-                            .filter(e->isThisEntityName(e,name))
-                            .findFirst().orElse(null);
-             if(viewEntity != null) break;
-        }
-        if(viewEntity == null) return  fieldList;
+//        List<AbstractField> fieldList = new LinkedList<>();
+//
+//        List<DomFileElement<Entities>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Entities.class);
+//
+//        ViewEntity viewEntity = null;
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            //添加实体
+//             viewEntity= fileElement.getRootElement().getViewEntities().stream()
+//                            .filter(e->isThisEntityName(e,name))
+//                            .findFirst().orElse(null);
+//             if(viewEntity != null) break;
+//        }
+//        if(viewEntity == null) return  fieldList;
+//
+//        fieldList.addAll(getViewEntityFieldList(project,viewEntity));
+//        return fieldList;
 
-        fieldList.addAll(getViewEntityFieldList(project,viewEntity));
+    }
+    public static @NotNull List<AbstractField> getViewEntityFieldList(@NotNull Project project, @NotNull ViewEntity viewEntity){
+        String entityName = MyDomUtils.getValueOrEmptyString(viewEntity.getEntityName());
+        return getViewEntityFieldList(project,entityName);
 
-//        //添加alias
-//        fieldList.addAll(viewEntity.getAliasList());
+        //添加alias
+//        List<AbstractField> fieldList = new LinkedList<>(viewEntity.getAliasList());
 //
 //        //对AliasAll进行处理
 //        List<AliasAll> aliasAllList = viewEntity.getAliasAllList();
 //
 //        for(AliasAll aliasAll : aliasAllList) {
-//            String alias = aliasAll.getEntityAlias().getXmlAttributeValue().getValue();
+//            String alias = MyDomUtils.getXmlAttributeValueString(aliasAll.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING);
+//            if(MyStringUtils.isEmpty(alias)) continue;
+//
 //            List<AbstractField> aliasAllFieldList = new ArrayList<>();
-//            //先查找MemberEntity，再操作MemberRelationship
+//            //先查找MemberEntity，再查找MemberRelationship
 //            MemberEntity memberEntity = getMemberEntityByAlias(viewEntity, alias);
 //            if(memberEntity == null) {
 //                MemberRelationship memberRelationship = getMemberRelationshipByAlias(viewEntity,alias);
 //                if(memberRelationship != null){
-//                    MemberEntity relationshipMemberEntity = getMemberEntityByAlias(viewEntity
-//                            ,memberRelationship.getJoinFromAlias().getXmlAttributeValue().getValue());
-//                   aliasAllFieldList.addAll(
-//                           getEntityRelationshipFieldList(
-//                            project
-//                            ,relationshipMemberEntity.getEntityName().getXmlAttributeValue().getValue()
-//                            ,memberRelationship.getRelationship().getXmlAttributeValue().getValue()
-//                            )
-//                   );
+//                    final String joinFromAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getJoinFromAlias());
+//                    if(MyStringUtils.isEmpty(joinFromAlias)) continue;
+//                    //找到最终定义的那个MemberEntity，可以跳过中间有多个MemberRelationship
+//                    MemberEntity relationshipMemberEntity = getDefinedMemberEntityByAlias(viewEntity,joinFromAlias);
+//
+//                    if(relationshipMemberEntity==null) continue;
+//
+//                    final String entityName = MyDomUtils.getValueOrEmptyString(relationshipMemberEntity.getEntityName());
+//                    final String relationship = MyDomUtils.getValueOrEmptyString(memberRelationship.getRelationship());
+//
+//                    if(MyStringUtils.isEmpty(entityName) || MyStringUtils.isEmpty(relationship)) continue;
+//
+//                    aliasAllFieldList.addAll(
+//                            getEntityRelationshipFieldList(project,entityName,relationship)
+//                    );
 //
 //                }
 //            }else {
+//                final String entityName = MyDomUtils.getValueOrEmptyString(memberEntity.getEntityName());
+//                if(MyStringUtils.isEmpty(entityName)) continue;
 //                aliasAllFieldList.addAll(
-//                        getEntityOrViewEntityFields(viewEntity.getXmlTag().getProject()
-//                            ,memberEntity.getEntityName().getXmlAttributeValue().getValue())
+//                        getEntityOrViewEntityFields(project,entityName)
 //                );
 //            }
 //
@@ -650,63 +720,8 @@ public final class EntityUtils {
 //            );
 //
 //        }
-
-        return fieldList;
-
-    }
-    public static @NotNull List<AbstractField> getViewEntityFieldList(@NotNull Project project, @NotNull ViewEntity viewEntity){
-        //添加alias
-        List<AbstractField> fieldList = new LinkedList<>(viewEntity.getAliasList());
-
-        //对AliasAll进行处理
-        List<AliasAll> aliasAllList = viewEntity.getAliasAllList();
-
-        for(AliasAll aliasAll : aliasAllList) {
-            String alias = MyDomUtils.getXmlAttributeValueString(aliasAll.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING);
-            if(MyStringUtils.isEmpty(alias)) continue;
-
-            List<AbstractField> aliasAllFieldList = new ArrayList<>();
-            //先查找MemberEntity，再查找MemberRelationship
-            MemberEntity memberEntity = getMemberEntityByAlias(viewEntity, alias);
-            if(memberEntity == null) {
-                MemberRelationship memberRelationship = getMemberRelationshipByAlias(viewEntity,alias);
-                if(memberRelationship != null){
-                    final String joinFromAlias = MyDomUtils.getXmlAttributeValueString(memberRelationship.getJoinFromAlias())
-                            .orElse(MyStringUtils.EMPTY_STRING);
-                    if(MyStringUtils.isEmpty(joinFromAlias)) continue;
-                    //找到最终定义的那个MemberEntity，可以跳过中间有多个MemberRelationship
-                    MemberEntity relationshipMemberEntity = getDefinedMemberEntityByAlias(viewEntity,joinFromAlias);
-
-                    if(relationshipMemberEntity==null) continue;
-
-                    final String entityName = MyDomUtils.getXmlAttributeValueString(relationshipMemberEntity.getEntityName())
-                                    .orElse(MyStringUtils.EMPTY_STRING);
-                    final String relationship = MyDomUtils.getXmlAttributeValueString(memberRelationship.getRelationship())
-                                    .orElse(MyStringUtils.EMPTY_STRING);
-
-                    if(MyStringUtils.isEmpty(entityName) || MyStringUtils.isEmpty(relationship)) continue;
-
-                    aliasAllFieldList.addAll(
-                            getEntityRelationshipFieldList(project,entityName,relationship)
-                    );
-
-                }
-            }else {
-                final String entityName = MyDomUtils.getXmlAttributeValueString(memberEntity.getEntityName())
-                                .orElse(MyStringUtils.EMPTY_STRING);
-                if(MyStringUtils.isEmpty(entityName)) continue;
-                aliasAllFieldList.addAll(
-                        getEntityOrViewEntityFields(project,entityName)
-                );
-            }
-
-            fieldList.addAll(
-                    excludeFields(aliasAllFieldList,aliasAll.getExcludeList())
-            );
-
-        }
-
-        return fieldList;
+//
+//        return fieldList;
 
     }
 
@@ -725,7 +740,7 @@ public final class EntityUtils {
         if(abstractMemberEntity instanceof MemberRelationship memberRelationship) {
 
             return getDefinedMemberEntityByAlias(viewEntity,
-                    memberRelationship.getJoinFromAlias().getXmlAttributeValue().getValue());
+                    MyDomUtils.getValueOrEmptyString(memberRelationship.getJoinFromAlias()));
 
 
         };
@@ -742,7 +757,7 @@ public final class EntityUtils {
 
         return viewEntity.getMemberEntityList().stream()
                 .filter(item->{
-                    final String itemAlias =MyDomUtils.getXmlAttributeValueString(item.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING);
+                    final String itemAlias =MyDomUtils.getValueOrEmptyString(item.getEntityAlias());
                     return alias.equals(itemAlias);})
                 .findFirst().orElse(null);
 
@@ -766,7 +781,7 @@ public final class EntityUtils {
         }
         return result;
     }
-    private static List<AbstractField> excludeFields(List<AbstractField> sourceFieldList,List<Exclude> excludeList){
+    public static List<AbstractField> excludeFields(List<AbstractField> sourceFieldList,List<Exclude> excludeList){
         final Set<String> excludeFieldNames = excludeList.stream().map(Exclude::getField)
                 .map(GenericAttributeValue::getXmlAttributeValue)
                 .map(XmlAttributeValue::getValue)
@@ -787,7 +802,7 @@ public final class EntityUtils {
     public static MemberRelationship getMemberRelationshipByAlias(@NotNull ViewEntity viewEntity, @NotNull String alias){
         return viewEntity.getMemberRelationshipList().stream()
                 .filter(item->{
-                    final String itemAlias = MyDomUtils.getXmlAttributeValueString(item.getEntityAlias()).orElse(MyStringUtils.EMPTY_STRING);
+                    final String itemAlias = MyDomUtils.getValueOrEmptyString(item.getEntityAlias());
                     return alias.equals(itemAlias);
                     })
                 .findFirst().orElse(null);
@@ -795,14 +810,18 @@ public final class EntityUtils {
 
 
     public static @NotNull Set<String> getEntityFieldNames(@NotNull Project project,@Nullable String entityName){
-        List<Field> fieldList = getEntityFieldList(project,entityName);
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        Optional<IndexEntity> indexEntity = moquiIndexService.getIndexEntityByName(entityName);
+        return new HashSet<>(indexEntity.map(entity -> entity.getFieldNameList().orElse(new ArrayList<>())).orElseGet(ArrayList::new));
 
-
-        return  fieldList.stream()
-                        .map(Field::getName)
-                        .map(GenericAttributeValue::getValue)
-                        .collect(Collectors.toSet())
-        ;
+//        List<Field> fieldList = getEntityFieldList(project,entityName);
+//
+//
+//        return  fieldList.stream()
+//                        .map(Field::getName)
+//                        .map(GenericAttributeValue::getValue)
+//                        .collect(Collectors.toSet())
+//        ;
 
 
     }
@@ -814,55 +833,66 @@ public final class EntityUtils {
      * @return
      */
     public static @NotNull Set<String> getViewEntityFullNames(@NotNull Project project,@Nullable String filterStr){
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        Map<String,IndexViewEntity> indexViewEntityMap = moquiIndexService.getIndexViewEntityMap();
         Set<String> viewEntityNames = new HashSet<String>();
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-
-        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
-
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            //添加视图
-            for(ViewEntity viewEntity: fileElement.getRootElement().getViewEntities()) {
-                var viewName = getFullNameFromViewEntity(viewEntity);
-                if(isNotEmpty(filterStr)) {
-                    if(viewEntityNames.contains(filterStr)) {viewEntityNames.add(viewName);}
-                }else {
-                    viewEntityNames.add(viewName);
-                }
-//                viewEntityNames.add(viewEntity.getPackage().getValue()+"."+viewEntity.getEntityName().getValue());
-            };
-
+        for(String key: indexViewEntityMap.keySet()) {
+            viewEntityNames.add(indexViewEntityMap.get(key).getFullName());
         }
+
+//        Set<String> viewEntityNames = new HashSet<String>();
+//
+//        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//
+//        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
+//
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            //添加视图
+//            for(ViewEntity viewEntity: fileElement.getRootElement().getViewEntities()) {
+//                var viewName = getFullNameFromViewEntity(viewEntity);
+//                if(isNotEmpty(filterStr)) {
+//                    if(viewEntityNames.contains(filterStr)) {viewEntityNames.add(viewName);}
+//                }else {
+//                    viewEntityNames.add(viewName);
+//                }
+////                viewEntityNames.add(viewEntity.getPackage().getValue()+"."+viewEntity.getEntityName().getValue());
+//            };
+//
+//        }
         return viewEntityNames;
     }
     public static @NotNull Set<String> getEntityAndViewEntityFullNames(@NotNull Project project,@Nullable String filterStr){
         Set<String> entityNames = new HashSet<String>();
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+        entityNames.addAll(getEntityFullNames(project, filterStr));
+        entityNames.addAll(getViewEntityFullNames(project,filterStr));
 
-        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
-
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            //添加实体
-            for(Entity entity: fileElement.getRootElement().getEntities()) {
-                var entityName = getFullNameFromEntity(entity);
-                if(isNotEmpty(filterStr)) {
-                    if(entityName.contains(filterStr)) {entityNames.add(entityName);}
-                }else {
-                    entityNames.add(entityName);
-                }
-
-            };
-            //添加视图
-            for(ViewEntity viewEntity: fileElement.getRootElement().getViewEntities()) {
-                var viewName = getFullNameFromViewEntity(viewEntity);
-                if(isNotEmpty(filterStr)) {
-                    if(entityNames.contains(filterStr)) {entityNames.add(viewName);}
-                }else {
-                    entityNames.add(viewName);
-                }
-//                viewEntityNames.add(viewEntity.getPackage().getValue()+"."+viewEntity.getEntityName().getValue());
-            };
-
-        }
+//        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//
+//        List<DomFileElement<Entities>> fileElementList  = DomService.getInstance().getFileElements(Entities.class,project,scope);
+//
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            //添加实体
+//            for(Entity entity: fileElement.getRootElement().getEntities()) {
+//                var entityName = getFullNameFromEntity(entity);
+//                if(isNotEmpty(filterStr)) {
+//                    if(entityName.contains(filterStr)) {entityNames.add(entityName);}
+//                }else {
+//                    entityNames.add(entityName);
+//                }
+//
+//            };
+//            //添加视图
+//            for(ViewEntity viewEntity: fileElement.getRootElement().getViewEntities()) {
+//                var viewName = getFullNameFromViewEntity(viewEntity);
+//                if(isNotEmpty(filterStr)) {
+//                    if(entityNames.contains(filterStr)) {entityNames.add(viewName);}
+//                }else {
+//                    entityNames.add(viewName);
+//                }
+////                viewEntityNames.add(viewEntity.getPackage().getValue()+"."+viewEntity.getEntityName().getValue());
+//            };
+//
+//        }
         return entityNames;
     }
     public static @NotNull Set<String> getViewEntityAliases(@NotNull PsiElement psiElement){
@@ -904,32 +934,27 @@ public final class EntityUtils {
 //
 //    }
     public static String getFullName(@NotNull String name, @NotNull String packageName){
-        return packageName + "." + name;
+        return packageName + ENTITY_NAME_DOT + name;
     }
 
     public static List<PsiElement> getRelatedEntity(@NotNull PsiElement psiElement, @NotNull String fullName) {
         List<PsiElement> resultList = new ArrayList<>();
 
-        EntityPsiElementService entityPsiElementService =
-                psiElement.getProject().getService(EntityPsiElementService.class);
+        MoquiIndexService moquiIndexService =
+                psiElement.getProject().getService(MoquiIndexService.class);
 
-        DomElement target = entityPsiElementService.getPsiElementByFullName(fullName);
-        if (target == null) {
-//            CustomNotifier.warn(psiElement.getProject(), "发现找不到的Entity，fullName：" + fullName +", 所在文件："
-//                    +psiElement.getContainingFile().getVirtualFile().getPath());
-        }else {
-            resultList.add((PsiElement) target.getXmlElement());
-        }
+        Optional<Entity> target = moquiIndexService.getEntityByName(fullName);
+        target.ifPresent(entity -> resultList.add(entity.getXmlElement()));
 
         return resultList;
     }
 
     public static Icon getNagavitorToEntityIcon() {
-        return MyIcons.NAVIGATE_TO_ENTITY;
+        return MoquiIcons.NavigateToEntity; //MyIcons.NAVIGATE_TO_ENTITY;
     }
 
     public static Icon getNagavitorToViewIcon() {
-        return MyIcons.NAVIGATE_TO_VIEW;
+        return MoquiIcons.NavigateToView; //MyIcons.NAVIGATE_TO_VIEW;
     }
     public static String getNagavitorToEntityToolTips() {
         return "Navigating to Entity definition";
@@ -1150,48 +1175,53 @@ public final class EntityUtils {
     }
     public static Optional<AbstractMemberEntity> getViewEntityAbstractMemberEntityByAlias(@NotNull ConvertContext context,@NotNull String alias) {
         return getViewEntityAbstractMemberEntity(context).stream()
-                .filter(item ->{return alias.equals(item.getEntityAlias().getXmlAttributeValue().getValue());})
+                .filter(item -> alias.equals(item.getEntityAlias().getStringValue()))
                 .findFirst();
     }
     public static Optional<AbstractMemberEntity> getViewEntityAbstractMemberEntityByAlias(@NotNull ViewEntity viewEntity,@NotNull String alias) {
 
         return getViewEntityAbstractMemberEntity(viewEntity).stream()
-                .filter(item ->{
-                    final XmlAttributeValue value = item.getEntityAlias().getXmlAttributeValue();
-                    if (value==null) return false;
-                    final String itemAlias = value.getValue();
-                    return alias.equals(itemAlias);
-                })
+                .filter(item -> alias.equals(item.getEntityAlias().getStringValue()))
                 .findFirst();
     }
 
     /**
      * 获取MemberEntity不同属性对应的Entity或ViewEntity所对应的字段列表
-     * @param member
-     * @param attributeName
-     * @return
+     * @param member MemberEntity
+     * @param attributeName 属性名称
+     * @return List<AbstractField>
      */
     public static List<AbstractField> getFieldListFromMemberEntity(@NotNull MemberEntity member,@NotNull String attributeName){
         List<AbstractField> result = new ArrayList<>();
 
-        Project project = member.getXmlTag().getProject();
+        XmlTag xmlTag = member.getXmlTag();
+        if(xmlTag == null) return  result;
+        Project project = xmlTag.getProject();
+
+
         String name = null;
 
         if(attributeName.equals(MemberEntity.ATTR_JOIN_FROM_ALIAS)) {
             ViewEntity viewEntity= DomUtil.getParentOfType(member,ViewEntity.class,true);
-            final XmlAttributeValue attributeValue = member.getJoinFromAlias().getXmlAttributeValue();
-            if(attributeValue == null) return result;
+            if(viewEntity == null) return result;
+
+//            final XmlAttributeValue attributeValue = member.getJoinFromAlias().getXmlAttributeValue();
+//            if(attributeValue == null) return result;
 
             MemberEntity alias = getDefinedMemberEntityByAlias(viewEntity
-                    ,attributeValue.getValue());
-            name = alias.getEntityName().getXmlAttributeValue().getValue();
+                    ,MyDomUtils.getValueOrEmptyString(member.getJoinFromAlias()));
+
+            if(alias == null) return result;
+            name = alias.getEntityName().getStringValue();
 
         }
         if(attributeName.equals(MemberEntity.ATTR_ENTITY_NAME)) {
-            name = member.getEntityName().getXmlAttributeValue().getValue();
+            name = member.getEntityName().getStringValue();
+        }
+        if(name != null) {
+            result.addAll(getEntityOrViewEntityFields(project, name));
         }
 
-        result.addAll(getEntityOrViewEntityFields(project,name));
         return result;
 
     }
@@ -1252,16 +1282,21 @@ public final class EntityUtils {
      * @return
      */
     public static @NotNull Collection<AbstractField> getEntityOrViewEntityFields(@NotNull Project project, @NotNull String entityName){
-        AbstractEntity entity = findEntityAndViewEntityByFullName(project,entityName).orElse(null);
-        if(entity == null) return Collections.emptyList();
-        Collection<AbstractField> result = new ArrayList<>();
-        if(entity instanceof Entity) {
-            result.addAll(getEntityFieldList(project,entityName));
-        }
-        if(entity instanceof ViewEntity) {
-            result.addAll(getViewEntityFieldList(project,entityName));
-        }
-        return result;
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        Optional<List<AbstractField>> result = moquiIndexService.getEntityOrViewEntityFieldList(entityName);
+        return result.orElse(Collections.emptyList());
+
+
+//        AbstractEntity entity = findEntityAndViewEntityByFullName(project,entityName).orElse(null);
+//        if(entity == null) return Collections.emptyList();
+//        Collection<AbstractField> result = new ArrayList<>();
+//        if(entity instanceof Entity) {
+//            result.addAll(getEntityFieldList(project,entityName));
+//        }
+//        if(entity instanceof ViewEntity) {
+//            result.addAll(getViewEntityFieldList(project,entityName));
+//        }
+//        return result;
     }
     public static Optional<Entity> getCurrentEntity(ConvertContext context){
         return getLocalDomElementByConvertContext(context,Entity.class);
@@ -1415,5 +1450,40 @@ public final class EntityUtils {
         return psiReferences.toArray(new PsiReference[0]);
     }
 
+    /**
+     * 根据Entity的Name和Package查找所有的ExtendEntity
+     * @param project 当前项目
+     * @param entityName
+     * @param entityPackage
+     * @return Collection<ExtendEntity>
+     */
+    public static Collection<ExtendEntity> findExtendEntitiesByName(@NotNull Project project,@NotNull String entityName,
+                                                              @NotNull String entityPackage){
+
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        return moquiIndexService.getExtendEntityListByEntityName(entityName).get();
+
+//        Collection<ExtendEntity> result = new ArrayList<ExtendEntity>();
+//        List<DomFileElement<Entities>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Entities.class);
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            for(ExtendEntity entity: fileElement.getRootElement().getExtendEntities()) {
+//                if(MyDomUtils.getXmlAttributeValueString(entity.getEntityName()).orElse(MyStringUtils.EMPTY_STRING).equals(entityName)
+//                        && MyDomUtils.getXmlAttributeValueString(entity.getPackage()).orElse(MyStringUtils.EMPTY_STRING).equals(entityPackage)) {
+//                    result.add(entity);
+//                }
+//            };
+//        }
+//        return result;
+    }
+
+    /**
+     * 判断输入的字符串是否为全称格式，即是否包含“.”
+     * @param name 待判断的字符串
+     * @return boolean
+     *
+     */
+    public static boolean isFullName(@NotNull String name) {
+        return name.indexOf(ENTITY_NAME_DOT) > 0;
+    }
 
 }

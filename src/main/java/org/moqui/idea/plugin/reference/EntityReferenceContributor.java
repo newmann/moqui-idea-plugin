@@ -68,7 +68,7 @@ public class EntityReferenceContributor extends PsiReferenceContributor {
                         final String entityFullName = attributeValue.getValue();
 
 //                        Optional<XmlElement> optEntity = EntityUtils.findEntityXmlElementByFullName(project,entityFullName);
-                        Optional<Entity> optEntity = EntityUtils.findEntityByFullName(project,entityFullName);
+                        Optional<Entity> optEntity = EntityUtils.findEntityByName(project,entityFullName);
                         if (optEntity.isEmpty()) return PsiReference.EMPTY_ARRAY;
 
 //                        PsiReference[] psiReferences = new PsiReference[1];

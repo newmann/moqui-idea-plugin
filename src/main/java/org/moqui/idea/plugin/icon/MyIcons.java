@@ -4,7 +4,7 @@ import com.intellij.ui.IconManager;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-
+@Deprecated
 public final class MyIcons {
     public static final IconManager iconManager = IconManager.getInstance();
     private static @NotNull Icon load(@NotNull String path, int cacheKey, int flags) {

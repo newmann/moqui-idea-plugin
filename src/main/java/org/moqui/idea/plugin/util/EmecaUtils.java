@@ -12,6 +12,7 @@ public final class EmecaUtils {
 
 
     public static boolean isEmecasFile(@Nullable PsiFile file){
+        if(file == null) return false;
         return MyDomUtils.isSpecialXmlFile(file, Emecas.TAG_NAME);
 
     }

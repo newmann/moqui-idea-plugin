@@ -17,8 +17,8 @@ public class ServicePresentationProvider extends PresentationProvider<Service> {
   @Override
   public @Nullable Icon getIcon(Service service) {
 
-    if(service.getServiceType().exists()) {
-      switch(service.getServiceType().getStringValue()) {
+    if(service.getType().exists()) {
+      switch(service.getType().getStringValue()) {
         case "entity-auto":
           return MoquiIcons.ServiceTypeEntityAuto;
         case "script":

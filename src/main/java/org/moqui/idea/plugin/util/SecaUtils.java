@@ -12,6 +12,7 @@ public final class SecaUtils {
 
 
     public static boolean isSecasFile(@Nullable PsiFile file){
+        if(file == null) return false;
         return MyDomUtils.isSpecialXmlFile(file, Secas.TAG_NAME);
     }
 

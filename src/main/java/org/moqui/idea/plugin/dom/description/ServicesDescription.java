@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.dom.description;
 
 import com.intellij.util.xml.highlighting.DomElementsAnnotator;
+import icons.MoquiIcons;
 import org.moqui.idea.plugin.annotator.ServicesDomAnnotator;
 import org.moqui.idea.plugin.dom.model.Services;
 import org.moqui.idea.plugin.icon.MyIcons;
@@ -29,7 +30,8 @@ public class ServicesDescription extends DomFileDescription<Services> {
     @Override
     public @Nullable Icon getFileIcon(int flags) {
 //        return super.getFileIcon(flags);
-        return MyIcons.FILE_ICON_SERVICES;
+        return MoquiIcons.ServiceTag;
+        //Icons.FILE_ICON_SERVICES;
     }
 
     @Override

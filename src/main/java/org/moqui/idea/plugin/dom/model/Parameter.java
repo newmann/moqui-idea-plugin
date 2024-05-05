@@ -7,12 +7,12 @@ import org.moqui.idea.plugin.dom.presentation.ParameterPresentationProvider;
 
 import java.util.List;
 @Presentation(icon ="MoquiIcons.ParameterTag", provider = ParameterPresentationProvider.class)
-public interface Parameter extends AttListParameterGeneral,ParameterValidationsList {
+public interface Parameter extends AbstractField,AttListParameterGeneral,ParameterValidationsList {
     public static final String TAG_NAME = "parameter";
 
 
-    public static final String ATTR_NAME = "name";
-    public static final String ATTR_TYPE = "type";
+//    public static final String ATTR_NAME = "name";
+//    public static final String ATTR_TYPE = "type";
     public static final String ATTR_FORMAT = "format";
     public static final String ATTR_DEFAULT = "default";
     public static final String ATTR_DEFAULT_VALUE = "default-value";
@@ -24,13 +24,13 @@ public interface Parameter extends AttListParameterGeneral,ParameterValidationsL
     public static final String ATTR_VALUE = "value";
 
 
-    @NotNull
-    @Attribute(ATTR_NAME)
-    GenericAttributeValue<String> getName();
+//    @NotNull
+//    @Attribute(ATTR_NAME)
+//    GenericAttributeValue<String> getName();
 
-    @NotNull
-    @Attribute(ATTR_TYPE)
-    GenericAttributeValue<String> getType();
+//    @NotNull
+//    @Attribute(ATTR_TYPE)
+//    GenericAttributeValue<String> getType();
 
     @NotNull
     @Attribute(ATTR_FORMAT)

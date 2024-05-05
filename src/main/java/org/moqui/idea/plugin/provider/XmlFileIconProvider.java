@@ -1,5 +1,6 @@
 package org.moqui.idea.plugin.provider;
 
+import icons.MoquiIcons;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.util.MyDomUtils;
@@ -21,25 +22,25 @@ public class XmlFileIconProvider extends IconProvider {
 
         switch (rootTagName.get()) {
             case Services.TAG_NAME:
-                return MyIcons.FILE_ICON_SERVICES;
+                return MoquiIcons.ServiceTag;
             case Entities.TAG_NAME:
-                return MyIcons.FILE_ICON_ENTITIES;
+                return MoquiIcons.EntityTag;//MyIcons.FILE_ICON_ENTITIES;
             case Secas.TAG_NAME:
-                return MyIcons.FILE_ICON_SECAS;
+                return MoquiIcons.SecaTag;//MyIcons.FILE_ICON_SECAS;
             case Eecas.TAG_NAME:
-                return MyIcons.FILE_ICON_EECAS;
+                return MoquiIcons.EecaTag;//MyIcons.FILE_ICON_EECAS;
             case Screen.TAG_NAME:
-                return MyIcons.FILE_ICON_SCREEN;
+                return MoquiIcons.ScreenTag; //MyIcons.FILE_ICON_SCREEN;
             case MoquiConf.TAG_NAME:
-                return MyIcons.FILE_ICON_MOQUI_CONF;
+                return MoquiIcons.MoquiConfTag; //MyIcons.FILE_ICON_MOQUI_CONF;
             case Resource.TAG_NAME:
-                return MyIcons.FILE_ICON_REST_API;
+                return MoquiIcons.ServiceTypeRemoteRest;//MyIcons.FILE_ICON_REST_API;
             case Emecas.TAG_NAME:
-                return MyIcons.FILE_ICON_EMECAS;
+                return MoquiIcons.EmecasTag;//MyIcons.FILE_ICON_EMECAS;
             case Component.TAG_NAME:
-                return MyIcons.FILE_ICON_COMPONENT;
+                return MoquiIcons.ComponentTag;//MyIcons.FILE_ICON_COMPONENT;
             case WidgetTemplates.TAG_NAME:
-                return MyIcons.FILE_ICON_WIDGET_TEMPLATES;
+                return MoquiIcons.WidgetTemplate;//MyIcons.FILE_ICON_WIDGET_TEMPLATES;
             default:
                 return null;
         }

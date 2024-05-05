@@ -1,5 +1,6 @@
 package org.moqui.idea.plugin.dom.description;
 
+import icons.MoquiIcons;
 import org.moqui.idea.plugin.dom.model.Secas;
 import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.util.SecaUtils;
@@ -25,7 +26,7 @@ public class SecasDescription extends DomFileDescription<Secas> {
     @Override
     public @Nullable Icon getFileIcon(int flags) {
 //        return super.getFileIcon(flags);
-        return MyIcons.FILE_ICON_SECAS;
+        return MoquiIcons.SecaTag; //MyIcons.FILE_ICON_SECAS;
     }
 //    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
