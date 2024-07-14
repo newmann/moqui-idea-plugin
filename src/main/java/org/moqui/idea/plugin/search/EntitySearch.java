@@ -48,7 +48,7 @@ public class EntitySearch extends QueryExecutorBase<XmlElement, DefinitionsScope
         if(!ServiceUtils.isServicesFile(attribute.getContainingFile())) return;
 
         Optional<XmlElement> entityXmlElement =
-                EntityUtils.findEntityAndViewEntityXmlElementByFullName(attribute.getProject(),attribute.getValue());
+                EntityUtils.getEntityOrViewEntityXmlElementByName(attribute.getProject(),attribute.getValue());
 
         if (entityXmlElement.isEmpty()) return;
         System.out.println("process: " + entityXmlElement.get().getText());

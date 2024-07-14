@@ -43,10 +43,10 @@ public class MoquiXmlVirtualFileManager implements VirtualFileListener {
         if(psiFile != null) {
             MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
             if(ServiceUtils.isServicesFile(psiFile)) {
-                moquiIndexService.setServiceXmlFileUpdated(true);
+                moquiIndexService.setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());
             }else {
                 if(EntityUtils.isEntitiesFile(psiFile)) {
-                    moquiIndexService.setEntityXmlFileUpdated(true);
+                    moquiIndexService.setEntityXmlFileLastUpdatedStamp(System.currentTimeMillis());
                 }
             }
         }

@@ -10,7 +10,6 @@ import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -65,7 +64,7 @@ public class ServiceReferenceContributor extends PsiReferenceContributor {
                         TextRange textRange;
                         if(optEntityName.isPresent()) {
                             final String entityFullName = optEntityName.get();
-                             optTargetElement = EntityUtils.findEntityAndViewEntityXmlElementByFullName(project, entityFullName);
+                             optTargetElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project, entityFullName);
                              indexStr = entityFullName;
 
                         }else {

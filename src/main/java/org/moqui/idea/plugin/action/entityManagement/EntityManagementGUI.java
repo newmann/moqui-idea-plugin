@@ -1,11 +1,15 @@
 package org.moqui.idea.plugin.action.entityManagement;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.TreeUIHelper;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.table.JBTable;
 
+
+import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.dom.model.Relationship;
@@ -33,7 +37,8 @@ public class EntityManagementGUI extends JPanel {
 
     private JSplitPane splitPaneDetail;
 
-    private JTree treeEntity;
+    private Tree treeEntity;
+    private ToolbarDecorator treeDecorator;
     private JBScrollPane scrollPaneEntity;
     private JBTable tableField;
     private JBScrollPane scrollPaneField;
@@ -56,8 +61,12 @@ public class EntityManagementGUI extends JPanel {
 
         //entity tree
         scrollPaneEntity = new JBScrollPane();
-        treeEntity = new JTree();
+        treeEntity = new Tree();
+//        this.treeDecorator = ToolbarDecorator.createDecorator(treeEntity);
+        TreeUIHelper.getInstance().installTreeSpeedSearch(treeEntity);
+
         scrollPaneEntity.setViewportView(treeEntity);
+
 
         splitPaneContent.setLeftComponent(scrollPaneEntity);
 
@@ -189,6 +198,7 @@ public class EntityManagementGUI extends JPanel {
         this.rootNode = new DefaultMutableTreeNode("Root");
 
         String strSearch = this.textSearch.getText().trim();
+
 
         MoquiIndexService moquiIndexService = this.project.getService(MoquiIndexService.class);
 

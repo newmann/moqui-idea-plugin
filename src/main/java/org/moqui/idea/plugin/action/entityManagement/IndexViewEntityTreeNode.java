@@ -11,7 +11,7 @@ public class IndexViewEntityTreeNode {
 
     IndexViewEntityTreeNode(@NotNull IndexViewEntity indexViewEntity) {
         this.indexViewEntity = indexViewEntity;
-        this.name = indexViewEntity.getViewName();
+        this.name = indexViewEntity.getShortName();
 
     }
 

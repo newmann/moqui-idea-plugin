@@ -1,9 +1,11 @@
 package org.moqui.idea.plugin.dom.model;
 
+import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.SubTagList;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.TransitionConverter;
 
 import java.util.List;
 
@@ -15,6 +17,10 @@ public interface DynamicContainer extends DomElement {
     List<Parameter> getParameterList();
 
     @NotNull GenericAttributeValue<String> getId();
-    @NotNull GenericAttributeValue<String> getTransition();
+
+    @NotNull
+    @Convert(TransitionConverter.class)
+    GenericAttributeValue<String> getTransition();
+
     @NotNull GenericAttributeValue<String> getParameterMap();
 }

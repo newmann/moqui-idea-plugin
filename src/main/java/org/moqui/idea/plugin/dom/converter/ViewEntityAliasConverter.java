@@ -34,7 +34,7 @@ import java.util.Optional;
  * alias只在当前的ViewEntity中定义
  */
 
-public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberEntity> implements CustomReferenceConverter {
+public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberEntity> implements CustomReferenceConverter<AbstractMemberEntity> {
     @Override
     public @Nullable AbstractMemberEntity fromString(@Nullable @NonNls String s, ConvertContext context) {
         if(s == null) return null;
@@ -50,7 +50,8 @@ public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberE
 
     @Override
     public @Nullable String toString(@Nullable AbstractMemberEntity entity, ConvertContext context) {
-        return entity.getEntityAlias().getXmlAttributeValue().getValue();
+        if(entity == null) return null;
+        return entity.getEntityAlias().getStringValue();
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberE
         if(entity == null) {
             return super.createLookupElement(entity);
         }else{
-            String s = entity.getEntityAlias().getXmlAttributeValue().getValue();
+            String s = entity.getEntityAlias().getStringValue();
             Icon icon = AllIcons.Ide.Gift;//todo 配置一个更合适的icon
             return LookupElementBuilder.create(entity,s)
                     .withIcon(icon)
@@ -69,23 +70,30 @@ public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberE
     @Override
     public @Nullable PsiElement getPsiElement(@Nullable AbstractMemberEntity resolvedValue) {
         if(resolvedValue == null) return null;
+        if(resolvedValue.getEntityAlias().getXmlAttributeValue()==null) return null;
 
         return resolvedValue.getEntityAlias().getXmlAttributeValue().getOriginalElement();
     }
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
-        String aliasName = value.getStringValue();
-        Optional<AbstractMemberEntity> optEntity = EntityUtils.getViewEntityAbstractMemberEntityByAlias(context,aliasName);
-        if (optEntity.isEmpty()) return PsiReference.EMPTY_ARRAY;
+    public PsiReference @NotNull [] createReferences(GenericDomValue<AbstractMemberEntity> value, PsiElement element, ConvertContext context) {
+//        String aliasName = value.getStringValue();
+//        Optional<AbstractMemberEntity> optEntity = EntityUtils.getViewEntityAbstractMemberEntityByAlias(context,aliasName);
+//        if (optEntity.isEmpty()) return PsiReference.EMPTY_ARRAY;
+        AbstractMemberEntity entityCommonAttribute = value.getValue();
+        if(entityCommonAttribute == null) return PsiReference.EMPTY_ARRAY;
 
         PsiReference[] psiReferences = new PsiReference[1];
 
-        AbstractMemberEntity entityCommonAttribute = optEntity.get();
+//        AbstractMemberEntity entityCommonAttribute = optEntity.get();
 
+//        psiReferences[0] = new PsiRef(element,
+//                new TextRange(1,
+//                        aliasName.length()+1),
+//                entityCommonAttribute.getEntityAlias().getXmlAttributeValue());
         psiReferences[0] = new PsiRef(element,
                 new TextRange(1,
-                        aliasName.length()+1),
+                        element.getTextLength()-1), //前后两个双英号
                 entityCommonAttribute.getEntityAlias().getXmlAttributeValue());
 
         return psiReferences;

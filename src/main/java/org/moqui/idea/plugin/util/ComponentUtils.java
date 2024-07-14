@@ -24,7 +24,7 @@ public final class ComponentUtils {
 
     public static boolean isComponentFile(@Nullable PsiFile file){
         if(file == null) return false;
-        return MyDomUtils.isSpecialXmlFile(file, Component.TAG_NAME);
+        return MyDomUtils.isSpecialXmlFile(file, Component.TAG_NAME,Component.ATTR_NoNamespaceSchemaLocation,Component.VALUE_NoNamespaceSchemaLocation);
     }
     /**
      * 根据所有的组件

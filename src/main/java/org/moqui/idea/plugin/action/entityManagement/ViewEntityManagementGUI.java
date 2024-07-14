@@ -5,6 +5,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.table.JBTable;
+import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.dom.model.MemberEntity;
@@ -31,7 +32,7 @@ public class ViewEntityManagementGUI extends JPanel {
 
     private final JSplitPane splitPaneDetail;
 
-    private final JTree treeViewEntity;
+    private final Tree treeViewEntity;
     private final JBTable tableField;
 
     private final JSplitPane splitPaneMember;
@@ -55,7 +56,7 @@ public class ViewEntityManagementGUI extends JPanel {
 
         //entity tree
         JBScrollPane scrollPaneEntity = new JBScrollPane();
-        treeViewEntity = new JTree();
+        treeViewEntity = new Tree();
         scrollPaneEntity.setViewportView(treeViewEntity);
 
         splitPaneContent.setLeftComponent(scrollPaneEntity);

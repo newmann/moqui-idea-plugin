@@ -13,7 +13,7 @@ public final class EmecaUtils {
 
     public static boolean isEmecasFile(@Nullable PsiFile file){
         if(file == null) return false;
-        return MyDomUtils.isSpecialXmlFile(file, Emecas.TAG_NAME);
+        return MyDomUtils.isSpecialXmlFile(file, Emecas.TAG_NAME,"xsi:noNamespaceSchemaLocation","http://moqui.org/xsd/email-eca-3.xsd");
 
     }
 

@@ -10,7 +10,7 @@ import org.moqui.idea.plugin.util.ServiceUtils;
 
 import java.util.*;
 
-public final class IndexService {
+public final class IndexService extends AbstractIndex {
     private final String verb;
     private final String noun;
 
@@ -19,7 +19,7 @@ public final class IndexService {
     private final String fullName;
     private final String type;
     private final Service service;
-
+    private final String functionName;
 
     private Map<String, IndexServiceParameter> inParameterMap = new HashMap<>();
     private Map<String, IndexServiceParameter> outParameterMap = new HashMap<>();
@@ -37,8 +37,10 @@ public final class IndexService {
                     .orElse(MyStringUtils.EMPTY_STRING);
         }
         this.packageName = getPackageNameFromClassName(this.className);
+        this.functionName = this.verb + ServiceUtils.SERVICE_NAME_DELIMITER + this.noun;
+
         this.fullName =  this.className + ServiceUtils.SERVICE_NAME_DOT
-                +this.verb + ServiceUtils.SERVICE_NAME_DELIMITER + this.noun;
+                +this.functionName;
 
     }
 
@@ -56,7 +58,15 @@ public final class IndexService {
     }
     public String getPackageName(){return this.packageName;}
 
+    public String getFunctionName() {
+        return functionName;
+    }
+
     public Service getService(){return this.service;}
+
+    public String getType() {
+        return type;
+    }
 
     public void setInParameterMap(Map<String, IndexServiceParameter> inParameterMap){
         this.inParameterMap = inParameterMap;
@@ -65,7 +75,13 @@ public final class IndexService {
         this.outParameterMap = outParameterMap;
     }
 
+    public Map<String, IndexServiceParameter> getInParameterMap() {
+        return inParameterMap;
+    }
 
+    public Map<String, IndexServiceParameter> getOutParameterMap() {
+        return outParameterMap;
+    }
 
     public Optional<List<String>> getInParametersNameList(){
         return Optional.of(inParameterMap.keySet().stream().toList());

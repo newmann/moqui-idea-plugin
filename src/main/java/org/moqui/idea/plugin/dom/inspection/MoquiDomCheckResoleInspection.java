@@ -18,7 +18,9 @@ import org.moqui.idea.plugin.MyBundle;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<DomElement> {
     public MoquiDomCheckResoleInspection() {
@@ -64,7 +66,7 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
      */
     @Override
     protected void checkDomElement(@NotNull DomElement element, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
-        checkMultipleFields(element, holder, helper);
+//        checkMultipleFields(element, holder, helper);
 
         checkLocation(element,holder,helper);
 
@@ -115,45 +117,72 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
                 fieldsString = MyDomUtils.getXmlAttributeValueString(searchFormInputs.getDefaultOrderBy()).orElse(MyStringUtils.EMPTY_STRING);
                 attributeValue = searchFormInputs.getDefaultOrderBy();
             }
-            String[] fieldNameArray = fieldsString.split(",");
-            if (fieldNameArray.length == 0) return;
+//            String[] fieldNameArray = fieldsString.split(",");
+//            if (fieldNameArray.length == 0) return;
+            List<FieldStringSplitUnit> fieldStringList = EntityUtils.splitFieldString(fieldsString).orElse(new ArrayList<FieldStringSplitUnit>());
+
+            if(fieldStringList.isEmpty()) return;
+
 
             Collection<AbstractField> fieldList = EntityUtils.getEntityOrViewEntityFields(element.getXmlElement().getProject(), entityName);
+            for(FieldStringSplitUnit fieldString : fieldStringList) {
+                if(fieldString.isContainGroovyVariable() || fieldString.isEmpty()) continue;
 
-            int startIndex = 1;
-
-            for(int i = 0; i< fieldNameArray.length; i++) {
-                if(MyStringUtils.isEmpty(fieldNameArray[i])) {
-                    startIndex = startIndex + 1;
-                    continue;
-                }
-
-                String fieldName;
-                //判断fieldName的第一个字符是否为控制字符，如果是，则跳过第一个字符
-                if(ServiceUtils.ORDER_BY_COMMANDER.contains(fieldNameArray[i].substring(0,1))){
-                    fieldName = fieldNameArray[i].substring(1);
-                    startIndex = startIndex +1;
-                } else {
-                    fieldName = fieldNameArray[i];
-                }
-
-                AbstractField field = fieldList.stream().filter(item->{
-                    String itemFieldName = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
-                            .orElse(MyStringUtils.EMPTY_STRING);
-                    return itemFieldName.equals(fieldName);
+                AbstractField field = fieldList.stream().filter(item -> {
+                    String itemFieldName = MyDomUtils.getValueOrEmptyString(item.getName());
+                    return itemFieldName.equals(fieldString.getTrimmedString());
                 }).findFirst().orElse(null);
                 if (field == null) {
-                    holder.createProblem(attributeValue, ProblemHighlightType.ERROR, "字段["+fieldName+"]没有找到对应的定义",
-                            TextRange.from(startIndex,fieldName.length()));
-
-//                    result[i] = new PsiRef(element,
-//                            new TextRange(startIndex,startIndex+fieldName.length()),
-//                            field.getName().getXmlAttributeValue());
-
+                    holder.createProblem(attributeValue, ProblemHighlightType.ERROR, "字段[" + fieldString.getTrimmedString() + "]没有找到对应的定义",
+                            TextRange.from(1 + fieldString.getTrimmedStringBeginIndex(), 1 + fieldString.getTrimmedStringEndIndex()));//这里要用checkFieldName
                 }
-                startIndex = startIndex + fieldName.length() +1;
-
             }
+//            int startIndex = 1;
+//
+//            for (String s : fieldNameArray) {
+//                if (MyStringUtils.isEmpty(s)) {
+//                    startIndex = startIndex + 1;
+//                    continue;
+//                }
+//
+//                String fieldName;
+//
+//
+//                //判断fieldName的第一个字符是否为控制字符，如果是，则跳过第一个字符
+//                if (ServiceUtils.ORDER_BY_COMMANDER.contains(s.substring(0, 1))) {
+//                    fieldName = s.substring(1);
+//                    startIndex = startIndex + 1;
+//                } else {
+//                    fieldName = s;
+//                }
+//                //跳过field前面的空字符
+//                while (fieldName.charAt(0) == ' ') {
+//                    fieldName = fieldName.substring(1);
+//                    startIndex = startIndex + 1;
+//                }
+//
+//                //如果字段为变量定义，类似$｛。。。｝，则跳过，不进行处理
+//                if (fieldName.contains("${")) continue;
+//
+//                final String checkFieldName = fieldName.trim();//将field后面的空字符删除
+//
+//                AbstractField field = fieldList.stream().filter(item -> {
+//                    String itemFieldName = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
+//                            .orElse(MyStringUtils.EMPTY_STRING);
+//                    return itemFieldName.equals(checkFieldName);
+//                }).findFirst().orElse(null);
+//                if (field == null) {
+//                    holder.createProblem(attributeValue, ProblemHighlightType.ERROR, "字段[" + checkFieldName + "]没有找到对应的定义",
+//                            TextRange.from(startIndex, checkFieldName.length()));//这里要用checkFieldName
+//
+////                    result[i] = new PsiRef(element,
+////                            new TextRange(startIndex,startIndex+fieldName.length()),
+////                            field.getName().getXmlAttributeValue());
+//
+//                }
+//                startIndex = startIndex + fieldName.length() + 1;//这里要用带后空字符的fieldName，以便startIndex位置正确
+//
+//            }
 
 
         }

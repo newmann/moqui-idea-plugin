@@ -1,22 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="LanguageInjectionConfiguration">
+<!--    <injection language="Groovy" injector-id="xml">-->
+<!--        <display-name>Moqui groovy in xml</display-name>-->
+<!--        <single-file value="false"/>-->
+<!--        <place><![CDATA[-->
+<!--            xmlAttribute().withLocalName(string().oneOf(-->
+<!--                    "value",-->
+<!--                    "use-when",-->
+<!--                    "tooltip",-->
+<!--                    "default-value",-->
+<!--                    "location",-->
+<!--                    "description"-->
+<!--            )).withParent(-->
+<!--                    xmlTag().withNamespace(string().oneOf(-->
+<!--                            "http://moqui.org/xsd/service-definition-3.xsd",-->
+<!--                            "http://moqui.org/xsd/entity-eca-3.xsd",-->
+<!--                            "http://moqui.org/xsd/service-eca-3.xsd"-->
+<!--                    )))-->
+<!--            ]]></place>-->
+<!--    </injection>-->
+<!--    .withAttributeValue("xsi:noNamespaceSchemaLocation",-->
+<!--    "http://moqui.org/xsd/service-definition-3.xsd")-->
+<!--    .inside(-->
+<!--    xmlTag().withLocalName(string().equalTo("service"))-->
+<!--    )-->
+
     <injection language="Groovy" injector-id="xml">
-        <display-name>Moqui groovy in xml</display-name>
-        <single-file value="false"/>
-        <value-pattern>\$\{groovy:(.+)\}</value-pattern>
+        <display-name>moqui groovy script</display-name>
         <place><![CDATA[
-            xmlAttribute().withLocalName(string().oneOf(
-                    "value",
-                    "use-when",
-                    "tooltip",
-                    "default-value",
-                    "location",
-                    "description"
-            )).withParent(
-                    xmlTag().withNamespace(string().oneOf(
-                            "http://ofbiz.apache.org/Widget-Screen",
-                            "http://ofbiz.apache.org/Widget-Menu",
-                            "http://ofbiz.apache.org/Widget-Form"
+            xmlAttribute().withLocalName(string().oneOf("condition","from","in-map","out-map","parameter-map"))
+                    .inside(xmlTag().withLocalName(string().oneOf(
+                    "service","screen","eeca","seca","emeca"
+            )))
+        ]]></place>
+    </injection>
+    <injection language="Groovy" injector-id="xml">
+        <display-name>moqui groovy expression</display-name>
+        <place><![CDATA[
+            xmlTag().withLocalName(string().equalTo("expression"))
+                    .inside(xmlTag().withLocalName(string().oneOf(
+                            "service","screen","eeca","seca","emeca"
+                    )))
+            ]]></place>
+    </injection>
+
+    <injection language="Groovy" injector-id="xml">
+        <display-name>moqui groovy message</display-name>
+        <value-pattern>\$\{(.+?)\}</value-pattern>
+        <place><![CDATA[
+            xmlAttribute().withLocalName(string().oneOf("message","text"))
+                    .inside(xmlTag().withLocalName(string().oneOf(
+                            "service","screen","eeca","seca","emeca"
                     )))
             ]]></place>
     </injection>

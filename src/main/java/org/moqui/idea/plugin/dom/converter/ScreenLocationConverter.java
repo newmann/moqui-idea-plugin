@@ -20,7 +20,7 @@ public class ScreenLocationConverter extends ResolvingConverter.StringConverter 
     @Override
     public @NotNull Collection<? extends String> getVariants(ConvertContext context) {
 
-        return ServiceUtils.findInterfaceFullNameSet(context.getProject(), MyStringUtils.EMPTY_STRING);
+        return ServiceUtils.getInterfaceFullNameSet(context.getProject(), MyStringUtils.EMPTY_STRING);
 
     }
 

@@ -46,7 +46,7 @@ public class EntityNameAttributeFindRelatedItemService implements FindRelatedIte
 
     final String fullName = xmlAttribute.getValue();
     if(fullName == null) return resultList;
-    abstractEntity= EntityUtils.findEntityAndViewEntityByFullName(psiElement.getProject(),fullName)
+    abstractEntity= EntityUtils.getEntityOrViewEntityByName(psiElement.getProject(),fullName)
             .orElse(null);
     if(abstractEntity == null) return resultList;
 

@@ -1,12 +1,11 @@
 package org.moqui.idea.plugin.util;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
@@ -21,13 +20,26 @@ import org.moqui.idea.plugin.dom.model.*;
 
 import java.util.*;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.intellij.psi.xml.XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN;
+import static com.intellij.psi.xml.XmlTokenType.*;
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 public final class MyDomUtils {
     public static String COMPONENT_LOCATION_PREFIX = "component://";
+    public static String MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
+    public static Map<String,String> MOQUI_XML_FILE_ROOT_TAGS = new HashMap<>(Map.of(
+            Entities.TAG_NAME,Entities.VALUE_NoNamespaceSchemaLocation,
+            Services.TAG_NAME,Services.VALUE_NoNamespaceSchemaLocation,
+            Screen.TAG_NAME,Screen.VALULE_NoNamespaceSchemaLocation,
+            Eecas.TAG_NAME, Eecas.VALUE_NoNamespaceSchemaLocation,
+            Secas.TAG_NAME, Secas.VALUE_NoNamespaceSchemaLocation,
+            Emecas.TAG_NAME, Emecas.VALUE_NoNamespaceSchemaLocation,
+            Component.TAG_NAME, Component.VALUE_NoNamespaceSchemaLocation,
+            MoquiConf.TAG_NAME,MoquiConf.VALUE_NoNamespaceSchemaLocation,
+            Resource.TAG_NAME, Resource.VALUE_NoNamespaceSchemaLocation,
+            EntityFacadeXml.TAG_NAME, MyStringUtils.EMPTY_STRING
+    ));
+
     private MyDomUtils() {
         throw new UnsupportedOperationException();
     }
@@ -46,6 +58,16 @@ public final class MyDomUtils {
 //        List<DomFileElement<T>> elements = DomService.getInstance().getFileElements(rootClazz, project, scope);
 //        return elements.stream().map(DomFileElement::getRootElement).collect(Collectors.toList());
 //    }
+    public static <T extends DomElement> DomFileElement<T> convertPsiFileToDomFile(@NotNull PsiFile file, Class<T> rootClazz) {
+        DumbService dumbService = DumbService.getInstance(file.getProject());
+        return dumbService.runReadActionInSmartMode(() ->{
+            DomFileElement<T> result = null;
+            if(file instanceof XmlFile xmlFile) {
+                result = DomManager.getDomManager(file.getProject()).getFileElement(xmlFile,rootClazz);
+            }
+            return  result;
+        });
+    }
 
     @NotNull
     @NonNls
@@ -73,11 +95,59 @@ public final class MyDomUtils {
     }
 
     /**
+     * 获取指定文件夹下面的所有文件
+     * @param project 当前项目
+     * @param path 指定的文件夹
+     * @return List<PsiFile>
+     */
+    @NotNull
+    public static List<PsiFile> findPsiFilesByPath(@NotNull Project project, @NotNull String path){
+        DumbService dumbService = DumbService.getInstance(project);
+        return  dumbService.runReadActionInSmartMode(()->{
+            ArrayList<PsiFile> result = new ArrayList<PsiFile>();
+            PsiManager psiManager = PsiManager.getInstance(project);
+
+            VirtualFile virtualDirectory = LocalFileSystem.getInstance().findFileByPath(path);
+            if(virtualDirectory == null || !virtualDirectory.isDirectory()) {
+                return result;
+            }
+
+            PsiDirectory psiDirectory = psiManager.findDirectory(virtualDirectory);
+            if(psiDirectory != null) result.addAll(List.of(psiDirectory.getFiles()));
+            return result;
+        });
+
+    }
+    /**
+     * 获取指定文件夹下面的所有子目录文件
+     * @param project 当前项目
+     * @param path 指定的文件夹
+     * @return List<PsiFile>
+     */
+    @NotNull
+    public static List<PsiDirectory> findPsiDirectoriesByPath(@NotNull Project project, @NotNull String path){
+        DumbService dumbService = DumbService.getInstance(project);
+        return  dumbService.runReadActionInSmartMode(()->{
+            ArrayList<PsiDirectory> result = new ArrayList<>();
+            PsiManager psiManager = PsiManager.getInstance(project);
+
+            VirtualFile virtualDirectory = LocalFileSystem.getInstance().findFileByPath(path);
+            if(virtualDirectory == null || !virtualDirectory.isDirectory()) {
+                return result;
+            }
+
+            PsiDirectory psiDirectory = psiManager.findDirectory(virtualDirectory);
+            if(psiDirectory != null) result.addAll(List.of(psiDirectory.getSubdirectories()));
+            return result;
+        });
+
+    }
+    /**
      * 判断是不是第一个tag，即<firstTag />
      * @param token
      * @return
      */
-    public static final boolean isFirstTag(@NotNull XmlToken token){
+    public static boolean isFirstTag(@NotNull XmlToken token){
         if(!token.getTokenType().equals(XmlTokenType.XML_NAME)) return false;
 
         if(!token.getNextSibling().getText().equals(" ")) return false;
@@ -92,19 +162,40 @@ public final class MyDomUtils {
 
     public static boolean isXmlFile(@NotNull PsiFile file){ return file instanceof XmlFile;}
     public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName){
-
-        Boolean result = false;
-        if(file != null) {
-            if(isXmlFile(file)) {
-                XmlTag rootTag = ((XmlFile) file).getRootTag();
-                if(rootTag != null) {
-                    result = rootTagName.equals(rootTag.getName());
-                }
+        boolean result = false;
+        if(file instanceof XmlFile xmlFile) {
+            XmlTag rootTag = xmlFile.getRootTag();
+            if(rootTag != null) {
+                result = rootTagName.equals(rootTag.getName());
             }
         }
         return result;
     }
+    public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName,@NotNull String attributeName,@NotNull String atrributeValue){
 
+        if(file instanceof XmlFile xmlFile) {
+            XmlTag rootTag = xmlFile.getRootTag();
+            if (rootTag == null) return false;
+            if(!rootTagName.equals(rootTag.getName())) return false;
+            String value = rootTag.getAttributeValue(attributeName);
+            return (value != null) && value.equals(atrributeValue);
+        }else {
+            return false;
+        }
+    }
+
+    public static boolean isMoquiXmlFile(@NotNull PsiFile file){
+        if(file instanceof XmlFile xmlFile) {
+            XmlTag rootTag = xmlFile.getRootTag();
+            if (rootTag == null) return false;
+            if(!MOQUI_XML_FILE_ROOT_TAGS.containsKey(rootTag.getName())) return false;
+            String value = rootTag.getAttributeValue(MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation);
+            if(value == null) value = MyStringUtils.EMPTY_STRING;
+            return MOQUI_XML_FILE_ROOT_TAGS.containsValue(value);
+        }else {
+            return false;
+        }
+    }
     public static Optional<String> getRootTagName(@NotNull PsiFile file){
         String rootTagName;
         if(! isXmlFile(file)) {
@@ -121,7 +212,43 @@ public final class MyDomUtils {
 
     }
 
+    /**
+     * 从当前的xmlToken(type = XML_ATTRIBUTE_VALUE_TOKEN）获取下一个AttributeValue,如果是最后一个AttributeValue，则跳到最前面一个
+     * @param xmlToken
+     * @return
+     */
+    public static Optional<XmlAttributeValue> getSiblingAttributeValue(@NotNull XmlToken xmlToken){
+        if(xmlToken.getTokenType() == XML_ATTRIBUTE_VALUE_TOKEN || xmlToken.getTokenType() == XML_ATTRIBUTE_VALUE_END_DELIMITER) {
+            PsiElement curAttributeValueElement = xmlToken.getParent();
+            PsiElement curAttributeElement = curAttributeValueElement.getParent();
+            PsiElement siblingElement = curAttributeElement.getNextSibling();
+            while(true){
+                if(siblingElement == null) return Optional.empty();
+                if(siblingElement instanceof XmlToken xmlTokenEnd) {
+                    if(xmlTokenEnd.getTokenType() == XML_TAG_END || xmlTokenEnd.getTokenType() == XML_EMPTY_ELEMENT_END) {
+                        //回到第一个attribute value
+                        if(curAttributeElement.getParent() instanceof XmlTag xmlTag) {
+                            return getTagFirstAttributeValue(xmlTag);
+                        }else {
+                            return Optional.empty();
+                        }
+                    }
+                }
+                if(siblingElement instanceof  XmlAttribute xmlAttribute) {
+                    return Optional.ofNullable(xmlAttribute.getValueElement());
+                }else {
+                    siblingElement = siblingElement.getNextSibling();
+                }
+            }
+        }
+        return Optional.empty();
+    }
 
+    public static Optional<XmlAttributeValue> getTagFirstAttributeValue(@NotNull XmlTag xmlTag){
+        if(xmlTag.getAttributes().length == 0) return Optional.empty();
+        XmlAttribute xmlAttribute = xmlTag.getAttributes()[0];
+        return Optional.ofNullable(xmlAttribute.getValueElement());
+    }
     /**
      * 判断当前PsiElement是不是在属性值域
      * @param psiElement
@@ -221,6 +348,11 @@ public final class MyDomUtils {
         if(!(curElement instanceof XmlAttribute)) return Optional.empty();
         return Optional.of((XmlAttribute) curElement);
     }
+    public static Optional<String> getCurrentAttributeStringValue(ConvertContext context) {
+        Optional<XmlAttribute> opCurAttribute = getCurrentAttribute(context);
+        return opCurAttribute.map(XmlAttribute::getValue);
+    }
+
     public static Optional<String> getCurrentAttributeName(ConvertContext context) {
         Optional<XmlAttribute> opCurAttribute = getCurrentAttribute(context);
         return opCurAttribute.map(XmlAttribute::getName);
@@ -292,7 +424,12 @@ public final class MyDomUtils {
     public static <T extends DomElement> Optional<T> getLocalDomElementByPsiElement(@NotNull PsiElement psiElement, @NotNull Class<T> targetClass){
         return Optional.ofNullable(DomUtil.findDomElement(psiElement,targetClass));
     }
+    public static <T extends DomElement> Optional<T> getLocalDomElementByXmlTag(@NotNull XmlTag xmlTag, @NotNull Class<T> targetClass){
+        DomElement domElement = DomManager.getDomManager(xmlTag.getProject()).getDomElement(xmlTag);
+        if(domElement == null) return Optional.empty();
 
+        return Optional.ofNullable(domElement.getParentOfType(targetClass,false));
+    }
     public static Optional<String> getXmlAttributeValueString(XmlAttributeValue value){
         if(value == null) return Optional.empty();
         return Optional.of(value.getValue());
@@ -320,8 +457,21 @@ public final class MyDomUtils {
     public static @NotNull String getValueOrEmptyString(GenericAttributeValue<String> value){
         return getXmlAttributeValueString(value).orElse(MyStringUtils.EMPTY_STRING);
     }
+    public static @NotNull Integer getValueOrZero(GenericAttributeValue<String> value){
+        String s = getXmlAttributeValueString(value).orElse(MyStringUtils.EMPTY_STRING);
+        try {
+            return Integer.valueOf(s);
+        }catch (Exception e) {
+            return 0;
+        }
+    }
 
     /**
+     * location格式：
+     * 1、component://SimpleScreens/template/party/PartyForms.xml（指向一个文件 ）
+     * 2、moqui/runtime/component/SimpleScreens/screen/SimpleScreens/Supplier/EditSupplier.xml
+     * 3、//system/Security/UserAccountDetail，
+     * 4、component://tools/screen/System.xml
      * 根据location找到对应的PsiFile
      * @param location
      * @return
@@ -336,39 +486,14 @@ public final class MyDomUtils {
         }
         final String realLocation = location.substring(0,poundIndex);
 
-        PsiFile targetFile = null;
 
         int doubleSlashIndex = realLocation.indexOf("//");
+        //有双斜杠，是绝对路径
+        String pathName;
         if (doubleSlashIndex<0) {
-            //没有双斜杠，是相对路径
-            //TODO 现在url是计算出来的，有一定的规则，但回朔有点麻烦，暂时先不处理
-
-            return Optional.empty();
-//            PsiDirectory psiDirectory = currentDirectory;
-//
-//            String[] pathArray = realLocation.split("/");
-//            for(int i = 0; i < pathArray.length-1; i++) {
-//                if(pathArray[i].equals("..")) {
-//                    psiDirectory = psiDirectory.getParent();
-//                }else {
-//                    psiDirectory = psiDirectory.findSubdirectory(pathArray[i]);
-//
-//                }
-//                if (psiDirectory== null) return Optional.empty();
-//            }
-//            //判断是否为带后缀的文件名，如果不是，这添加.xml后，再查找
-//            int dotIndex =pathArray[pathArray.length-1].indexOf(".");
-//
-//            if(dotIndex<0) {
-//                targetFile = psiDirectory.findFile(pathArray[pathArray.length-1]+".xml");
-//            }else {
-//                targetFile = psiDirectory.findFile(pathArray[pathArray.length]);
-//            }
-
-        }else {
-            //有双斜杠，是绝对路径
-            String pathName;
-            if(realLocation.startsWith("//")) {
+            pathName = realLocation;
+        }else{
+            if (realLocation.startsWith("//")) {
                 //前两位是//，表示这个路径为内置的component，分别为
                 // system，对应到runtime/base-component/tools/screen/System
                 // tools，对应到runtime/base-component/tools/screen/Tools
@@ -376,64 +501,71 @@ public final class MyDomUtils {
                 int firstSlashIndex = pathName.indexOf("/");
 
                 //如果不存在，则存在错误，直接返回
-                if(firstSlashIndex<0) {
+                if (firstSlashIndex < 0) {
                     return Optional.empty();
                 }
 
                 String firstPath = pathName.substring(0, firstSlashIndex);
-                pathName = pathName.substring(firstSlashIndex+1);
+                pathName = pathName.substring(firstSlashIndex + 1);
                 switch (firstPath) {
                     case "system":
-                        pathName = "runtime/base-component/tools/screen/System/"+ pathName;
+                        pathName = "runtime/base-component/tools/screen/System/" + pathName;
                         break;
                     case "tools":
-                        pathName = "runtime/base-component/tools/screen/Tools/"+ pathName;
+                        pathName = "runtime/base-component/tools/screen/Tools/" + pathName;
                         break;
                     default:
                         return Optional.empty();
                 }
 
 
-            }else {
+            } else {
                 //前面是component://，表示对应到runtime/component下，但需要注意的是，tools和webroot是在runtime/base-component下
-                if(realLocation.startsWith(COMPONENT_LOCATION_PREFIX)) {
+                if (realLocation.startsWith(COMPONENT_LOCATION_PREFIX)) {
 
                     pathName = realLocation.substring(COMPONENT_LOCATION_PREFIX.length());
-                }else {
+                } else {
                     //有问题，不处理
                     return Optional.empty();
                 }
             }
-            //获取文件名
-            int lastSlashIndex = pathName.lastIndexOf("/");
-            String searchName;
-            if(lastSlashIndex<0) {
-                searchName = pathName;
-            }else {
-                searchName = pathName.substring(lastSlashIndex+1);
-            }
-            //如果tempName中不含“.”，则添加.xml作为文件后缀
-            if(!searchName.contains(".")){
-                searchName = searchName +".xml";
-            }
-
-            GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-//            Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName(context.getProject(), searchName, true, scope);
-            Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName( searchName, true, scope);
-//            VirtualFile[] fileArray = foundFileCollection.toArray(new VirtualFile[0]);
-//            if(fileArray.length==1) {
-//                //对路径进行判断，
-//                targetFile = PsiManager.getInstance(project).findFile(fileArray[0]);
-//            }else {
-                //不管是一个文件，还是多个同名文件，都需要对路径进行匹配验证
-            final String finalPathName = pathName;
-            VirtualFile virtualFile = foundFileCollection.stream().filter(item -> item.getPath().contains(finalPathName)).findFirst().orElse(null);
-            if(virtualFile == null) {return Optional.empty();}
-            targetFile = PsiManager.getInstance(project).findFile(virtualFile);
-//            }
+        }
+        //获取文件名
+        int lastSlashIndex = pathName.lastIndexOf("/");
+        String searchName;
+        if(lastSlashIndex<0) {
+            searchName = pathName;
+        }else {
+            searchName = pathName.substring(lastSlashIndex+1);
+        }
+        //如果tempName中不含“.”，则添加.xml作为文件后缀
+        if(!searchName.contains(".")){
+            searchName = searchName +".xml";
         }
 
-        return Optional.ofNullable(targetFile);
+        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+        Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName( searchName, true, scope);
+         //不管是一个文件，还是多个同名文件，都需要对路径进行匹配验证
+
+        final String finalPathName = pathName;
+        VirtualFile virtualFile = foundFileCollection.stream().filter(item -> item.getPath().contains(finalPathName)).findFirst().orElse(null);
+        if(virtualFile == null) {return Optional.empty();}
+
+        DumbService dumbService = DumbService.getInstance(project);
+        return dumbService.runReadActionInSmartMode(()->{
+            PsiFile targetFile = PsiManager.getInstance(project).findFile(virtualFile);
+            return Optional.ofNullable(targetFile);
+
+        });
+    }
+
+    public static Optional<PsiFile> getPsiFileByPathName(@NotNull Project project, @NotNull String pathName)
+    {
+        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+        Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName( pathName, true, scope);
+        //不管是一个文件，还是多个同名文件，都需要对路径进行匹配验证
+        Optional<VirtualFile> vfOptional = foundFileCollection.stream().findFirst();
+        return vfOptional.map(item ->{ return PsiManager.getInstance(project).findFile(item);});
 
     }
 
@@ -521,4 +653,20 @@ public final class MyDomUtils {
 
 
     }
+    public static void openFileForPsiFile(@NotNull PsiFileSystemItem psiFile){
+        Project project = psiFile.getProject();
+
+
+        FileEditorManager editorManager = FileEditorManager.getInstance(project);
+
+
+        OpenFileDescriptor descriptor = new OpenFileDescriptor(project,
+                psiFile.getVirtualFile(),
+                0);
+
+        editorManager.openTextEditor(descriptor,true);
+
+
+    }
+
 }

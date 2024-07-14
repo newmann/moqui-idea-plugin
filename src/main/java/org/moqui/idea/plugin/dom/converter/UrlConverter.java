@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.AbstractTransition;
 import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.util.LocationUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
@@ -21,18 +22,29 @@ import org.moqui.idea.plugin.util.ScreenUtils;
 import java.util.Collection;
 import java.util.Optional;
 
-
-public class UrlConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter {
-    @Override
-    public @Nullable String fromString(@Nullable @NonNls String s, ConvertContext context) {
-        if(s == null) return null;
-        if(ScreenUtils.isValidTransitionFormat(s)) {
-            return ScreenUtils.getTransitionByName(s,context).map(item-> s).orElse(null);
-        }else {
-            return s;
-        }
-
-    }
+/**
+ * link->url
+ * condition-response->url ，
+ * conditional-response->url ，
+ * default-response->url ，
+ * error-response->url ，
+ * 1、指向该screen的transition.name
+ * 2、指向相对路径的Screen的xml文件，<default-response url="../../Order/FindOrder"/>
+ * 3、指向外部链接，  <link url="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax"
+ *                 url-type="plain" link-type="anchor" target-window="_blank" text="Search String Reference"/>
+ * 4、指向动态菜单路径：<default-response url="//${appRoot}/Accounting/FinancialAccount/FindFinancialAccount"/>
+ */
+public class UrlConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
+//    @Override
+//    public @Nullable String fromString(@Nullable @NonNls String s, ConvertContext context) {
+//        if(s == null) return null;
+//        if(ScreenUtils.isValidTransitionFormat(s)) {
+//            return ScreenUtils.getTransitionByName(s,context).map(item-> s).orElse(null);
+//        }else {
+//            return s;
+//        }
+//
+//    }
 
 
     @Override
@@ -46,25 +58,30 @@ public class UrlConverter extends ResolvingConverter.StringConverter implements 
 
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
-        String url = value.getStringValue();
-        if (url == null) return PsiReference.EMPTY_ARRAY;
-        if(ScreenUtils.isValidTransitionFormat(url)) {
-            Optional<AbstractTransition> optTransition = ScreenUtils.getTransitionByName(url,context);
-            if (optTransition.isEmpty()) return PsiReference.EMPTY_ARRAY;
+    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+        return LocationUtils.createReferences(value, element, context);
 
-            final AbstractTransition transition = optTransition.get();
-            PsiReference[] psiReferences = new PsiReference[1];
-            psiReferences[0] = new PsiRef(element,
-                    new TextRange(1,
-                            url.length()+1),
-                    transition.getName().getXmlAttributeValue());
-
-            return psiReferences;
-
-        }else {
-            return PsiReference.EMPTY_ARRAY;
-        }
+//        String url = value.getStringValue();
+//        if (url == null) return PsiReference.EMPTY_ARRAY;
+//        LocationUtils.Location location = new LocationUtils.Location(context.getProject(),url);
+//
+//
+//        if(ScreenUtils.isValidTransitionFormat(url)) {
+//            Optional<AbstractTransition> optTransition = ScreenUtils.getTransitionByName(url,context);
+//            if (optTransition.isEmpty()) return PsiReference.EMPTY_ARRAY;
+//
+//            final AbstractTransition transition = optTransition.get();
+//            PsiReference[] psiReferences = new PsiReference[1];
+//            psiReferences[0] = new PsiRef(element,
+//                    new TextRange(1,
+//                            url.length()+1),
+//                    transition.getName().getXmlAttributeValue());
+//
+//            return psiReferences;
+//
+//        }else {
+//            return PsiReference.EMPTY_ARRAY;
+//        }
 
     }
 

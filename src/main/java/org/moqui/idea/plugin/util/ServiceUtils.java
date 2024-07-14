@@ -5,6 +5,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.util.xml.ConvertContext;
+import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import com.intellij.util.xml.highlighting.DomHighlightingHelper;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.io.File;
 import java.util.*;
 import java.util.Set;
 
@@ -93,7 +95,7 @@ public final class ServiceUtils {
 
     public static boolean isServicesFile(@Nullable PsiFile file){
         if(file == null) return false;
-        return MyDomUtils.isSpecialXmlFile(file, Services.TAG_NAME);
+        return MyDomUtils.isSpecialXmlFile(file, Services.TAG_NAME,Services.ATTR_NoNamespaceSchemaLocation,Services.VALUE_NoNamespaceSchemaLocation);
     }
 
 
@@ -105,13 +107,9 @@ public final class ServiceUtils {
      */
     public static boolean isInterface(@NotNull Service service){
         if(!service.isValid()) return false;
+        String type = MyDomUtils.getValueOrEmptyString(service.getType());
 
-        if(service.getType().getXmlAttributeValue() == null) return false;
-
-        final String type = MyDomUtils.getXmlAttributeValueString(service.getType().getXmlAttributeValue())
-                .orElse(MyStringUtils.EMPTY_STRING);
-
-        return Service.ATTR_TYPE.equals(type);
+        return SERVICE_INTERFACE.equals(type);
     }
     public static boolean isNotInterface(@Nullable Service service) {
         return !isInterface(service);
@@ -123,40 +121,40 @@ public final class ServiceUtils {
         return !isService(service);
     }
 
-    /**
-     * 判断一个字符串是否为一个有效的ServiceCall字符串
-     * @param project
-     * @param auditStr
-     * @return
-     */
-    public static boolean isValidServiceCallStr(@NotNull Project project,@NotNull String auditStr){
-
-        int slashIndex = auditStr.indexOf('#');
-        String[] slashSplit = auditStr.split("#");
-
-        if(slashIndex >= 0) {
-            //#存在，需要进行进一步判断
-            int pointIndex = slashSplit[0].lastIndexOf('.');
-            if(pointIndex<0) {
-                //标准操作,CRUD
-                //操作不存在，则返回false
-                if(! ServiceUtils.STANDARD_CRUD_COMMANDER.contains(slashSplit[0])) return false;
-                //操作存在，则验证entityName是否有效
-                if(slashSplit.length==1) {
-                    return false;
-                }else {
-
-                    return EntityUtils.findEntityByName(project,slashSplit[1]).map(item->true).orElse(false);
-                }
-
-            }else{
-                //Service Call
-                return findServiceByFullName(project,auditStr).map(item -> true).orElse(false);
-            }
-        }else {
-            return false;
-        }
-    }
+//    /**
+//     * 判断一个字符串是否为一个有效的ServiceCall字符串
+//     * @param project
+//     * @param auditStr
+//     * @return
+//     */
+//    public static boolean isValidServiceCallStr(@NotNull Project project,@NotNull String auditStr){
+//
+//        int slashIndex = auditStr.indexOf('#');
+//        String[] slashSplit = auditStr.split("#");
+//
+//        if(slashIndex >= 0) {
+//            //#存在，需要进行进一步判断
+//            int pointIndex = slashSplit[0].lastIndexOf('.');
+//            if(pointIndex<0) {
+//                //标准操作,CRUD
+//                //操作不存在，则返回false
+//                if(! ServiceUtils.STANDARD_CRUD_COMMANDER.contains(slashSplit[0])) return false;
+//                //操作存在，则验证entityName是否有效
+//                if(slashSplit.length==1) {
+//                    return false;
+//                }else {
+//
+//                    return EntityUtils.getEntityByName(project,slashSplit[1]).map(item->true).orElse(false);
+//                }
+//
+//            }else{
+//                //Service Call
+//                return getServiceByFullName(project,auditStr).map(item -> true).orElse(false);
+//            }
+//        }else {
+//            return false;
+//        }
+//    }
 //    /**
 //     * 根据实体名和包名找到对应的实体定义的XmlElement
 //     * @param project
@@ -185,13 +183,18 @@ public final class ServiceUtils {
 //        }
 //        return Optional.empty();
 //    }
+public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project project, @NotNull String fullName) {
+    MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+    return moquiIndexService.getServiceOrInterfaceByFullName(fullName);
+}
+
     /**
      * 根据服务的全称找到对应的服务定义的Service
      * @param project
      * @param fullName 调用的服务名称，格式类似 moqui.work.TicketServices.get#ServiceStationByServiceLocation
      * @return
      */
-    public static Optional<Service> findServiceByFullName(@NotNull Project project, @NotNull String fullName){
+    public static Optional<Service> getServiceByFullName(@NotNull Project project, @NotNull String fullName){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         return moquiIndexService.getServiceByFullName(fullName);
 
@@ -217,6 +220,30 @@ public final class ServiceUtils {
 //        }
 //        return Optional.empty();
     }
+    public static Optional<Service> getServiceByFullNameFromFile(@NotNull Project project, @NotNull String fullName){
+
+        ServiceDescriptor serviceDescriptor = new ServiceDescriptor(fullName);
+
+        //如果是标准crud，则返回空
+        if(serviceDescriptor.className.isEmpty()) return Optional.empty();
+
+        List<DomFileElement<Services>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Services.class);
+        for(DomFileElement<Services> fileElement : fileElementList) {
+            //判断服务在不在这个文件中
+            Optional<String> className = extractClassNameFromPath(fileElement.getFile().getVirtualFile().getPath());
+            if(className.isEmpty()) continue;
+            if(!className.get().equals(serviceDescriptor.className)) continue;
+
+            for(Service service:fileElement.getRootElement().getServiceList()) {
+                if(MyDomUtils.getValueOrEmptyString(service.getVerb()).equals(serviceDescriptor.verb)
+                        && MyDomUtils.getValueOrEmptyString(service.getNoun()).equals(serviceDescriptor.noun)) {
+
+                    return Optional.of(service);
+                }
+            };
+        }
+        return Optional.empty();
+    }
     /**
      *path 格式是：../runtime/component/{componentName}/service/...
      * 后面的路径对应类名称
@@ -224,7 +251,7 @@ public final class ServiceUtils {
      * @return
      */
     public static Optional<String> extractClassNameFromPath(@NotNull String path){
-        String pathSeparator = "/";
+        String pathSeparator = "/"; //idea的virtual file 的path都统一“/”
 
         if(!path.contains(pathSeparator)){
             pathSeparator = "\\\\";
@@ -298,59 +325,56 @@ public final class ServiceUtils {
 //    }
 
     /**
-     * 返回所有服务的类名称，即不含标准名称的verb#noun部分
-     * @param project
+     * 返回所有服务的类名称，即包含标准名称的verb#noun部分
+     * @param project 当前项目
      * @return
      */
-    public static @NotNull Set<String> findServiceClassNameSet(@NotNull Project project, @Nullable String filterStr){
-        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
-        return moquiIndexService.searchServiceClassNameSet(filterStr).orElse(new HashSet<>());
+    public static @NotNull Set<String> getServiceClassNameSet(@NotNull Project project, @Nullable String filterStr){
 
-//        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
-//
-//        Set<String> classNameSet = new HashSet<String>();
-//        fileElementList.forEach(item ->{
-//            Optional<String> optClassName =extractClassNameFromPath(item.getFile().getVirtualFile().getPath());
-//            if(optClassName.isPresent()) {
-//                if(isNotEmpty(filterStr)){
-//                    if (optClassName.get().contains(filterStr)) {
-//                        classNameSet.add(optClassName.get());
-//                    }
-//                }else {
-//                    classNameSet.add(optClassName.get());
-//                }
-//            }
-//        });
-//        return classNameSet;
+
+        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
+
+        Set<String> classNameSet = new HashSet<String>();
+        fileElementList.forEach(item ->{
+            Optional<String> optClassName =extractClassNameFromPath(item.getFile().getVirtualFile().getPath());
+            if(optClassName.isPresent()) {
+                if(isNotEmpty(filterStr)){
+                    if (optClassName.get().contains(filterStr)) {
+                        classNameSet.add(optClassName.get());
+                    }
+                }else {
+                    classNameSet.add(optClassName.get());
+                }
+            }
+        });
+        return classNameSet;
     }
     /**
      * 返回所有可用于Interface的全名称，不仅仅type为interface的，也包括其他类型的service
      * @param project
      * @return
      */
-    public static @NotNull Set<String> findInterfaceFullNameSet(@NotNull Project project, @Nullable String filterStr){
-        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
-        return moquiIndexService.searchInterfaceAndServiceFullNameSet(filterStr).orElse(new HashSet<>());
+    public static @NotNull Set<String> getInterfaceFullNameSet(@NotNull Project project, @Nullable String filterStr){
 
-//        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
-//        ProgressManager.checkCanceled();
-//        Set<String> classNameSet = new HashSet<String>();
-//        fileElementList.forEach(item ->{
-//            ProgressManager.checkCanceled();
-//            for(Service service: item.getRootElement().getServiceList()) {
-////                if (isInterface(service)) {
-//                    final String fullName = getFullNameFromService(service);
-//                    if (isNotEmpty(filterStr)) {
-//                        if (fullName.contains(filterStr)) {
-//                            classNameSet.add(fullName);
-//                        }
-//                    } else {
-//                        classNameSet.add(fullName);
-//                    }
-////                }
-//            }
-//        });
-//        return classNameSet;
+
+        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
+        Set<String> classNameSet = new HashSet<String>();
+        fileElementList.forEach(item ->{
+
+            for(Service service: item.getRootElement().getServiceList()) {
+                if (isInterface(service)) {
+                    final String fullName = getFullNameFromService(service);
+                    if (isNotEmpty(filterStr)) {
+                        if (fullName.contains(filterStr)) {
+                            classNameSet.add(fullName);
+                        }
+                    } else {
+                        classNameSet.add(fullName);
+                    }
+                }
+            }
+        });
+        return classNameSet;
     }
 
     /**
@@ -360,31 +384,29 @@ public final class ServiceUtils {
      * @return
      */
     public static @NotNull Set<String> getServiceFullNameInClass(@NotNull Project project, @NotNull  String className) {
-        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
-        return moquiIndexService.searchServiceFullNameSet(className).orElse(new HashSet<>());
 
-//        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
-//
-//        Set<String> serviceNameSet = new HashSet<String>();
-//        fileElementList.forEach(item ->{
-//            Optional<String> optClassName =extractClassNameFromPath(item.getFile().getVirtualFile().getPath());
-//            if(optClassName.isPresent()) {
-//                if(className.equals(optClassName.get())){
-//                    for(Service service: item.getRootElement().getServiceList()) {
-//                        if(isService(service)) {
-//                            ServiceDescriptor serviceDescriptor = new ServiceDescriptor();
-//                            serviceDescriptor.className = optClassName.get();
-//                            serviceDescriptor.verb = service.getVerb().getValue();
-//                            serviceDescriptor.noun = service.getNoun().getValue();
-//                            serviceNameSet.add(serviceDescriptor.getServiceCallName().get());
-//                        }
-//                    };
-//
-//                }
-//            }
-//        });
-//
-//        return serviceNameSet;
+        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
+
+        Set<String> serviceNameSet = new HashSet<String>();
+        fileElementList.forEach(item ->{
+            Optional<String> optClassName =extractClassNameFromPath(item.getFile().getVirtualFile().getPath());
+            if(optClassName.isPresent()) {
+                if(className.equals(optClassName.get())){
+                    for(Service service: item.getRootElement().getServiceList()) {
+                        if(isService(service)) {
+                            ServiceDescriptor serviceDescriptor = new ServiceDescriptor();
+                            serviceDescriptor.className = optClassName.get();
+                            serviceDescriptor.verb = service.getVerb().getValue();
+                            serviceDescriptor.noun = service.getNoun().getValue();
+                            serviceNameSet.add(serviceDescriptor.getServiceCallName().orElse(MyStringUtils.EMPTY_STRING));
+                        }
+                    };
+
+                }
+            }
+        });
+
+        return serviceNameSet;
 
     }
     /**
@@ -532,7 +554,7 @@ public final class ServiceUtils {
 
             }
 
-            Optional<XmlElement> optionalXmlElement = EntityUtils.findEntityAndViewEntityXmlElementByFullName(project,
+            Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project,
                     serviceDescriptor.noun);
             final int index = serviceCallName.indexOf("#");
             final int entityNameLength = serviceDescriptor.noun.length();
@@ -543,7 +565,7 @@ public final class ServiceUtils {
                         TextRange.from(index+2,entityNameLength));
             }
         }else {
-            Optional<Service> opService = ServiceUtils.findServiceByFullName(project, serviceCallName);
+            Optional<Service> opService = ServiceUtils.getServiceByFullName(project, serviceCallName);
 
             if (opService.isEmpty()) {
                 holder.createProblem(attributeValue, HighlightSeverity.ERROR, "Called service is not found",
@@ -601,7 +623,8 @@ public final class ServiceUtils {
         if (serviceDescriptor.verb.isEmpty()) return PsiReference.EMPTY_ARRAY;
 //        ServiceDescriptor serviceDescriptor = optServiceDescripter.get();
 
-        Optional<Service> optService = findServiceByFullName(project,serviceCallStr);
+        Optional<Service> optService = getServiceOrInterfaceByFullName(project,serviceCallStr);
+
         if (optService.isEmpty()) return PsiReference.EMPTY_ARRAY;
         Service service = optService.get();
 

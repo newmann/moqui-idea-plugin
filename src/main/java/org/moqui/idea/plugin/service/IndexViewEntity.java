@@ -8,63 +8,68 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 import java.util.*;
 
-public final class IndexViewEntity {
-    private final String viewName;
-    private final String packageName;
+public final class IndexViewEntity extends AbstractIndexEntity {
+//    private final String viewName;
+//    private final String packageName;
+//
+//
+//    private final String fullName;
+    private ViewEntity viewEntity;
 
+//    private Map<String, AbstractField> abstractFieldMap;
 
-    private final String fullName;
-    private final ViewEntity viewEntity;
-
-    private Map<String, AbstractField> abstractFieldMap;
-
+    /**
+     * ViewEntity包含的所有IndexEntity
+     * String 表示entityAlias
+     * IndexEntity 表示对应的最终indexEntity，MemberRelationship也是经过解析之后的
+     */
+    private Map<String,AbstractIndexEntity> abstractIndexEntityMap;
 
     public IndexViewEntity(@NotNull ViewEntity viewEntity){
         this.viewEntity = viewEntity;
-        this.viewName = MyDomUtils.getValueOrEmptyString(viewEntity.getEntityName());
-        this.packageName = MyDomUtils.getValueOrEmptyString(viewEntity.getPackage());
-        if(this.packageName.equals(MyStringUtils.EMPTY_STRING)){
-            this.fullName = this.viewName;
-        }else {
-            this.fullName =  this.packageName + "." + this.viewName;
-        }
+        this.abstractEntity = viewEntity;
 
+        RefreshViewEntity();
 //        updateFieldList();
     }
+    public void RefreshViewEntity(){
+        this.shortName = MyDomUtils.getValueOrEmptyString(viewEntity.getEntityName());
+        this.packageName = MyDomUtils.getValueOrEmptyString(viewEntity.getPackage());
+        if(this.packageName.equals(MyStringUtils.EMPTY_STRING)){
+            this.fullName = this.shortName;
+        }else {
+            this.fullName =  this.packageName + "." + this.shortName;
+        }
 
-    public String getFullName(){
-        return this.fullName;
     }
-    public String getViewName(){
-        return this.viewName;
-    }
-    public String getPackageName(){
-        return this.packageName;
-    }
+
+//    public String getFullName(){
+//        return this.fullName;
+//    }
+//    public String getViewName(){
+//        return this.viewName;
+//    }
+//    public String getPackageName(){
+//        return this.packageName;
+//    }
     public ViewEntity getViewEntity(){return this.viewEntity;}
 
-//    private void updateFieldList(){
-//        //重置所有的字段
-//        this.fieldMap = new HashMap<>();
-//        //todo 需要重新编写
-//        List<AbstractField> fieldList = EntityUtils.getViewEntityFieldList(Objects.requireNonNull(this.viewEntity.getXmlElement()).getProject(),this.viewEntity);
-//
-//        for(AbstractField field: fieldList) {
-//            fieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
-//        }
+    public void setViewEntity(ViewEntity viewEntity){
+        this.viewEntity = viewEntity;
+        this.abstractEntity = viewEntity;
+    }
+
+
+
+
+//    public Optional<List<String>> getFieldNameList(){
+//        return Optional.of(abstractFieldMap.keySet().stream().toList());
 //
 //    }
-
-
-
-    public Optional<List<String>> getFieldNameList(){
-        return Optional.of(abstractFieldMap.keySet().stream().toList());
-
-    }
-    public Optional<List<AbstractField>> getAbstractFieldList(){
-        return Optional.of(abstractFieldMap.values().stream().toList());
-
-    }
+//    public Optional<List<AbstractField>> getAbstractFieldList(){
+//        return Optional.of(abstractFieldMap.values().stream().toList());
+//
+//    }
     public void setAbstractFieldMap(Map<String,AbstractField> abstractFieldMap){
         this.abstractFieldMap = abstractFieldMap;
     }
@@ -72,22 +77,29 @@ public final class IndexViewEntity {
         return this.abstractFieldMap;
     }
 
-    public boolean isValid(){
-        if(!this.viewEntity.isValid()) return false;
-        for(String key: this.abstractFieldMap.keySet()) {
-            if(!this.abstractFieldMap.get(key).isValid()) return false;
-        }
-        return true;
+//    public boolean isValid(){
+//        if(!this.viewEntity.isValid()) return false;
+//        for(String key: this.abstractFieldMap.keySet()) {
+//            if(!this.abstractFieldMap.get(key).isValid()) return false;
+//        }
+//        return true;
+//    }
+
+
+    public Map<String, AbstractIndexEntity> getMemberIndexEntityMap() {
+        return abstractIndexEntityMap;
     }
 
-    public boolean isThisViewEntity(@NotNull String name){
-        //如果帶点，就按全名匹配，如果不带点，就按名称匹配
-        int index = name.lastIndexOf(EntityUtils.ENTITY_NAME_DOT);
-        if(index >=0) {
-            return this.fullName.equals(name);
-        }else{
-            return this.viewName.equals(name);
-        }
-
+    public void setAbstractIndexEntityMap(Map<String, AbstractIndexEntity> abstractIndexEntityMap) {
+        this.abstractIndexEntityMap = abstractIndexEntityMap;
     }
+
+    public void addAbstractIndexEntity(@NotNull String alias, @NotNull AbstractIndexEntity index) {
+        this.abstractIndexEntityMap.put(alias, index);
+    }
+
+    public Optional<AbstractIndexEntity> getAbstractIndexEntityByAlias(@NotNull String alias){
+        return Optional.ofNullable(this.abstractIndexEntityMap.get(alias));
+    }
+
 }

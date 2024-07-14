@@ -1,48 +1,62 @@
 package org.moqui.idea.plugin.action.componentManagement;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.stubs.AbstractStubIndex;
+import com.intellij.psi.stubs.StubIndex;
+import com.intellij.ui.TreeUIHelper;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.xml.stubs.index.DomElementClassIndex;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.action.entityManagement.IndexViewEntityTreeNode;
 import org.moqui.idea.plugin.dom.model.Component;
 import org.moqui.idea.plugin.dom.model.DependsOn;
 import org.moqui.idea.plugin.util.ComponentUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.MySwingUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
+import java.util.List;
 
-public class ComponentDepends {
-    private JPanel mainPanel;
-    private JTree treeComponent;
-    private JButton btnRefresh;
-    private Project project;
+public class ComponentDepends extends JPanel {
+    private static final Logger LOGGER = Logger.getInstance(ComponentDepends.class);
+    private final Tree componentTree;
 
     public ComponentDepends(Project project){
-        this.project = project;
+        super(new BorderLayout());
+
+        componentTree = MySwingUtils.createTree();
+        JBScrollPane componentTreeScrollPane = MySwingUtils.createScrollPane(componentTree);
+
+        add(componentTreeScrollPane,BorderLayout.CENTER);
+        JButton refreshButton = MySwingUtils.createButton("Refresh");
+        add(refreshButton,BorderLayout.NORTH);
 
         initComponentTree();
-        btnRefresh.addActionListener(new RefreshButtonListener(project, this.treeComponent));
+        refreshButton.addActionListener(new RefreshButtonListener(project, this.componentTree));
     }
 
     private void initComponentTree(){
         DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode("Click Refresh Button");
 
         DefaultTreeModel treeMode = new DefaultTreeModel(treeNode);
-        this.treeComponent.setModel(treeMode);
+        this.componentTree.setModel(treeMode);
 
         //双击事件
-        treeComponent.addMouseListener(new MouseAdapter(){
+        componentTree.addMouseListener(new MouseAdapter(){
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(e.getClickCount() == 2){
-                    TreePath treePath = treeComponent.getPathForLocation(e.getX(), e.getY());
+                    TreePath treePath = componentTree.getPathForLocation(e.getX(), e.getY());
                     if(treePath != null) {
                         DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
                         if(node !=null) {
@@ -57,19 +71,12 @@ public class ComponentDepends {
             }
         });
     }
-    public JPanel getMainPanel(){
-        return this.mainPanel;
-    }
 
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
-//        this.treeComponent = new JTree(initComponentTree());
-    }
 
     /**
      * Refresh button click event
      */
-    class RefreshButtonListener implements ActionListener{
+    static class RefreshButtonListener implements ActionListener{
         private final Project project;
         private final JTree jTree;
         RefreshButtonListener(@NotNull Project project, @NotNull JTree jTree){
@@ -95,6 +102,7 @@ public class ComponentDepends {
 
             DefaultTreeModel treeMode = new DefaultTreeModel(treeNode);
             this.jTree.setModel(treeMode);
+
         }
 
         private DefaultMutableTreeNode createTreeNodeForComponent(@NotNull Component component,@NotNull Map<String, Component> componentMap){

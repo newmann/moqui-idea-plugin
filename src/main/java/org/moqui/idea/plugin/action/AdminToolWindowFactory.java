@@ -1,38 +1,34 @@
 package org.moqui.idea.plugin.action;
 
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.ui.content.ContentManager;
-import com.intellij.ui.content.ContentManagerListener;
 import icons.MoquiIcons;
-import kotlin.Unit;
-import kotlin.coroutines.Continuation;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.action.menuManagement.MenuManagementGUI;
 import org.moqui.idea.plugin.action.componentManagement.ComponentDepends;
-import org.moqui.idea.plugin.action.entityManagement.EntityManagement;
 import org.moqui.idea.plugin.action.entityManagement.EntityManagementGUI;
 import org.moqui.idea.plugin.action.entityManagement.PendingViewEntityManagementGUI;
 import org.moqui.idea.plugin.action.entityManagement.ViewEntityManagementGUI;
+import org.moqui.idea.plugin.action.serviceManagement.ServiceManagementGUI;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class AdminToolWindowFactory implements ToolWindowFactory {
-    private Project project;
-    private JPanel panelMain;
-    private JBTabbedPane tabbedPaneContainer;
-    private ComponentDepends componentDepends;
+    private static final Logger LOG = Logger.getInstance(AdminToolWindowFactory.class);
 
-    private EntityManagement entityManagement;
-    private EntityManagementGUI entityManagementGUI;
-    private ViewEntityManagementGUI viewEntityManagementGUI;
+    private Project project;
+    private JPanel mainPanel;
+    private JPanel contentPanel;
+    private DefaultActionGroup mainActionGroup;
+    private CardLayout contentLayout;
+
     private PendingViewEntityManagementGUI pendingViewEntityManagementGUI;
 
     @Override
@@ -41,63 +37,58 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.getInstance();
 
         initMainPanel();
-        Content content = contentFactory.createContent(this.panelMain,null,true);
+        Content content = contentFactory.createContent(this.mainPanel,null,true);
         toolWindow.getContentManager().addContent(content);
     }
 
-    private void initComponentDependContent(){
-        this.componentDepends = new ComponentDepends(this.project);
-    }
-    private  void initEntityManagementContent(){
-        if(this.entityManagement == null) {
-
-            this.entityManagement = new EntityManagement(this.project);
-        }
-    }
 
     private void initMainPanel(){
-        panelMain = new JPanel();
+        mainPanel = new JPanel();
         LayoutManager layoutManager = new BorderLayout();
-        panelMain.setLayout(layoutManager);
-        tabbedPaneContainer = new JBTabbedPane();
-        panelMain.add(tabbedPaneContainer, BorderLayout.CENTER);
+        mainPanel.setLayout(layoutManager);
 
-        addComponentDepend();
-        addEntityManagement();
-        addViewEntityManagement();
-        addPendingViewEntityManagement();
+        contentLayout = new CardLayout();
+        contentPanel = new JPanel(contentLayout);
+        mainPanel.add(contentPanel,BorderLayout.CENTER);
+
+        mainActionGroup = new DefaultActionGroup();
+
+        ComponentDepends componentDepends = new ComponentDepends(this.project);
+        addToolBar(componentDepends,"Component","Loading all components and dependencies", MoquiIcons.ComponentTag);
+
+        EntityManagementGUI entityManagementGUI = new EntityManagementGUI(this.project);
+        addToolBar(entityManagementGUI,"Entity","Loading all entities", MoquiIcons.EntityTag);
+
+        ViewEntityManagementGUI viewEntityManagementGUI = new ViewEntityManagementGUI(this.project); //
+        addToolBar(viewEntityManagementGUI,"View","Loading all view entities", MoquiIcons.ViewEntityTag);
+
+        ServiceManagementGUI serviceManagementGUI = new ServiceManagementGUI(this.project); //
+        addToolBar(serviceManagementGUI,"Service","Loading all services", MoquiIcons.ServiceTag);
+
+        MenuManagementGUI menuManagementGUI = new MenuManagementGUI(this.project); //
+        addToolBar(menuManagementGUI,"Menu","Loading all menus", AllIcons.Ide.Gift);//TODO update icon
+
+        ActionToolbar toolBar = ActionManager.getInstance().createActionToolbar("Moqui Admin", mainActionGroup, true);
+//        toolBar.setTargetComponent(componentDepends);
+
+        mainPanel.add(toolBar.getComponent(), BorderLayout.PAGE_START);
+
+
     }
 
-    private void addComponentDepend(){
-        this.componentDepends = new ComponentDepends(this.project);
-//        this.componentDepends.initComponentTree();
-        this.tabbedPaneContainer.insertTab("Component Depends",
-                MoquiIcons.ComponentTag,this.componentDepends.getMainPanel(),"Admin component depends tree",0);
+    private void addToolBar(Component component,String title,String description,Icon icon){
+        contentPanel.add(component,title);
+
+        mainActionGroup.add(new AnAction(title,description,icon){
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                CardLayout cardLayout = (CardLayout) contentPanel.getLayout();
+                cardLayout.show(contentPanel,title);
+
+//                contentLayout.show(contentPanel,title);
+
+            }
+        });
     }
 
-    private void addEntityManagement(){
-//        this.entityManagement = new EntityManagement(this.project);
-        this.entityManagementGUI = new EntityManagementGUI(this.project);
-//        this.entityManagementGUI.setVisible(true);
-
-        this.tabbedPaneContainer.insertTab("Entity Management",
-                MoquiIcons.EntityTag,this.entityManagementGUI,"",1);
-
-
-
-//        this.tabbedPaneContainer.updateUI();
-    }
-    private void addViewEntityManagement(){
-        this.viewEntityManagementGUI = new ViewEntityManagementGUI(this.project);
-
-        this.tabbedPaneContainer.insertTab("View Entity Management",
-                MoquiIcons.ViewEntityTag,this.viewEntityManagementGUI,"",2);
-    }
-
-    private void addPendingViewEntityManagement(){
-        this.pendingViewEntityManagementGUI = new PendingViewEntityManagementGUI(this.project);
-
-        this.tabbedPaneContainer.insertTab("Pending View Entity",
-                MoquiIcons.ViewEntityTag,this.pendingViewEntityManagementGUI,"",3);
-    }
 }

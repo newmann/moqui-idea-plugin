@@ -6,10 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.Entity;
-import org.moqui.idea.plugin.dom.model.Field;
-import org.moqui.idea.plugin.dom.model.Service;
-import org.moqui.idea.plugin.dom.model.ViewEntity;
+import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
@@ -38,6 +35,7 @@ public class MoquiPsiDocumentationTargetProvider implements PsiDocumentationTarg
             case ViewEntity.TAG_NAME -> new ViewEntityDocumentTarget(element);
             case Service.TAG_NAME -> new ServiceCallDocumentTarget(element);
             case Field.TAG_NAME -> new FieldDocumentTarget(element);
+            case Relationship.TAG_NAME -> new RelationshipDocumentTarget(element);
 
             default -> null;
         };

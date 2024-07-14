@@ -2,10 +2,12 @@ package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttribute;
+import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NonNls;
@@ -13,6 +15,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.service.AbstractIndexEntity;
+import org.moqui.idea.plugin.service.IndexEntity;
+import org.moqui.idea.plugin.service.IndexViewEntity;
+import org.moqui.idea.plugin.service.MoquiIndexService;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
@@ -139,16 +145,12 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
         final String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
         final String secondTagName = MyDomUtils.getSecondParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
 
-//        XmlTag firstTag = context.getTag();
-//        if (firstTag == null) return result;
-//        if (!(firstTag.getName().equals(Detail.TAG_NAME))) return result;
-//
-//        XmlTag secondTag = firstTag.getParentTag();
-//        if (secondTag == null) return result;
+
+
         //master-detail（relationship）
 
         if(secondTagName.equals(Master.TAG_NAME)) {
-            //todo 在当前的entity中寻找，如果是ExtendEntity怎么办？
+            //如果是ExtendEntity，找对应的Entity
             Optional<ExtendEntity> opExtendEntity = MyDomUtils.getLocalDomElementByConvertContext(context,ExtendEntity.class);
             if(opExtendEntity.isPresent()) {
                 result.addAll(EntityUtils.getEntityRelationshipList(context.getProject(),
@@ -159,30 +161,46 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
             }
 
         }else {
+
             if(secondTagName.equals(Detail.TAG_NAME)) {
                 //在Detail对应的Relationship指向的entity中寻找
                 XmlTag parentTag = MyDomUtils.getSecondParentTag(context).orElse(null);
-
-                XmlAttribute searchedAttr = parentTag.getAttribute(Detail.ATTR_RELATIONSHIP);
-                Optional<Relationship> opRelationship = getRelationshipFromDetailAttribute(searchedAttr);
-                if (opRelationship.isPresent()) {
-                    result.addAll(EntityUtils.getEntityRelationshipList(context.getProject(),
-                            opRelationship.get().getRelated().getXmlAttributeValue().getValue()));
+                //利用先后关系，直接找已经创建的PsiReference
+                if(parentTag != null) {
+                    XmlAttribute searchedAttr = parentTag.getAttribute(Detail.ATTR_RELATIONSHIP);
+                    if(searchedAttr != null) {
+                        Optional<Relationship> opRelationship = getRelationshipFromDetailAttribute(searchedAttr);
+                        opRelationship.ifPresent(relationship -> result.addAll(EntityUtils.getEntityRelationshipList(context.getProject(),
+                                MyDomUtils.getValueOrEmptyString(relationship.getRelated()))));
+                    }
                 }
             }
         }
 
-        //ViewEntity-MemberRelationship（relationship）
-        if(secondTagName.equals(ViewEntity.TAG_NAME) && firstTagName.equals(MemberRelationship.TAG_NAME)) {
-            ViewEntity currentViewEntity = EntityUtils.getCurrentViewEntity(context).orElse(null);
-            MemberRelationship memberRelationship = EntityUtils.getCurrentMemberRelationship(context).orElse(null);
-            MemberEntity memberEntity = EntityUtils.getDefinedMemberEntityByAlias(currentViewEntity,
-                    memberRelationship.getJoinFromAlias().getXmlAttributeValue().getValue());
-            if(memberEntity != null) {
-                result.addAll(EntityUtils.getEntityRelationshipList(context.getProject(),
-                        memberEntity.getEntityName().getXmlAttributeValue().getValue()));
+        //ViewEntity
+        ViewEntity curViewEntity = EntityUtils.getCurrentViewEntity(context).orElse(null);
+        if(curViewEntity != null) {
+            //ViewEntity-MemberRelationship（relationship）
+            MemberRelationship curMemberRelationship = EntityUtils.getCurrentMemberRelationship(context).orElse(null);
+            if(curMemberRelationship != null) {
+                //1、根據ViewEntity找到IndexViewEntity，
+                // 2、在IndexViewEntity中，根据join-from-alias别名找到对应的IndexEntity
+                // 3、从IndexEntity中找到可用的Relationship
+                IndexViewEntity indexViewEntity = EntityUtils.getIndexViewEntityByViewEntity(curViewEntity).orElse(null);
+                if(indexViewEntity != null) {
+                    //MemberRelationship对应的一定是IndexEntity
+                    AbstractIndexEntity abstractIndexEntity = indexViewEntity.getAbstractIndexEntityByAlias(
+                            MyDomUtils.getValueOrEmptyString(curMemberRelationship.getJoinFromAlias())).orElse(null);
+                    if((abstractIndexEntity instanceof IndexEntity indexEntity)) {
+                        result.addAll(indexEntity.getEntity().getRelationshipList());
+                    }
+
+                }
+
             }
+
         }
+
         return result;
 
     }
@@ -198,44 +216,19 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
                 item->{return EntityUtils.isThisRelationshipRelatedName(item,related);}
         ).findFirst();
 
-//        XmlElement curElement = context.getXmlElement();
-//        if (!(curElement instanceof XmlAttribute xmlAttribute)) return Optional.empty();
-//        if (!(xmlAttribute.getName().equals(Detail.ATTR_RELATIONSHIP))) return Optional.empty();
-//        Optional<Relationship> opRelationship = Optional.empty();
-//
-//        XmlTag firstTag = context.getTag();
-//        if (firstTag == null) return Optional.empty();
-//        if (!(firstTag.getName().equals(Detail.TAG_NAME))) return Optional.empty();
-//
-//        XmlTag secondTag = firstTag.getParentTag();
-//        if (secondTag == null) return Optional.empty();
-//        if(secondTag.getName().equals(Master.TAG_NAME)) {
-//            //todo 在当前的entity中寻找，如果是ExtendEntity怎么办？
-//            opRelationship =getRelationshipByShortAlias(getCurrentEntityRelationshipList(context),related);
-//
-//        }else {
-//            //在Detail对应的Relationship指向的entity中寻找
-//            XmlAttribute searchedAttr =  secondTag.getAttribute(Detail.ATTR_RELATIONSHIP);
-//            Optional<Relationship> parentRelationship = getRelationshipFromDetailAttribute(searchedAttr);
-//            if(parentRelationship.isPresent()) {
-//                opRelationship = getRelationshipByShortAlias(
-//                        EntityUtils.getEntityRelationshipList(context.getProject(),
-//                                parentRelationship.get().getRelated().getXmlAttributeValue().getValue())
-//                        ,related);
-//            }
-//
-//        }
-//
-//        return opRelationship;
     }
 
     /**
      * 从Detail的relationship属性的PsiReference中找到对应的Relationship
-     * @param relationshipAttribute
-     * @return
+     * @param relationshipAttribute Detail的relationship属性
+     * @return Optional<Relationship>
      */
     private Optional<Relationship> getRelationshipFromDetailAttribute(XmlAttribute relationshipAttribute){
-        PsiReference psiReference = relationshipAttribute.getValueElement().getReference();
+        XmlAttributeValue valueAttribute = relationshipAttribute.getValueElement();
+        if(valueAttribute == null) return Optional.empty();
+
+        PsiReference psiReference = valueAttribute.getReference();
+
         if (psiReference == null) return Optional.empty();
 
         PsiElement targetElement = psiReference.resolve();
@@ -245,11 +238,4 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
 
     }
 
-
-//
-//    private Optional<Relationship> getRelationshipByShortAlias(List<Relationship> relationships,String alias){
-//        return relationships.stream()
-//                .filter(item ->{return EntityUtils.isThisRelationshipRelatedName(item,alias);})
-//                .findFirst();
-//    }
 }

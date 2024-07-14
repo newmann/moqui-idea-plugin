@@ -22,6 +22,27 @@ public final class MyStringUtils {
     }
 
     public static final String EMPTY_STRING = "";
+    public static final String TRANSITION_NAME_REGEXP = "^[a-z][a-zA-Z0-9_-]*$";
+    public static final String SCREEN_FILE_PATH_REGEXP = "(?:(?:\\.\\./)+)?[A-Z][a-zA-Z0-9_/-]+|\\.|\\.\\.";
+    public static final String CONTAIN_VARIABLE_REGEXP =".*(\\$\\{)[a-zA-Z0-9_\\-\\.](\\}).*";
+    public static final String ABSOLUTE_URL_REGEXP = "^//([a-zA-Z][\\w\\/]*)+$";
+    public static final String COMPONENT_CHILD_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+";
+    public static final String COMPONENT_DATA_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]data[/|\\\\]?).*";
+    public static final String COMPONENT_ENTITY_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]entity[/|\\\\]?).*";
+    public static final String COMPONENT_SERVICE_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]service[/|\\\\]?).*";
+    public static final String COMPONENT_SCREEN_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]screen[/|\\\\]?).*";
+    public static final String COMPONENT_SRC_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]src[/|\\\\]?).*";
+    public static final String FRAMEWORK_DATA_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]data[/|\\\\]?).*";
+    public static final String FRAMEWORK_ENTITY_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]entity[/|\\\\]?).*";
+    public static final String FRAMEWORK_SRC_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]src[/|\\\\]?).*";
+
+    public static final String FRAMEWORK_SCREEN_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]screen[/|\\\\]?).*";
+    public static final String FRAMEWORK_SERVICE_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]service[/|\\\\]?).*";
+    public static final String BASE_COMPONENT_DATA_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]data[/|\\\\]?).*";
+    public static final String BASE_COMPONENT_ENTITY_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]entity[/|\\\\]?).*";
+    public static final String BASE_COMPONENT_SERVICE_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]service[/|\\\\]?).*";
+    public static final String BASE_COMPONENT_SCREEN_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]screen[/|\\\\]?).*";
+    public static final String BASE_COMPONENT_SRC_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]src[/|\\\\]?).*";
     /**
      * Upper case first char string.
      *
@@ -175,4 +196,7 @@ public final class MyStringUtils {
         return xml.replaceAll("<","&lt;")
                 .replaceAll(">","&gt;");
     }
+
+
+
 }

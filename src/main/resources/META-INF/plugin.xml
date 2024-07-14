@@ -22,17 +22,20 @@
         <li>Rename </li>
         <li>Ctrl+B (Ctrl+click) </li>
         <li>Inspection</li>
-
+        <li>Quick documentation for entity and service</li>
+        <li>Inject Groovy to script tag and some attribute</li>
     </ol>
   ]]></description>
 
   <!-- Product and plugin compatibility requirements.
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
-  <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.xml</depends>
+    <depends>com.intellij.modules.platform</depends>
+<!--    <depends>com.intellij.modules.xml</depends>-->
     <depends>com.intellij.java</depends>
     <depends>org.intellij.groovy</depends>
-    <depends>org.intellij.intelliLang</depends>
+<!--    <depends>org.intellij.intelliLang</depends>-->
+    <depends config-file="moqui-xml-injections.xml">org.intellij.intelliLang</depends>
+
   <!-- Extension points defined by the plugin.
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
   <extensions defaultExtensionNs="com.intellij">
@@ -98,6 +101,7 @@
 
 <!--      没有发现有什么用，先不启用-->
 <!--      <typedHandler implementation="org.moqui.idea.plugin.typedHandler.ServiceCallTypedHandler" id="myPlugin.ServiceCallTypedHandler"/>-->
+            <enterHandlerDelegate implementation="org.moqui.idea.plugin.typedHandler.MoquiEnterTypedHandler"/>
 
 <!--      转跳 ctrl+click，ctrl+b-->
 <!--      <psi.referenceContributor id="myPlugin.EntityReferenceContributor" language="XML" order="first"-->
@@ -107,9 +111,7 @@
 <!--      <psi.referenceContributor id="myPlugin.LocationReferenceContributor" language="XML" order="first"-->
 <!--                                implementation="org.moqui.idea.plugin.reference.LocationReferenceContributor"/>-->
 
-<!--      修改文件的icon-->
-<!--      <iconProvider implementation="org.moqui.idea.plugin.provider.XmlFileIconProvider"-->
-<!--                    id="myPlugin.XmlIconProvider"/>-->
+
 
       <notificationGroup id="Custom Notification Group" displayType="BALLOON" bundle="messages.MoquiDomBundle" key="notification.group.name"/>
 
@@ -163,7 +165,7 @@
 <!--                       enabledByDefault="true" level="ERROR"-->
 <!--                       implementationClass="org.moqui.idea.plugin.dom.inspection.EntitiesDomInspection"/>-->
       //这里的shortName需要和 MoquiDomCheckResoleInspection的getShortName返回值保持一致，否则报warning
-      <localInspection language="XML" shortName="CheckResoleInspection" bundle="messages.MoquiDomBundle" key="inspection.MoquiDomCheckResole"
+      <localInspection language="XML" shortName="MoquiDomCheckResoleInspection" bundle="messages.MoquiDomBundle" key="inspection.MoquiDomCheckResole"
                              groupKey="inspection.group"
                              enabledByDefault="true" level="ERROR"
                              implementationClass="org.moqui.idea.plugin.dom.inspection.MoquiDomCheckResoleInspection"/>
@@ -176,6 +178,43 @@
                   icon="MoquiIcons.ComponentTag"
 
       />
+<!--      <toolWindow factoryClass="org.moqui.idea.plugin.action.WebToolWindowFactory"-->
+<!--                  id="Moqui Web"-->
+<!--                  anchor="right"-->
+<!--                  icon="AllIcons.Toolwindows.Documentation"-->
+
+<!--      />-->
+      <multiHostInjector implementation="org.moqui.idea.plugin.injector.MoquiGroovyToXmlInjector"/>
+
+      <!-- 注册自定义项目视图 -->
+      <projectViewPane
+              id="MoquiEntityProjectView"
+              implementation="org.moqui.idea.plugin.projectViewPane.MoquiEntityViewPane"
+      />
+      <projectViewPane
+              id="MoquiServiceProjectView"
+              implementation="org.moqui.idea.plugin.projectViewPane.MoquiServiceViewPane"
+      />
+      <projectViewPane
+              id="MoquiScreenProjectView"
+              implementation="org.moqui.idea.plugin.projectViewPane.MoquiScreenViewPane"
+      />
+      <projectViewPane
+              id="MoquiSrcProjectView"
+              implementation="org.moqui.idea.plugin.projectViewPane.MoquiSrcViewPane"
+      />
+<!--      再进一步优化-->
+<!--      <codeInsight.declarativeInlayProvider-->
+<!--              language="XML"-->
+<!--              implementationClass="org.moqui.idea.plugin.provider.ServiceInlayHintsProvider"-->
+<!--              isEnabledByDefault="true"-->
+<!--              group="VALUES_GROUP"-->
+<!--              providerId="xml.moqui.service"-->
+<!--              bundle="messages.MoquiDomBundle"-->
+<!--              nameKey="xml.inlay.hints.service.provider.name"-->
+<!--              descriptionKey="xml.inlay.hints.service.provider.description"/>-->
+<!--      <codeInsight.daemonBoundCodeVisionProvider implementation="org.moqui.idea.plugin.provider.EntityBlockInlayHintsProvider"/>-->
+
   </extensions>
   <actions>
       <group id="MoquiIdeaPlugin" text="Moqui Support Tools" popup="true">
@@ -195,14 +234,6 @@
 
     </action>
 
-<!--      <action id="org.moqui.idea.plugin.action.componentManagement.ComponentDependsAction" class="org.moqui.idea.plugin.action.componentManagement.ComponentDependsAction" text="Component DependsOn Management"-->
-<!--              description="Manage component depends">-->
-<!--          <add-to-group group-id="MoquiIdeaPlugin" anchor="last"/>-->
-          <!--      <add-to-group group-id="IDEAPluginTools" anchor="last"/>-->
-          <!--      <add-to-group group-id="HelpMenu" anchor="after" relative-to-action="About"/>-->
-          <!--      <add-to-group group-id="MainMenu" relative-to-action="ToolsMenu" anchor="after"/>-->
-
-<!--      </action>-->
 <!--      <action id="ReplaceText" class="org.moqui.idea.plugin.ReplaceText" text="MyReplaceTextPlugin"-->
 <!--              description="My ReplaceText Plugin">-->
 <!--          <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->

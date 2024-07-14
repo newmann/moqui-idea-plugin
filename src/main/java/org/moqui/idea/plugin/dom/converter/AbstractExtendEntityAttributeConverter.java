@@ -40,7 +40,7 @@ public abstract class AbstractExtendEntityAttributeConverter extends ResolvingCo
 
     @Override
     public @NotNull Collection<? extends Entity> getVariants(ConvertContext context) {
-        return EntityUtils.findAllEntity(context.getProject());
+        return EntityUtils.getAllEntityCollection(context.getProject());
     }
 
     @Override
@@ -94,7 +94,7 @@ public abstract class AbstractExtendEntityAttributeConverter extends ResolvingCo
     }
     protected Optional<Entity> getEntity(ConvertContext context){
         Optional<String> opEntityFullName = getEntityFullName(context);
-        return opEntityFullName.map(s -> EntityUtils.findEntityByName(context.getProject(), s)).orElse(null);
+        return opEntityFullName.map(s -> EntityUtils.getEntityByName(context.getProject(), s)).orElse(null);
 
     }
     @Override

@@ -14,6 +14,7 @@ import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.dom.model.AbstractForm;
 import org.moqui.idea.plugin.dom.model.Field;
 import org.moqui.idea.plugin.dom.model.FormList;
 import org.moqui.idea.plugin.dom.model.FormSingle;
@@ -92,17 +93,21 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
     private List<Field> getFieldList(ConvertContext context) {
 
         List<Field> result = new ArrayList<>();
-
-        FormSingle formSingle = ScreenUtils.getCurrentFormSingle(context).orElse(null);
-        if(formSingle == null){
-            //再判断FormList
-            FormList formList = ScreenUtils.getCurrentFormList(context).orElse(null);
-            if(formList != null){
-                result.addAll(ScreenUtils.getFieldListFromForm(formList));
-            }
-        }else {
-            result.addAll(ScreenUtils.getFieldListFromForm(formSingle));
+        AbstractForm abstractForm = ScreenUtils.getCurrentAbstractForm(context).orElse(null);
+        if(abstractForm != null) {
+            result.addAll(ScreenUtils.getFieldListFromForm(abstractForm));
         }
+
+//        FormSingle formSingle = ScreenUtils.getCurrentFormSingle(context).orElse(null);
+//        if(formSingle == null){
+//            //再判断FormList
+//            FormList formList = ScreenUtils.getCurrentFormList(context).orElse(null);
+//            if(formList != null){
+//                result.addAll(ScreenUtils.getFieldListFromForm(formList));
+//            }
+//        }else {
+//            result.addAll(ScreenUtils.getFieldListFromForm(formSingle));
+//        }
 
         return result;
     }

@@ -6,22 +6,16 @@ import com.intellij.codeInspection.util.InspectionMessage;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.xml.XmlAttribute;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.converter.insert.ExtendEntityNameAndPackageInsertionHandler;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.PsiRef;
-import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
 
 /**
  * 针对Field进行相关处理
@@ -60,9 +54,16 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
     public @Nullable LookupElement createLookupElement(AbstractField field) {
         if (field == null) return super.createLookupElement(field);
 
-        return LookupElementBuilder.create(field,field.getName().getStringValue())
+        return LookupElementBuilder.create(field,MyDomUtils.getValueOrEmptyString(field.getName()))
                 .withCaseSensitivity(false);
     }
+
+    /**
+     * 判断当前的Element是否需要进行错误判断，不进行错位判断的就不提示错误
+     * @param context 当前的元素
+     * @return boolean
+     */
+    abstract boolean isNotCheckElement(ConvertContext context);
 
     @Override
     public @Nullable PsiElement getPsiElement(@Nullable AbstractField resolvedValue) {
@@ -74,7 +75,7 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
     public @Nullable String toString(@Nullable AbstractField s, ConvertContext context) {
         if (s == null) return null;
 
-        return s.getName().getXmlAttributeValue().getValue();
+        return MyDomUtils.getValueOrEmptyString(s.getName());
     }
 
     @Override
@@ -112,6 +113,8 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
 
     @Override
     public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
+        if(isNotCheckElement(context)) return null;
+
         if(MyStringUtils.isEmpty(s)) {
             return super.getErrorMessage(s, context);
         }else {

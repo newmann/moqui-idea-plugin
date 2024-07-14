@@ -1,9 +1,10 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.lang.annotation.HighlightSeverity;
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
@@ -14,12 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.icon.MyIcons;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
 import static org.moqui.idea.plugin.util.MyDomUtils.getSubTagList;
@@ -33,7 +31,7 @@ public final class ScreenUtils {
 
     public static boolean isScreenFile(@Nullable PsiFile file){
         if(file == null) return false;
-        return MyDomUtils.isSpecialXmlFile(file, Screen.TAG_NAME);
+        return MyDomUtils.isSpecialXmlFile(file, Screen.TAG_NAME,Screen.ATTR_NoNamespaceSchemaLocation,Screen.VALULE_NoNamespaceSchemaLocation);
     }
     public static Icon getNagavitorToScreenIcon() {
         return MoquiIcons.NavigateToScreen; //MyIcons.NAVIGATE_TO_SCREEN;
@@ -42,21 +40,19 @@ public final class ScreenUtils {
         return "Navigating to Screen definition";
     }
 
-    /**
-     * 判断url字符串是否为Transition，
-     * @param url
-     * @return
-     */
-    public static boolean isValidTransitionFormat(@NotNull String url){
-        if(url.equals(".")) return false;
 
-        if(url.contains("..")) return false;
+    public static Boolean isTabScreenBySubScreenItems(@NotNull SubScreensItem subScreensItem){
+        if(subScreensItem.getParent() instanceof Screen screen) {
+            List<SubScreensPanel> subScreensPanelList = screen.getWidgets().getSubScreensPanelList();
+            if(subScreensPanelList.isEmpty()) return false;
 
-        if(url.contains("/")) return false;
+            SubScreensPanel subScreensPanel = screen.getWidgets().getSubScreensPanelList().get(0);
 
-        if(url.contains("$")) return false;
-
-        return true;
+            if(subScreensPanel == null) return false;
+            return MyDomUtils.getValueOrEmptyString(subScreensPanel.getType()).equals("tab");
+        }else {
+            return false;
+        }
     }
     /**
      * 根据当前位置找到所在screen的所有可用的Transition
@@ -138,36 +134,8 @@ public final class ScreenUtils {
                 resultList.add(optionalTransition.get().getXmlElement());
             }
 
-//            for(Transition transition: optionalScreenDomFileElement.get().getRootElement().getTransitionList()) {
-//                if(transition.getName().getValue().equals(name)) {
-//                    resultList.add(transition.getXmlElement());
-//                }
-//            }
         }
 
-
-//        final String componentPreStr = "component://";
-//        String relativePathName;
-//
-//        if(location.indexOf(componentPreStr)==0) {
-//            relativePathName = location.substring(componentPreStr.length());
-//        } else {
-//            relativePathName = location;
-//        }
-//
-//        List<DomFileElement<Screen>> fileElementList  = DomUtils.findDomFileElementsByRootClass(project, Screen.class);
-//        for(DomFileElement<Screen> fileElement : fileElementList) {
-//            if (fileElement.getFile().getVirtualFile().getPath().contains(relativePathName)){
-//
-//                for(Transition transition: fileElement.getRootElement().getTransitionList()) {
-//                    if(transition.getName().getValue().equals(name)) {
-//                        resultList.add(transition.getXmlElement());
-//                    }
-//                }
-//
-//
-//            }
-//        }
 
         return resultList;
     }
@@ -235,15 +203,46 @@ public final class ScreenUtils {
                     formSingleList.add(formSingle);
                 }
             }
-//            DomFileElement<Screen> screen = DomManager.getDomManager(file.getProject())
-//                    .getFileElement(xmlFile, Screen.class);
-//            if(screen != null) {
-//                return getFormSingleListFromScreenFile(screen);
-//            }
         }
 
         return formSingleList;
 
+    }
+
+    /**
+     * 获取文件中所有Form定义，返回AbstractForm
+     * @param file 所在文件
+     * @return
+     */
+    public static List<AbstractForm> getAbstractFormFromScreenFile(PsiFile file){
+        List<AbstractForm> abstractFormList = new ArrayList<>();
+        List<XmlTag> formTagList = new ArrayList<>();
+
+        if(file instanceof XmlFile xmlFile) {
+            XmlTag rootTag = xmlFile.getRootTag();
+            if (rootTag!=null) {
+                formTagList.addAll(getSubTagList(rootTag,FormSingle.TAG_NAME));
+                formTagList.addAll(getSubTagList(rootTag,FormList.TAG_NAME));
+            }
+
+            for(XmlTag child : formTagList) {
+                DomElement domElement = DomUtil.getDomElement(child);
+                if(domElement instanceof AbstractForm form) {
+                    abstractFormList.add(form);
+                }
+            }
+        }
+
+        return abstractFormList;
+
+    }
+    public static Optional<AbstractForm> getAbstractFormFromScreenFileByName(@NotNull PsiFile file,@NotNull String formName){
+        List<AbstractForm> abstractFormList = getAbstractFormFromScreenFile(file);
+        return abstractFormList.stream().filter(item->{
+            final String name = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
+                    .orElse(MyStringUtils.EMPTY_STRING);
+            return name.equals(formName);
+        }).findFirst();
     }
 
 
@@ -358,29 +357,39 @@ public final class ScreenUtils {
         List<Field> result = new ArrayList<>();
         final String extendsStr = MyDomUtils.getXmlAttributeValueString(abstractForm.getExtends()).orElse(MyStringUtils.EMPTY_STRING);
         if(MyStringUtils.isNotEmpty(extendsStr)){
-            //根据extends，找到FormSingle的定义
+            //根据extends，找到FormSingle的定义，如果没有#，就是在本文件中找
             final int poundIndex = extendsStr.indexOf("#");
+            final PsiFile psiFile;
+            final String extendFormName;
+            XmlElement abstractFormXmlElement = abstractForm.getXmlElement();
+            if(abstractFormXmlElement == null) return  result;
+
             if(poundIndex>=0) {
                 final String location = extendsStr.substring(0, poundIndex);
-                final String extendFormName = extendsStr.substring(poundIndex+1);
+                extendFormName = extendsStr.substring(poundIndex + 1);
 
-                PsiFile psiFile = MyDomUtils.getFileFromLocation(abstractForm.getXmlElement().getProject(),location).orElse(null);
-                if(psiFile != null) {
-                    AbstractForm extendForm;
-                    if(abstractForm instanceof FormSingle) {
-                        extendForm = getFormSingleFromScreenFileByName(psiFile, extendFormName).orElse(null);
-                    }else {
-                        extendForm = getFormListFromScreenFileByName(psiFile, extendFormName).orElse(null);
-                    }
+                psiFile = MyDomUtils.getFileFromLocation(abstractFormXmlElement.getProject(), location).orElse(null);
+            }else {
+                extendFormName = extendsStr;
+                psiFile = abstractFormXmlElement.getContainingFile();
+            }
 
-                    if(extendForm != null) {
-                        //嵌套调用
-                        result.addAll(getFieldListFromForm(extendForm));
-                    }
+            if(psiFile != null) {
+                AbstractForm extendForm = getAbstractFormFromScreenFileByName(psiFile,extendFormName).orElse(null);
 
+//                if(abstractForm instanceof FormSingle) {
+//                    extendForm = getFormSingleFromScreenFileByName(psiFile, extendFormName).orElse(null);
+//                }else {
+//                    extendForm = getFormListFromScreenFileByName(psiFile, extendFormName).orElse(null);
+//                }
+
+                if(extendForm != null) {
+                    //嵌套调用
+                    result.addAll(getFieldListFromForm(extendForm));
                 }
 
             }
+
 
         }
 
@@ -396,8 +405,338 @@ public final class ScreenUtils {
         return getLocalDomElementByConvertContext(context,FormSingle.class);
 
     }
+    public static Optional<AbstractForm> getCurrentAbstractForm(ConvertContext context){
+        return getLocalDomElementByConvertContext(context,AbstractForm.class);
+    }
+
     public static Optional<FormList> getCurrentFormList(ConvertContext context){
         return getLocalDomElementByConvertContext(context,FormList.class);
 
     }
+
+    public static class Menu{
+        private Menu parent;
+        private ArrayList<Menu> children;
+        private Menu defaultChild;
+
+        private SubScreensItem subScreensItem;//指向自己定义的地方，如果是子目录下，则这一项为null，只能从containingMoquiFile或containingDirectory中获取
+        private String name;
+        private String title;
+        private String iconName;
+        private Boolean isHidden;
+
+        private Integer menuIndex = 0;
+
+        private LocationUtils.MoquiFile containingMoquiFile;
+        private PsiDirectory containingDirectory;
+//        public static Menu of(Screen screen){
+//
+//        }
+
+        /**
+         * 获取project的所有的menu
+         */
+        public static ArrayList<Menu> findAllMenuArrayList(@NotNull Project project){
+            ArrayList<Menu> menus = new ArrayList<Menu>();
+
+            List<Screen> screenList = MoquiConfUtils.getAllScreens(project);
+            for(Screen screen : screenList){
+                for(SubScreensItem subScreensItem: screen.getSubScreensItemList()) {
+                    ScreenUtils.Menu menu = ScreenUtils.Menu.of(subScreensItem);
+                    menus.add(menu);
+                }
+            }
+            //对menus进行排序
+            return sortMenuArrayList(menus);
+
+        }
+        public static ArrayList<Menu> sortMenuArrayList(@NotNull ArrayList<Menu> menus){
+            menus.sort(new Comparator<Menu>() {
+
+                @Override
+                public int compare(Menu menu, Menu t1) {
+                    if (Objects.equals(t1.getMenuIndex(), menu.getMenuIndex())) {
+                        return menu.getTitle().compareTo(t1.getTitle());
+                    } else {
+                        return menu.getMenuIndex() - t1.getMenuIndex();
+                    }
+                }
+            });
+            //对子菜单进行排序
+            for(Menu menu: menus) {
+                menu.setChildren(sortMenuArrayList(menu.getChildren()));
+            }
+            return menus;
+        }
+        /**
+         * 根据当前的SubScreensItem获取所有的下属子菜单
+         * @param screensItem
+         * @return
+         */
+        public static Menu of(@NotNull SubScreensItem screensItem){
+            if(screensItem.getXmlElement() == null){return null;}
+            Menu result = new Menu();
+            result.setSubScreensItem(screensItem);
+            result.setName(MyDomUtils.getValueOrEmptyString(screensItem.getName()));
+            String title = MyDomUtils.getValueOrEmptyString(screensItem.getMenuTitle());
+            if(title.isEmpty()){title = result.name;}
+            result.setTitle(title);
+
+            result.setMenuIndex(MyDomUtils.getValueOrZero(screensItem.getMenuIndex()));
+
+            String location = MyDomUtils.getValueOrEmptyString(screensItem.getLocation());
+            //查找对应的文件
+            PsiFile psiFile = MyDomUtils.getFileFromLocation(screensItem.getXmlElement().getProject(), location).orElse(null);
+            if(psiFile != null) {
+                LocationUtils.MoquiFile file = new LocationUtils.MoquiFile(psiFile);
+                result.setContainingMoquiFile(file);
+
+
+            }else {
+                result.setContainingMoquiFile(null);
+            }
+
+            //如果所在的Screen中subscreens-panel定义了type为tab，则无需进一步获取子菜单，因为这种类型就是在当前界面中通过Tab的方式来显示所有子screen
+            //不应该过滤掉，应该显示出来，因为不管是不是tab类型，都可以通过url来访问
+//            if(! isTabScreenBySubScreenItems(screensItem)) {
+                result.setChildren(getChildMenus(result));
+//            }
+
+            return result;
+        }
+
+
+        /**
+         * 根据文件创建Menu
+         * @param psiFile
+         * @return
+         */
+        public static Menu of(@NotNull PsiFile psiFile){
+            //如果psiFile不是Screen文件，则返回null
+            if(!ScreenUtils.isScreenFile(psiFile)){return  null;}
+
+            Menu result = new Menu();
+            //查找对应的文件
+            LocationUtils.MoquiFile file = new LocationUtils.MoquiFile(psiFile);
+            Screen screen = MyDomUtils.convertPsiFileToDomFile(psiFile,Screen.class).getRootElement();
+            String defaultMenuTitle = MyDomUtils.getValueOrEmptyString(screen.getDefaultMenuTitle());
+            Integer defaultMenuIndex = MyDomUtils.getValueOrZero(screen.getDefaultMenuIndex());
+
+            result.setContainingMoquiFile(file);
+            if(MyDomUtils.isMoquiXmlFile(psiFile)) {
+                result.setName(file.getFileName());
+                if(defaultMenuTitle.isEmpty()) {
+                    result.setTitle(file.getFileName());
+                }else {
+                    result.setTitle(defaultMenuTitle);
+                }
+                result.setMenuIndex(defaultMenuIndex);
+
+            }else {
+                result.setName(file.getFileFullName());
+                result.setTitle(file.getFileFullName());
+            }
+            result.setSubScreensItem(null);
+            result.setContainingDirectory(null);
+
+            ArrayList<Menu> children = new ArrayList<>();
+            //查找文件中的SubScreens定义
+            children.addAll(getChildMenusBySubScreens(result, screen.getSubScreens()));
+            //查找同名文件夹下面的文件
+            children.addAll(getChildMenusByPath(result,file.getContainingSubScreensPath()));
+
+            result.setChildren(children);
+            return result;
+
+        }
+
+        /**
+         * 根据目录创建Menu
+         * @param psiDirectory
+         * @return
+         */
+        public static Menu of(@NotNull PsiDirectory psiDirectory){
+
+            Menu result = new Menu();
+//            //查找对应的文件
+//            LocationUtils.MoquiFile file = new LocationUtils.MoquiFile(psiFile);
+//            result.setContainingMoquiFile(file);
+
+            result.setName(psiDirectory.getName());
+            result.setTitle(psiDirectory.getName());
+
+            result.setSubScreensItem(null);
+            result.setContainingMoquiFile(null);
+
+            result.setContainingDirectory(psiDirectory);
+            String path = psiDirectory.getVirtualFile().getPath();
+            //获取子菜单
+            result.setChildren(getChildMenusByPath(result,path));
+            return result;
+
+        }
+        /**
+         * 获取当前
+         * @param menu 当前的menu
+         * @return
+         */
+        public static ArrayList<Menu> getChildMenus(@NotNull Menu menu){
+            ArrayList<Menu> menus = new ArrayList<Menu>();
+            LocationUtils.MoquiFile moquiFile = menu.getContainingMoquiFile();
+            if(moquiFile == null) {
+                return menus;
+            }
+
+
+            PsiFile file = menu.getContainingMoquiFile().getContainingFile();
+            Screen screen = MyDomUtils.convertPsiFileToDomFile(file,Screen.class).getRootElement();
+
+            menus.addAll(getChildMenusBySubScreens(menu, screen.getSubScreens()));
+            menus.addAll(getChildMenusByPath(menu, menu.getContainingMoquiFile().getContainingSubScreensPath()));
+
+            return menus;
+        }
+        public static ArrayList<Menu> getChildMenusBySubScreens(@NotNull Menu menu,@NotNull SubScreens subScreens){
+            ArrayList<Menu> menus = new ArrayList<Menu>();
+            for(SubScreensItem item : subScreens.getSubScreensItemList()) {
+                Menu subMenu = of(item);
+                if(subMenu != null)  subMenu.setParent(menu);
+                menus.add(subMenu);
+            }
+            return menus;
+        }
+
+        /**
+         * 获取指定路径下的文件和子目录
+         * 1、剔除后缀的文件名为menu的名字
+         * 2、子目录名为menu名字
+         * @param menu
+         * @param path
+         * @return
+         */
+        public static ArrayList<Menu> getChildMenusByPath(@NotNull Menu menu,@NotNull String path){
+            LocationUtils.MoquiFile moquiFile = menu.getContainingMoquiFile();
+            List<PsiFile> fileList;
+            ArrayList<Menu> menus = new ArrayList<Menu>();
+
+            Project project;
+            if(moquiFile !=null) {
+                project = moquiFile.getContainingFile().getProject();
+            }else {
+                if(menu.getContainingDirectory() == null) return menus;
+                project = menu.getContainingDirectory().getProject();
+            }
+
+            fileList = MyDomUtils.findPsiFilesByPath(project, path);
+            for(PsiFile item : fileList) {
+                Menu subMenu = of(item);
+                if(subMenu!=null) {
+                    subMenu.setParent(menu);
+                    menus.add(subMenu);
+                }
+            }
+
+            //只有在特定情况下才需要处理子目录，比如静态文件，其他都不需要处理子目录
+            //处理子目录
+//            List<PsiDirectory> directoryList = MyDomUtils.findPsiDirectoriesByPath(project,path);
+//            for(PsiDirectory directory : directoryList) {
+//                Menu dirMenu = of(directory);
+//                dirMenu.setParent(menu);
+//                menus.add(dirMenu);
+//            }
+
+            return menus;
+
+        }
+
+        public ArrayList<Menu> getChildren() {
+            return children;
+        }
+
+        public Menu getDefaultChild() {
+            return defaultChild;
+        }
+
+        public Menu getParent() {
+            return parent;
+        }
+
+        public Boolean getHidden() {
+            return isHidden;
+        }
+
+
+        public String getName() {
+            return name;
+        }
+
+        public String getIconName() {
+            return iconName;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public LocationUtils.MoquiFile getContainingMoquiFile() {
+            return containingMoquiFile;
+        }
+
+        public SubScreensItem getSubScreensItem() {
+            return subScreensItem;
+        }
+
+        public Integer getMenuIndex() {
+            return menuIndex;
+        }
+
+        public void setChildren(ArrayList<Menu> children) {
+            this.children = children;
+        }
+
+        public PsiDirectory getContainingDirectory() {
+            return containingDirectory;
+        }
+
+        public void setDefaultChild(Menu defaultChild) {
+            this.defaultChild = defaultChild;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setParent(Menu parent) {
+            this.parent = parent;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public void setHidden(Boolean hidden) {
+            isHidden = hidden;
+        }
+
+        public void setIconName(String iconName) {
+            this.iconName = iconName;
+        }
+
+        public void setContainingMoquiFile(LocationUtils.MoquiFile containingMoquiFile) {
+            this.containingMoquiFile = containingMoquiFile;
+        }
+
+        public void setSubScreensItem(SubScreensItem subScreensItem) {
+            this.subScreensItem = subScreensItem;
+        }
+
+        public void setMenuIndex(Integer menuIndex) {
+            this.menuIndex = menuIndex;
+        }
+
+        public void setContainingDirectory(PsiDirectory containingDirectory) {
+            this.containingDirectory = containingDirectory;
+        }
+    }
+
 }

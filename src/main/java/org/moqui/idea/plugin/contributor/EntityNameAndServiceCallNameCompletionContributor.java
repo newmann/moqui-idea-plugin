@@ -3,7 +3,6 @@ package org.moqui.idea.plugin.contributor;
 import com.intellij.codeInsight.completion.CompletionType;
 import icons.MoquiIcons;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
@@ -137,13 +136,13 @@ public class EntityNameAndServiceCallNameCompletionContributor extends Completio
     java.util.Set<String> entitySet;
     java.util.Set<String> viewSet;
     if (charIndex < 0) {
-      entitySet = EntityUtils.getEntityFullNames(project,"");
-      viewSet = EntityUtils.getViewEntityFullNames(project,"");
+      entitySet = EntityUtils.getEntityFullNameSet(project,"");
+      viewSet = EntityUtils.getViewEntityFullNameSet(project,"");
 
     }else {
       final String packageName = inputStr.substring(0,charIndex);
-      entitySet = EntityUtils.getEntityFullNames(project,packageName);
-      viewSet = EntityUtils.getViewEntityFullNames(project,packageName);
+      entitySet = EntityUtils.getEntityFullNameSet(project,packageName);
+      viewSet = EntityUtils.getViewEntityFullNameSet(project,packageName);
     }
 
     entitySet.forEach((item) -> {
@@ -163,12 +162,12 @@ public class EntityNameAndServiceCallNameCompletionContributor extends Completio
     List<LookupElementBuilder> lookupElementBuilders = new ArrayList<LookupElementBuilder>();
     java.util.Set<String> entitySet;
     if (charIndex < 0) {
-      entitySet = EntityUtils.getEntityFullNames(project,"");
+      entitySet = EntityUtils.getEntityFullNameSet(project,"");
 
 
     }else {
       final String packageName = inputStr.substring(0,charIndex);
-      entitySet = EntityUtils.getEntityFullNames(project,packageName);
+      entitySet = EntityUtils.getEntityFullNameSet(project,packageName);
 
     }
     entitySet.forEach((item) -> {
@@ -194,14 +193,14 @@ public class EntityNameAndServiceCallNameCompletionContributor extends Completio
         if(! ServiceUtils.STANDARD_CRUD_COMMANDER.contains(slashSplit[0])) return lookupElementBuilders;
         //操作存在，则返回entityNameList，需要根据后半部分进行过滤
         if(slashSplit.length==1) {
-          entitySet.addAll(EntityUtils.getEntityFullNames(project,""));
+          entitySet.addAll(EntityUtils.getEntityFullNameSet(project,""));
         }else {
           int backPointIndex = slashSplit[1].lastIndexOf('.');
           if(backPointIndex<0) {
-            entitySet.addAll(EntityUtils.getEntityFullNames(project,""));
+            entitySet.addAll(EntityUtils.getEntityFullNameSet(project,""));
           }else {
             var packageName = slashSplit[1].substring(0, backPointIndex);
-            entitySet.addAll(EntityUtils.getEntityFullNames(project,packageName));
+            entitySet.addAll(EntityUtils.getEntityFullNameSet(project,packageName));
           }
         }
         //将CRUD放到entityName前面，以便识别
@@ -273,7 +272,7 @@ public class EntityNameAndServiceCallNameCompletionContributor extends Completio
   }
   private void getServiceCallToSet(@NotNull Project project, @NotNull String filterClassName, @NotNull Set<String> resultSet){
 
-    resultSet.addAll(ServiceUtils.findServiceClassNameSet(project,filterClassName));
+    resultSet.addAll(ServiceUtils.getServiceClassNameSet(project,filterClassName));
     if (resultSet.size()==1) {
       //当前className是个完整的名称，则取该class下的所有服务
       resultSet.clear();

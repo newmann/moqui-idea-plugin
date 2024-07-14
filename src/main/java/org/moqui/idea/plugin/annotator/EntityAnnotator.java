@@ -22,7 +22,7 @@ public class EntityAnnotator implements Annotator {
         if(!(ServiceUtils.isServicesFile(element.getContainingFile()))) return;
 
         final String entityName = attribute.getValue();
-        Optional<XmlElement> optDomElement = EntityUtils.findEntityAndViewEntityXmlElementByFullName(element.getProject(), entityName);
+        Optional<XmlElement> optDomElement = EntityUtils.getEntityOrViewEntityXmlElementByName(element.getProject(), entityName);
         //没有找到对应的entity定义，则显示错误
         if(optDomElement.isEmpty()) {
             XmlAttributeValue attributeValue = attribute.getValueElement();

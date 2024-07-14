@@ -1,9 +1,7 @@
 package org.moqui.idea.plugin.action.entityManagement;
 
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.AbstractEntity;
 import org.moqui.idea.plugin.service.IndexEntity;
-import org.moqui.idea.plugin.util.MyDomUtils;
 
 public class IndexEntityTreeNode {
     private final IndexEntity indexEntity;
@@ -12,7 +10,7 @@ public class IndexEntityTreeNode {
 
     IndexEntityTreeNode(@NotNull IndexEntity indexEntity) {
         this.indexEntity = indexEntity;
-        this.name = indexEntity.getEntityName();
+        this.name = indexEntity.getShortName();
 
     }
 

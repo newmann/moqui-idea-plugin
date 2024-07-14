@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
@@ -13,22 +12,19 @@ import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Service;
-import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static com.intellij.codeInsight.completion.CompletionUtil.DUMMY_IDENTIFIER;
-import static org.moqui.idea.plugin.util.ServiceUtils.findServiceByFullName;
+import static org.moqui.idea.plugin.util.ServiceUtils.getServiceOrInterfaceByFullName;
 
 public class InterfaceConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter {
     @Override
     public String fromString(String s, ConvertContext context) {
         if(s == null) return null;
 
-        Optional<Service> optService = findServiceByFullName(context.getProject(),s);
+        Optional<Service> optService = getServiceOrInterfaceByFullName(context.getProject(),s);
         if (optService.isEmpty()) return null;
         return s;
     }
@@ -36,7 +32,7 @@ public class InterfaceConverter extends ResolvingConverter.StringConverter imple
     @Override
     public @NotNull Collection<? extends String> getVariants(ConvertContext context) {
 
-        return ServiceUtils.findInterfaceFullNameSet(context.getProject(), MyStringUtils.EMPTY_STRING);
+        return ServiceUtils.getInterfaceFullNameSet(context.getProject(), MyStringUtils.EMPTY_STRING);
 
     }
 

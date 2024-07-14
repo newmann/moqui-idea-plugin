@@ -26,7 +26,7 @@ public interface AllWidgetsList extends DomElement {
 
     @NotNull
     @SubTagList(SubScreensPanel.TAG_NAME)
-    List<SubScreensPanel> getSubScreensPanelList();
+    List<SubScreensPanel> getSubScreensPanelList(); //TODO：这个tag是List的吗？应该是唯一性的
 
     @NotNull
     @SubTagList(Section.TAG_NAME)

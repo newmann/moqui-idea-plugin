@@ -13,7 +13,7 @@ public final class EecaUtils {
 
     public static boolean isEecasFile(@Nullable PsiFile file){
         if(file == null) return false;
-        return MyDomUtils.isSpecialXmlFile(file,Eecas.TAG_NAME);
+        return MyDomUtils.isSpecialXmlFile(file,Eecas.TAG_NAME,Eecas.ATTR_NoNamespaceSchemaLocation,Eecas.VALUE_NoNamespaceSchemaLocation);
 
     }
 

@@ -1,5 +1,7 @@
 package org.moqui.idea.plugin.service;
 
+import com.intellij.psi.xml.XmlElement;
+import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.EntityUtils;
@@ -8,98 +10,98 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 import java.util.*;
 
-public final class IndexEntity {
-    private final String entityName;
-    private final String packageName;
+public final class IndexEntity extends AbstractIndexEntity {
 
-    private final String shortAlias;
-    private final String fullName;
-    private final Entity entity;
+    private Entity entity;
 
-    private final Map<String,AbstractField> abstractFieldMap = new HashMap<>();
 
-    private final List<ExtendEntity> extendEntityList = new ArrayList<>();
 
-    private final List<Relationship> relationshipList = new ArrayList<>();
-    IndexEntity(@NotNull Entity entity){
+    private List<ExtendEntity> extendEntityList =new ArrayList<>();
+
+    private List<Relationship> relationshipList = new ArrayList<>();
+    IndexEntity(@NotNull Entity entity,@NotNull List<ExtendEntity> extendEntityList){
         this.entity =entity;
-        this.entityName = MyDomUtils.getValueOrEmptyString(entity.getEntityName());
+        this.abstractEntity = entity;
+
+//        setMainDomElement(entity);
+        this.extendEntityList = extendEntityList;
+
+        this.RefreshEntity();
+
+        this.setLastRefreshStamp(System.currentTimeMillis());
+
+    }
+
+    public void RefreshEntity(){
+        this.shortName = MyDomUtils.getValueOrEmptyString(entity.getEntityName());
         this.packageName = MyDomUtils.getValueOrEmptyString(entity.getPackage());
         this.shortAlias = MyDomUtils.getValueOrEmptyString(entity.getShortAlias());
         if(this.packageName.equals(MyStringUtils.EMPTY_STRING)){
-            this.fullName = this.entityName;
+            this.fullName = this.shortName;
         }else {
-            this.fullName =  this.packageName + "." + this.entityName;
+            this.fullName =  this.packageName + "." + this.shortName;
         }
-        updateFieldList();
-    }
 
-    public String getFullName(){
-        return this.fullName;
-    }
-    public String getEntityName(){
-        return this.entityName;
-    }
-    public String getPackageName(){
-        return this.packageName;
+        this.abstractFieldMap = new HashMap<>();
+
+        for(Field field: this.entity.getFieldList()) {
+            abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
+        }
+        this.relationshipList = new ArrayList<>();
+        relationshipList.addAll(this.entity.getRelationshipList());
+
+        for(ExtendEntity extendEntity : extendEntityList){
+            for(Field field: extendEntity.getFieldList()) {
+                this.abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
+            }
+            this.relationshipList.addAll(extendEntity.getRelationshipList());
+        }
+
+
     }
     public Entity getEntity(){return this.entity;}
+    public void setEntity(Entity entity){
+        this.entity = entity;
+        this.abstractEntity = entity;}
+
     public String getShortAlias(){
         return this.shortAlias;
     }
     public List<ExtendEntity> getExtendEntityList(){return this.extendEntityList;}
     public List<Relationship> getRelationshipList(){return this.relationshipList;}
 
-    private void updateFieldList(){
-
-        for(Field field: this.entity.getFieldList()) {
-            abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
-        }
-        relationshipList.addAll(this.entity.getRelationshipList());
-
-        extendEntityList.forEach(item->{
-            for(Field field: item.getFieldList()) {
-                abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
-            }
-
-            relationshipList.addAll(item.getRelationshipList());
-        });
+    public void setExtendEntityList(List<ExtendEntity> extendEntityList) {
+        this.extendEntityList = extendEntityList;
     }
 
-    /**
-     * 由于在MoquiIndexService中进行了处理，在添加ExtendEntity的时候，只需要简单添加自身的字段即可，不需要进行重新扫描
-     * @param extendEntity
-     */
-    public void AddExtendEntity(ExtendEntity extendEntity){
-        if (NotContainExtendEntity(extendEntity)){
-            for(Field field: extendEntity.getFieldList()) {
-                this.abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
-            }
-            this.extendEntityList.add(extendEntity);
+    //    private void RefreshExtendEntity(){
+//        XmlElement entityXmlElement = this.entity.getXmlElement();
+//        if(entityXmlElement == null){return;}
+//        List<DomFileElement<Entities>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(entityXmlElement.getProject(),Entities.class);
+//
+//    }
+//    /**
+//     * 由于在MoquiIndexService中进行了处理，在添加ExtendEntity的时候，只需要简单添加自身的字段即可，不需要进行重新扫描
+//     * @param extendEntity
+//     */
+//    public void AddExtendEntity(ExtendEntity extendEntity){
+//        if (NotContainExtendEntity(extendEntity)){
+//            this.extendEntityList.add(extendEntity);
+//        }
+//    }
+//
+//    public boolean ContainExtendEntity(ExtendEntity extendEntity){
+//        for(ExtendEntity item : extendEntityList){
+//            if(item == extendEntity) return true;
+//        }
+//        return false;
+//    }
+//
+//    public boolean NotContainExtendEntity(ExtendEntity extendEntity){
+//        return ! ContainExtendEntity(extendEntity);
+//    }
 
-            this.relationshipList.addAll(extendEntity.getRelationshipList());
 
-        }
-    }
-
-    public boolean ContainExtendEntity(ExtendEntity extendEntity){
-        for(ExtendEntity item : extendEntityList){
-            if(item == extendEntity) return true;
-        }
-        return false;
-    }
-    public boolean NotContainExtendEntity(ExtendEntity extendEntity){
-        return ! ContainExtendEntity(extendEntity);
-    }
-
-    public Optional<List<String>> getFieldNameList(){
-        return Optional.of(abstractFieldMap.keySet().stream().toList());
-
-    }
-    public Optional<List<AbstractField>> getAbstractFieldList(){
-        return Optional.of(abstractFieldMap.values().stream().toList());
-
-    }
     public Optional<List<Field>> getFieldList(){
         List<Field> fieldList = new ArrayList<>();
         for(String key: abstractFieldMap.keySet()){
@@ -108,26 +110,10 @@ public final class IndexEntity {
         return Optional.of(fieldList);
 
     }
-    public boolean isValid(){
-        if(!this.entity.isValid()) return false;
-        for(String key: this.abstractFieldMap.keySet()) {
-            if(!this.abstractFieldMap.get(key).isValid()) return false;
-        }
-        for(ExtendEntity item : this.extendEntityList) {
-            if(!item.isValid()) return false;
-        }
-        return true;
-    }
-
-    public boolean isThisEntity(@NotNull String name){
-        int index = name.lastIndexOf(EntityUtils.ENTITY_NAME_DOT);
-        String checkName;
-        if(index >=0) {
-            checkName = name.substring(index+1);
-        }else{
-            checkName = name;
-        }
-        return this.entityName.equals(checkName) || this.shortAlias.equals(checkName);
+    public Optional<Relationship> getRelationshipByName(@NotNull String relationshipName){
+        return relationshipList.stream()
+                .filter(item->{return EntityUtils.isThisRelationshipRelatedName(item,relationshipName);})
+                .findFirst();
     }
 
 }

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.beiyelin"
-version = "20240505.01"
+version = "20240610.01"
 
 repositories {
   maven { setUrl("https://maven.aliyun.com/repository/central/")}

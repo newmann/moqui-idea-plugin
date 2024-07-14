@@ -6,6 +6,7 @@ import com.intellij.javaee.StandardResourceProvider;
 public class MoquiXsdProvider implements StandardResourceProvider {
     @Override
     public void registerResources(ResourceRegistrar registrar) {
+
         registrar.addStdResource("http://moqui.org/xsd/email-eca-3.xsd","/xsd/email-eca-3.xsd",getClass());
         registrar.addStdResource("http://moqui.org/xsd/entity-definition-3.xsd","/xsd/entity-definition-3.xsd",getClass());
         registrar.addStdResource("http://moqui.org/xsd/entity-eca-3.xsd","/xsd/entity-eca-3.xsd",getClass());

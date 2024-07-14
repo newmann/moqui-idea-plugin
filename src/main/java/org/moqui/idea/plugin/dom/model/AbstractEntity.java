@@ -8,6 +8,7 @@ public interface AbstractEntity extends DomElement {
     public static final String ATTR_ENTITY_NAME = "entity-name";
     public static final String ATTR_PACKAGE = "package";
 
+    @Stubbed
     @NameValue
     @NotNull
     @Attribute(ATTR_ENTITY_NAME)

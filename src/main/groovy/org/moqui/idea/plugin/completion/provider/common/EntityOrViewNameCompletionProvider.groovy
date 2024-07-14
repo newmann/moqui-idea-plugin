@@ -23,9 +23,12 @@ class EntityOrViewNameCompletionProvider extends CompletionProvider<CompletionPa
 
     }
     static void addEntitiesLookup(@NotNull Project project, @NotNull CompletionResultSet result){
-        MoquiIndexService entityPsiElementService = project.getService(MoquiIndexService.class);
+//        MoquiIndexService entityPsiElementService = project.getService(MoquiIndexService.class);
+//
+//        Map<String, DomElement> entitySet = entityPsiElementService.getAllEntityDomElements();
 
-        Map<String, DomElement> entitySet = entityPsiElementService.getAllEntityDomElements();
+        Map<String, DomElement> entitySet = EntityUtils.getAllEntityAndViewEntityDomElementMap(project);
+
         entitySet.forEach ((key,value)->{
             LookupElement lookupElement = LookupElementBuilder.create(key);
 

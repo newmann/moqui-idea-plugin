@@ -36,7 +36,8 @@ public class EecasFilesInspection extends MoquiXmlFilesInspection {
     @Override
     protected void checkDomElement(@NotNull DomElement element, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
         super.checkDomElement(element, holder, helper);
-        final Project project = element.getXmlElement().getProject();
+//        final Project project = element.getXmlElement().getProject();
+        if(element.getXmlElement() == null) return;
         final PsiFile file = element.getXmlElement().getContainingFile();
         if(!EecaUtils.isEecasFile(file)) return;
 
@@ -56,7 +57,7 @@ public class EecasFilesInspection extends MoquiXmlFilesInspection {
     }
 
     private void checkEecaTag(@NotNull Eeca eeca,@NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
-        GenericAttributeValue attributeValue = eeca.getEntity();
+        GenericAttributeValue<String> attributeValue = eeca.getEntity();
         EntityUtils.inspectEntityFromAttribute(attributeValue,holder,helper);
 
 

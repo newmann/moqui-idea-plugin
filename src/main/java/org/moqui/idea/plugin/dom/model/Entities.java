@@ -9,6 +9,9 @@ import java.util.List;
 
 public interface Entities extends DomElement {
     public static final String TAG_NAME = "entities";
+    public static final String ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
+    public static final String VALUE_NoNamespaceSchemaLocation = "http://moqui.org/xsd/entity-definition-3.xsd";
+
     @NotNull
 //    @Stubbed
     @SubTagList(Entity.TAG_NAME)

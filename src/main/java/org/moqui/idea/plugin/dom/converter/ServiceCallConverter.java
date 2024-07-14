@@ -26,18 +26,18 @@ import static com.intellij.codeInsight.completion.CompletionUtil.DUMMY_IDENTIFIE
  * 1、服务调用：包名.动作#名称
  * 2、针对Entity的CRUD，动作#EntityFullName
  */
-public class ServiceCallConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter {
-    @Override
-    public String fromString(String s, ConvertContext context) {
-        if(s==null) return super.fromString(s, context);
-
-        if(ServiceUtils.isValidServiceCallStr(context.getProject(),s)){
-            return s;
-        }else{
-            return null;
-        }
-
-    }
+public class ServiceCallConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
+//    @Override
+//    public String fromString(String s, ConvertContext context) {
+//        if(s==null) return super.fromString(s, context);
+//
+//        if(ServiceUtils.isValidServiceCallStr(context.getProject(),s)){
+//            return s;
+//        }else{
+//            return null;
+//        }
+//
+//    }
 
     @Override
     public @NotNull Collection<? extends String> getVariants(ConvertContext context) {
@@ -45,7 +45,7 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
         //获取输入的属性内容
 
         XmlElement xmlElement = context.getXmlElement();
-        if(xmlElement == null) return new ArrayList<String>();
+        if(xmlElement == null) return new ArrayList<>();
 
         String curStr = xmlElement.getText();
 
@@ -61,12 +61,12 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
             }
             return lookupService(project,inputStr);
         }
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
+    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
         final String serviceCallStr = value.getStringValue();
         if(MyStringUtils.isEmpty(serviceCallStr)) return PsiReference.EMPTY_ARRAY;
 
@@ -78,11 +78,11 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
             //针对Entity的标准CRUD
             int startOffset = contentArray[0].length()+2;
 
-            return EntityUtils.createEntityFullNameReferences(project,element,contentArray[1],startOffset);
+            return EntityUtils.createEntityNameReferences(project,element,contentArray[1],startOffset);
         }else{
             //标准的ServiceCall
 
-            PsiReference[] result = new PsiReference[contentArray.length];
+//            PsiReference[] result = new PsiReference[contentArray.length];
 
 
             return ServiceUtils.createServiceCallReferences(project,element,serviceCallStr,1);
@@ -108,14 +108,14 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
                 if(! ServiceUtils.STANDARD_CRUD_COMMANDER.contains(slashSplit[0])) return result;
                 //操作存在，则返回entityNameList，需要根据后半部分进行过滤
                 if(slashSplit.length==1) {
-                    entitySet.addAll(EntityUtils.getEntityFullNames(project,""));
+                    entitySet.addAll(EntityUtils.getEntityFullNameSet(project,""));
                 }else {
                     int backPointIndex = slashSplit[1].lastIndexOf('.');
                     if(backPointIndex<0) {
-                        entitySet.addAll(EntityUtils.getEntityFullNames(project,""));
+                        entitySet.addAll(EntityUtils.getEntityFullNameSet(project,""));
                     }else {
                         var packageName = slashSplit[1].substring(0, backPointIndex);
-                        entitySet.addAll(EntityUtils.getEntityFullNames(project,packageName));
+                        entitySet.addAll(EntityUtils.getEntityFullNameSet(project,packageName));
                     }
                 }
                 //将CRUD放到entityName前面，以便识别
@@ -153,7 +153,7 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
 
     private void getServiceCallToSet(@NotNull Project project, @NotNull String filterClassName, @NotNull Set<String> resultSet){
 
-        resultSet.addAll(ServiceUtils.findServiceClassNameSet(project,filterClassName));
+        resultSet.addAll(ServiceUtils.getServiceClassNameSet(project,filterClassName));
         if (resultSet.size()==1) {
             //当前className是个完整的名称，则取该class下的所有服务
             resultSet.clear();
@@ -163,6 +163,7 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
 
     @Override
     public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
+        if(s == null) s="<null>";
         return new HtmlBuilder()
                 .append("根据")
                 .append(s)

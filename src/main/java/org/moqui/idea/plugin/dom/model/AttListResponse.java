@@ -10,13 +10,14 @@ import org.moqui.idea.plugin.dom.converter.UrlConverter;
 
 public interface AttListResponse extends DomElement {
 
-
+    public static final String ATTR_URL = "url";
 
 
     @NotNull
     GenericAttributeValue<String> getType();
 
     @NotNull
+    @Attribute(ATTR_URL)
     @Convert(UrlConverter.class)
     GenericAttributeValue<String> getUrl();
 
