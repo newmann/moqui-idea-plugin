@@ -1,7 +1,10 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlElement;
@@ -422,7 +425,7 @@ public final class ScreenUtils {
         private SubScreensItem subScreensItem;//指向自己定义的地方，如果是子目录下，则这一项为null，只能从containingMoquiFile或containingDirectory中获取
         private String name;
         private String title;
-        private String iconName;
+        private Icon icon;
         private Boolean isHidden;
 
         private Integer menuIndex = 0;
@@ -440,12 +443,14 @@ public final class ScreenUtils {
             ArrayList<Menu> menus = new ArrayList<Menu>();
 
             List<Screen> screenList = MoquiConfUtils.getAllScreens(project);
-            for(Screen screen : screenList){
-                for(SubScreensItem subScreensItem: screen.getSubScreensItemList()) {
-                    ScreenUtils.Menu menu = ScreenUtils.Menu.of(subScreensItem);
-                    menus.add(menu);
+            ApplicationManager.getApplication().runReadAction(()->{
+                for(Screen screen : screenList){
+                    for(SubScreensItem subScreensItem: screen.getSubScreensItemList()) {
+                        ScreenUtils.Menu menu = ScreenUtils.Menu.of(subScreensItem);
+                        menus.add(menu);
+                    }
                 }
-            }
+            });
             //对menus进行排序
             return sortMenuArrayList(menus);
 
@@ -481,6 +486,7 @@ public final class ScreenUtils {
             String title = MyDomUtils.getValueOrEmptyString(screensItem.getMenuTitle());
             if(title.isEmpty()){title = result.name;}
             result.setTitle(title);
+            result.setIcon(AllIcons.General.Add);
 
             result.setMenuIndex(MyDomUtils.getValueOrZero(screensItem.getMenuIndex()));
 
@@ -521,6 +527,7 @@ public final class ScreenUtils {
             Screen screen = MyDomUtils.convertPsiFileToDomFile(psiFile,Screen.class).getRootElement();
             String defaultMenuTitle = MyDomUtils.getValueOrEmptyString(screen.getDefaultMenuTitle());
             Integer defaultMenuIndex = MyDomUtils.getValueOrZero(screen.getDefaultMenuIndex());
+            result.setIcon(AllIcons.FileTypes.Xml);
 
             result.setContainingMoquiFile(file);
             if(MyDomUtils.isMoquiXmlFile(psiFile)) {
@@ -564,6 +571,7 @@ public final class ScreenUtils {
 
             result.setName(psiDirectory.getName());
             result.setTitle(psiDirectory.getName());
+            result.setIcon(AllIcons.General.Print);
 
             result.setSubScreensItem(null);
             result.setContainingMoquiFile(null);
@@ -597,13 +605,16 @@ public final class ScreenUtils {
             return menus;
         }
         public static ArrayList<Menu> getChildMenusBySubScreens(@NotNull Menu menu,@NotNull SubScreens subScreens){
-            ArrayList<Menu> menus = new ArrayList<Menu>();
-            for(SubScreensItem item : subScreens.getSubScreensItemList()) {
-                Menu subMenu = of(item);
-                if(subMenu != null)  subMenu.setParent(menu);
-                menus.add(subMenu);
-            }
-            return menus;
+            return ApplicationManager.getApplication().runReadAction((Computable<ArrayList<Menu>>) ()->{
+                ArrayList<Menu> menus = new ArrayList<Menu>();
+                for(SubScreensItem item : subScreens.getSubScreensItemList()) {
+                    Menu subMenu = of(item);
+                    if(subMenu != null)  subMenu.setParent(menu);
+                    menus.add(subMenu);
+                }
+                return menus;
+
+            });
         }
 
         /**
@@ -670,8 +681,8 @@ public final class ScreenUtils {
             return name;
         }
 
-        public String getIconName() {
-            return iconName;
+        public Icon getIcon() {
+            return icon;
         }
 
         public String getTitle() {
@@ -718,8 +729,8 @@ public final class ScreenUtils {
             isHidden = hidden;
         }
 
-        public void setIconName(String iconName) {
-            this.iconName = iconName;
+        public void setIcon(Icon icon) {
+            this.icon = icon;
         }
 
         public void setContainingMoquiFile(LocationUtils.MoquiFile containingMoquiFile) {

@@ -19,7 +19,10 @@ repositories {
 dependencies {
   // 使用 Maven Central 仓库中的依赖
   implementation("org.apache.groovy:groovy:4.0.13")
+  implementation("org.jgrapht:jgrapht-core:1.5.2")
+  implementation("com.github.tomnelson:jungrapht-visualization:1.4")
 }
+
 java {
   sourceCompatibility = JavaVersion.VERSION_17
   targetCompatibility = JavaVersion.VERSION_17

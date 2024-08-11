@@ -1,12 +1,18 @@
 package org.moqui.idea.plugin.action.menuManagement;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.ToolbarDecorator;
-import com.intellij.ui.TreeUIHelper;
+import com.intellij.ui.*;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.ui.treeStructure.Tree;
+import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.SubScreensItem;
@@ -16,6 +22,7 @@ import org.moqui.idea.plugin.util.ScreenUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
@@ -24,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MenuManagementGUI extends JPanel {
+    private Logger logger = Logger.getInstance(MenuManagementGUI.class);
+
     private Project project;
 
 
@@ -31,11 +40,11 @@ public class MenuManagementGUI extends JPanel {
     private ToolbarDecorator treeDecorator;
     private JBScrollPane scrollPaneEntity;
 
-    private JBTextField textSearch;
+//    private JBTextField textSearch;
 
     private JButton buttonSearch;
     private DefaultMutableTreeNode rootNode;
-
+    private DefaultTreeModel treeMode;
     public MenuManagementGUI(@NotNull Project project){
         super(new BorderLayout());
 
@@ -43,6 +52,9 @@ public class MenuManagementGUI extends JPanel {
         //entity tree
         scrollPaneEntity = new JBScrollPane();
         treeEntity = new Tree();
+        MyColoredCellRenderer myTreeRenderer = new MyColoredCellRenderer();
+        treeEntity.setCellRenderer(myTreeRenderer);
+
 //        this.treeDecorator = ToolbarDecorator.createDecorator(treeEntity);
         TreeUIHelper.getInstance().installTreeSpeedSearch(treeEntity);
 
@@ -55,7 +67,7 @@ public class MenuManagementGUI extends JPanel {
         initComponentListener();
         initButtonSearchListener();
         initTreeEntityListener();
-        initTextSearchListener();
+//        initTextSearchListener();
     }
     private void initHeader(){
         JPanel header = new JPanel(new BorderLayout());
@@ -141,37 +153,55 @@ public class MenuManagementGUI extends JPanel {
             }
         });
     }
-    private void initTextSearchListener(){
-        this.textSearch.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    refreshMenuTree();
-                }
-            }
-        });
-    }
+//    private void initTextSearchListener(){
+//        this.textSearch.addKeyListener(new KeyAdapter() {
+//            @Override
+//            public void keyPressed(KeyEvent e) {
+//                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+//                    refreshMenuTree();
+//                }
+//            }
+//        });
+//    }
 
     private void refreshMenuTree(){
-        this.rootNode = new DefaultMutableTreeNode("Root");
+//        String threadName = Thread.currentThread().getName();
+//        logger.warn("当前Thread Name："+ threadName);
+            buttonSearch.setEnabled(false);
+            rootNode = new DefaultMutableTreeNode("Loading...");
+            treeMode = new DefaultTreeModel(rootNode);
+            treeEntity.setModel(treeMode);
+            buttonSearch.setIcon(new AnimatedIcon.Default());
 
-        String strSearch = this.textSearch.getText().trim();
 
-        ArrayList<ScreenUtils.Menu> menuArrayList = ScreenUtils.Menu.findAllMenuArrayList(project);
-        for(ScreenUtils.Menu menu : menuArrayList) {
-            addMenuToTreeNode(this.rootNode, menu);
-        }
 
-//        List<Screen> screenList = MoquiConfUtils.getAllScreens(project);
-//        for(Screen screen : screenList){
-//            for(SubScreensItem subScreensItem: screen.getSubScreensItemList()) {
-//                ScreenUtils.Menu menu = ScreenUtils.Menu.of(subScreensItem);
-//                if(menu != null) addMenuToTreeNode(this.rootNode, menu);
-//            }
-//        }
+        ProgressManager.getInstance().run(
+                new Task.Backgroundable(project, treeEntity,"Loading menu tree...",false,null){
+                    ArrayList<ScreenUtils.Menu> menuArrayList;
+                    @Override
+                    public void run(@NotNull ProgressIndicator indicator) {
+                        rootNode = new DefaultMutableTreeNode("Root");
 
-        DefaultTreeModel treeMode = new DefaultTreeModel(this.rootNode);
-        this.treeEntity.setModel(treeMode);
+                        menuArrayList = ScreenUtils.Menu.findAllMenuArrayList(project);
+                        for(ScreenUtils.Menu menu : menuArrayList) {
+                            addMenuToTreeNode(rootNode, menu);
+                        }
+
+                    }
+
+                    @Override
+                    public void onFinished() {
+                        super.onFinished();
+                        ApplicationManager.getApplication().invokeLater(()->{
+                            DefaultTreeModel treeMode = new DefaultTreeModel(rootNode);
+                            treeEntity.setModel(treeMode);
+                            buttonSearch.setEnabled(true);
+                            buttonSearch.setIcon(null);
+                        });
+
+                    }
+                }
+        );
     }
 
     private void addMenuToTreeNode(@NotNull DefaultMutableTreeNode parentNode, @NotNull ScreenUtils.Menu menu) {
@@ -187,11 +217,43 @@ public class MenuManagementGUI extends JPanel {
 
     private DefaultMutableTreeNode createTreeNodeForMenu(@NotNull DefaultMutableTreeNode parentNode, @NotNull ScreenUtils.Menu menu){
         MenuTreeNode menuTreeNode = new MenuTreeNode(menu);
-
+        
         DefaultMutableTreeNode node = new DefaultMutableTreeNode(menuTreeNode);
+
         parentNode.add(node);
         return node;
     }
 
+
+    private static class MyTreeCellRenderer extends DefaultTreeCellRenderer{
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            if(value instanceof DefaultMutableTreeNode node) {
+                if(node.getUserObject() instanceof MenuTreeNode menuTreeNode) {
+                    if (menuTreeNode.getMenu().getIcon() != null) {
+                        setIcon(menuTreeNode.getMenu().getIcon());
+                    }
+                }
+            }
+            return  this;
+        }
+    }
+    private static class MyColoredCellRenderer extends ColoredTreeCellRenderer{
+
+        @Override
+        public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            if(value instanceof DefaultMutableTreeNode node) {
+                if(node.getUserObject() instanceof MenuTreeNode menuTreeNode) {
+                    ScreenUtils.Menu menu = menuTreeNode.getMenu();
+                    if (menu.getIcon() != null) {
+                        setIcon(menu.getIcon());
+                    }
+                    append(menu.getTitle(),new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.foreground()));
+                    append(menu.getName(),new SimpleTextAttributes(SimpleTextAttributes.STYLE_ITALIC,JBColor.gray),5,1);
+                }
+            }
+        }
+    }
 
 }

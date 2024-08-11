@@ -1,5 +1,6 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.xml.DomFileElement;
@@ -31,12 +32,12 @@ public final class MoquiConfUtils {
      * @return
      */
     public static Optional<PsiFile> getMoquiConfFileByComponentFileName(@NotNull Project  project, @NotNull String componentFileName){
-        String[] parts = componentFileName.split("/runtime/component/");
+        String[] parts = componentFileName.split(MyStringUtils.COMPONENT_PATH_TAG);
         if(parts.length != 2) return Optional.empty();
         int index = parts[1].indexOf("/");
         if(index == -1) return Optional.empty();
         String componentName = parts[1].substring(0, index);
-        String confName = parts[0]+"/runtime/component/"+componentName+"/MoquiConf.xml";
+        String confName = parts[0]+MyStringUtils.COMPONENT_PATH_TAG+componentName+"/MoquiConf.xml";
 
         return MyDomUtils.getPsiFileByPathName(project,confName);
     }
@@ -56,11 +57,22 @@ public final class MoquiConfUtils {
                         .findFirst();
     }
 
+    /**
+     * 获取所有的Screen定义
+     * 只需要取runtime/base-component和runtime/component下的定义，其他路径下的不需要
+     * @param project
+     * @return
+     */
     public static List<Screen> getAllScreens(@NotNull Project project){
         List<DomFileElement<MoquiConf>> moquiConfList = MyDomUtils.findDomFileElementsByRootClass(project,MoquiConf.class);
         ArrayList<Screen> result = new ArrayList<Screen>();
         for(DomFileElement<MoquiConf> moquiConf: moquiConfList) {
-            result.addAll(moquiConf.getRootElement().getScreenFacade().getScreenList());
+            ApplicationManager.getApplication().runReadAction(()->{
+                String path = moquiConf.getFile().getVirtualFile().getPath();
+                if(path.contains(MyStringUtils.COMPONENT_PATH_TAG) || path.contains(MyStringUtils.BASE_COMPONENT_PATH_TAG) ) {
+                    result.addAll(moquiConf.getRootElement().getScreenFacade().getScreenList());
+                }
+            });
         }
         return result;
 

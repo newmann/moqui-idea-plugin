@@ -22,6 +22,9 @@ public final class MyStringUtils {
     }
 
     public static final String EMPTY_STRING = "";
+
+    public static final String COMPONENT_PATH_TAG = "/runtime/component/";
+    public static final String BASE_COMPONENT_PATH_TAG = "/runtime/base-component/";
     public static final String TRANSITION_NAME_REGEXP = "^[a-z][a-zA-Z0-9_-]*$";
     public static final String SCREEN_FILE_PATH_REGEXP = "(?:(?:\\.\\./)+)?[A-Z][a-zA-Z0-9_/-]+|\\.|\\.\\.";
     public static final String CONTAIN_VARIABLE_REGEXP =".*(\\$\\{)[a-zA-Z0-9_\\-\\.](\\}).*";
@@ -43,6 +46,7 @@ public final class MyStringUtils {
     public static final String BASE_COMPONENT_SERVICE_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]service[/|\\\\]?).*";
     public static final String BASE_COMPONENT_SCREEN_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]screen[/|\\\\]?).*";
     public static final String BASE_COMPONENT_SRC_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]src[/|\\\\]?).*";
+    public static final String BASE_COMPONENT_CHILD_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+";
     /**
      * Upper case first char string.
      *

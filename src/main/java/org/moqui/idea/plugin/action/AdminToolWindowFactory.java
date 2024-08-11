@@ -49,7 +49,7 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
 
         contentLayout = new CardLayout();
         contentPanel = new JPanel(contentLayout);
-        mainPanel.add(contentPanel,BorderLayout.CENTER);
+
 
         mainActionGroup = new DefaultActionGroup();
 
@@ -72,7 +72,7 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
 //        toolBar.setTargetComponent(componentDepends);
 
         mainPanel.add(toolBar.getComponent(), BorderLayout.PAGE_START);
-
+        mainPanel.add(contentPanel,BorderLayout.CENTER);
 
     }
 
@@ -82,6 +82,7 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
         mainActionGroup.add(new AnAction(title,description,icon){
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
+//                LOG.warn("点击的Title："+ title);
                 CardLayout cardLayout = (CardLayout) contentPanel.getLayout();
                 cardLayout.show(contentPanel,title);
 
