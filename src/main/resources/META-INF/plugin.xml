@@ -233,6 +233,10 @@
 <!--      <add-to-group group-id="MainMenu" relative-to-action="ToolsMenu" anchor="after"/>-->
 
     </action>
+    <action id="ShowMoquiActionFlowDiagram" class="org.moqui.idea.plugin.action.flowManagement.ShowFlowAnAction" text="Show flow diagram"
+            description="Show action flow diagram">
+        <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+    </action>
 
 <!--      <action id="ReplaceText" class="org.moqui.idea.plugin.ReplaceText" text="MyReplaceTextPlugin"-->
 <!--              description="My ReplaceText Plugin">-->

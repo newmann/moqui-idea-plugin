@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.io.File;
 import java.util.*;
 import java.util.Set;
 
@@ -43,8 +42,8 @@ public final class ServiceUtils {
         throw new UnsupportedOperationException();
     }
     public static final class ServiceDescriptor{
-        ServiceDescriptor(){}
-        ServiceDescriptor(String className,String verb, String noun){
+        public ServiceDescriptor(){}
+        public ServiceDescriptor(String className,String verb, String noun){
             this.className = className;
             this.verb = verb;
             this.noun = noun;
@@ -58,7 +57,7 @@ public final class ServiceUtils {
          * @param fullName
          * @return
          */
-        ServiceDescriptor(@NotNull String fullName){
+        public ServiceDescriptor(@NotNull String fullName){
             final int index = fullName.lastIndexOf(SERVICE_NAME_DELIMITER);
             if(index < 0) return ;
 
@@ -80,9 +79,36 @@ public final class ServiceUtils {
 
 
         }
-        public String className = MyStringUtils.EMPTY_STRING;
-        public String verb = MyStringUtils.EMPTY_STRING;
-        public String noun  = MyStringUtils.EMPTY_STRING;
+        private String className = MyStringUtils.EMPTY_STRING;
+        private String verb = MyStringUtils.EMPTY_STRING;
+        private String noun  = MyStringUtils.EMPTY_STRING;
+
+        public String getClassName() {
+            return className;
+        }
+
+        public void setClassName(String className) {
+            this.className = className;
+        }
+
+        public String getNoun() {
+            return noun;
+        }
+
+        public void setNoun(String noun) {
+            this.noun = noun;
+        }
+
+        public String getVerb() {
+            return verb;
+        }
+
+        public void setVerb(String verb) {
+            this.verb = verb;
+        }
+        public String getAction(){
+            return verb +SERVICE_NAME_DELIMITER + noun;
+        }
 
         public Optional<String> getServiceCallName(){
             if(isEmpty(verb) || isEmpty(noun)) return Optional.empty();

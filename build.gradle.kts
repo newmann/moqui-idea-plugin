@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.beiyelin"
-version = "20240610.01"
+version = "20240829.01"
 
 repositories {
   maven { setUrl("https://maven.aliyun.com/repository/central/")}
@@ -54,7 +54,7 @@ tasks {
 
   patchPluginXml {
     sinceBuild.set("233")
-    untilBuild.set("241.*")
+    untilBuild.set("242.*")
   }
 
   signPlugin {

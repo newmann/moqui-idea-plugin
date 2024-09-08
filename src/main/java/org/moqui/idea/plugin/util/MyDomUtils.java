@@ -416,6 +416,10 @@ public final class MyDomUtils {
     public static <T extends DomElement> Optional<T> getLocalDomElementByPsiElement(@NotNull PsiElement psiElement, @NotNull Class<T> targetClass){
         return Optional.ofNullable(DomUtil.findDomElement(psiElement,targetClass));
     }
+    public static <T extends DomElement> Optional<T> getLocalDomElementByPsiElement(@NotNull PsiElement psiElement, @NotNull Class<T> targetClass,boolean strict){
+        return Optional.ofNullable(DomUtil.findDomElement(psiElement,targetClass,strict));
+    }
+
     public static <T extends DomElement> Optional<T> getLocalDomElementByXmlTag(@NotNull XmlTag xmlTag, @NotNull Class<T> targetClass){
         DomElement domElement = DomManager.getDomManager(xmlTag.getProject()).getDomElement(xmlTag);
         if(domElement == null) return Optional.empty();
@@ -651,17 +655,31 @@ public final class MyDomUtils {
     public static void openFileForDomElement(@NotNull DomElement element){
         XmlElement  xmlElement = element.getXmlElement();
         if (xmlElement == null) return;
-        Project project = element.getXmlElement().getProject();
+        openFileForPsiElement(xmlElement);
+//        Project project = element.getXmlElement().getProject();
+//
+//        FileEditorManager editorManager = FileEditorManager.getInstance(project);
+//
+//
+//        OpenFileDescriptor descriptor = new OpenFileDescriptor(project,
+//            element.getXmlElement().getContainingFile().getVirtualFile(),
+//            element.getXmlElement().getTextOffset());
+//
+//        editorManager.openTextEditor(descriptor,true);
+
+
+    }
+    public static void openFileForPsiElement(@NotNull PsiElement element){
+        Project project = element.getProject();
 
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
 
 
         OpenFileDescriptor descriptor = new OpenFileDescriptor(project,
-            element.getXmlElement().getContainingFile().getVirtualFile(),
-            element.getXmlElement().getTextOffset());
+                element.getContainingFile().getVirtualFile(),
+                element.getTextOffset());
 
         editorManager.openTextEditor(descriptor,true);
-
 
     }
     public static void openFileForPsiFile(@NotNull PsiFileSystemItem psiFile){
