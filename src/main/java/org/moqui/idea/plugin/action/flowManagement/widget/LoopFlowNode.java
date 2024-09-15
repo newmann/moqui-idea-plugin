@@ -21,18 +21,6 @@ public class LoopFlowNode extends FlowNode {
     public void processLayout() {
 
         setLayout(null); //绝对布局
-//        MouseAdapter mouseAdapter = new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                if(e.getClickCount() == 2) {
-//                    if(loopFlowNodeModel.isExpanded()) {
-//                        loopFlowNodeModel.closeContent();
-//                    }else {
-//                        loopFlowNodeModel.expandContent();
-//                    }
-//                }
-//            }
-//        };
         JPanel conditionNode = FlowNodeBuilder.createNode(loopFlowNodeModel.getConditionNodeModel());
         FlowNodeBuilder.setBound(conditionNode, loopFlowNodeModel.getConditionNodeModel());
         add(conditionNode);

@@ -6,6 +6,7 @@ import com.intellij.psi.xml.XmlTag;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
@@ -14,6 +15,11 @@ import java.util.Optional;
 
 public class FlowNodeModelBuilder {
     public static final Logger LOG = Logger.getInstance(FlowNodeModelBuilder.class);
+    public static Optional<FlowNodeModel> ofDefaultModel(@NotNull XmlTag xmlTag){
+        String name = "Tag#" + xmlTag.getName();
+        return Optional.of(new FlowNodeModel(FlowNodeType.ASSIGNMENT,name,xmlTag));
+    }
+
     public static Optional<FlowNodeModel> ofSetModel(@NotNull Set set){
         String name = "Set#" + MyDomUtils.getValueOrEmptyString(set.getField());
         return Optional.of(new FlowNodeModel(FlowNodeType.ASSIGNMENT,name,set.getXmlElement()));
@@ -25,10 +31,10 @@ public class FlowNodeModelBuilder {
     }
     public static Optional<IfFlowNodeModel> ofIfModel(@NotNull If ifDomElement){
         String condition = MyDomUtils.getValueOrEmptyString(ifDomElement.getConditionAttr());
-        SceneFlowNodeModel trueSceneFlowNodeModel = ifDomElement.getThen().getXmlTag() == null ? null : ofSceneFlowNodeModel(ifDomElement.getThen().getXmlTag()).orElse(null);
-        SceneFlowNodeModel falseSceneFlowNodeModel = ifDomElement.getElse().getXmlTag() == null ? null : ofSceneFlowNodeModel(ifDomElement.getElse().getXmlTag()).orElse(null);
+        SceneFlowNodeModel trueSceneFlowNodeModel = ifDomElement.getThen().getXmlTag() == null ? null : ofSceneFlowNodeModel(ifDomElement.getThen().getXmlTag(),"If true scene").orElse(null);
+        SceneFlowNodeModel falseSceneFlowNodeModel = ifDomElement.getElse().getXmlTag() == null ? null : ofSceneFlowNodeModel(ifDomElement.getElse().getXmlTag(),"If false scene").orElse(null);
         if(trueSceneFlowNodeModel == null) {
-            trueSceneFlowNodeModel = ifDomElement.getXmlTag() == null ? null : ofSceneFlowNodeModel(ifDomElement.getXmlTag()).orElse(null);
+            trueSceneFlowNodeModel = ifDomElement.getXmlTag() == null ? null : ofSceneFlowNodeModel(ifDomElement.getXmlTag(),"If true scene").orElse(null);
         }
 
         return Optional.of(new IfFlowNodeModel(condition,ifDomElement.getXmlTag(),trueSceneFlowNodeModel,falseSceneFlowNodeModel));
@@ -45,7 +51,7 @@ public class FlowNodeModelBuilder {
         if(actionsXmlTag == null || actionsXmlTag.getChildren().length == 0) {
             FlowNodeModel.setRelation(beginModel,endModel);
         }else {
-            Optional<SceneFlowNodeModel> sceneFlowNode = FlowNodeModelBuilder.ofSceneFlowNodeModel(actionsXmlTag);
+            Optional<SceneFlowNodeModel> sceneFlowNode = FlowNodeModelBuilder.ofSceneFlowNodeModel(actionsXmlTag,"Service scene");
             if(sceneFlowNode.isPresent()) {
                 FlowNodeModel.setRelation(beginModel,sceneFlowNode.get());
                 FlowNodeModel.setRelation(sceneFlowNode.get(),endModel);
@@ -76,7 +82,7 @@ public class FlowNodeModelBuilder {
         String list = MyDomUtils.getValueOrEmptyString(iterate.getList());
         String entry = MyDomUtils.getValueOrEmptyString(iterate.getEntry());
         String condition = Iterate.ATTR_LIST+":"+list+","+ Iterate.ATTR_ENTRY +":" + entry;
-        SceneFlowNodeModel sceneFlowNodeModel = iterate.getXmlTag() == null ? null : FlowNodeModelBuilder.ofSceneFlowNodeModel(iterate.getXmlTag()).orElse(null);
+        SceneFlowNodeModel sceneFlowNodeModel = iterate.getXmlTag() == null ? null : FlowNodeModelBuilder.ofSceneFlowNodeModel(iterate.getXmlTag(),"Loop scene").orElse(null);
 
         return Optional.of(new LoopFlowNodeModel(LoopFlowNodeModel.LoopFlowType.WHEN,condition,iterate.getXmlTag(), sceneFlowNodeModel));
     }
@@ -127,7 +133,7 @@ public class FlowNodeModelBuilder {
     public static Optional<FlowNodeModel> ofScriptModel(@NotNull XmlTag entityActionXmlTag){
         return Optional.empty();
     }
-    public static Optional<SceneFlowNodeModel> ofSceneFlowNodeModel(@NotNull XmlTag parentXmlTag){
+    public static Optional<SceneFlowNodeModel> ofSceneFlowNodeModel(@NotNull XmlTag parentXmlTag, @Nullable String sceneName){
         if(parentXmlTag.getChildren().length == 0) {
             return Optional.empty();
         }else {
@@ -137,14 +143,14 @@ public class FlowNodeModelBuilder {
             for (PsiElement child : parentXmlTag.getChildren()) {
                 if (child instanceof XmlTag xmlChild) {
                     switch (xmlChild.getName()) {
-                        case Set.TAG_NAME ->currentModel = FlowNodeModelBuilder.ofSetModel(xmlChild).orElse(null);
-                        case If.TAG_NAME ->currentModel = FlowNodeModelBuilder.ofIfModel(xmlChild).orElse(null);
-                        case ServiceCall.TAG_NAME ->currentModel = FlowNodeModelBuilder.ofServiceCallModel(xmlChild).orElse(null);
-                        case Iterate.TAG_NAME ->currentModel = FlowNodeModelBuilder.ofLoopModel(xmlChild).orElse(null);
+                        case Set.TAG_NAME ->currentModel = ofSetModel(xmlChild).orElse(null);
+                        case If.TAG_NAME ->currentModel = ofIfModel(xmlChild).orElse(null);
+                        case ServiceCall.TAG_NAME ->currentModel = ofServiceCallModel(xmlChild).orElse(null);
+                        case Iterate.TAG_NAME ->currentModel = ofLoopModel(xmlChild).orElse(null);
                         case EntityFind.TAG_NAME,EntityFindCount.TAG_NAME,
                                 EntityFindOne.TAG_NAME,
                                 EntityDelete.TAG_NAME,EntityDeleteByCondition.TAG_NAME,
-                                EntityMakeValue.TAG_NAME->currentModel = FlowNodeModelBuilder.ofEntityActionModel(xmlChild).orElse(null);
+                                EntityMakeValue.TAG_NAME->currentModel = ofEntityActionModel(xmlChild).orElse(null);
                         case EntitySet.TAG_NAME -> {
                             currentModel = ofEntitySetTag(xmlChild).orElse(null);
                         }
@@ -152,11 +158,12 @@ public class FlowNodeModelBuilder {
                             currentModel = ofEntityUpdateTag(xmlChild).orElse(null);
                         }
 
-                        case Script.TAG_NAME->currentModel = FlowNodeModelBuilder.ofScriptModel(xmlChild).orElse(null);
-                        case Return.TAG_NAME -> currentModel = FlowNodeModelBuilder.ofReturnModel(xmlChild).orElse(null);
+                        case Script.TAG_NAME->currentModel = ofScriptModel(xmlChild).orElse(null);
+                        case Return.TAG_NAME -> currentModel = ofReturnModel(xmlChild).orElse(null);
                         default->{
-                            LOG.warn("发现未处理的Tag类型：" + xmlChild.getName());
-                            continue;
+                            currentModel = ofDefaultModel(xmlChild).orElse(null);
+//                            LOG.warn("发现未处理的Tag类型：" + xmlChild.getName());
+//                            continue;
                         }
                     }
                     if (currentModel != null){
@@ -178,7 +185,7 @@ public class FlowNodeModelBuilder {
             if(model == null) {
                 return Optional.empty();
             }else {
-                return Optional.of(new SceneFlowNodeModel(model));
+                return Optional.of(new SceneFlowNodeModel(model,sceneName));
             }
         }
     }

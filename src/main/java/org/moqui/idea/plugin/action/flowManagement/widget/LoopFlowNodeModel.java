@@ -3,6 +3,8 @@ package org.moqui.idea.plugin.action.flowManagement.widget;
 
 import com.intellij.psi.PsiElement;
 
+import java.awt.*;
+
 public class LoopFlowNodeModel extends ExpandableFlowNodeModel{
     public enum LoopFlowType{
         WHEN, UNTIL;
@@ -36,23 +38,32 @@ public class LoopFlowNodeModel extends ExpandableFlowNodeModel{
     }
     @Override
     public void expandContent(){
-
+        if(isExpanded) return;
         super.expandContent();
 
     }
     @Override
     public void closeContent(){
-
-        conditionNodeModel.x = MARGIN_ALL;
-        conditionNodeModel.y = MARGIN_ALL;
-        width = FlowNodeModel.DEFAULT_WIDTH + MARGIN_ALL * 2;
-        height = FlowNodeModel.DEFAULT_HEIGHT+ MARGIN_ALL * 2;
+        if(!isExpanded) return;
 
         super.closeContent();
 
     }
     @Override
     public void processLayout() {
+        if(isExpanded) {
+            processExpand();
+        }else {
+            conditionNodeModel.x = MARGIN_ALL;
+            conditionNodeModel.y = MARGIN_ALL;
+            width = FlowNodeModel.DEFAULT_WIDTH + MARGIN_ALL * 2;
+            height = FlowNodeModel.DEFAULT_HEIGHT+ MARGIN_ALL * 2;
+            inFlowPoint = new Point(width/2,0);
+            outFlowPoint = new Point(width/2,height);
+        }
+
+    }
+    private void processExpand(){
         //复位Top
         conditionNodeModel.resetTop();
         processRootNodeModel.resetTop();
@@ -78,7 +89,7 @@ public class LoopFlowNodeModel extends ExpandableFlowNodeModel{
         layout.calcLayout();
 
         //设置自身的大小，左右的宽度需要增加画线的空间，所以还需要调整内部Node的x，
-        int gap = FlowLineModel.getLineDefaultWidth() + 10;
+        int gap = FlowLineModel.getLineDefaultWidth() + 1;
 
 
         tempRootModel.travelChild((child)->{child.adjustX(gap);});

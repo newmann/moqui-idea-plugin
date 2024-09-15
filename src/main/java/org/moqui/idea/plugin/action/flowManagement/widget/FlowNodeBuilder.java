@@ -66,6 +66,10 @@ public class FlowNodeBuilder {
             @Override
             public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
                 if (propertyChangeEvent.getPropertyName().equals(FlowNodeModel.PROPERTY_NAME_LAYOUT_CHANGE)) {
+//                    if(propertyChangeEvent.getSource() instanceof FlowNodeModel flowNodeModel) {
+//                        System.out.println("createSceneFlowNode->"+flowNodeModel.getName());
+//                    }
+
                     sceneFlowNode.removeAll();
                     sceneFlowNode.processLayout();
                     SwingUtilities.updateComponentTreeUI(sceneFlowNode);

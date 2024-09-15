@@ -15,7 +15,6 @@ public class ServiceCallFlowNode extends FlowNode  {
     public static final int LINE_SPACE = 10;
     private JLabel nameLabel = null;
     private JPanel contentPanel = null;
-//    private JBPanel actionPanel = null;
     public ServiceCallFlowNode(ServiceCallFlowNodeModel model) {
         super(model);
         this.serviceCallFlowNodeModel = model;
@@ -33,8 +32,6 @@ public class ServiceCallFlowNode extends FlowNode  {
                     serviceCallFlowNodeModel.getSceneFlowNodeModel().getHeight());
 
             add(contentPanel);
-
-
             setBorder(ofBorderDashLine());
 
         }else{
@@ -48,36 +45,11 @@ public class ServiceCallFlowNode extends FlowNode  {
             actionLabel.setVerticalAlignment(SwingConstants.TOP);
             actionLabel.setBounds(LINE_SPACE, model.getHeight()/2, model.getWidth() - 2 * LINE_SPACE, model.getHeight()/2);
             add(actionLabel);
-            
-
             setBorder(ofBorderBlackLine());
         }
-        //添加针对mouse的监听
-//        createActionButton();
-//        addMouseListener(this);
+
     }
-//    private void createActionButton(){
-////        actionPanel = new JBPanel();
-////        actionPanel.setLayout(null);
-////        actionPanel.setOpaque(false);
-//
-//        JButton extendButton = new JButton(MoquiIcons.ServiceTag);
-//
-//        extendButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent actionEvent) {
-//                if(serviceCallFlowNodeModel.isExpanded()) {
-//                    serviceCallFlowNodeModel.closeContent();
-//                }else {
-//                    serviceCallFlowNodeModel.expandContent();
-//                }
-//            }
-//        });
-//        extendButton.setBounds(1,1,32,32);
-//        actionPanel.add(extendButton);
-//
-//
-//    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -101,45 +73,4 @@ public class ServiceCallFlowNode extends FlowNode  {
 
     }
 
-//    @Override
-//    public void mouseClicked(MouseEvent mouseEvent) {
-//
-//    }
-//
-//    @Override
-//    public void mousePressed(MouseEvent mouseEvent) {
-//
-//    }
-//
-//    @Override
-//    public void mouseReleased(MouseEvent mouseEvent) {
-//
-//    }
-
-//    @Override
-//    public void mouseEntered(MouseEvent mouseEvent) {
-//        if(getExistingContainerPanel().isEmpty()) {
-//            this.actionPanel.setBounds(0,0,50,model.getHeight());
-//            this.add(this.actionPanel);
-//            setComponentZOrder(actionPanel, 0);
-//
-//            SwingUtilities.updateComponentTreeUI(this);
-//        }
-//    }
-//
-//    @Override
-//    public void mouseExited(MouseEvent mouseEvent) {
-//        if(getMousePosition() == null) {
-//            for (Component component : this.getComponents()) {
-//                if (component.equals(actionPanel)) {
-//                    this.remove(actionPanel);
-//                    SwingUtilities.updateComponentTreeUI(this);
-//                    break;
-//                }
-//            }
-//        }
-//    }
-//    private Optional<Component> getExistingContainerPanel() {
-//        return  Arrays.stream(this.getComponents()).filter(item ->item.equals(actionPanel)).findFirst();
-//    }
 }

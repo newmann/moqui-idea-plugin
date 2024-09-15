@@ -38,56 +38,49 @@ public class IfFlowNodeModel extends ExpandableFlowNodeModel{
     }
     @Override
     public void expandContent(){
-//        if(isExpanded) return;
-//        isExpanded= true;
-        //复位conditionNode
-//        conditionNodeModel.x = 0;
-//        conditionNodeModel.y = 0;
+        if(isExpanded) return;
         super.expandContent();
-//        processLayout();
-//        firePropertyChange(PROPERTY_NAME_LAYOUT_CHANGE,false,true);
     }
     @Override
     public void closeContent(){
-//        if(!isExpanded) return;
-//
-//        isExpanded = false;
-        //复位conditionNode
-        conditionNodeModel.x = MARGIN_ALL;
-        conditionNodeModel.y = MARGIN_ALL;
-        width = FlowNodeModel.DEFAULT_WIDTH + MARGIN_ALL * 2;
-        height = FlowNodeModel.DEFAULT_HEIGHT+ MARGIN_ALL * 2;
+        if(!isExpanded) return;
 
         super.closeContent();
-//        inFlowPoint = new Point(width/2,0);
-//        outFlowPoint = new Point(width/2,height);
-//        firePropertyChange(PROPERTY_NAME_LAYOUT_CHANGE,true,false);
 
     }
 
     @Override
     public void processLayout() {
-        //复位各个组件
-        conditionNodeModel.resetTop();
-        collectFlowNodeModel.resetTop();
+        if(isExpanded) {
+            //复位各个组件
+            conditionNodeModel.resetTop();
+            collectFlowNodeModel.resetTop();
 
-        if(trueSceneModel !=null && falseSceneModel !=null) {
-            processBothNoNull();
-        }else {
-            if(trueSceneModel == null && falseSceneModel ==null) {
-                processBothIsNull();
-            }else if(trueSceneModel == null) {
-                processTrueIsNull();
-            }else {
-                processFalseIsNull();
+            if (trueSceneModel != null && falseSceneModel != null) {
+                processBothNoNull();
+            } else {
+                if (trueSceneModel == null && falseSceneModel == null) {
+                    processBothIsNull();
+                } else if (trueSceneModel == null) {
+                    processTrueIsNull();
+                } else {
+                    processFalseIsNull();
+                }
             }
+
+            //取IF组件的出入口
+            inFlowPoint = conditionNodeModel.getAbsoluteInFlowPoint();
+
+            outFlowPoint = collectFlowNodeModel.getAbsoluteOutFlowPoint();
+        }else {
+            //复位conditionNode
+            conditionNodeModel.x = MARGIN_ALL;
+            conditionNodeModel.y = MARGIN_ALL;
+            width = FlowNodeModel.DEFAULT_WIDTH + MARGIN_ALL * 2;
+            height = FlowNodeModel.DEFAULT_HEIGHT+ MARGIN_ALL * 2;
+            inFlowPoint = new Point(width/2,0);
+            outFlowPoint = new Point(width/2,height);
         }
-
-        //取IF组件的出入口
-        inFlowPoint = conditionNodeModel.getAbsoluteInFlowPoint();
-
-        outFlowPoint = collectFlowNodeModel.getAbsoluteOutFlowPoint();
-
     }
     private void processBothIsNull(){
         int totalHeight = conditionNodeModel.getHeight() + TopDownFlowLayout.getVerticalSpace();
@@ -99,11 +92,13 @@ public class IfFlowNodeModel extends ExpandableFlowNodeModel{
         totalHeight += collectFlowNodeModel.getHeight();
 
         //设置IF组件的大小
+        width = conditionWidth;
         height = totalHeight;
 
     }
     private void processFalseIsNull(){
         trueSceneModel.resetTop();
+//        trueSceneModel.processLayout();//需要重新计算
         //将conditionNode的出口和trueSceneNode的入口对齐
         //将collectNode的入口和trueSceneNode的出口对齐
         int totalHeight = conditionNodeModel.getHeight() + TopDownFlowLayout.getVerticalSpace();
@@ -135,13 +130,20 @@ public class IfFlowNodeModel extends ExpandableFlowNodeModel{
         collectFlowNodeModel.y = totalHeight;
         totalHeight += collectFlowNodeModel.getHeight();
 
-        //设置IF组件的大小，为了画连接线，所以多5个点
-        width = Math.max(conditionNodeModel.x+ conditionNodeModel.getWidth()+FlowLineModel.getLineDefaultWidth(),
-                    trueSceneModel.getTopLeftPoint().x+trueSceneModel.getWidth()+ FlowLineModel.getLineDefaultWidth()) +5;
+        int gap = FlowLineModel.getLineDefaultWidth()+1;
+        //设置IF组件的大小，为了画连接线，左右增加画
+        width = Math.max(conditionNodeModel.getAbsoluteRightFlowPoint().x,
+                    trueSceneModel.getTopLeftPoint().x+trueSceneModel.getWidth()) + 2 * gap;
+        //所有的组件需要调整位置，向右偏移FlowLineModel.getLineDefaultWidth()+1
+        conditionNodeModel.adjustX(gap);
+        trueSceneModel.adjustX(gap);
+        collectFlowNodeModel.adjustX(gap);
+
         height = totalHeight;
     }
     private void processTrueIsNull(){
         falseSceneModel.resetTop();
+//        falseSceneModel.processLayout();
         //直线直接连接到collectNode的入口，falseSceneNode的左侧和Collect的右侧对齐即可
         //如果falseSceneNode的宽度比conditionNode的宽度小，需要微调
 
@@ -177,7 +179,9 @@ public class IfFlowNodeModel extends ExpandableFlowNodeModel{
 
     private void processBothNoNull(){
         trueSceneModel.resetTop();
+//        trueSceneModel.processLayout();
         falseSceneModel.resetTop();
+//        falseSceneModel.processLayout();
 
         int totalHeight = conditionNodeModel.getHeight() + TopDownFlowLayout.getVerticalSpace();
         int conditionWidth = conditionNodeModel.getWidth();
@@ -226,9 +230,6 @@ public class IfFlowNodeModel extends ExpandableFlowNodeModel{
 
     }
 
-//    public boolean isExpanded() {
-//        return isExpanded;
-//    }
 
     public SceneFlowNodeModel getTrueSceneModel() {
         return isExpanded ? trueSceneModel : null;

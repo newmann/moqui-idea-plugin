@@ -86,7 +86,7 @@ public abstract class FlowNode extends JPanel implements MouseListener {
     public void mouseClicked(MouseEvent mouseEvent) {
         //条件双击鼠标转跳到源文件的功能
         if(model.getTargetPsiElement() == null) {return;}
-        if(mouseEvent.getClickCount() == 1) {
+        if(mouseEvent.getClickCount() == 2) {
             MyDomUtils.openFileForPsiElement(model.getTargetPsiElement());
         }
     }
@@ -104,8 +104,8 @@ public abstract class FlowNode extends JPanel implements MouseListener {
     @Override
     public void mouseEntered(MouseEvent mouseEvent) {
         if(getExistingContainerPanel().isEmpty()) {
-            this.actionPanel.setBounds(0,0,model.getWidth(),ACTION_PANEL_HEIGHT);
-            this.add(this.actionPanel);
+            actionPanel.setBounds(0,0,model.getWidth(),ACTION_PANEL_HEIGHT);
+            add(actionPanel);
             setComponentZOrder(actionPanel, 0);
 
             SwingUtilities.updateComponentTreeUI(this);
@@ -114,15 +114,25 @@ public abstract class FlowNode extends JPanel implements MouseListener {
 
     @Override
     public void mouseExited(MouseEvent mouseEvent) {
-        if(getMousePosition() == null) {
-            for (Component component : this.getComponents()) {
-                if (component.equals(actionPanel)) {
-                    this.remove(actionPanel);
-                    SwingUtilities.updateComponentTreeUI(this);
-                    break;
-                }
+        Dimension dimension = FlowNode.this.getSize();
+        if(mouseEvent.getX()<0 || mouseEvent.getY() < 0
+                || mouseEvent.getX() >= dimension.getWidth()
+                || mouseEvent.getY() >= dimension.getHeight()) {
+            Optional<Component> actionPanelOpt = getExistingContainerPanel();
+            if(actionPanelOpt.isPresent()) {
+                remove(actionPanelOpt.get());
+                SwingUtilities.updateComponentTreeUI(this);
             }
+
         }
+
+//        if(getMousePosition() == null) {
+//            Optional<Component> actionPanelOpt = getExistingContainerPanel();
+//            if(actionPanelOpt.isPresent()) {
+//                remove(actionPanelOpt.get());
+//                SwingUtilities.updateComponentTreeUI(this);
+//            }
+//        }
     }
     private Optional<Component> getExistingContainerPanel() {
         return  Arrays.stream(this.getComponents()).filter(item ->item.equals(actionPanel)).findFirst();

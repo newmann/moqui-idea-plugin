@@ -20,24 +20,10 @@ public class IfFlowNode extends FlowNode {
 
     public void processLayout() {
         setLayout(null); //绝对布局
-//        MouseAdapter mouseAdapter = new MouseAdapter(){
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                if(e.getClickCount() == 2) {
-//                    if(ifFlowNodeModel.isExpanded()) {
-//                        ifFlowNodeModel.closeContent();
-//                    }else {
-//                        ifFlowNodeModel.expandContent();
-//                    }
-//                }
-//            }
-//        };
-
         JPanel conditionNode = FlowNodeBuilder.createNode(ifFlowNodeModel.getConditionNodeModel());
         conditionNode.setOpaque(false);
         FlowNodeBuilder.setBound(conditionNode, ifFlowNodeModel.getConditionNodeModel());
         add(conditionNode);
-//        conditionNode.addMouseListener(mouseAdapter);
 
         if(ifFlowNodeModel.isExpanded()) {
             if (ifFlowNodeModel.getTrueSceneModel() != null) {
@@ -55,7 +41,7 @@ public class IfFlowNode extends FlowNode {
                 JPanel collectionNode = FlowNodeBuilder.createNode(ifFlowNodeModel.getCollectionNodeModel());
                 FlowNodeBuilder.setBound(collectionNode, ifFlowNodeModel.getCollectionNodeModel());
                 add(collectionNode);
-//                collectionNode.addMouseListener(mouseAdapter);
+
             }
         }else {
             setBorder(ofBorderDashLine());
@@ -128,23 +114,12 @@ public class IfFlowNode extends FlowNode {
             StraightLineModel.of(this.ifFlowNodeModel.getTrueSceneModel().getAbsoluteOutFlowPoint(),
                     this.ifFlowNodeModel.getCollectionNodeModel().getAbsoluteInFlowPoint()).drawLine(g);
         }
-//        FlowLineModel lineModel = new FlowLineModel();
-//        lineModel.addLinePoint(new Point(this.ifFlowNodeModel.getConditionNodeModel().x + this.ifFlowNodeModel.getConditionNodeModel().getRightFlowPoint().x,
-//                this.ifFlowNodeModel.getConditionNodeModel().y + this.ifFlowNodeModel.getConditionNodeModel().getRightFlowPoint().y));
-//        int x = Math.max(this.ifFlowNodeModel.getConditionNodeModel().x + this.ifFlowNodeModel.getConditionNodeModel().getRightFlowPoint().x + TwoFoldLineModel.getFirstLineDefaultWidth(),
-//                this.ifFlowNodeModel.getTrueSceneModel().x + this.ifFlowNodeModel.getTrueSceneModel().getWidth() + TopDownFlowLayout.getHorizontalSpace());
-//
-//        lineModel.addLinePoint(new Point(x,this.ifFlowNodeModel.getConditionNodeModel().y+this.ifFlowNodeModel.getConditionNodeModel().getRightFlowPoint().y));
-//        lineModel.addLinePoint(new Point(x,this.ifFlowNodeModel.getCollectionNodeModel().y + this.ifFlowNodeModel.getCollectionNodeModel().getRightFlowPoint().y));
-//        lineModel.addLinePoint(new Point(this.ifFlowNodeModel.getCollectionNodeModel().x + this.ifFlowNodeModel.getCollectionNodeModel().getRightFlowPoint().x,
-//                this.ifFlowNodeModel.getCollectionNodeModel().y + this.ifFlowNodeModel.getCollectionNodeModel().getRightFlowPoint().y));
+
         ThreeFoldLineModel lineModel = ThreeFoldLineModel.ofBypassBlockRight(this.ifFlowNodeModel.getConditionNodeModel().getAbsoluteRightFlowPoint(),
                 this.ifFlowNodeModel.getTrueSceneModel(),
                 this.ifFlowNodeModel.getCollectionNodeModel().getAbsoluteRightFlowPoint()
                 );
         lineModel.drawLine(g);
 
-//        ThreeFoldLineModel.of(this.ifFlowNodeModel.getConditionNodeModel().getAbsoluteRightFlowPoint(),
-//                this.ifFlowNodeModel.getCollectionNodeModel().getAbsoluteRightFlowPoint()).drawLine(g);
     }
 }

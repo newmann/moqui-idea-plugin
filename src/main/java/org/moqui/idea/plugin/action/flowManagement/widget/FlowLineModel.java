@@ -14,10 +14,10 @@ public class FlowLineModel{
      */
     public static int getLineDefaultHeight(){
         return 20;
-    }
+    }//竖线缺省的高度
     public static int getLineDefaultWidth(){
         return 10;
-    }
+    }//横线距离最近边框的距离
 
     private static int ARRAY_WIDTH = 4;
     private static int ARRAY_LENGTH = 10;

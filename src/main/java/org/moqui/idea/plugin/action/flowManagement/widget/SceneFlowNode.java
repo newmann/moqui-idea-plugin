@@ -26,10 +26,11 @@ public class SceneFlowNode extends FlowNode {
             //连接线
             child = parent.getChildNode();
             if(child == null) break;
+
             Point from = parent.getAbsoluteOutFlowPoint();
             Point to = child.getAbsoluteInFlowPoint();
-            FlowLineModel lineModel = StraightLineModel.of(from,to);
-            lineModel.drawLine(g);
+            StraightLineModel.of(from,to).drawLine(g);
+
 
             parent = child;
 

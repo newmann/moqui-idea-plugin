@@ -8,8 +8,8 @@ public class ThreeFoldLineModel extends FlowLineModel{
         ThreeFoldLineModel lineModel = new ThreeFoldLineModel();
         lineModel.addLinePoint(from);
 
-        int x = Math.max(from.x+ FlowLineModel.getLineDefaultWidth(),
-                block.x + block.getWidth() + TopDownFlowLayout.getHorizontalSpace());
+        int x = Math.max(from.x,
+                block.x + block.getWidth()) + FlowLineModel.getLineDefaultWidth();
 
         lineModel.addLinePoint(new Point(x,from.y));
         lineModel.addLinePoint(new Point(x,to.y));
@@ -21,7 +21,7 @@ public class ThreeFoldLineModel extends FlowLineModel{
         lineModel.addLinePoint(from);
 
         int x = Math.min(from.x - FlowLineModel.getLineDefaultWidth(),
-                block.x - TopDownFlowLayout.getHorizontalSpace());
+                block.x - FlowLineModel.getLineDefaultWidth());
 
         lineModel.addLinePoint(new Point(x,from.y));
         lineModel.addLinePoint(new Point(x,to.y));
@@ -29,32 +29,14 @@ public class ThreeFoldLineModel extends FlowLineModel{
         return lineModel;
     }
 
-
-//    public static ThreeFoldLineModel of(Point from, Point to){
-//        return new ThreeFoldLineModel(from, to);
-//    }
-//
-//    ThreeFoldLineModel(Point from, Point to){
-//        super();
-//        linePointArray.add(from);
-//        //添加折线的中间的点
-//        if(from.y <= to.y) {
-//            int midY = (from.y - to.y) /2;
-//            linePointArray.add(new Point(from.x,from.y+midY));
-//            linePointArray.add(new Point(to.x,from.y+midY));
-//        }else {
-//            int midX = (from.x - to.x) / 2;
-//            linePointArray.add(new Point(from.x+midX,from.y));
-//            linePointArray.add(new Point(from.x+midX,to.y));
-//
-//        }
-//        linePointArray.add(to);
-//
-//        //设置大小
-//        width = Math.abs(from.x-to.x);
-//        height = Math.abs(from.y-to.y);
-//
-//    }
+    public static ThreeFoldLineModel ofBypassBlockRight(Point from, int foldPointX, Point to){
+        ThreeFoldLineModel lineModel = new ThreeFoldLineModel();
+        lineModel.addLinePoint(from);
+        lineModel.addLinePoint(new Point(foldPointX,from.y));
+        lineModel.addLinePoint(new Point(foldPointX,to.y));
+        lineModel.addLinePoint(to);
+        return lineModel;
+    }
 
 
 }

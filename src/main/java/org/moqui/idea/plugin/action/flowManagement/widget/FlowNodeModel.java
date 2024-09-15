@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.action.flowManagement.widget;
 
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiElement;
 
 import java.awt.*;
@@ -18,6 +19,7 @@ import java.util.stream.Stream;
  * 2、管理上游和下游关联节点
  */
 public class FlowNodeModel {
+    private static final Logger LOGGER = Logger.getInstance(FlowNodeModel.class);
     public static final String PROPERTY_NAME_LAYOUT_CHANGE = "layoutChange";
     public final static int TITLE_HEIGHT = 20;//如果设置标题，标题的高度
     public final static int MARGIN_ALL = 15;//针对SceneNode，空白边框的宽度
@@ -159,6 +161,7 @@ public class FlowNodeModel {
     }
     public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
         if (this.propertyChangeSupport != null) {
+//            LOGGER.warn("type->" + this.getType()+" name->"+ this.getName() + " fire newValue");
             this.propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
         }
 
@@ -171,6 +174,7 @@ public class FlowNodeModel {
     }
     public void firePropertyChange(PropertyChangeEvent event) {
         if (this.propertyChangeSupport != null) {
+//            LOGGER.warn("type->" + this.getType()+" name->"+ this.getName()+ " fire event");
             this.propertyChangeSupport.firePropertyChange(event);
         }
     }
