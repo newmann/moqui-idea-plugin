@@ -7,16 +7,9 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.*;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.components.JBTextField;
-import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.ui.treeStructure.Tree;
-import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.Screen;
-import org.moqui.idea.plugin.dom.model.SubScreensItem;
-import org.moqui.idea.plugin.util.MoquiConfUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
 
@@ -28,12 +21,11 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MenuManagementGUI extends JPanel {
     private Logger logger = Logger.getInstance(MenuManagementGUI.class);
 
-    private Project project;
+    private final Project myProject;
 
 
     private Tree treeEntity;
@@ -48,7 +40,7 @@ public class MenuManagementGUI extends JPanel {
     public MenuManagementGUI(@NotNull Project project){
         super(new BorderLayout());
 
-        this.project =project;
+        this.myProject =project;
         //entity tree
         scrollPaneEntity = new JBScrollPane();
         treeEntity = new Tree();
@@ -71,11 +63,6 @@ public class MenuManagementGUI extends JPanel {
     }
     private void initHeader(){
         JPanel header = new JPanel(new BorderLayout());
-//        JBLabel labelHeader = new JBLabel("Search:");
-//        header.add(labelHeader,BorderLayout.WEST);
-
-//        textSearch = new JBTextField();
-//        header.add(textSearch,BorderLayout.CENTER);
 
         buttonSearch = new JButton("Refresh");
         header.add(buttonSearch,BorderLayout.CENTER);
@@ -176,13 +163,13 @@ public class MenuManagementGUI extends JPanel {
 
 
         ProgressManager.getInstance().run(
-                new Task.Backgroundable(project, treeEntity,"Loading menu tree...",false,null){
+                new Task.Backgroundable(myProject, treeEntity,"Loading menu tree...",false,null){
                     ArrayList<ScreenUtils.Menu> menuArrayList;
                     @Override
                     public void run(@NotNull ProgressIndicator indicator) {
                         rootNode = new DefaultMutableTreeNode("Root");
 
-                        menuArrayList = ScreenUtils.Menu.findAllMenuArrayList(project);
+                        menuArrayList = ScreenUtils.Menu.findAllMenuArrayList(MenuManagementGUI.this.myProject);
                         for(ScreenUtils.Menu menu : menuArrayList) {
                             addMenuToTreeNode(rootNode, menu);
                         }

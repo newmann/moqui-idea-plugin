@@ -1,7 +1,6 @@
 package icons;
 
 import com.intellij.openapi.util.IconLoader;
-import org.moqui.idea.plugin.icon.MyIcons;
 
 import javax.swing.*;
 
@@ -39,5 +38,5 @@ public interface MoquiIcons {
 
     Icon NavigateToView = IconLoader.getIcon("/icons/file-icon-view.svg", MoquiIcons.class);
     Icon NavigateToScreen = IconLoader.getIcon("/icons/file-icon-screen.svg", MoquiIcons.class);
-
+    Icon ToolWindow = IconLoader.getIcon("/icons/toolWindowIcon.svg", MoquiIcons.class);
 }

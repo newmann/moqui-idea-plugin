@@ -1,25 +1,19 @@
 package org.moqui.idea.plugin;
 
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindowManager;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class MyPluginClass extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        @NotNull Project project = e.getData(PlatformDataKeys.PROJECT);
-
+        Project project = e.getData(PlatformDataKeys.PROJECT);
+        if(project == null) return;
         StringBuilder sb = new StringBuilder();
 //        Project[] projects = ProjectManager.getInstance().getOpenProjects();
 //        for (Project tmpP: projects) {
@@ -30,26 +24,33 @@ public class MyPluginClass extends AnAction {
         String projectName = project.getName();
         sb.append("Project Name: ");
         sb.append(projectName);
+//        sb.append("\n");
+//        sb.append("Base Path:" + project.getBasePath());
+//        sb.append("\n");
+//        sb.append("Project File Path:" + project.getProjectFilePath());
+//        sb.append("\n");
+//        sb.append("Location Hash:" + project.getLocationHash());
+//        sb.append("\n");
+//
+//        VirtualFile[] vFiles = ProjectRootManager.getInstance(project)
+//                .getContentSourceRoots();
+//        String sourceRootsList = Arrays.stream(vFiles)
+//                .map(VirtualFile::getUrl)
+//                .collect(Collectors.joining("\n"));
+//        sb.append(sourceRootsList);
+//
+//        Module[] modules = ModuleManager.getInstance(project).getModules();
+//        String moduleList = Arrays.stream(modules)
+//                .map(Module::getName)
+//                .collect(Collectors.joining("\n"));
+//        sb.append(moduleList);
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
+//        toolWindowManager.getToolWindow("Project").activate(null);
+        sb.append("ToolsWindowSet:");
         sb.append("\n");
-        sb.append("Base Path:" + project.getBasePath());
-        sb.append("\n");
-        sb.append("Project File Path:" + project.getProjectFilePath());
-        sb.append("\n");
-        sb.append("Location Hash:" + project.getLocationHash());
-        sb.append("\n");
+        sb.append(toolWindowManager.getToolWindowIdSet());
 
-        VirtualFile[] vFiles = ProjectRootManager.getInstance(project)
-                .getContentSourceRoots();
-        String sourceRootsList = Arrays.stream(vFiles)
-                .map(VirtualFile::getUrl)
-                .collect(Collectors.joining("\n"));
-        sb.append(sourceRootsList);
 
-        Module[] modules = ModuleManager.getInstance(project).getModules();
-        String moduleList = Arrays.stream(modules)
-                .map(Module::getName)
-                .collect(Collectors.joining("\n"));
-        sb.append(moduleList);
 
 //        PsiFile[] psiFiles = PsiSearchHelper.getInstance(project).findFilesWithPlainTextWords("mantle.product.asset.Asset");
 //        StringBuilder sb = new StringBuilder();

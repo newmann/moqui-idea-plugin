@@ -499,6 +499,15 @@ public final class LocationUtils {
             }
             case RelativeScreenFile -> {
                 Optional<PsiFile> file = location.getRelativeFile(element.getContainingFile().getVirtualFile().getPath());
+                //如果没有找到，可能是SubScreensItem
+                if(file.isEmpty()) {
+                    Optional<SubScreensItem> subScreensItem = ScreenUtils.getSubScreensItemByName(url,context);
+                    if(subScreensItem.isPresent()) {
+                        Location subScreensItemLocation = new Location(context.getProject(),
+                                MyDomUtils.getValueOrEmptyString(subScreensItem.get().getLocation()));
+                        file = Optional.ofNullable(subScreensItemLocation.getFile());
+                    }
+                }
                 return file.map(psiFile -> createFilePsiReference(url, element, psiFile)).orElse(PsiReference.EMPTY_ARRAY);
 
             }
@@ -601,6 +610,31 @@ public final class LocationUtils {
             }
         }
         return result.toArray(new PsiReference[0]);
+    }
+
+    /**
+     * 根据当前的PsiElement，找到相对路径下所有的文件
+     * @param psiElement
+     * @return
+     */
+    public static List<PsiFile> getRelativeScreenFileList(@NotNull PsiElement psiElement) {
+
+        PsiFile file = psiElement.getContainingFile().getOriginalFile();
+        String relativePath = MyStringUtils.removeLastDotString(file.getVirtualFile().getPath());
+
+//        int index =relativePath.lastIndexOf(".xml");
+//        if(index > 0) {
+//            relativePath = relativePath.substring(0,index);
+//        }
+        List<PsiFile> result = new ArrayList<PsiFile>();
+        MyDomUtils.findPsiFilesByPath(psiElement.getProject(),relativePath)
+                .forEach(item->{
+                    if(ScreenUtils.isScreenFile(item)) {
+                        result.add(item);
+                    }
+                });
+        return result;
+
     }
 
 }

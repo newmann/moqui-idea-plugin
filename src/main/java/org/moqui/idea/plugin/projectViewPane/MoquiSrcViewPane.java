@@ -6,10 +6,10 @@ import com.intellij.ide.SelectInTarget;
 import com.intellij.ide.projectView.impl.ProjectAbstractTreeStructureBase;
 import com.intellij.ide.projectView.impl.ProjectViewPane;
 import com.intellij.openapi.project.Project;
-import icons.MoquiIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.util.MyDomUtils;
 
 import javax.swing.*;
 
@@ -19,7 +19,10 @@ public class MoquiSrcViewPane extends ProjectViewPane {
     public MoquiSrcViewPane(Project project) {
         super(project);
     }
-
+    @Override
+    public boolean isInitiallyVisible() {
+        return MyDomUtils.isMoquiProject(myProject);
+    }
     @Override
     protected @NotNull ProjectAbstractTreeStructureBase createStructure() {
         ProjectAbstractTreeStructureBase result = super.createStructure();

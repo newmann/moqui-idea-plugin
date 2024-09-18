@@ -2,28 +2,16 @@ package org.moqui.idea.plugin.projectViewPane;
 
 
 import com.intellij.ide.SelectInTarget;
-import com.intellij.ide.projectView.TreeStructureProvider;
-import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.impl.ProjectAbstractTreeStructureBase;
 import com.intellij.ide.projectView.impl.ProjectViewPane;
-import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;
-import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
-import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.util.MyStringUtils;
-import org.moqui.idea.plugin.util.ScreenUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class MoquiScreenViewPane extends ProjectViewPane {
     @NonNls
@@ -31,7 +19,10 @@ public class MoquiScreenViewPane extends ProjectViewPane {
     public MoquiScreenViewPane(Project project) {
         super(project);
     }
-
+    @Override
+    public boolean isInitiallyVisible() {
+        return MyDomUtils.isMoquiProject(myProject);
+    }
     @Override
     protected @NotNull ProjectAbstractTreeStructureBase createStructure() {
         ProjectAbstractTreeStructureBase result = super.createStructure();

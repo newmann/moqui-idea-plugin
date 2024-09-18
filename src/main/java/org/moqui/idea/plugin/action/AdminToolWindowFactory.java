@@ -16,6 +16,7 @@ import org.moqui.idea.plugin.action.entityManagement.EntityManagementGUI;
 import org.moqui.idea.plugin.action.entityManagement.PendingViewEntityManagementGUI;
 import org.moqui.idea.plugin.action.entityManagement.ViewEntityManagementGUI;
 import org.moqui.idea.plugin.action.serviceManagement.ServiceManagementGUI;
+import org.moqui.idea.plugin.util.MyDomUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,6 +31,11 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
     private CardLayout contentLayout;
 
     private PendingViewEntityManagementGUI pendingViewEntityManagementGUI;
+
+    @Override
+    public boolean shouldBeAvailable(@NotNull Project project) {
+        return MyDomUtils.isMoquiProject(project);
+    }
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {

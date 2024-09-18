@@ -12,7 +12,7 @@ import org.moqui.idea.plugin.dom.presentation.DynamicDialogPresentationProvider;
 import java.util.List;
 @Presentation(provider = DynamicDialogPresentationProvider.class)
 public interface DynamicDialog extends DomElement {
-    public static final String TAG_NAME = "dynamic-dialog";
+    String TAG_NAME = "dynamic-dialog";
 
     @NotNull
     @SubTagList(Parameter.TAG_NAME)
@@ -26,6 +26,7 @@ public interface DynamicDialog extends DomElement {
     @NotNull GenericAttributeValue<String> getHeight();
 
     @NotNull
+    @Convert(TransitionConverter.class)
     GenericAttributeValue<String> getTransition();
 
     @NotNull GenericAttributeValue<String> getParameterMap();

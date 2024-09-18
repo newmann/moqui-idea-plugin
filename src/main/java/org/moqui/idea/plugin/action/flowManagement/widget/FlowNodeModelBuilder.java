@@ -14,7 +14,7 @@ import org.moqui.idea.plugin.util.ServiceUtils;
 import java.util.Optional;
 
 public class FlowNodeModelBuilder {
-    public static final Logger LOG = Logger.getInstance(FlowNodeModelBuilder.class);
+//    public static final Logger LOG = Logger.getInstance(FlowNodeModelBuilder.class);
     public static Optional<FlowNodeModel> ofDefaultModel(@NotNull XmlTag xmlTag){
         String name = "Tag#" + xmlTag.getName();
         return Optional.of(new FlowNodeModel(FlowNodeType.ASSIGNMENT,name,xmlTag));
@@ -62,7 +62,17 @@ public class FlowNodeModelBuilder {
         return Optional.of(new SceneFlowNodeModel(beginModel));
 
     }
+    public static Optional<SceneFlowNodeModel> ofActionsModel(@NotNull Actions actions){
 
+        XmlTag actionsXmlTag = actions.getXmlTag();
+        if(actionsXmlTag == null || actionsXmlTag.getChildren().length == 0) {
+            return Optional.empty();
+        }else {
+            return FlowNodeModelBuilder.ofSceneFlowNodeModel(actionsXmlTag,"Actions scene");
+        }
+
+
+    }
     public static Optional<FlowNodeModel> ofServiceCallModel(@NotNull ServiceCall serviceCall){
         String serviceName = MyDomUtils.getValueOrEmptyString(serviceCall.getName());
         String[] contentArray = serviceName.split("#");

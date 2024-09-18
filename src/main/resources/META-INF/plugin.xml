@@ -81,9 +81,9 @@
       //很有意思的功能，后续再进一步研究
 <!--      <fileEditorProvider id="myPlugin.ScreenEditor" implementation="org.moqui.idea.plugin.editor.ScreenEditorProvider"></fileEditorProvider>-->
 
-      //没有什么大作用，先屏蔽掉
-<!--      <codeInsight.lineMarkerProvider id="myPlugin.XmlFileLineMarkerProvider" language="XML"-->
-<!--                                      implementationClass="org.moqui.idea.plugin.provider.XmlFileLineMarkerProvider"/>-->
+
+      <codeInsight.lineMarkerProvider id="myPlugin.XmlFileLineMarkerProvider" language="XML"
+                                      implementationClass="org.moqui.idea.plugin.provider.FormFoldingLineMarkerProvider"/>
 
 <!--      <annotator language="XML" implementationClass="org.moqui.idea.plugin.annotator.EntityAnnotator"/>-->
 
@@ -122,6 +122,9 @@
 
       <completion.contributor language="XML"
                                     implementationClass="org.moqui.idea.plugin.contributor.MultiFieldNameCompletionContributor"/>
+
+      <completion.contributor language="XML" order="first"
+                              implementationClass="org.moqui.idea.plugin.contributor.TransitionCompletionContributor"/>
 
       <completion.contributor order="first" language="Groovy" implementationClass="org.moqui.idea.plugin.completion.contributor.GroovyCompletionContributor"/>
 
@@ -175,7 +178,7 @@
       <toolWindow factoryClass="org.moqui.idea.plugin.action.AdminToolWindowFactory"
                   id="Moqui Admin"
                   anchor="right"
-                  icon="MoquiIcons.ComponentTag"
+                  icon="MoquiIcons.ToolWindow"
 
       />
 <!--      <toolWindow factoryClass="org.moqui.idea.plugin.action.WebToolWindowFactory"-->
@@ -226,14 +229,14 @@
 <!--      <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>-->
 <!--    </group>-->
     <action id="org.moqui.idea.plugin.MyPluginClass" class="org.moqui.idea.plugin.MyPluginClass" text="MyPluginName"
-            description="MyPlugin Description">
+            description="MyPlugin description">
         <add-to-group group-id="MoquiIdeaPlugin" anchor="last"/>
 <!--      <add-to-group group-id="IDEAPluginTools" anchor="last"/>-->
 <!--      <add-to-group group-id="HelpMenu" anchor="after" relative-to-action="About"/>-->
 <!--      <add-to-group group-id="MainMenu" relative-to-action="ToolsMenu" anchor="after"/>-->
 
     </action>
-    <action id="ShowMoquiActionFlowDiagram" class="org.moqui.idea.plugin.action.flowManagement.ShowFlowAnAction" text="Show flow diagram"
+    <action id="ShowMoquiActionFlowDiagram" class="org.moqui.idea.plugin.action.flowManagement.ShowFlowAnAction" text="Show Flow Diagram"
             description="Show action flow diagram">
         <add-to-group group-id="EditorPopupMenu" anchor="first"/>
     </action>

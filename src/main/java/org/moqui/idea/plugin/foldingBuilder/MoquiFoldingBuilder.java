@@ -1,26 +1,21 @@
 package org.moqui.idea.plugin.foldingBuilder;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.lang.LanguageImportStatements;
 import com.intellij.lang.folding.FoldingBuilderEx;
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.FoldingGroup;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.XmlElementVisitor;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.xml.DomService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.FormList;
 import org.moqui.idea.plugin.dom.model.FormSingle;
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MoquiFoldingBuilder extends FoldingBuilderEx {
@@ -43,11 +38,12 @@ public class MoquiFoldingBuilder extends FoldingBuilderEx {
 
         formSingleList.forEach(item->{
             descriptorList.add(new FoldingDescriptor(item,item.getTextRange().getStartOffset(),item.getTextRange().getEndOffset()
-                    ,null,"Single Form : "+ item.getAttribute(FormSingle.ATTR_NAME).getValue()));
+                    ,null,"Single Form : "+ MyDomUtils.getXmlTagAttributeValueByAttributeName(item,FormSingle.ATTR_NAME).orElse(MyStringUtils.EMPTY_STRING)));
         });
         formListList.forEach(item->{
             descriptorList.add(new FoldingDescriptor(item,item.getTextRange().getStartOffset(),item.getTextRange().getEndOffset()
-                    ,null,"List Form : "+ item.getAttribute(FormList.ATTR_NAME).getValue()));
+                    ,null,"List Form : "+
+                    MyDomUtils.getXmlTagAttributeValueByAttributeName(item,FormList.ATTR_NAME).orElse(MyStringUtils.EMPTY_STRING)));
         });
 
 

@@ -1,10 +1,11 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -15,16 +16,13 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.*;
 import com.intellij.util.xml.*;
-import org.intellij.plugins.intelliLang.inject.InjectedLanguage;
-import org.intellij.plugins.intelliLang.inject.InjectorUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.groovy.GroovyLanguage;
 import org.moqui.idea.plugin.dom.model.*;
 
-import java.util.*;
 import java.util.Set;
+import java.util.*;
 
 import static com.intellij.psi.xml.XmlTokenType.*;
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
@@ -150,6 +148,25 @@ public final class MyDomUtils {
         });
 
     }
+
+    /**
+     * 判断当前的项目是否为Moqui项目，判断跟就是项目的根目录下个是否存在MoquiInit.properties这个文件
+     * @param project
+     * @return
+     */
+    public static boolean isMoquiProject(Project project){
+        boolean result = false;
+        VirtualFile[] roots = ProjectRootManager.getInstance(project).getContentRoots();
+
+        // 检查项目中是否存在特定文件
+        if (roots.length>0) {
+            VirtualFile root = roots[0];
+            VirtualFile specificFile = root.findChild("MoquiInit.properties");
+            result = specificFile != null && specificFile.exists();
+        }
+
+        return result;
+    }
     /**
      * 判断是不是第一个tag，即<firstTag />
      * @param token XmlToken
@@ -168,39 +185,41 @@ public final class MyDomUtils {
 
     public static boolean isXmlFile(@NotNull PsiFile file){ return file instanceof XmlFile;}
     public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName){
-        boolean result = false;
-        if(file instanceof XmlFile xmlFile) {
-            XmlTag rootTag = xmlFile.getRootTag();
-            if(rootTag != null) {
-                result = rootTagName.equals(rootTag.getName());
-            }
-        }
-        return result;
+        return isSpecialXmlFile(file,rootTagName,null,null);
     }
-    public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName,@NotNull String attributeName,@NotNull String atrributeValue){
+    public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName,@Nullable String attributeName,@Nullable String atrributeValue){
 
         if(file instanceof XmlFile xmlFile) {
-            XmlTag rootTag = xmlFile.getRootTag();
-            if (rootTag == null) return false;
-            if(!rootTagName.equals(rootTag.getName())) return false;
-            String value = rootTag.getAttributeValue(attributeName);
-            return (value != null) && value.equals(atrributeValue);
-        }else {
-            return false;
+            VirtualFile virtualFile = xmlFile.getVirtualFile();
+            if(virtualFile != null && virtualFile.isInLocalFileSystem()) { //判断文件是否已经加载
+                XmlTag rootTag = ReadAction.compute(xmlFile::getRootTag);
+                if (rootTag == null) return false;
+                if(attributeName == null) {
+                    return rootTagName.equals(rootTag.getName());
+                }else {
+                    if (!rootTagName.equals(rootTag.getName())) return false;
+                    String value = rootTag.getAttributeValue(attributeName);
+                    return (value != null) && value.equals(atrributeValue);
+                }
+            }
         }
+        return false;
+
     }
 
     public static boolean isMoquiXmlFile(@NotNull PsiFile file){
         if(file instanceof XmlFile xmlFile) {
-            XmlTag rootTag = xmlFile.getRootTag();
-            if (rootTag == null) return false;
-            if(!MOQUI_XML_FILE_ROOT_TAGS.containsKey(rootTag.getName())) return false;
-            String value = rootTag.getAttributeValue(MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation);
-            if(value == null) value = MyStringUtils.EMPTY_STRING;
-            return MOQUI_XML_FILE_ROOT_TAGS.containsValue(value);
-        }else {
-            return false;
+            VirtualFile virtualFile = xmlFile.getVirtualFile();
+            if(virtualFile != null && virtualFile.isInLocalFileSystem()) { //判断文件是否已经加载
+                XmlTag rootTag = ReadAction.compute(xmlFile::getRootTag);
+                if (rootTag == null) return false;
+                if (!MOQUI_XML_FILE_ROOT_TAGS.containsKey(rootTag.getName())) return false;
+                String value = rootTag.getAttributeValue(MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation);
+                if (value == null) value = MyStringUtils.EMPTY_STRING;
+                return MOQUI_XML_FILE_ROOT_TAGS.containsValue(value);
+            }
         }
+        return false;
     }
     public static Optional<String> getRootTagName(@NotNull PsiFile file){
         if(file instanceof XmlFile xmlFile) {
@@ -430,6 +449,10 @@ public final class MyDomUtils {
         if(value == null) return Optional.empty();
         return Optional.of(value.getValue());
 
+    }
+
+    public static Optional<String> getXmlTagAttributeValueByAttributeName(@NotNull XmlTag xmlTag, @NotNull String attributeName) {
+        return getXmlTagAttributeValueByAttributeName(xmlTag,attributeName,null);
     }
 
     public static Optional<String> getXmlTagAttributeValueByAttributeName(@Nullable XmlTag xmlTag, @Nullable String attributeName, @Nullable String filter){

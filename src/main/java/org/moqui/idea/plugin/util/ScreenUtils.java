@@ -22,8 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.*;
 
-import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
-import static org.moqui.idea.plugin.util.MyDomUtils.getSubTagList;
+import static org.moqui.idea.plugin.util.MyDomUtils.*;
 
 
 public final class ScreenUtils {
@@ -74,6 +73,39 @@ public final class ScreenUtils {
             result.addAll(screen.getTransitionIncludeList());
         }
         return result;
+    }
+    /**
+     * 根据当前位置找到所在screen的所有可用的SubScreensItem
+     *
+     * @param context
+     * @return
+     */
+    public static List<SubScreensItem> getSubScreensItemList(ConvertContext context) {
+        return getSubScreensItemList(getCurrentScreen(context).orElse(null));
+    }
+    public static List<SubScreensItem> getSubScreensItemList(PsiElement element) {
+
+        return getSubScreensItemList(getCurrentScreen(element).orElse(null));
+    }
+    public static List<SubScreensItem> getSubScreensItemList(Screen screen) {
+
+        List<SubScreensItem> result = new ArrayList<>();
+        if(screen != null){
+            result.addAll(screen.getSubScreensItemList());
+            result.addAll(screen.getSubScreens().getSubScreensItemList());
+        }
+        return result;
+    }
+
+    public static Optional<SubScreensItem> getSubScreensItemByName(String itemName,ConvertContext context) {
+        List<SubScreensItem> itemList = getSubScreensItemList(context);
+        return itemList.stream().filter(
+                item -> {
+                    String str = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
+                            .orElse(MyStringUtils.EMPTY_STRING);
+                    return str.equals(itemName);
+                }
+        ).findFirst();
     }
     /**
      * 根据当前位置和名称对应的Transition
@@ -403,6 +435,9 @@ public final class ScreenUtils {
     public static Optional<Screen> getCurrentScreen(ConvertContext context){
         return getLocalDomElementByConvertContext(context,Screen.class);
 
+    }
+    public static Optional<Screen> getCurrentScreen(PsiElement element){
+        return getLocalDomElementByPsiElement(element,Screen.class);
     }
     public static Optional<FormSingle> getCurrentFormSingle(ConvertContext context){
         return getLocalDomElementByConvertContext(context,FormSingle.class);

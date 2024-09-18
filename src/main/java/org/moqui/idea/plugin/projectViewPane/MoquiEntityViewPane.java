@@ -9,6 +9,7 @@ import icons.MoquiIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.util.MyDomUtils;
 
 import javax.swing.*;
 
@@ -17,6 +18,12 @@ public class MoquiEntityViewPane extends ProjectViewPane {
     public static final String ID = "MoquiEntityProjectView";
     public MoquiEntityViewPane(Project project) {
         super(project);
+
+    }
+
+    @Override
+    public boolean isInitiallyVisible() {
+        return MyDomUtils.isMoquiProject(myProject);
     }
 
     @Override

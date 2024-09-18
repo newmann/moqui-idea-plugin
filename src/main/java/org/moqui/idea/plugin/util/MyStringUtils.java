@@ -167,6 +167,20 @@ public final class MyStringUtils {
         }
     }
 
+    /**
+     * 将字符串最后一个dot后的内容删除，如果没有，则返回原值
+     * @param target 待处理的字符串
+     * @return 处理后的字符串
+     */
+    public static String removeLastDotString(@NotNull String target){
+        int index = target.lastIndexOf(".");
+        if(index >= 0) {
+            return target.substring(0,index);
+        }else {
+            return target;
+        }
+    }
+
     public static @NotNull
     String removeDummy(@Nullable String str) {
         if (str == null) {

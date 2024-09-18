@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.codeInspection.util.InspectionMessage;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.ConvertContext;
@@ -12,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.AbstractTransition;
 import org.moqui.idea.plugin.dom.model.Screen;
-import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.util.LocationUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
@@ -25,7 +23,9 @@ import java.util.stream.Collectors;
 
 /**
  * 1、指向本screen的transition.name
- * 1、指向某个screen文件：<dynamic-container id="FieldListContainer" transition="FieldList"/>
+ * 2、指向某个screen文件：<dynamic-container id="FieldListContainer" transition="FieldList"/>
+ * 3、还可以指向定义好的subscreens：案例：moqui-framework\runtime\component\SimpleScreens\screen\MyAccount\User\TimeEntries.xml
+ *      subscreens-item name="EditTimeEntry"
  */
 public class TransitionConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
 //    @Override
