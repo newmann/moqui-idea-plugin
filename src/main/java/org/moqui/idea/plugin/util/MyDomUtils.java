@@ -79,24 +79,11 @@ public final class MyDomUtils {
     @NonNls
     public static <T extends DomElement> List<DomFileElement<T>> findDomFileElementsByRootClass(@NotNull Project project, Class<T> rootClazz) {
 
-
-//        DumbService dumbService = DumbService.getInstance(project);
-//        return dumbService.runReadActionInSmartMode(()->{
         return ApplicationManager.getApplication().runReadAction((Computable<List<DomFileElement<T>>>) ()->{
-
             GlobalSearchScope scope = GlobalSearchScope.allScope(project);
             return DomService.getInstance().getFileElements(rootClazz,project,scope);
         });
 
-//        });
-
-
-
-//        final List<DomFileElement<T>>[] result = new List[]{new ArrayList<>()};
-//        ApplicationManager.getApplication().runReadAction(() -> {
-//            result[0] = DomService.getInstance().getFileElements(rootClazz,project,scope);
-//        });
-//        return result[0];
 
     }
 
@@ -151,10 +138,10 @@ public final class MyDomUtils {
 
     /**
      * 判断当前的项目是否为Moqui项目，判断跟就是项目的根目录下个是否存在MoquiInit.properties这个文件
-     * @param project
-     * @return
+     * @param project 当前project
+     * @return 是否为Moqui项目
      */
-    public static boolean isMoquiProject(Project project){
+    public static boolean isMoquiProject(@NotNull Project project){
         boolean result = false;
         VirtualFile[] roots = ProjectRootManager.getInstance(project).getContentRoots();
 
@@ -224,7 +211,7 @@ public final class MyDomUtils {
     public static Optional<String> getRootTagName(@NotNull PsiFile file){
         if(file instanceof XmlFile xmlFile) {
             try {
-                XmlTag rootTag = xmlFile.getRootTag();
+                XmlTag rootTag = ReadAction.compute(xmlFile::getRootTag);
                 if(rootTag == null) return Optional.empty();
                 return Optional.of(rootTag.getName());
             } catch (Exception e) {
@@ -321,18 +308,6 @@ public final class MyDomUtils {
     }
     public static Optional<String> getCurrentTagName(@NotNull PsiElement psiElement){
         return getParentTag(psiElement).map(XmlTag::getName);
-//        XmlTag xmlTag;
-//        if(psiElement instanceof XmlTag) {
-//            xmlTag = (XmlTag) psiElement;
-//        }else {
-//            xmlTag = PsiTreeUtil.getParentOfType(psiElement, XmlTag.class);
-//        }
-//
-//        if (xmlTag == null ) {
-//            return Optional.empty();
-//        }else {
-//            return Optional.of(xmlTag.getName());
-//        }
 
     }
 
@@ -626,9 +601,6 @@ public final class MyDomUtils {
         return Optional.empty();
     }
 
-//    public static PsiDirectory getRootPathFromProject(Project project){
-//        project.getProjectFilePath()
-//    }
 
     /**
      * 获取该XmlTag下指定名称的所有SubTag，嵌套查询

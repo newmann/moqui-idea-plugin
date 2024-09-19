@@ -41,6 +41,7 @@
   <extensions defaultExtensionNs="com.intellij">
       <!--文件描述-->
       <!-- mapper.xml文件属性提示 -->
+
       <dom.fileMetaData id="myPlugin.EntitiesDescription"
                         rootTagName="entities"
                         implementation="org.moqui.idea.plugin.dom.description.EntitiesDescription"/>

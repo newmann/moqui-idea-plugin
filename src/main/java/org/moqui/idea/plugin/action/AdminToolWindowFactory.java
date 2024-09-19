@@ -75,7 +75,7 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
         addToolBar(menuManagementGUI,"Menu","Loading all menus", AllIcons.Ide.Gift);//TODO update icon
 
         ActionToolbar toolBar = ActionManager.getInstance().createActionToolbar("Moqui Admin", mainActionGroup, true);
-//        toolBar.setTargetComponent(componentDepends);
+        toolBar.setTargetComponent(componentDepends);
 
         mainPanel.add(toolBar.getComponent(), BorderLayout.PAGE_START);
         mainPanel.add(contentPanel,BorderLayout.CENTER);

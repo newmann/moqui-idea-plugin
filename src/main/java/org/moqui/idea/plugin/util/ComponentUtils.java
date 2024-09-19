@@ -1,5 +1,6 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
@@ -32,13 +33,20 @@ public final class ComponentUtils {
      * @return Collection<Component>
      */
     public static Map<String,Component> findAllComponent(@NotNull Project project){
-        Map<String,Component> result = new HashMap<>();
+
         List<DomFileElement<Component>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Component.class);
+        Map<String,Component> result = new HashMap<>();
         for(DomFileElement<Component> fileElement : fileElementList) {
             Component component = fileElement.getRootElement();
-            result.put(component.getName().getStringValue(),component);
+            String name = ReadAction.compute(()->{
+                return component.getName().getStringValue();
+            });
+            result.put(name,component);
+
         }
         return result;
+
+
     }
 
     /**

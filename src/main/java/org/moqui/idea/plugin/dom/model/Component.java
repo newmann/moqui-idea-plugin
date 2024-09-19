@@ -8,6 +8,7 @@ import org.moqui.idea.plugin.dom.presentation.ComponentPresentationProvider;
 import org.moqui.idea.plugin.dom.presentation.EntityPresentationProvider;
 
 import java.util.List;
+@Stubbed
 @Presentation(icon = "MoquiIcons.ComponentTag",provider = ComponentPresentationProvider.class)
 public interface Component extends DomElement {
     public static final String TAG_NAME = "component";

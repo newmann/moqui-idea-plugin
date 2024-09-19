@@ -73,7 +73,7 @@ public class MenuManagementGUI extends JPanel {
 
     private void initEntityTree(){
         this.rootNode = new DefaultMutableTreeNode("Nothing to show");
-        DefaultTreeModel treeMode = new DefaultTreeModel(this.rootNode);
+        treeMode = new DefaultTreeModel(this.rootNode);
         this.treeEntity.setModel(treeMode);
     }
 
