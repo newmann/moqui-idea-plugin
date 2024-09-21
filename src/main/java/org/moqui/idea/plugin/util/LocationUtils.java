@@ -195,7 +195,7 @@ public final class LocationUtils {
             this.type = LocationType.Unknown;
         }
         private void processComponentType(@NotNull String location){
-            String tmp = location;
+//            String tmp = location;
             if(location.contains("#")) {
                 type = LocationType.ComponentFileContent;
                 String[] contentSplit = location.split("#");
@@ -208,7 +208,8 @@ public final class LocationUtils {
                 contentPart="";
                 type = LocationType.ComponentFile;
             }
-            tmp = pathPart.split("//")[1];
+
+//            tmp = pathPart.split("//")[1];
             //查找对应的文件
             file = MyDomUtils.getFileFromLocation(project, pathPart).orElse(null);
             //将路径分解，每一级目录都分别对应

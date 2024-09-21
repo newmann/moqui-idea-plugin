@@ -2,7 +2,8 @@ plugins {
   id("java")
   id("groovy")
   id("org.jetbrains.kotlin.jvm") version "1.9.21"
-  id("org.jetbrains.intellij") version "1.16.1"
+//  id("org.jetbrains.intellij") version "1.16.1"
+  id("org.jetbrains.intellij.platform") version "2.0.1"
 }
 
 group = "com.beiyelin"
@@ -17,10 +18,25 @@ repositories {
   maven { setUrl("https://maven.aliyun.com/repository/jcenter/")}
   maven { setUrl("https://maven.aliyun.com/repository/gradle-plugin")}
   mavenCentral()
+  intellijPlatform {
+    defaultRepositories()
+  }
 }
 dependencies {
+  intellijPlatform {
+    intellijIdeaCommunity("2023.3.2")
+
+    bundledPlugin("com.intellij.java")
+    bundledPlugin("org.intellij.groovy")
+    bundledPlugin("org.intellij.intelliLang")
+
+    pluginVerifier()
+    zipSigner()
+    instrumentationTools()
+//    create("IC", "2023.3.2")
+  }
   // 使用 Maven Central 仓库中的依赖
-  implementation("org.apache.groovy:groovy:4.0.13")
+  implementation("org.apache.groovy:groovy:4.0.22")
   implementation("org.jgrapht:jgrapht-core:1.5.2")
   implementation("com.github.tomnelson:jungrapht-visualization:1.4")
 }
@@ -31,17 +47,17 @@ java {
 }
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-  version.set("2023.3.2")
-  type.set("IC") // Target IDE Platform
-
-  plugins.set(listOf(/* Plugin Dependencies */
-    "java",
-    "com.intellij.java",
-    "org.intellij.groovy",
-    "org.intellij.intelliLang"
-  ))
-}
+//intellij {
+//  version.set("2023.3.2")
+//  type.set("IC") // Target IDE Platform
+//
+//  plugins.set(listOf(/* Plugin Dependencies */
+//    "java",
+//    "com.intellij.java",
+//    "org.intellij.groovy",
+//    "org.intellij.intelliLang"
+//  ))
+//}
 
 tasks {
   // Set the JVM compatibility versions
@@ -55,8 +71,8 @@ tasks {
   }
 
   patchPluginXml {
-    sinceBuild.set("233")
-    untilBuild.set("242.*")
+    sinceBuild.set("223") //2022.3版https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#earlier-versions
+    untilBuild.set("241")//2024.1 java 17
   }
 
   signPlugin {

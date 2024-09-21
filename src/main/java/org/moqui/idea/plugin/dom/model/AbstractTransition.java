@@ -7,6 +7,7 @@ public interface AbstractTransition extends DomElement {
     public static final String ATTR_NAME = "name";
 
     @NotNull
+    @NameValue
     @Attribute(ATTR_NAME)
     GenericAttributeValue<String> getName();
 

@@ -4,13 +4,8 @@ import com.intellij.codeInsight.hints.declarative.*
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import com.intellij.psi.util.parentOfType
 import com.intellij.psi.xml.XmlAttributeValue
-import com.intellij.refactoring.suggested.endOffset
 import com.intellij.refactoring.suggested.startOffset
-import org.jetbrains.plugins.groovy.lang.psi.api.statements.arguments.GrArgumentList
-import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrCall
-import org.jetbrains.plugins.groovy.lang.psi.util.PsiUtil
 import org.moqui.idea.plugin.util.ServiceUtils
 
 class ServiceInlayHintsProvider:InlayHintsProvider {

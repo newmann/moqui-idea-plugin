@@ -1,15 +1,14 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTagList;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.LocationConverter;
 
 import java.util.List;
 
 public interface SubScreens extends DomElement {
-    public static final String TAG_NAME = "subscreens";
-
+    String TAG_NAME = "subscreens";
+    String ATTR_DEFAULT_ITEM = "default-item";
 
     @NotNull
     @SubTagList(ConditionalDefault.TAG_NAME)
@@ -18,7 +17,10 @@ public interface SubScreens extends DomElement {
     @SubTagList(SubScreensItem.TAG_NAME)
     List<SubScreensItem> getSubScreensItemList();
 
-    @NotNull GenericAttributeValue<String> getDefaultItem();
+    @NotNull
+    @Attribute(ATTR_DEFAULT_ITEM)
+    @Convert(LocationConverter.class)
+    GenericAttributeValue<String> getDefaultItem();
     @NotNull GenericAttributeValue<String> getAlwaysUseFullPath();
 
 }

@@ -33,7 +33,7 @@
 <!--    <depends>com.intellij.modules.xml</depends>-->
     <depends>com.intellij.java</depends>
     <depends>org.intellij.groovy</depends>
-<!--    <depends>org.intellij.intelliLang</depends>-->
+    <depends>org.intellij.intelliLang</depends>
 <!--    <depends config-file="moqui-xml-injections.xml">org.intellij.intelliLang</depends>-->
 
   <!-- Extension points defined by the plugin.
@@ -126,6 +126,8 @@
 
       <completion.contributor language="XML" order="first"
                               implementationClass="org.moqui.idea.plugin.contributor.TransitionCompletionContributor"/>
+      <completion.contributor language="XML" order="first"
+                              implementationClass="org.moqui.idea.plugin.contributor.SubScreensDefaultItemCompletionContributor"/>
 
       <completion.contributor order="first" language="Groovy" implementationClass="org.moqui.idea.plugin.completion.contributor.GroovyCompletionContributor"/>
 
@@ -217,7 +219,7 @@
 <!--              bundle="messages.MoquiDomBundle"-->
 <!--              nameKey="xml.inlay.hints.service.provider.name"-->
 <!--              descriptionKey="xml.inlay.hints.service.provider.description"/>-->
-<!--      <codeInsight.daemonBoundCodeVisionProvider implementation="org.moqui.idea.plugin.provider.EntityBlockInlayHintsProvider"/>-->
+      <codeInsight.daemonBoundCodeVisionProvider implementation="org.moqui.idea.plugin.provider.MoquiUsagesInlayHintsProvider"/>
 
   </extensions>
   <actions>
