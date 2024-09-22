@@ -29,10 +29,6 @@ public interface Transition extends AbstractTransition {
     @Attribute(ATTR_REGURIE_SESSION_TOKEN)
     GenericAttributeValue<String> getRequireSessionToken();
 
-//
-//    @NotNull
-//    @Attribute("xsi:noNamespaceSchemaLocation")
-//    GenericAttributeValue<String> getXsiNoNamespaceSchemaLocation();
 
     @NotNull
     @SubTag(ServiceCall.TAG_NAME)

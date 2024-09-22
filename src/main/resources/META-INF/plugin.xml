@@ -101,7 +101,7 @@
 <!--                                implementation="org.moqui.idea.plugin.reference.ContextHashMarkReferenceContributor"/>-->
 
 <!--      没有发现有什么用，先不启用-->
-<!--      <typedHandler implementation="org.moqui.idea.plugin.typedHandler.ServiceCallTypedHandler" id="myPlugin.ServiceCallTypedHandler"/>-->
+      <typedHandler implementation="org.moqui.idea.plugin.typedHandler.ServiceCallTypedHandler" id="myPlugin.ServiceCallTypedHandler"/>
             <enterHandlerDelegate implementation="org.moqui.idea.plugin.typedHandler.MoquiEnterTypedHandler"/>
 
 <!--      转跳 ctrl+click，ctrl+b-->
@@ -128,7 +128,8 @@
                               implementationClass="org.moqui.idea.plugin.contributor.TransitionCompletionContributor"/>
       <completion.contributor language="XML" order="first"
                               implementationClass="org.moqui.idea.plugin.contributor.SubScreensDefaultItemCompletionContributor"/>
-
+<!--      <lookup.charFilter implementation="org.moqui.idea.plugin.contributor.MultiFieldCompletionCharFilter"-->
+<!--                         order="first" id="multiFieldCompletionCharFilter"/>-->
       <completion.contributor order="first" language="Groovy" implementationClass="org.moqui.idea.plugin.completion.contributor.GroovyCompletionContributor"/>
 
       <completion.contributor order="first" language="JAVA" implementationClass="org.moqui.idea.plugin.completion.contributor.JavaCompletionContributor"/>

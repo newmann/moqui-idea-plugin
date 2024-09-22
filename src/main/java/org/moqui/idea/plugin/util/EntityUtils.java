@@ -996,6 +996,7 @@ public final class EntityUtils {
      * @return boolean
      */
     public static boolean fieldHasOrderCommand(@NotNull String fieldName){
+        if(fieldName.isBlank()) return false;
         return ServiceUtils.ORDER_BY_COMMANDER.contains(fieldName.substring(0,1));
     }
 

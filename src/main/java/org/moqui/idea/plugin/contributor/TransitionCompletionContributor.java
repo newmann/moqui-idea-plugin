@@ -32,7 +32,7 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 public class TransitionCompletionContributor extends CompletionContributor {
 
   TransitionCompletionContributor(){
-    extend(CompletionType.BASIC, getCapture(), new CompletionProvider<CompletionParameters>() {
+    extend(CompletionType.BASIC, getCapture(), new CompletionProvider<>() {
       @Override
       protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
         PsiElement psiElement = parameters.getPosition();
@@ -50,35 +50,9 @@ public class TransitionCompletionContributor extends CompletionContributor {
             )
     );
   }
-//  @Override
-//  public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
-//    String prefix = result.getPrefixMatcher().getPrefix();
-//
-//
-//    int index = prefix.lastIndexOf(",");
-//    String str;
-//    if(index<0) {
-//      str = prefix;
-//    }else {
-//      str = prefix.substring(index+1);
-//    }
-//    String newPrefix = MyStringUtils.EMPTY_STRING;
-//
-//    if(MyStringUtils.isNotEmpty(str)) {
-//      if (ServiceUtils.ORDER_BY_COMMANDER.contains(str.substring(0, 1))) {
-//        newPrefix = str.substring(1);
-//      }else {
-//        newPrefix = str;
-//      }
-//    }
-//    result = result.withPrefixMatcher(newPrefix);
-//
-//    super.fillCompletionVariants(parameters,result);
-//
-//  }
 
   private List<LookupElementBuilder> findCompletionItem(@NotNull PsiElement psiElement){
-    List<LookupElementBuilder> lookupElementBuilders = new ArrayList<LookupElementBuilder>();
+    List<LookupElementBuilder> lookupElementBuilders = new ArrayList<>();
 
     //添加自身
     lookupElementBuilders.add(
@@ -89,24 +63,23 @@ public class TransitionCompletionContributor extends CompletionContributor {
     );
     //添加SubScreensItem
     List<SubScreensItem> subScreensItemList = ScreenUtils.getSubScreensItemList(psiElement);
-    subScreensItemList.forEach(item ->{
-      lookupElementBuilders.add(
-              LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
-                      .withCaseSensitivity(false)
-                      .withIcon(MoquiIcons.ScreenTag)
-                      .withTypeText(MyDomUtils.getValueOrEmptyString(item.getLocation()))
-      );
-
-    });
+    subScreensItemList.forEach(item -> lookupElementBuilders.add(
+            LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
+                    .withCaseSensitivity(false)
+                    .withIcon(MoquiIcons.ScreenTag)
+                    .withTypeText(MyDomUtils.getValueOrEmptyString(item.getLocation()))
+    ));
     //添加相对路径下的Screen
     List<PsiFile> relativeFileList = LocationUtils.getRelativeScreenFileList(psiElement);
     relativeFileList.forEach(item->{
-      lookupElementBuilders.add(
-        LookupElementBuilder.create(MyStringUtils.removeLastDotString(item.getName()))
-                .withCaseSensitivity(false)
-                .withIcon(MoquiIcons.ScreenTag)
-                .withTypeText(item.getParent().getVirtualFile().getPath())
-      );
+      if(item.getParent() != null) {
+        lookupElementBuilders.add(
+                LookupElementBuilder.create(MyStringUtils.removeLastDotString(item.getName()))
+                        .withCaseSensitivity(false)
+                        .withIcon(MoquiIcons.ScreenTag)
+                        .withTypeText(item.getParent().getVirtualFile().getPath())
+        );
+      }
     });
 
 
