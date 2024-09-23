@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
+import org.intellij.lang.annotations.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.ServiceCallConverter;
 import org.moqui.idea.plugin.dom.presentation.ServicePresentationProvider;
@@ -42,10 +43,12 @@ public interface Service extends AbstractLocation {
     GenericAttributeValue<String> getName();
 
     @NotNull
+    @NameValue(unique = false)
     @Attribute(ATTR_VERB)
     GenericAttributeValue<String> getVerb();
 
     @NotNull
+    @NameValue(unique = false)
     @Attribute(ATTR_NOUN)
     GenericAttributeValue<String> getNoun();
     @NotNull
