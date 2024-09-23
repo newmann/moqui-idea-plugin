@@ -24,7 +24,7 @@ repositories {
 }
 dependencies {
   intellijPlatform {
-    intellijIdeaCommunity("2023.3.2")
+    intellijIdeaCommunity("2024.1.6")
 
     bundledPlugin("com.intellij.java")
     bundledPlugin("org.intellij.groovy")

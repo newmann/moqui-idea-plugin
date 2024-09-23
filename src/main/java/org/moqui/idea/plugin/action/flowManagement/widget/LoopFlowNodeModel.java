@@ -66,23 +66,28 @@ public class LoopFlowNodeModel extends ExpandableFlowNodeModel{
     private void processExpand(){
         //复位Top
         conditionNodeModel.resetTop();
-        processRootNodeModel.resetTop();
+        if(processRootNodeModel!= null) processRootNodeModel.resetTop();
         collectFlowNodeModel.resetTop();
 
         FlowNodeModel tempRootModel;
+        tempRootModel = conditionNodeModel;
+        if(processRootNodeModel != null) {
+            switch (loopFlowType) {
+                case WHEN -> {
 
-        switch (loopFlowType) {
-            case WHEN -> {
-                tempRootModel = conditionNodeModel;
-                FlowNodeModel.setRelation(conditionNodeModel, processRootNodeModel);
-                FlowNodeModel.setRelation(processRootNodeModel,collectFlowNodeModel);
+                    FlowNodeModel.setRelation(conditionNodeModel, processRootNodeModel);
+                    FlowNodeModel.setRelation(processRootNodeModel, collectFlowNodeModel);
+                }
+                case UNTIL -> {
+                    FlowNodeModel.setRelation(collectFlowNodeModel, processRootNodeModel);
+                    FlowNodeModel.setRelation(processRootNodeModel, conditionNodeModel);
+                }
+                default -> {
+                    return;
+                }
             }
-            case UNTIL -> {
-                tempRootModel = collectFlowNodeModel;
-                FlowNodeModel.setRelation(collectFlowNodeModel, processRootNodeModel);
-                FlowNodeModel.setRelation(processRootNodeModel,conditionNodeModel);
-            }
-            default -> {return;}
+        }else {
+            FlowNodeModel.setRelation(conditionNodeModel, conditionNodeModel);
         }
 
         FlowLayout layout = new TopDownFlowLayout(tempRootModel);

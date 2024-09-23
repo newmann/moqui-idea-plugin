@@ -148,7 +148,7 @@ public final class MyDomUtils {
         // 检查项目中是否存在特定文件
         if (roots.length>0) {
             VirtualFile root = roots[0];
-            VirtualFile specificFile = root.findChild("MoquiInit.properties");
+            VirtualFile specificFile = ReadAction.compute(()->root.findChild("MoquiInit.properties"));
             result = specificFile != null && specificFile.exists();
         }
 

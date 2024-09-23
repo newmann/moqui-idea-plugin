@@ -222,11 +222,11 @@ public class MoquiGroovyToXmlInjector implements MultiHostInjector {
         int beginOffset = 0;
         int endOffset = xmlText.length();
 
-        if(xmlText.startsWith("<![CDATA[")) {
-            beginOffset = beginOffset+"<![CDATA[".length();
+        if(xmlText.startsWith("<![CDATA[")) {//length 为 9
+            beginOffset = beginOffset + 9;
         }
-        if(xmlText.endsWith("]]")) {
-            endOffset = endOffset -2;
+        if(xmlText.endsWith("]]>")) { //lenght 为 3
+            endOffset = endOffset -3;
         }
 
         TextRange textRange = new TextRange(beginOffset, endOffset);
