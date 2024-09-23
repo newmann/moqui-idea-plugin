@@ -14,6 +14,7 @@ import com.intellij.psi.xml.XmlAttributeValue
 import com.intellij.psi.xml.XmlTag
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Query
+import com.intellij.util.xml.GenericAttributeValue
 import org.moqui.idea.plugin.dom.model.Entity
 import org.moqui.idea.plugin.dom.model.Service
 import org.moqui.idea.plugin.dom.model.Transition
@@ -54,10 +55,10 @@ class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
     }
     private fun getXmlAttributeValue(xmlTag: XmlTag): XmlAttributeValue?{
         return when (xmlTag.name) {
-            Entity.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Entity::class.java, false).orElse(null).entityName.xmlAttributeValue
-            ViewEntity.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, ViewEntity::class.java, false).orElse(null).entityName.xmlAttributeValue
-            Service.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Service::class.java, false).orElse(null).noun.xmlAttributeValue
-            Transition.TAG_NAME->MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Transition::class.java, false).orElse(null).name.xmlAttributeValue
+            Entity.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Entity::class.java, false).map(Entity::getEntityName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
+            ViewEntity.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, ViewEntity::class.java, false).map(ViewEntity::getEntityName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
+            Service.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Service::class.java, false).map(Service::getName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
+            Transition.TAG_NAME->MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Transition::class.java, false).map(Transition::getName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
             else-> null
         }
     }
