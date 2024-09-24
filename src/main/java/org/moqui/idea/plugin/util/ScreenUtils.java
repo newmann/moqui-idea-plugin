@@ -3,6 +3,7 @@ package org.moqui.idea.plugin.util;
 import com.intellij.icons.AllIcons;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiDirectory;
@@ -26,6 +27,8 @@ import static org.moqui.idea.plugin.util.MyDomUtils.*;
 
 
 public final class ScreenUtils {
+    private static final Logger LOGGER = Logger.getInstance(ScreenUtils.class);
+
     private ScreenUtils() {
         throw new UnsupportedOperationException();
     }
@@ -632,7 +635,13 @@ public final class ScreenUtils {
 
 
             PsiFile file = menu.getContainingMoquiFile().getContainingFile();
-            Screen screen = MyDomUtils.convertPsiFileToDomFile(file,Screen.class).getRootElement();
+            DomFileElement<Screen> screenDomFileElement = MyDomUtils.convertPsiFileToDomFile(file,Screen.class);
+            if(screenDomFileElement == null) {
+                LOGGER.warn(menu.name+"对应的文件没有找到");
+                return menus;
+            }
+
+            Screen screen = screenDomFileElement.getRootElement();
 
             menus.addAll(getChildMenusBySubScreens(menu, screen.getSubScreens()));
             menus.addAll(getChildMenusByPath(menu, menu.getContainingMoquiFile().getContainingSubScreensPath()));

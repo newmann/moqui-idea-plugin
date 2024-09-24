@@ -21,8 +21,8 @@ public class EntitiesDescription  extends DomFileDescription<Entities> {
     @Override
     public boolean isMyFile(@NotNull XmlFile file, @Nullable Module module) {
 
-        return EntityUtils.isEntitiesFile(file) && super.isMyFile(file, module);
-
+//        return EntityUtils.isEntitiesFile(file) && super.isMyFile(file, module);
+        return EntityUtils.isEntitiesFile(file);
     }
 
     @Override

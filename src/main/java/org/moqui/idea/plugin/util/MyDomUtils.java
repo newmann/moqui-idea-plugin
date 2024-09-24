@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.*;
 
@@ -42,6 +44,8 @@ public final class MyDomUtils {
             Resource.TAG_NAME, Resource.VALUE_NoNamespaceSchemaLocation,
             EntityFacadeXml.TAG_NAME, MyStringUtils.EMPTY_STRING
     ));
+
+    private static Logger LOGGER = Logger.getInstance(MyDomUtils.class);
 
     private MyDomUtils() {
         throw new UnsupportedOperationException();
@@ -142,17 +146,30 @@ public final class MyDomUtils {
      * @return 是否为Moqui项目
      */
     public static boolean isMoquiProject(@NotNull Project project){
-        boolean result = false;
-        VirtualFile[] roots = ProjectRootManager.getInstance(project).getContentRoots();
 
-        // 检查项目中是否存在特定文件
-        if (roots.length>0) {
-            VirtualFile root = roots[0];
-            VirtualFile specificFile = ReadAction.compute(()->root.findChild("MoquiInit.properties"));
-            result = specificFile != null && specificFile.exists();
-        }
+        String baseDir = project.getBasePath();
 
-        return result;
+        VirtualFile specificFile = ReadAction.compute(()->LocalFileSystem.getInstance().findFileByNioFile(Path.of(baseDir,"MoquiInit.properties")));
+        return specificFile != null;
+
+        //        VirtualFile[] roots = ReadAction.compute(()->ProjectRootManager.getInstance(project).getContentRoots());
+//
+//        // 检查项目中是否存在特定文件
+//        if (roots.length>0) {
+//            VirtualFile root = roots[0];
+//            LOGGER.warn("开始测试："+ root.getPath());
+//            VirtualFile specificFile = ReadAction.compute(()->root.findChild("MoquiInit.properties"));
+//            if(specificFile != null){
+//                LOGGER.warn("MoquiInit.properties文件存在");
+//                return true;
+//            }else{
+//                LOGGER.warn("MoquiInit.properties没找到");
+//                return false;
+//            }
+//            return specificFile != null;
+//        }
+
+//        return false;
     }
     /**
      * 判断是不是第一个tag，即<firstTag />

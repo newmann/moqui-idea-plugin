@@ -24,7 +24,7 @@ repositories {
 }
 dependencies {
   intellijPlatform {
-    intellijIdeaCommunity("2024.1.6")
+    intellijIdeaCommunity("2022.3")
 
     bundledPlugin("com.intellij.java")
     bundledPlugin("org.intellij.groovy")
@@ -71,7 +71,7 @@ tasks {
   }
 
   patchPluginXml {
-    sinceBuild.set("223.*") //2022.3版https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#earlier-versions
+    sinceBuild.set("223") //2022.3版https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#earlier-versions
     untilBuild.set("241.*")//2024.1 java 17
   }
 
