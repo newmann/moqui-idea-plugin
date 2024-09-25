@@ -15,11 +15,11 @@ public final class MyBundle {
 
   private MyBundle() {}
 
-  public static @NotNull @Nls String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, Object @NotNull ... params) {
+  public static @NotNull @Nls String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key,  @NotNull Object ... params) {
     return INSTANCE.getMessage(key, params);
   }
 
-  public static @NotNull Supplier<@Nls String> messagePointer(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, Object @NotNull ... params) {
+  public static @NotNull Supplier<String> messagePointer(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key,@NotNull  Object ... params) {
     return INSTANCE.getLazyMessage(key, params);
   }
 }

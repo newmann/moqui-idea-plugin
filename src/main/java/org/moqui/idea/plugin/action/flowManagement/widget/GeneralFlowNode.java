@@ -1,13 +1,9 @@
 package org.moqui.idea.plugin.action.flowManagement.widget;
 
-import com.github.weisj.jsvg.S;
 import com.intellij.ui.components.JBLabel;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class GeneralFlowNode extends FlowNode {
 

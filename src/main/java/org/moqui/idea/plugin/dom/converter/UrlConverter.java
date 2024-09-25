@@ -58,7 +58,7 @@ public class UrlConverter extends ResolvingConverter.StringConverter implements 
 
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+    public  @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
         return LocationUtils.createReferences(value, element, context);
 
 //        String url = value.getStringValue();

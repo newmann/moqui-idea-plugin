@@ -59,7 +59,7 @@ final class EntityReference extends PsiReferenceBase<PsiElement> {
   }
 
   @Override
-  public Object @NotNull [] getVariants() {
+  public  @NotNull  Object[] getVariants() {
 //    Project project = myElement.getProject();
 ////    List<SimpleProperty> properties = SimpleUtil.findProperties(project);
 //    Optional<XmlElement[]> element = EntityUtils.findEntityByEntityDescriptor(project,entityDescriptor);

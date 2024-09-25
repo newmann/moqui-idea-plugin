@@ -12,7 +12,7 @@ import java.util.List;
 
 public class FileListener implements BulkFileListener {
     @Override
-    public void after(@NotNull List<? extends @NotNull VFileEvent> events) {
+    public void after(@NotNull List<? extends VFileEvent> events) {
         BulkFileListener.super.after(events);
         for(VFileEvent event: events) {
             System.out.println(event.toString());

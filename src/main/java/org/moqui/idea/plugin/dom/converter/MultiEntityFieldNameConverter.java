@@ -27,7 +27,7 @@ public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConv
     }
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
+    public  @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
         final String fieldsStr = value.getStringValue();
         if(MyStringUtils.isEmpty(fieldsStr)) return PsiReference.EMPTY_ARRAY;
 //        String[] fieldNameArray = EntityUtils.splitFieldString(fieldsStr).orElse(new ArrayList<>()).toArray(new String[0]);

@@ -2,10 +2,10 @@ package org.moqui.idea.plugin.quickDoc;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.model.Pointer;
+import com.intellij.navigation.TargetPresentation;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.platform.backend.documentation.DocumentationResult;
 import com.intellij.platform.backend.documentation.DocumentationTarget;
-import com.intellij.platform.backend.presentation.TargetPresentation;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.JBColor;
@@ -105,6 +105,7 @@ public class EntityDocumentTarget implements DocumentationTarget {
         return DocumentationResult.documentation(stringBuilder.toString());
 
     }
+
 
     @NotNull
     @Override

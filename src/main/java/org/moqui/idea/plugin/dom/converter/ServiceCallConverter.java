@@ -66,7 +66,7 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
 
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+    public  @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
         final String serviceCallStr = value.getStringValue();
         if(MyStringUtils.isEmpty(serviceCallStr)) return PsiReference.EMPTY_ARRAY;
 

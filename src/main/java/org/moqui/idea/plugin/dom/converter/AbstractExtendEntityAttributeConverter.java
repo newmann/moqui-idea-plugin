@@ -68,7 +68,7 @@ public abstract class AbstractExtendEntityAttributeConverter extends ResolvingCo
     }
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
+    public @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
         return getEntity(context).map(entity ->{
             PsiReference[] psiReferences = new PsiReference[1];
             //entityName reference

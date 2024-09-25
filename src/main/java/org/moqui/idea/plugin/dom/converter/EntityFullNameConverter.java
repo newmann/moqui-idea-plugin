@@ -112,7 +112,7 @@ public class EntityFullNameConverter extends ResolvingConverter<AbstractEntity> 
 
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
+    public  @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
 
         String entityName = value.getStringValue();
         return EntityUtils.createEntityNameReferences(context.getProject(),element, entityName,1);

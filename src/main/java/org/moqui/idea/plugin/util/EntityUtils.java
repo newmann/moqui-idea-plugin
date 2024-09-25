@@ -911,7 +911,7 @@ public final class EntityUtils {
      * @param startOffset 在element中的起始位置
      * @return
      */
-    public static PsiReference @NotNull [] createEntityNameReferences(@NotNull Project project, @NotNull PsiElement element, @NotNull String  entityName, @NotNull int startOffset) {
+    public static @NotNull PsiReference[] createEntityNameReferences(@NotNull Project project, @NotNull PsiElement element, @NotNull String  entityName, @NotNull int startOffset) {
         Optional<AbstractEntity> optEntity = EntityUtils.getEntityOrViewEntityByName(project,entityName);
         if (optEntity.isEmpty()) return PsiReference.EMPTY_ARRAY;
 

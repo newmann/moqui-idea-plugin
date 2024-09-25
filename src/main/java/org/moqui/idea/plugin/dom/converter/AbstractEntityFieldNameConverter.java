@@ -86,7 +86,7 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
     }
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
+    public @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
         final String valueStr = value.getStringValue();
         if(MyStringUtils.isEmpty(valueStr)) return PsiReference.EMPTY_ARRAY;
         TextRange textRange;

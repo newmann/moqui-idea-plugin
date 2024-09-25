@@ -22,12 +22,12 @@ public class MoquiFoldingBuilder extends FoldingBuilderEx {
 
     //
     @Override
-    public FoldingDescriptor @NotNull [] buildFoldRegions(@NotNull PsiElement root, @NotNull Document document, boolean quick) {
+    public  @NotNull FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement root, @NotNull Document document, boolean quick) {
 
-        if(!(root instanceof XmlFile file)) return FoldingDescriptor.EMPTY_ARRAY;
+        if(!(root instanceof XmlFile file)) return new FoldingDescriptor[0];
         XmlTag rootTag = file.getRootTag();
-        if (rootTag == null) return FoldingDescriptor.EMPTY_ARRAY;
-        if(! rootTag.getName().equals(Screen.TAG_NAME)) return FoldingDescriptor.EMPTY_ARRAY;
+        if (rootTag == null) return new FoldingDescriptor[0];
+        if(! rootTag.getName().equals(Screen.TAG_NAME)) return new FoldingDescriptor[0];
 
 
         List<XmlTag> formSingleList = MyDomUtils.getSubTagList(rootTag,FormSingle.TAG_NAME);
@@ -47,7 +47,7 @@ public class MoquiFoldingBuilder extends FoldingBuilderEx {
         });
 
 
-        return descriptorList.toArray(FoldingDescriptor.EMPTY_ARRAY);
+        return descriptorList.toArray(new FoldingDescriptor[0]);
     }
 //
 ////    @Override

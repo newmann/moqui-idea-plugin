@@ -24,6 +24,7 @@
         <li>Inspection</li>
         <li>Quick documentation for entity and service</li>
         <li>Inject Groovy to script tag and some attribute</li>
+        <li>Show usages of Entity,Service,Transition</li>
     </ol>
   ]]></description>
 

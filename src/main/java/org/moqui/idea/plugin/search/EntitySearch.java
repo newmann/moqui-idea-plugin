@@ -22,7 +22,7 @@ public class EntitySearch extends QueryExecutorBase<XmlElement, DefinitionsScope
     }
 
     @Override
-    public void processQuery(DefinitionsScopedSearch.@NotNull SearchParameters queryParameters,
+    public void processQuery(DefinitionsScopedSearch.SearchParameters queryParameters,
                              @NotNull Processor<? super XmlElement> consumer) {
 
 //        if(!(queryParameters.getElement() instanceof XmlTag)) return;

@@ -644,7 +644,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
      * @param startOffset 在element中的起始位置
      * @return
      */
-    public static PsiReference @NotNull [] createServiceCallReferences(@NotNull Project project, @NotNull PsiElement element, @NotNull String  serviceCallStr, @NotNull int startOffset) {
+    public static  @NotNull PsiReference[] createServiceCallReferences(@NotNull Project project, @NotNull PsiElement element, @NotNull String  serviceCallStr, @NotNull int startOffset) {
         ServiceDescriptor serviceDescriptor = new ServiceDescriptor(serviceCallStr);
         if (serviceDescriptor.verb.isEmpty()) return PsiReference.EMPTY_ARRAY;
 //        ServiceDescriptor serviceDescriptor = optServiceDescripter.get();

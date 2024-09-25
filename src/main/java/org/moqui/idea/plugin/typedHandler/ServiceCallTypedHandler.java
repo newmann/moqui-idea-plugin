@@ -19,24 +19,28 @@ public class ServiceCallTypedHandler extends TypedHandlerDelegate {
     @Override
     public Result charTyped(char c, @NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
         if(!MyDomUtils.isMoquiXmlFile(file)) return Result.CONTINUE;
-        final PsiElement at = file.findElementAt(editor.getCaretModel().getOffset());
-        if (at == null || !(at.getParent() instanceof XmlTag)) {
+        final PsiElement at = file.findElementAt(editor.getCaretModel().getOffset()-1);
+//        if (at == null || !(at.getParent() instanceof XmlTag)) {
+        if (at == null) {
             return Result.CONTINUE;
         }
-        if(c == ',') {
+
+        if (c == ',') {
             if (MultiFieldNameCompletionContributor.getCapture().accepts(at)) {
                 AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
                 return Result.STOP;
             }
-        }else {
-            XmlTag tag = (XmlTag) at.getParent();
-            if (tag.getName().equals(ServiceCall.TAG_NAME)) {
-                if (c == '.') {
-                    AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
-                    return Result.STOP;
+        } else {
+            if(at.getParent() instanceof XmlTag tag) {
+                if (tag.getName().equals(ServiceCall.TAG_NAME)) {
+                    if (c == '.') {
+                        AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
+                        return Result.STOP;
+                    }
                 }
             }
         }
+
         return Result.CONTINUE;
 
     }

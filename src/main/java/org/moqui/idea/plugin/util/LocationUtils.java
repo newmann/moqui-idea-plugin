@@ -260,7 +260,7 @@ public final class LocationUtils {
           * @param context
           * @return
           */
-         public PsiReference @NotNull [] createComponentContentPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context){
+         public  @NotNull PsiReference[] createComponentContentPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context){
             //添加路径和文件的reference
             List<PsiReference> result = new ArrayList<>(Arrays.stream(createFilePsiReference(pathPart, element, file)).toList());
              //添加content部分的reference
@@ -311,7 +311,7 @@ public final class LocationUtils {
           * @param context
           * @return
           */
-         public PsiReference @NotNull [] createLocalFormExtendPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context){
+         public  @NotNull PsiReference[] createLocalFormExtendPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context){
 
              String attributeName = MyDomUtils.getCurrentAttributeName(context).orElse(MyStringUtils.EMPTY_STRING);
              String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
@@ -355,7 +355,7 @@ public final class LocationUtils {
           * @param context
           * @return
           */
-         public PsiReference @NotNull [] createAbsoluteUrlPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context) {
+         public  @NotNull PsiReference[] createAbsoluteUrlPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context) {
              //将开头的两个"//"字符剔除
              String[] pathArray = location.substring(2).split("/");
 
@@ -475,7 +475,7 @@ public final class LocationUtils {
     }
 
 
-    public static PsiReference @NotNull [] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+    public static @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
         String valueStr = value.getStringValue();
         if(valueStr ==null) return PsiReference.EMPTY_ARRAY;
 
@@ -560,7 +560,7 @@ public final class LocationUtils {
      * @param file
      * @return
      */
-    public static PsiReference @NotNull [] createFilePsiReference(@NotNull String attributeString, @NotNull PsiElement element, @NotNull PsiFile file){
+    public static @NotNull PsiReference[] createFilePsiReference(@NotNull String attributeString, @NotNull PsiElement element, @NotNull PsiFile file){
 
         //将路径分解，每一级目录都分别对应
         String[] pathFileArray = MyDomUtils.getPathFileFromLocation(attributeString);

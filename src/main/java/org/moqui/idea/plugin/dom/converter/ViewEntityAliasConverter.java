@@ -76,7 +76,7 @@ public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberE
     }
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue<AbstractMemberEntity> value, PsiElement element, ConvertContext context) {
+    public  @NotNull PsiReference[] createReferences(GenericDomValue<AbstractMemberEntity> value, PsiElement element, ConvertContext context) {
 //        String aliasName = value.getStringValue();
 //        Optional<AbstractMemberEntity> optEntity = EntityUtils.getViewEntityAbstractMemberEntityByAlias(context,aliasName);
 //        if (optEntity.isEmpty()) return PsiReference.EMPTY_ARRAY;

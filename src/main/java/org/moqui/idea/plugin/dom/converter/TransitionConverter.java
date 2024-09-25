@@ -76,7 +76,7 @@ public class TransitionConverter extends ResolvingConverter.StringConverter impl
 //    }
 
     @Override
-    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+    public  @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
         return LocationUtils.createReferences(value,element,context);
 //        String related = value.getStringValue();
 //        if (related == null) return PsiReference.EMPTY_ARRAY;
