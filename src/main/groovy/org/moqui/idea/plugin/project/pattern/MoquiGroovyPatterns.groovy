@@ -5,11 +5,9 @@ import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.literals
 import org.jetbrains.plugins.groovy.lang.psi.patterns.GroovyPatterns
 
 import static com.intellij.patterns.PlatformPatterns.psiElement
-import static com.intellij.patterns.PsiJavaPatterns.psiMethod
 import static org.jetbrains.plugins.groovy.lang.psi.patterns.GroovyElementPattern.Capture
-import static org.jetbrains.plugins.groovy.lang.psi.patterns.GroovyPatterns.groovyLiteralExpression
-import static org.moqui.idea.plugin.project.pattern.MoquiPatternConst.ENTITY_FACADE_CLASS
-import static org.moqui.idea.plugin.project.pattern.MoquiPatternConst.makeMethodParameterPattern
+import static org.moqui.idea.plugin.project.pattern.MoquiPatternConst.*
+
 class MoquiGroovyPatterns {
     //============================================
     //       PATTERNS
@@ -20,9 +18,12 @@ class MoquiGroovyPatterns {
 //
 //    )
     public static final PsiElementPattern ENTITY_CALL =
-            psiElement().inside(
-                    makeEntityFacadeGroovyMethodParameterPattern( 'find', 0)
-            )
+//            psiElement().inside(psiElement().andOr(
+            psiElement().andOr(
+                    makeEntityFacadeGroovyMethodParameterPattern( 'find', 0),
+                    makeEntityFacadeImplGroovyMethodParameterPattern( 'find', 0)
+                )
+//            )
 //            psiElement().inside(psiElement().andOr(
 //            makeEntityFacadeGroovyMethodParameterPattern( 'find', 0),
 //            makeDelegatorGroovyMethodParameterPattern('findOne', 0),
@@ -48,4 +49,8 @@ class MoquiGroovyPatterns {
     static Capture<GrLiteral> makeEntityFacadeGroovyMethodParameterPattern(String methodName, int index) {
         return makeGroovyMethodParameterPattern(methodName, ENTITY_FACADE_CLASS, index)
     }
+    static Capture<GrLiteral> makeEntityFacadeImplGroovyMethodParameterPattern(String methodName, int index) {
+        return makeGroovyMethodParameterPattern(methodName, ENTITY_IMPL_FACADE_CLASS, index)
+    }
+
 }

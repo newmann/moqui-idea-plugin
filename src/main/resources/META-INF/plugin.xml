@@ -74,8 +74,9 @@
       <dom.fileMetaData id="myPlugin.WidgetTemplatesDescription"
                         rootTagName="widget-templates"
                         implementation="org.moqui.idea.plugin.dom.description.WidgetTemplatesDescription"/>
-      <platform.backend.documentation.psiTargetProvider id="MoquiPsiDocumentationTargetProvider"
-                                                        implementation="org.moqui.idea.plugin.quickDoc.MoquiPsiDocumentationTargetProvider"/>
+      //2022-2024不同版本之间的API变化很大，同时用处也不低，暂时不起用
+<!--      <platform.backend.documentation.psiTargetProvider id="MoquiPsiDocumentationTargetProvider"-->
+<!--                                                        implementation="org.moqui.idea.plugin.quickDoc.MoquiPsiDocumentationTargetProvider"/>-->
 
       <lang.foldingBuilder language="XML"
                            implementationClass="org.moqui.idea.plugin.foldingBuilder.MoquiFoldingBuilder"/>
@@ -101,7 +102,7 @@
 <!--      <psi.referenceContributor id="myPlugin.ReferenceContributor" language="XML" order="first"-->
 <!--                                implementation="org.moqui.idea.plugin.reference.ContextHashMarkReferenceContributor"/>-->
 
-<!--      没有发现有什么用，先不启用-->
+
       <typedHandler implementation="org.moqui.idea.plugin.typedHandler.ServiceCallTypedHandler" id="myPlugin.ServiceCallTypedHandler"/>
             <enterHandlerDelegate implementation="org.moqui.idea.plugin.typedHandler.MoquiEnterTypedHandler"/>
 
