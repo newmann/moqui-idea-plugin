@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.project.pattern
 
 import com.intellij.patterns.PsiElementPattern
+import com.intellij.patterns.StandardPatterns
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.literals.GrLiteral
 import org.jetbrains.plugins.groovy.lang.psi.patterns.GroovyPatterns
 
@@ -19,10 +20,12 @@ class MoquiGroovyPatterns {
 //    )
     public static final PsiElementPattern ENTITY_CALL =
 //            psiElement().inside(psiElement().andOr(
-            psiElement().andOr(
-                    makeEntityFacadeGroovyMethodParameterPattern( 'find', 0),
-                    makeEntityFacadeImplGroovyMethodParameterPattern( 'find', 0)
-                )
+            GroovyPatterns.stringLiteral().withParent(
+                    StandardPatterns.or(
+                        GroovyPatterns.psiMethod().withName("find").definedInClass(MoquiPatternConst.ENTITY_FACADE_CLASS),
+                        GroovyPatterns.psiMethod().withName("find").definedInClass(MoquiPatternConst.ENTITY_IMPL_FACADE_CLASS)
+                    )
+            )
 //            )
 //            psiElement().inside(psiElement().andOr(
 //            makeEntityFacadeGroovyMethodParameterPattern( 'find', 0),

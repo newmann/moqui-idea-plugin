@@ -132,9 +132,10 @@
                               implementationClass="org.moqui.idea.plugin.contributor.SubScreensDefaultItemCompletionContributor"/>
 <!--      <lookup.charFilter implementation="org.moqui.idea.plugin.contributor.MultiFieldCompletionCharFilter"-->
 <!--                         order="first" id="multiFieldCompletionCharFilter"/>-->
-      <completion.contributor order="first" language="Groovy" implementationClass="org.moqui.idea.plugin.completion.contributor.GroovyCompletionContributor"/>
+      <psi.referenceContributor language="Groovy" implementation="org.moqui.idea.plugin.contributor.GroovyCodeReferenceContributor"/>
+      <completion.contributor order="before groovyBasic" language="Groovy" implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>
 
-      <completion.contributor order="first" language="JAVA" implementationClass="org.moqui.idea.plugin.completion.contributor.JavaCompletionContributor"/>
+<!--      <completion.contributor order="first" language="JAVA" implementationClass="org.moqui.idea.plugin.completion.contributor.JavaCompletionContributor"/>-->
 
       <renameHandler implementation="org.moqui.idea.plugin.refactoring.MoquiDomAttributeRenameHandler" order="first"/>
 
