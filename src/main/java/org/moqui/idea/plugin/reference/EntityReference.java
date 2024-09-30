@@ -2,6 +2,7 @@
 
 package org.moqui.idea.plugin.reference;
 
+import icons.MoquiIcons;
 import kotlinx.html.A;
 import org.moqui.idea.plugin.util.EntityUtils;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-@Deprecated
+
 final class EntityReference extends PsiReferenceBase<PsiElement> {
 
   /**
@@ -60,10 +61,19 @@ final class EntityReference extends PsiReferenceBase<PsiElement> {
 
   @Override
   public  @NotNull  Object[] getVariants() {
-//    Project project = myElement.getProject();
+    Project project = myElement.getProject();
 ////    List<SimpleProperty> properties = SimpleUtil.findProperties(project);
 //    Optional<XmlElement[]> element = EntityUtils.findEntityByEntityDescriptor(project,entityDescriptor);
     List<LookupElement> variants = new ArrayList<>();
+    EntityUtils.getAllEntityFullNameCollection(project).forEach(
+            item->{
+        variants.add(LookupElementBuilder
+                .create(item).withIcon(MoquiIcons.EntityTag)
+                .withTypeText(item));
+
+            }
+    );
+
 //    if(!element.isEmpty()) {
 //      for (XmlElement item : element.get()) {
 //        variants.add(LookupElementBuilder
