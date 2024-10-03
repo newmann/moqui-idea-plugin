@@ -719,4 +719,7 @@ public final class MyDomUtils {
         return psiElement.getTextOffset();
     }
 
+    public static Optional<PsiElement> getPsiElementFromAttributeValue(@Nullable XmlAttributeValue attributeValue) {
+        return attributeValue == null ? Optional.empty() : Optional.of(attributeValue.getOriginalElement());
+    }
 }

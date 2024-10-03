@@ -2,7 +2,6 @@ package org.moqui.idea.plugin.service;
 
 import com.intellij.psi.xml.XmlElement;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.dom.model.Service;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
@@ -37,7 +36,7 @@ public final class IndexService extends AbstractIndex {
                     .orElse(MyStringUtils.EMPTY_STRING);
         }
         this.packageName = getPackageNameFromClassName(this.className);
-        this.functionName = this.verb + ServiceUtils.SERVICE_NAME_DELIMITER + this.noun;
+        this.functionName = this.verb + ServiceUtils.SERVICE_NAME_HASH + this.noun;
 
         this.fullName =  this.className + ServiceUtils.SERVICE_NAME_DOT
                 +this.functionName;

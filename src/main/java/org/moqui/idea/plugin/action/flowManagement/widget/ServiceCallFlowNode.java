@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.action.flowManagement.widget;
 
 import com.intellij.ui.components.JBPanel;
 import icons.MoquiIcons;
+import org.moqui.idea.plugin.util.ServiceCallDescriptor;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
 import javax.swing.*;
@@ -35,13 +36,13 @@ public class ServiceCallFlowNode extends FlowNode  {
             setBorder(ofBorderDashLine());
 
         }else{
-            ServiceUtils.ServiceDescriptor serviceDescriptor = new ServiceUtils.ServiceDescriptor(model.getName());
+            ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(model.getName());
 
             nameLabel = FlowNodeBuilder.createNameLabel(serviceDescriptor.getClassName());
             nameLabel.setVerticalAlignment(SwingConstants.BOTTOM);
             nameLabel.setBounds(LINE_SPACE, 0, model.getWidth() - 2 * LINE_SPACE, model.getHeight()/2);
             add(nameLabel);
-            JLabel actionLabel = FlowNodeBuilder.createNameLabel(serviceDescriptor.getAction());
+            JLabel actionLabel = FlowNodeBuilder.createNameLabel(serviceDescriptor.getActionString());
             actionLabel.setVerticalAlignment(SwingConstants.TOP);
             actionLabel.setBounds(LINE_SPACE, model.getHeight()/2, model.getWidth() - 2 * LINE_SPACE, model.getHeight()/2);
             add(actionLabel);

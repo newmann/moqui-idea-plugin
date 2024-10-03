@@ -2,6 +2,8 @@ package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.codeInspection.util.InspectionMessage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -12,6 +14,7 @@ import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.reference.ServiceCallReference;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
@@ -67,27 +70,33 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
 
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
-        final String serviceCallStr = value.getStringValue();
-        if(MyStringUtils.isEmpty(serviceCallStr)) return PsiReference.EMPTY_ARRAY;
-
-        String[] contentArray = serviceCallStr.split("#");
-        if(contentArray.length!=2) return PsiReference.EMPTY_ARRAY;
-        Project project = context.getProject();
-
-        if(ServiceUtils.STANDARD_CRUD_COMMANDER.contains(contentArray[0])) {
-            //针对Entity的标准CRUD
-            int startOffset = contentArray[0].length()+2;
-
-            return EntityUtils.createEntityNameReferences(project,element,contentArray[1],startOffset);
-        }else{
-            //标准的ServiceCall
-
-//            PsiReference[] result = new PsiReference[contentArray.length];
-
-
-            return ServiceUtils.createServiceCallReferences(project,element,serviceCallStr,1);
-
-        }
+        List<Pair<TextRange,PsiElement>> textRangeList = ServiceUtils.createServiceCallReferences(element.getProject(),element);
+        List<PsiReference> psiReferences = new ArrayList<>();
+        textRangeList.forEach(item->{
+            psiReferences.add(ServiceCallReference.of(element,item.first,item.second));
+        });
+        return psiReferences.toArray(new PsiReference[0]);
+        //        final String serviceCallStr = value.getStringValue();
+//        if(MyStringUtils.isEmpty(serviceCallStr)) return PsiReference.EMPTY_ARRAY;
+//
+//        String[] contentArray = serviceCallStr.split("#");
+//        if(contentArray.length!=2) return PsiReference.EMPTY_ARRAY;
+//        Project project = context.getProject();
+//
+//        if(ServiceUtils.STANDARD_CRUD_COMMANDER.contains(contentArray[0])) {
+//            //针对Entity的标准CRUD
+//            int startOffset = contentArray[0].length()+2;
+//
+//            return EntityUtils.createEntityNameReferences(project,element,contentArray[1],startOffset);
+//        }else{
+//            //标准的ServiceCall
+//
+////            PsiReference[] result = new PsiReference[contentArray.length];
+//
+//
+//            return ServiceUtils.createServiceCallReferences(project,element,serviceCallStr,1);
+//
+//        }
 
 
     }
@@ -157,7 +166,7 @@ public class ServiceCallConverter extends ResolvingConverter.StringConverter imp
         if (resultSet.size()==1) {
             //当前className是个完整的名称，则取该class下的所有服务
             resultSet.clear();
-            resultSet.addAll(ServiceUtils.getServiceFullNameInClass(project,filterClassName));
+            resultSet.addAll(ServiceUtils.getServiceFullNameAction(project,filterClassName));
         }
     }
 

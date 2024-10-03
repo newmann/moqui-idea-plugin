@@ -276,7 +276,7 @@ public class EntityNameAndServiceCallNameCompletionContributor extends Completio
     if (resultSet.size()==1) {
       //当前className是个完整的名称，则取该class下的所有服务
       resultSet.clear();
-      resultSet.addAll(ServiceUtils.getServiceFullNameInClass(project,filterClassName));
+      resultSet.addAll(ServiceUtils.getServiceFullNameAction(project,filterClassName));
     }
   }
 

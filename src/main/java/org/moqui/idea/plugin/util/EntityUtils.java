@@ -73,12 +73,20 @@ public final class EntityUtils {
         return MyDomUtils.isSpecialXmlFile(file, Entities.TAG_NAME,Entities.ATTR_NoNamespaceSchemaLocation,Entities.VALUE_NoNamespaceSchemaLocation);
     }
     /**
-     * 根据所有的实体
+     * 根据所有的实体（Entity）,不含视图（ViewEntity）
      * @param project 当前项目
      * @return Collection<Entity>
      */
     public static Collection<String> getAllEntityFullNameCollection(@NotNull Project project){
         return getAllEntityCollection(project).stream().map(EntityUtils::getFullNameFromEntity).collect(Collectors.toSet());
+    }
+    /**
+     * 根据所有的视图（ViewEntity），不包含实体（Entity）
+     * @param project 当前项目
+     * @return Collection<String>
+     */
+    public static Collection<String> getAllViewEntityFullNameCollection(@NotNull Project project){
+        return getAllViewEntityCollection(project).stream().map(EntityUtils::getFullNameFromEntity).collect(Collectors.toSet());
     }
     /**
      * 根据所有的实体

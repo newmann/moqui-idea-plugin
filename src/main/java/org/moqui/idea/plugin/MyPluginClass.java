@@ -5,17 +5,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrMethodCall;
-import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.literals.GrLiteral;
 
-import java.util.List;
-
-import static org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor.ENTITY_CALL;
 
 public class MyPluginClass extends AnAction {
 
@@ -68,18 +59,18 @@ public class MyPluginClass extends AnAction {
 //            sb.append("\n");
 //        }
 
-        PsiFile psiFile = e.getData(PlatformDataKeys.PSI_FILE);
-        if(psiFile!= null) {
-            List<GrLiteral> strings = PsiTreeUtil.findChildrenOfAnyType(psiFile, GrLiteral.class)
-                    .stream()
-                    .filter(ENTITY_CALL::accepts)
-                    .toList();
-            for(PsiElement literal: strings) {
-                sb.append(literal.getText()).append("\n");
-//                if(literal.getType()!= null) sb.append(literal.getType().toString()).append("\n");
-            }
-
-        }
+//        PsiFile psiFile = e.getData(PlatformDataKeys.PSI_FILE);
+//        if(psiFile!= null) {
+//            List<GrLiteral> strings = PsiTreeUtil.findChildrenOfAnyType(psiFile, GrLiteral.class)
+//                    .stream()
+//                    .filter(ENTITY_CALL::accepts)
+//                    .toList();
+//            for(PsiElement literal: strings) {
+//                sb.append(literal.getText()).append("\n");
+////                if(literal.getType()!= null) sb.append(literal.getType().toString()).append("\n");
+//            }
+//
+//        }
 //
 //
 //        PsiFile file = e.getData(CommonDataKeys.PSI_FILE);

@@ -99,8 +99,6 @@
 <!--                                           id="myPlugin.EntityNameUpdatedRefactoring"/>-->
 <!--      <gotoTargetRendererProvider implementation="provider.org.moqui.idea.plugin.GotoMapperXmlSchemaTypeRendererProvider" order="first"/>-->
 
-<!--      <psi.referenceContributor id="myPlugin.ReferenceContributor" language="XML" order="first"-->
-<!--                                implementation="org.moqui.idea.plugin.reference.ContextHashMarkReferenceContributor"/>-->
 
 
       <typedHandler implementation="org.moqui.idea.plugin.typedHandler.ServiceCallTypedHandler" id="myPlugin.ServiceCallTypedHandler"/>
@@ -133,7 +131,7 @@
 <!--      <lookup.charFilter implementation="org.moqui.idea.plugin.contributor.MultiFieldCompletionCharFilter"-->
 <!--                         order="first" id="multiFieldCompletionCharFilter"/>-->
       <psi.referenceContributor language="Groovy" implementation="org.moqui.idea.plugin.contributor.GroovyCodeReferenceContributor"/>
-      <completion.contributor order="first" language="Groovy" implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>
+<!--      <completion.contributor order="first" language="Groovy" implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>-->
 
 <!--      <completion.contributor order="first" language="JAVA" implementationClass="org.moqui.idea.plugin.completion.contributor.JavaCompletionContributor"/>-->
 

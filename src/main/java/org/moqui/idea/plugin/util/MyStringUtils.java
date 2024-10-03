@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.PsiElement;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 import static com.intellij.codeInsight.completion.CompletionUtil.DUMMY_IDENTIFIER;
 import static com.intellij.codeInsight.completion.CompletionUtil.DUMMY_IDENTIFIER_TRIMMED;
+import static org.jetbrains.plugins.groovy.lang.completion.GrDummyIdentifierProvider.DUMMY_IDENTIFIER_DECAPITALIZED;
 
 /**
  * The type String utils.
@@ -186,7 +188,10 @@ public final class MyStringUtils {
         if (str == null) {
             return EMPTY_STRING;
         }
-        return StringUtil.trim(str.replace(DUMMY_IDENTIFIER, "").replace(DUMMY_IDENTIFIER_TRIMMED, ""));
+        return StringUtil.trim(str.replace(DUMMY_IDENTIFIER, "")
+                .replace(DUMMY_IDENTIFIER_TRIMMED, "")
+                .replace(DUMMY_IDENTIFIER_DECAPITALIZED,"")
+        );
     }
     public static @NotNull
     String getDummyFrontString(@Nullable String str) {
@@ -195,7 +200,12 @@ public final class MyStringUtils {
         }
         int index = str.indexOf(DUMMY_IDENTIFIER_TRIMMED);
         if(index<0) {
-            return str;
+            index = str.indexOf(DUMMY_IDENTIFIER_DECAPITALIZED);
+            if(index<0) {
+                return EMPTY_STRING;
+            }else {
+                return str.substring(0,index);
+            }
         }else {
             return str.substring(0,index);
         }
@@ -214,7 +224,6 @@ public final class MyStringUtils {
         return xml.replaceAll("<","&lt;")
                 .replaceAll(">","&gt;");
     }
-
 
 
 }

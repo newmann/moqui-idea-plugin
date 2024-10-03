@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.intellij.psi.xml.XmlAttributeValue;
@@ -23,15 +24,16 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.*;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByPsiElement;
-import static org.moqui.idea.plugin.util.MyStringUtils.isEmpty;
+import static org.moqui.idea.plugin.util.MyStringUtils.camelToSlash;
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 
 public final class ServiceUtils {
-    public static final String SERVICE_NAME_DELIMITER = "#";
+    public static final String SERVICE_NAME_HASH = "#";
     public static final String SERVICE_NAME_DOT = ".";
     public static final String SERVICE_INTERFACE = "interface";
 
@@ -41,83 +43,6 @@ public final class ServiceUtils {
     private ServiceUtils() {
         throw new UnsupportedOperationException();
     }
-    public static final class ServiceDescriptor{
-        public ServiceDescriptor(){}
-        public ServiceDescriptor(String className,String verb, String noun){
-            this.className = className;
-            this.verb = verb;
-            this.noun = noun;
-        }
-        /**
-         * 从字符串中获取服务的信息,标准格式为：
-         * className.verb#name
-         * 如果是CRUD服务，格式为：
-         * verb#entityName
-         * 针对crud服务，返回的className为空
-         * @param fullName
-         * @return
-         */
-        public ServiceDescriptor(@NotNull String fullName){
-            final int index = fullName.lastIndexOf(SERVICE_NAME_DELIMITER);
-            if(index < 0) return ;
-
-            noun = fullName.substring(index+1);
-            //不是服务，是对entity的CRUD
-//        if(noun.indexOf(".")>0) return Optional.empty();
-            final String pathVerb = fullName.substring(0,index);
-
-            final int verbIndex = pathVerb.lastIndexOf(SERVICE_NAME_DOT);
-
-            if(verbIndex >= 0) {
-                verb = pathVerb.substring(verbIndex+1);
-                className = pathVerb.substring(0,verbIndex);
-
-            }else {
-                verb = pathVerb;
-                className = "";
-            }
-
-
-        }
-        private String className = MyStringUtils.EMPTY_STRING;
-        private String verb = MyStringUtils.EMPTY_STRING;
-        private String noun  = MyStringUtils.EMPTY_STRING;
-
-        public String getClassName() {
-            return className;
-        }
-
-        public void setClassName(String className) {
-            this.className = className;
-        }
-
-        public String getNoun() {
-            return noun;
-        }
-
-        public void setNoun(String noun) {
-            this.noun = noun;
-        }
-
-        public String getVerb() {
-            return verb;
-        }
-
-        public void setVerb(String verb) {
-            this.verb = verb;
-        }
-        public String getAction(){
-            return verb +SERVICE_NAME_DELIMITER + noun;
-        }
-
-        public Optional<String> getServiceCallName(){
-            if(isEmpty(verb) || isEmpty(noun)) return Optional.empty();
-            String str = verb +SERVICE_NAME_DELIMITER + noun;
-            if(isNotEmpty(className)) str = className +SERVICE_NAME_DOT + str;
-            return Optional.of(str);
-        }
-    }
-
 
     public static boolean isServicesFile(@Nullable PsiFile file){
         if(file == null) return false;
@@ -147,68 +72,7 @@ public final class ServiceUtils {
         return !isService(service);
     }
 
-//    /**
-//     * 判断一个字符串是否为一个有效的ServiceCall字符串
-//     * @param project
-//     * @param auditStr
-//     * @return
-//     */
-//    public static boolean isValidServiceCallStr(@NotNull Project project,@NotNull String auditStr){
-//
-//        int slashIndex = auditStr.indexOf('#');
-//        String[] slashSplit = auditStr.split("#");
-//
-//        if(slashIndex >= 0) {
-//            //#存在，需要进行进一步判断
-//            int pointIndex = slashSplit[0].lastIndexOf('.');
-//            if(pointIndex<0) {
-//                //标准操作,CRUD
-//                //操作不存在，则返回false
-//                if(! ServiceUtils.STANDARD_CRUD_COMMANDER.contains(slashSplit[0])) return false;
-//                //操作存在，则验证entityName是否有效
-//                if(slashSplit.length==1) {
-//                    return false;
-//                }else {
-//
-//                    return EntityUtils.getEntityByName(project,slashSplit[1]).map(item->true).orElse(false);
-//                }
-//
-//            }else{
-//                //Service Call
-//                return getServiceByFullName(project,auditStr).map(item -> true).orElse(false);
-//            }
-//        }else {
-//            return false;
-//        }
-//    }
-//    /**
-//     * 根据实体名和包名找到对应的实体定义的XmlElement
-//     * @param project
-//     * @param fullName 调用的服务名称，格式类似 moqui.work.TicketServices.get#ServiceStationByServiceLocation
-//     * @return
-//     */
-//    public static Optional<XmlElement[]> findServiceByFullName(@NotNull Project project, @NotNull String fullName){
-//        Optional<ServiceDescriptor> serviceDescriptor = extractServiceDescriptor(fullName);
-//        if (serviceDescriptor.isEmpty()) return Optional.empty();
-//
-//        List<DomFileElement<Services>> fileElementList  = DomUtils.findDomFileElementsByRootClass(project, Services.class);
-//        for(DomFileElement<Services> fileElement : fileElementList) {
-//            //判断服务在不在这个文件中
-//            Optional<String> className = extractClassNameFromPath(fileElement.getFile().getVirtualFile().getPath());
-//            if(className.isEmpty()) continue;
-//            if(!className.get().equals(serviceDescriptor.get().className)) continue;
-//
-//            for(Service service: fileElement.getRootElement().getServices()) {
-//                if(service.getVerb().getValue().equals(serviceDescriptor.get().verb)
-//                        && service.getNoun().getValue().equals(serviceDescriptor.get().noun)) {
-//
-//                    XmlElement[] result = {service.getXmlElement()};
-//                    return Optional.of(result);
-//                }
-//            };
-//        }
-//        return Optional.empty();
-//    }
+
 public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project project, @NotNull String fullName) {
     MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
     return moquiIndexService.getServiceOrInterfaceByFullName(fullName);
@@ -224,45 +88,24 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         return moquiIndexService.getServiceByFullName(fullName);
 
-//        ServiceDescriptor serviceDescriptor = new ServiceDescriptor(fullName);
-//
-//        //如果是标准crud，则返回空
-//        if(serviceDescriptor.className.isEmpty()) return Optional.empty();
-//
-//        List<DomFileElement<Services>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Services.class);
-//        for(DomFileElement<Services> fileElement : fileElementList) {
-//            //判断服务在不在这个文件中
-//            Optional<String> className = extractClassNameFromPath(fileElement.getFile().getVirtualFile().getPath());
-//            if(className.isEmpty()) continue;
-//            if(!className.get().equals(serviceDescriptor.className)) continue;
-//
-//            for(Service service:fileElement.getRootElement().getServiceList()) {
-//                if(service.getVerb().getValue().equals(serviceDescriptor.verb)
-//                        && service.getNoun().getValue().equals(serviceDescriptor.noun)) {
-//
-//                    return Optional.of(service);
-//                }
-//            };
-//        }
-//        return Optional.empty();
     }
     public static Optional<Service> getServiceByFullNameFromFile(@NotNull Project project, @NotNull String fullName){
 
-        ServiceDescriptor serviceDescriptor = new ServiceDescriptor(fullName);
+        ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(fullName);
 
         //如果是标准crud，则返回空
-        if(serviceDescriptor.className.isEmpty()) return Optional.empty();
+        if(serviceDescriptor.getClassName().isEmpty()) return Optional.empty();
 
         List<DomFileElement<Services>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Services.class);
         for(DomFileElement<Services> fileElement : fileElementList) {
             //判断服务在不在这个文件中
             Optional<String> className = extractClassNameFromPath(fileElement.getFile().getVirtualFile().getPath());
             if(className.isEmpty()) continue;
-            if(!className.get().equals(serviceDescriptor.className)) continue;
+            if(!className.get().equals(serviceDescriptor.getClassName())) continue;
 
             for(Service service:fileElement.getRootElement().getServiceList()) {
-                if(MyDomUtils.getValueOrEmptyString(service.getVerb()).equals(serviceDescriptor.verb)
-                        && MyDomUtils.getValueOrEmptyString(service.getNoun()).equals(serviceDescriptor.noun)) {
+                if(MyDomUtils.getValueOrEmptyString(service.getVerb()).equals(serviceDescriptor.getVerb())
+                        && MyDomUtils.getValueOrEmptyString(service.getNoun()).equals(serviceDescriptor.getNoun())) {
 
                     return Optional.of(service);
                 }
@@ -332,23 +175,6 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
            }
         });
     }
-    /**
-     * 返回所有定义好的服务名称和对应位置的关系
-     * 服务名称格式为标注格式
-     * @param project
-     * @return
-     */
-//    public static Map<String, Service> findAllServiceDomElement(@NotNull Project project) {
-//        Map<String, Service> result = new HashMap<String, Service>();
-//        Collection<Service> services = findAllService(project);
-//
-//        services.forEach(service -> {
-//            result.put(getFullNameFromService(service), service);
-//        }  );
-//
-//        return result;
-//
-//    }
 
     /**
      * 返回所有服务的类名称，即包含标准名称的verb#noun部分
@@ -409,7 +235,21 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
      * @param className
      * @return
      */
-    public static @NotNull Set<String> getServiceFullNameInClass(@NotNull Project project, @NotNull  String className) {
+    public static @NotNull Set<String> getServiceFullNameAction(@NotNull Project project, @NotNull  String className) {
+
+        return getServiceAction(project,className).stream()
+                .map(item-> className+ SERVICE_NAME_DOT+ item)
+                .collect(Collectors.toSet());
+
+    }
+
+    /**
+     * 根据className获取这个className下所有service的verb#noun列表
+     * @param project
+     * @param className
+     * @return
+     */
+    public static @NotNull Set<String> getServiceAction(@NotNull Project project, @NotNull  String className) {
 
         List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
 
@@ -420,11 +260,14 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                 if(className.equals(optClassName.get())){
                     for(Service service: item.getRootElement().getServiceList()) {
                         if(isService(service)) {
-                            ServiceDescriptor serviceDescriptor = new ServiceDescriptor();
-                            serviceDescriptor.className = optClassName.get();
-                            serviceDescriptor.verb = service.getVerb().getValue();
-                            serviceDescriptor.noun = service.getNoun().getValue();
-                            serviceNameSet.add(serviceDescriptor.getServiceCallName().orElse(MyStringUtils.EMPTY_STRING));
+                            serviceNameSet.add(
+                                    MyDomUtils.getValueOrEmptyString(service.getNoun()).isEmpty() ?
+                                            MyDomUtils.getValueOrEmptyString(service.getVerb())
+                                        :
+                                            MyDomUtils.getValueOrEmptyString(service.getVerb())
+                                                + SERVICE_NAME_HASH
+                                            + MyDomUtils.getValueOrEmptyString(service.getNoun())
+                            );
                         }
                     };
 
@@ -435,93 +278,26 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         return serviceNameSet;
 
     }
-    /**
-     * 找到所有的service，type为interface的除外
-     * @param project 当前项目
-     * @return Collection<Entity>
-     */
-//    public static Collection<Service> findAllService(@NotNull Project project){
-//
-//        Collection<Service> result = new ArrayList<Service>();
-//        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
-//        for(DomFileElement<Services> fileElement : fileElementList) {
-//            for(Service service: fileElement.getRootElement().getServiceList()) {
-//                if(isService(service)){
-//                        result.add(service);
-//                }
-//            };
-//        }
-//        return result;
-//    }
-//    public static Collection<Service> findAllInterface(@NotNull Project project){
-//        Collection<Service> result = new ArrayList<Service>();
-//        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
-//        for(DomFileElement<Services> fileElement : fileElementList) {
-//            for(Service service: fileElement.getRootElement().getServiceList()){
-//                if(isInterface(service)){
-//                    result.add(service);
-//                }
-//            };
-//        }
-//        return result;
-//    }
 
     /**
      * 从Service对应的DomElement中拼接出完整名称服务名称
      * 统一的名称格式是：｛classPackage｝.{verb}#{noun}
      */
     public static String getFullNameFromService(@NotNull Service service) {
-        ServiceDescriptor descriptor = new ServiceDescriptor();
-        descriptor.verb = MyDomUtils.getValueOrEmptyString(service.getVerb());
+        ServiceCallDescriptor descriptor = new ServiceCallDescriptor();
+        descriptor.setVerb(MyDomUtils.getValueOrEmptyString(service.getVerb()));
 
-        descriptor.noun = MyDomUtils.getValueOrEmptyString(service.getNoun());
+        descriptor.setNoun(MyDomUtils.getValueOrEmptyString(service.getNoun()));
         XmlElement xmlElement = service.getXmlElement();
-        if(xmlElement == null) {
-            descriptor.className = MyStringUtils.EMPTY_STRING;
-        }else {
+        if(xmlElement != null) {
             final String path = service.getXmlElement().getContainingFile().getVirtualFile().getPath();
-            descriptor.className = extractClassNameFromPath(path).orElse(MyStringUtils.EMPTY_STRING);
-
+            descriptor.setClassName(extractClassNameFromPath(path).orElse(MyStringUtils.EMPTY_STRING));
         }
 
-        return descriptor.getServiceCallName().orElse(MyStringUtils.EMPTY_STRING);
+        return descriptor.getServiceCallString();
 
     }
 
-    /**
-     * 从字符串中获取服务的信息,标准格式为：
-     * className.verb#name
-     * 如果是CRUD服务，格式为：
-     * verb#entityName
-     * 针对crud服务，返回的className为空
-     * @param fullName
-     * @return
-     */
-//    public static Optional<ServiceDescriptor> extractServiceDescriptor(@NotNull String fullName){
-//        final int index = fullName.lastIndexOf("#");
-//        if(index < 0) return Optional.empty();
-//        final String noun = fullName.substring(index+1);
-//        //不是服务，是对entity的CRUD
-////        if(noun.indexOf(".")>0) return Optional.empty();
-//        final String pathVerb = fullName.substring(0,index);
-//
-//        final int verbIndex = pathVerb.lastIndexOf(".");
-//        String verb;
-//        String className;
-//
-//        if(verbIndex >= 0) {
-//            verb = pathVerb.substring(verbIndex+1);
-//            className = pathVerb.substring(0,verbIndex);
-//
-//        }else {
-//            verb = pathVerb;
-//            className = "";
-//        }
-//
-//
-//        return Optional.of(new ServiceDescriptor(className,verb,noun));
-//
-//    }
 
     public static List<PsiElement> getRelatedService(@NotNull PsiElement psiElement, @NotNull String fullName) {
         List<PsiElement> resultList = new ArrayList<>();
@@ -564,26 +340,26 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         final String serviceCallName = attributeValue.getXmlAttributeValue().getValue();
         final int serviceCallNameLength = attributeValue.getXmlAttributeValue().getValueTextRange().getLength();
         final Project project =attributeValue.getXmlElement().getProject();
-        ServiceDescriptor serviceDescriptor = new ServiceDescriptor(serviceCallName);
-        if(serviceDescriptor.verb.isEmpty()) {
+        ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(serviceCallName);
+        if(serviceDescriptor.getVerb().isEmpty()) {
             holder.createProblem(attributeValue, HighlightSeverity.ERROR, "This is not a valid service call");
             return;
         }
 
 //        Optional<String> optEntityName = EntityUtils.getEntityNameFromServiceCallName(serviceCallName);
 
-        if(serviceDescriptor.className.isEmpty() ) {
+        if(serviceDescriptor.isCRUD() ) {
 
-            if(!(STANDARD_CRUD_COMMANDER.contains(serviceDescriptor.verb))) {
+            if(!(STANDARD_CRUD_COMMANDER.contains(serviceDescriptor.getVerb()))) {
                 holder.createProblem(attributeValue, HighlightSeverity.ERROR,
                         "The verb is not correctly,should use one of create/update/delete");
 
             }
 
             Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project,
-                    serviceDescriptor.noun);
+                    serviceDescriptor.getNoun());
             final int index = serviceCallName.indexOf("#");
-            final int entityNameLength = serviceDescriptor.noun.length();
+            final int entityNameLength = serviceDescriptor.getNoun().length();
 
 
             if (optionalXmlElement.isEmpty()) {
@@ -645,8 +421,8 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
      * @return
      */
     public static  @NotNull PsiReference[] createServiceCallReferences(@NotNull Project project, @NotNull PsiElement element, @NotNull String  serviceCallStr, @NotNull int startOffset) {
-        ServiceDescriptor serviceDescriptor = new ServiceDescriptor(serviceCallStr);
-        if (serviceDescriptor.verb.isEmpty()) return PsiReference.EMPTY_ARRAY;
+        ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(serviceCallStr);
+        if (serviceDescriptor.getVerb().isEmpty()) return PsiReference.EMPTY_ARRAY;
 //        ServiceDescriptor serviceDescriptor = optServiceDescripter.get();
 
         Optional<Service> optService = getServiceOrInterfaceByFullName(project,serviceCallStr);
@@ -656,27 +432,27 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
         List<PsiReference> resultList = new ArrayList<>();
         //创建verb的reference
-        final int verbIndex = serviceCallStr.indexOf(serviceDescriptor.verb+"#");
+        final int verbIndex = serviceCallStr.indexOf(serviceDescriptor.getVerb()+"#");
         final int verbStartOffset = startOffset+verbIndex;
 
         resultList.add(new PsiRef(element,
-                new TextRange(verbStartOffset, verbStartOffset+ serviceDescriptor.verb.length()),
+                new TextRange(verbStartOffset, verbStartOffset+ serviceDescriptor.getVerb().length()),
                 service.getVerb().getXmlAttributeValue()));
 
         //创建侬noun的reference
-        final int nounIndex = serviceCallStr.indexOf("#" + serviceDescriptor.noun);
+        final int nounIndex = serviceCallStr.indexOf("#" + serviceDescriptor.getNoun());
         final int nounStartOffset = startOffset + nounIndex+1;
         resultList.add(new PsiRef(element,
-                new TextRange(nounStartOffset, nounStartOffset+ serviceDescriptor.noun.length()),
+                new TextRange(nounStartOffset, nounStartOffset+ serviceDescriptor.getNoun().length()),
                 service.getNoun().getXmlAttributeValue()));
 
         //对文件名创建reference
-        final int fileNameIndex = serviceDescriptor.className.lastIndexOf(".");
+        final int fileNameIndex = serviceDescriptor.getClassName().lastIndexOf(".");
         String fileName;
         if(fileNameIndex<0) {
-            fileName = serviceDescriptor.className;
+            fileName = serviceDescriptor.getClassName();
         }else {
-            fileName = serviceDescriptor.className.substring(fileNameIndex + 1);
+            fileName = serviceDescriptor.getClassName().substring(fileNameIndex + 1);
         }
         final int fileNameStartOffset = startOffset + fileNameIndex+1;
         resultList.add(new PsiRef(element,
@@ -685,7 +461,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
         //针对上级目录进行处理
         if(fileNameIndex>0) {
-            String path = serviceDescriptor.className.substring(0,fileNameIndex);
+            String path = serviceDescriptor.getClassName().substring(0,fileNameIndex);
             PsiDirectory psiPath = service.getXmlTag().getContainingFile().getContainingDirectory();
             int pathDotIndex;
             int pathStartOffset;
@@ -714,4 +490,126 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
     }
 
+    /**
+     * 将ServiceCall所在的PsiElement的Text进行匹配，以便在创建PsiReference时使用
+     * @param project 所在project
+     * @param element 待处理的PsiElement
+     * @return List<Pair<TextRange,PsiElement>>
+     */
+    public static  @NotNull List<Pair<TextRange,PsiElement>> createServiceCallReferences(@NotNull Project project, @NotNull PsiElement element) {
+
+        List<Pair<TextRange,PsiElement>> resultArray = new ArrayList<>();
+        BeginAndEndCharPattern elementTextPattern = BeginAndEndCharPattern.of(element);
+        if(elementTextPattern.getContent().isEmpty())return resultArray;
+
+        ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(elementTextPattern.getContent());
+
+        if (serviceDescriptor.getVerb().isEmpty()) return resultArray;
+//        ServiceDescriptor serviceDescriptor = optServiceDescripter.get();
+
+        Map<TextRange,PsiElement> resultItem;
+        TextRange tmpRange;
+        PsiElement tmpElement;
+        int tmpStartOffset;
+        int tmpEndOffset;
+
+
+        if(serviceDescriptor.isCRUD()) {
+            Optional<Entity> entityOptional;
+            entityOptional = EntityUtils.getEntityByName(project, serviceDescriptor.getNoun());
+
+            if(entityOptional.isPresent()) {
+                EntityNameDescriptor entityNameDescriptor = EntityNameDescriptor.of(serviceDescriptor.getNoun());
+                //entity name
+                tmpElement = MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getEntityName().getXmlAttributeValue()).orElse(null);
+
+                if(tmpElement != null){
+                    tmpStartOffset = elementTextPattern.getBeginChar().length()+ serviceDescriptor.getNounIndex()+entityNameDescriptor.getEntityNameIndex();
+                    tmpEndOffset = tmpStartOffset + entityNameDescriptor.getEntityName().length();
+                    tmpRange = new TextRange(tmpStartOffset,tmpEndOffset);
+
+                    resultArray.add(new Pair<>(tmpRange,tmpElement));
+                }
+
+                //entity package
+                tmpElement = MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getPackage().getXmlAttributeValue()).orElse(null);
+                if(tmpElement != null) {
+                    tmpStartOffset = elementTextPattern.getBeginChar().length()+ serviceDescriptor.getNounIndex();
+                    tmpEndOffset = tmpStartOffset + entityNameDescriptor.getPackageName().length();
+
+                    tmpRange = new TextRange(tmpStartOffset,tmpEndOffset);
+
+                    resultArray.add(new Pair<>(tmpRange, tmpElement));
+                }
+
+            }
+        }else {
+            Optional<Service> serviceOptional = ServiceUtils.getServiceByFullName(project,serviceDescriptor.getServiceCallString());
+            if(serviceOptional.isPresent()) {
+                //noun
+                if(serviceDescriptor.hasNoun()) {
+                    tmpElement = MyDomUtils.getPsiElementFromAttributeValue(serviceOptional.get().getNoun().getXmlAttributeValue()).orElse(null);
+                    if (tmpElement != null) {
+                        tmpStartOffset = elementTextPattern.getBeginChar().length() + serviceDescriptor.getNounIndex();
+                        tmpEndOffset = tmpStartOffset + serviceDescriptor.getNoun().length();
+
+                        resultArray.add(new Pair<>(new TextRange(tmpStartOffset, tmpEndOffset), tmpElement));
+                    }
+                }
+                //verb
+                tmpElement = MyDomUtils.getPsiElementFromAttributeValue(serviceOptional.get().getVerb().getXmlAttributeValue()).orElse(null);
+                if(tmpElement !=null) {
+                    tmpStartOffset = elementTextPattern.getBeginChar().length() + serviceDescriptor.getVerbIndex();
+                    tmpEndOffset = tmpStartOffset + serviceDescriptor.getVerb().length();
+
+                    resultArray.add(new Pair<>(new TextRange(tmpStartOffset,tmpEndOffset), tmpElement));
+                }
+                //package
+                //对文件名创建reference
+                final int fileNameIndex = serviceDescriptor.getClassName().lastIndexOf(".");
+                String fileName;
+                if(fileNameIndex<0) {
+                    fileName = serviceDescriptor.getClassName();
+                }else {
+                    fileName = serviceDescriptor.getClassName().substring(fileNameIndex + 1);
+                }
+                tmpStartOffset = elementTextPattern.getBeginChar().length() + fileNameIndex + 1;
+                tmpEndOffset = tmpStartOffset + fileName.length();
+                if(serviceOptional.get().getXmlTag() !=null)
+                    resultArray.add(new Pair<>(new TextRange(tmpStartOffset,tmpEndOffset), serviceOptional.get().getXmlTag().getContainingFile()));
+
+                //针对上级目录进行处理
+                if(fileNameIndex>0) {
+                    String path = serviceDescriptor.getClassName().substring(0,fileNameIndex);
+                    PsiDirectory psiPath = serviceOptional.get().getXmlTag().getContainingFile().getContainingDirectory();
+                    int pathDotIndex;
+                    int pathStartOffset;
+                    String tmpPath;
+                    while(!path.isEmpty()) {
+                        pathDotIndex = path.lastIndexOf(".");
+                        pathStartOffset = elementTextPattern.getBeginChar().length() + pathDotIndex + 1;
+                        if (pathDotIndex<0) {
+                            tmpPath = path;
+                            path = MyStringUtils.EMPTY_STRING;
+                        }else {
+                            tmpPath = path.substring(pathDotIndex+1);
+                            path = path.substring(0,pathDotIndex);
+                        }
+
+                        if(psiPath != null) {
+                            resultArray.add(new Pair<>(new TextRange(pathStartOffset, pathStartOffset + tmpPath.length()), psiPath));
+                            psiPath = psiPath.getParent();
+                        }
+                    }
+                }
+
+
+            }
+        }
+        return resultArray;
+
+    }
 }
+
+
+
