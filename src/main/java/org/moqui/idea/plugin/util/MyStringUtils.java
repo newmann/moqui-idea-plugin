@@ -9,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.intellij.codeInsight.completion.CompletionUtil.DUMMY_IDENTIFIER;
@@ -27,6 +29,8 @@ public final class MyStringUtils {
 
     public static final String COMPONENT_PATH_TAG = "/runtime/component/";
     public static final String BASE_COMPONENT_PATH_TAG = "/runtime/base-component/";
+    public static final String FRAMEWORK_PATH_TAG = "/framework/";
+    public static final String FRAMEWORK_COMPONENT_NAME = "framework";
     public static final String TRANSITION_NAME_REGEXP = "^[a-z][a-zA-Z0-9_-]*$";
     public static final String SCREEN_FILE_PATH_REGEXP = "(?:(?:\\.\\./)+)?[A-Z][a-zA-Z0-9_/-]+|\\.|\\.\\.";
     public static final String CONTAIN_VARIABLE_REGEXP =".*(\\$\\{)[a-zA-Z0-9_\\-\\.](\\}).*";
@@ -225,5 +229,28 @@ public final class MyStringUtils {
                 .replaceAll(">","&gt;");
     }
 
+    public static String cleanStringForQuickDocumentation(@NotNull String content){
+        Pattern pattern = Pattern.compile("^\\s*");
+        char separator = '\n';
+
+        String[] lines = content.replace("\t","  ").split("\\r?\\n");
+        //计算最小的前置空白字符
+        int minCount = Integer.MAX_VALUE;
+        for(String line:lines) {
+            if(!line.trim().isEmpty()) {
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.find()) {
+                    if (matcher.end() < minCount) minCount = matcher.end();
+                }
+            }
+        }
+        StringBuilder builder = new StringBuilder();
+        for(String line:lines) {
+            if(!line.trim().isEmpty()) {
+                builder.append(line.substring(minCount)).append(separator);
+            }
+        }
+        return builder.toString();
+    }
 
 }

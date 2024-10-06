@@ -15,26 +15,26 @@ import org.moqui.idea.plugin.util.*;
 
 import java.util.*;
 
-public class ServiceCallReference extends PsiReferenceBase<PsiElement> {
+public class ServiceCallReference extends PsiReferenceBase.Immediate<PsiElement> {
   public static ServiceCallReference of(@NotNull PsiElement element, TextRange textRange, PsiElement resolveElement){
     return new ServiceCallReference(element, textRange,resolveElement);
   }
 
   private final Logger logger = Logger.getInstance(ServiceCallReference.class);
 
-    private PsiElement myResolve;
+//    private PsiElement myResolve;
 
   public ServiceCallReference(@NotNull PsiElement element, TextRange textRange,PsiElement resolveElement) {
-    super(element, textRange);
-    myResolve = resolveElement;
+    super(element, textRange,resolveElement);
+//    myResolve = resolveElement;
   }
 
-
-  @Nullable
-  @Override
-  public PsiElement resolve() {
-    return myResolve;
-  }
+//
+//  @Nullable
+//  @Override
+//  public PsiElement resolve() {
+//    return myResolve;
+//  }
 
   @Override
   public  @NotNull  Object[] getVariants() {
@@ -51,7 +51,7 @@ public class ServiceCallReference extends PsiReferenceBase<PsiElement> {
     List<LookupElement> result = new ArrayList<>();
     int hashIndex = inputStr.indexOf(ServiceUtils.SERVICE_NAME_HASH);
     String[] hashSplit = inputStr.split(ServiceUtils.SERVICE_NAME_HASH);
-    String lastChar = inputStr.substring(inputStr.length()-1);
+
 
     if(hashIndex >= 0) {
       //#存在，需要进行进一步判断

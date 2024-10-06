@@ -42,11 +42,11 @@ class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
     override fun acceptsFile(file: PsiFile): Boolean = MyDomUtils.isMoquiXmFile(file);
 
     override fun getHint(element: PsiElement, file: PsiFile): String? {
-        return getVisionInfo(element,file)?.text;
+        return getVisionInfo(element)?.text;
     }
 
 
-    fun getVisionInfo(element: PsiElement, file: PsiFile): CodeVisionInfo? {
+    fun getVisionInfo(element: PsiElement): CodeVisionInfo? {
         if(element is XmlTag) {
             val totalUsageCount = findReferences(getXmlAttributeValue(element))
             return CodeVisionInfo(JavaBundle.message("usages.telescope", totalUsageCount), totalUsageCount) //todo 如何合并JavaBundle

@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
+import org.moqui.idea.plugin.dom.converter.EntityNameReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.EntityPresentationProvider;
 
 import java.util.List;
@@ -39,7 +39,8 @@ public interface Entity extends AbstractEntity {
 
     @NotNull
     @Attribute(ATTR_NAME)
-    @Convert(EntityFullNameConverter.class)
+//    @Convert(EntityFullNameConverter.class)
+    @Referencing(EntityNameReferenceConverter.class)
     GenericAttributeValue<String> getName();
     public static final String ATTR_MasterName = "masterName";
     @NotNull

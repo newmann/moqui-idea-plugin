@@ -1,16 +1,15 @@
 package org.moqui.idea.plugin.dom.description;
 
-import com.intellij.util.xml.highlighting.DomElementsAnnotator;
-import icons.MoquiIcons;
-import org.moqui.idea.plugin.annotator.ServicesDomAnnotator;
-import org.moqui.idea.plugin.dom.model.Services;
-import org.moqui.idea.plugin.icon.MyIcons;
-import org.moqui.idea.plugin.util.ServiceUtils;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomFileDescription;
+import com.intellij.util.xml.highlighting.DomElementsAnnotator;
+import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.annotator.MoquiDomAnnotator;
+import org.moqui.idea.plugin.dom.model.Services;
+import org.moqui.idea.plugin.util.ServiceUtils;
 
 import javax.swing.*;
 
@@ -39,8 +38,5 @@ public class ServicesDescription extends DomFileDescription<Services> {
         return ServiceUtils.isServicesFile(file);
     }
 
-//    @Override
-//    public @Nullable DomElementsAnnotator createAnnotator() {
-//        return new ServicesDomAnnotator();
-//    }
+
 }

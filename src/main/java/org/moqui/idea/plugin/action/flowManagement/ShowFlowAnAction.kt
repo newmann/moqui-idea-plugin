@@ -36,11 +36,11 @@ class ShowFlowAnAction: AnAction() {
 
         val service = MyDomUtils.getLocalDomElementByPsiElement(psiElement,Service::class.java)
         if(service.isPresent) {
-            showFlowFrame(project,service.get())
+            showFlowFrame(service.get())
         }else {
             val actions = MyDomUtils.getLocalDomElementByPsiElement(psiElement,Actions::class.java)
             if(actions.isPresent) {
-                showFlowFrame(project,actions.get())
+                showFlowFrame(actions.get())
             }
         }
 

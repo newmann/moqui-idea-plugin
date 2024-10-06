@@ -36,11 +36,11 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
         return MyBundle.message("inspection.MoquiDomCheckResole");
     }
 
-    private static boolean isElementInsideManagedFile(GenericDomValue value) {
+    private static boolean isElementInsideManagedFile(GenericDomValue<?> value) {
         XmlFile xmlFile = DomUtil.getFile(value);
-        if (xmlFile == null) {
-            return false;
-        }
+//        if (xmlFile == null) {
+//            return false;
+//        }
         return EntityUtils.isEntitiesFile(xmlFile)
                 || ServiceUtils.isServicesFile(xmlFile)
                 || ScreenUtils.isScreenFile(xmlFile)
@@ -68,9 +68,46 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
     protected void checkDomElement(@NotNull DomElement element, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
 //        checkMultipleFields(element, holder, helper);
 
-        checkLocation(element,holder,helper);
+        LocationUtils.inspectLocationFromDomElement(element,holder);
 
-        super.checkDomElement(element, holder, helper);
+        if (element instanceof ServiceCall serviceCall) {
+            ServiceUtils.inspectServiceCallFromAttribute(serviceCall.getName(), holder);
+            return;
+        }
+
+        if ((element instanceof Relationship relationship)) {
+
+            EntityUtils.inspectEntityFromAttribute(relationship.getRelated(),holder);
+            return;
+        }
+
+        if ((element instanceof MemberEntity memberEntity)) {
+            EntityUtils.inspectEntityFromAttribute(memberEntity.getEntityName(),holder);
+            return;
+        }
+
+        if(element instanceof ExtendEntity extendEntity) {
+            EntityUtils.inspectExtendEntity(extendEntity, holder);
+            return;
+        }
+        if ((element instanceof Eeca eeca)) {
+            EntityUtils.inspectEntityFromAttribute(eeca.getEntity(),holder);
+            return;
+        }
+
+        if ((element instanceof AbstractEntityName abstractEntityName)) {
+            EntityUtils.inspectEntityFromAttribute(abstractEntityName.getEntityName(),holder);
+            return;
+        }
+        if(element instanceof TransitionInclude transitionInclude) {
+            ScreenUtils.inspectTransitionInclude(transitionInclude, holder);
+            return;
+        }
+
+        if ((element instanceof Seca seca)) {
+            ServiceUtils.inspectServiceCallFromAttribute(seca.getService(), holder);
+        }
+//        super.checkDomElement(element, holder, helper);
     }
 
     /**
@@ -189,88 +226,5 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
 
     }
 
-    /**
-     * 对location进行检查
-     * AbstractLocation：
-     *  widget-template-include（location）、transition-include（location）、screen（location）
-     *  subscreen-item（location）、section-include ( location  )、text （location）
-     *
-     *  AbStractForm：
-     *  form-single (extends)、form-list （extends）
-     *
-     * @param element
-     * @param holder
-     * @param helper
-     */
-    private void checkLocation(@NotNull DomElement element, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
-        String location = MyStringUtils.EMPTY_STRING;
-        GenericAttributeValue<String> attributeValue;
-        if (!(element instanceof AbstractLocation abstractLocation)) {
-            return;
-        }
-
-        attributeValue = abstractLocation.getLocation();
-        location = MyDomUtils.getXmlAttributeValueString(attributeValue).orElse(MyStringUtils.EMPTY_STRING);
-
-        if(element instanceof AbstractForm abstractForm) {
-            location = MyDomUtils.getXmlAttributeValueString(abstractForm.getExtends()).orElse(MyStringUtils.EMPTY_STRING);
-        }
-        LocationUtils.LocationDescriptor locationDescriptor = new LocationUtils.LocationDescriptor(location);
-
-        if(locationDescriptor.isEmpty()) return;
-
-        //ToDo：如果location中包含${,则表示是动态内容，无法处理
-        if(locationDescriptor.isVariable()) return;
-
-
-        PsiFile psiFile = null;
-        if(MyStringUtils.isEmpty(locationDescriptor.getFilePath())) {
-            //检查本文中的定义
-            if(locationDescriptor.isContent()) {
-                psiFile = element.getXmlElement().getContainingFile();
-            }
-
-        }else {
-            //查找对应的文件
-            psiFile = MyDomUtils.getFileFromLocation(element.getXmlElement().getProject(),
-                    locationDescriptor.getFilePath()).orElse(null);
-            if (psiFile == null) {
-                holder.createProblem(attributeValue, ProblemHighlightType.ERROR, "没有找到文件：" + locationDescriptor.getFilePath(),
-                        TextRange.from(1, locationDescriptor.getFilePath().length()));
-                return;
-            }
-        }
-        if(locationDescriptor.isContent() && (psiFile != null) ) {
-            boolean targetNotExist = false;
-            if(element instanceof WidgetTemplateInclude) {
-                WidgetTemplate widgetTemplate = WidgetTemplateUtils.getWidgetTemplateFromFileByName(psiFile, locationDescriptor.getContentName())
-                        .orElse(null);
-                targetNotExist = (widgetTemplate == null);
-            }
-            if(element instanceof FormSingle ) {
-                FormSingle formSingle = ScreenUtils.getFormSingleFromScreenFileByName(psiFile, locationDescriptor.getContentName())
-                        .orElse(null);
-                targetNotExist = (formSingle == null);
-            }
-            if(element instanceof FormList ) {
-                FormList formList = ScreenUtils.getFormListFromScreenFileByName(psiFile, locationDescriptor.getContentName())
-                        .orElse(null);
-                targetNotExist = (formList == null);
-            }
-            if(targetNotExist) {
-                String errMsg;
-                if(MyStringUtils.isNotEmpty(locationDescriptor.getFilePath())) {
-                    errMsg = "在文件[" + locationDescriptor.getFilePath() + "]中没有找到[" + locationDescriptor.getContentName() + "]的定义";
-                }else {
-                    errMsg = "在当前文件中没有找到[" + locationDescriptor.getContentName() + "]的定义";
-                }
-
-                holder.createProblem(attributeValue, ProblemHighlightType.ERROR,
-                        errMsg,
-                        TextRange.from(locationDescriptor.getContentStartIndex()+1, locationDescriptor.getContentName().length()));
-            }
-        }
-
-    }
 }
 

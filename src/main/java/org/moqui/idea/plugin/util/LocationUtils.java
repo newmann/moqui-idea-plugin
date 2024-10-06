@@ -1,5 +1,8 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.lang.annotation.AnnotationHolder;
+import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -7,8 +10,13 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.util.xml.ConvertContext;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.GenericDomValue;
+import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
+import com.intellij.util.xml.highlighting.DomHighlightingHelper;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.PsiRef;
@@ -22,11 +30,18 @@ import java.util.Optional;
  * 处理moqui中文件路径和文件的专用类
  */
 public final class LocationUtils {
+    public static final String PATH_SEPARATOR = "/";
     private LocationUtils() {
         throw new UnsupportedOperationException();
     }
 
+    public static final List<String> TAG_NAME_MUST_HAVE_LOCATION = List.of(
+            IncludeScreen.TAG_NAME,SectionInclude.TAG_NAME,ServiceInclude.TAG_NAME,TransitionInclude.TAG_NAME,
+            WidgetTemplateInclude.TAG_NAME
+    );
+
     public static final class MoquiFile{
+
         private final PsiFile containingFile;
         private final String path;//和idea中定义一样，含路径和名称
         private final String containingPath;//文件所在的最后一级路径
@@ -36,7 +51,7 @@ public final class LocationUtils {
 
         private final String fileFullName;//文件全称，含文件名和扩展名
 
-        private final String componentName;//所在Component名称
+        private String componentName;//所在Component名称
         private Boolean isComponentFile = false;
         private Boolean isFrameworkFile = false;
 
@@ -48,7 +63,7 @@ public final class LocationUtils {
             VirtualFile file = containingFile.getVirtualFile();
             this.path = file.getPath();
             this.fileFullName = file.getName();
-            int index = this.path.lastIndexOf("/");
+            int index = this.path.lastIndexOf(PATH_SEPARATOR);
             if(index < 0) {
                 this.containingPath = MyStringUtils.EMPTY_STRING;
             }else {
@@ -66,29 +81,41 @@ public final class LocationUtils {
             // /runtime/base-component 表示基础component
             // /runtime/component 表示普通的component
 
-            String[] splits = this.path.split("/runtime/component/");
-            if(splits.length != 2) {
-                splits = this.path.split("/runtime/base-component/");
-            }
-            if(splits.length == 2) {
-                index = splits[1].indexOf("/");
-                if (index > 0) {
-                    this.componentName = splits[1].substring(0, index);
-                }else {
-                    this.componentName = splits[1];
-                }
-                isComponentFile = true;
-            }else {
-                this.componentName = MyStringUtils.EMPTY_STRING;
+            this.componentName = ComponentUtils.getComponentNameFromPath(this.path).orElse(MyStringUtils.EMPTY_STRING);
+            if(this.componentName.isEmpty()) {
                 isComponentFile = false;
-                //判断是否在framework下面
-                isFrameworkFile = this.path.contains("/framework/");
+                isFrameworkFile = false;
+            }else if(this.componentName.equals(MyStringUtils.FRAMEWORK_COMPONENT_NAME)) {
+                isComponentFile = false;
+                this.componentName = MyStringUtils.EMPTY_STRING;
+                isFrameworkFile = true;
+            }else {
+                isComponentFile = true;
+                isFrameworkFile = false;
             }
+//            String[] splits = this.path.split("/runtime/component/");
+//            if(splits.length != 2) {
+//                splits = this.path.split("/runtime/base-component/");
+//            }
+//            if(splits.length == 2) {
+//                index = splits[1].indexOf(PATH_SEPARATOR);
+//                if (index > 0) {
+//                    this.componentName = splits[1].substring(0, index);
+//                }else {
+//                    this.componentName = splits[1];
+//                }
+//                isComponentFile = true;
+//            }else {
+//                this.componentName = MyStringUtils.EMPTY_STRING;
+//                isComponentFile = false;
+//                //判断是否在framework下面
+//                isFrameworkFile = this.path.contains(MyStringUtils.FRAMEWORK_PATH_TAG);
+//            }
 
 
         }
         public String getContainingSubScreensPath(){
-            return this.containingPath +"/" + this.fileName;
+            return this.containingPath +PATH_SEPARATOR + this.fileName;
         }
 
         public String getFileName() {
@@ -224,10 +251,10 @@ public final class LocationUtils {
             if(tmpIndex > 0) {
                 tmpString = currentFilePathName.substring(0,tmpIndex);
             }
-            this.pathNameArray = tmpString.split("/");
+            this.pathNameArray = tmpString.split(PATH_SEPARATOR);
             ArrayList<String> targetFileArray = new ArrayList<>(Arrays.asList(this.pathNameArray));
 
-            String[] relativeFileArray = this.location.split("/");
+            String[] relativeFileArray = this.location.split(PATH_SEPARATOR);
             for (String s : relativeFileArray) {
                 if (s.equals(".")) {
                     continue;
@@ -244,7 +271,7 @@ public final class LocationUtils {
             }
             //组合目标文件名称，将第一个去掉，因为在window和linux上对盘符的处理不同，
             targetFileArray.remove(0);
-            String targetName = String.join("/", targetFileArray)+".xml";
+            String targetName = String.join(PATH_SEPARATOR, targetFileArray)+".xml";
 
             //获取psifile
             Optional<PsiFile> fileOptional = MyDomUtils.getFileFromLocation(project,targetName);
@@ -357,7 +384,7 @@ public final class LocationUtils {
           */
          public  @NotNull PsiReference[] createAbsoluteUrlPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context) {
              //将开头的两个"//"字符剔除
-             String[] pathArray = location.substring(2).split("/");
+             String[] pathArray = location.substring(2).split(PATH_SEPARATOR);
 
 
             return PsiReference.EMPTY_ARRAY;
@@ -540,6 +567,8 @@ public final class LocationUtils {
                 if(attributeName.equals(AttListResponse.ATTR_URL)
                 ) {
                     //为URL的相对路径
+                    if(element.getContainingFile().getVirtualFile() == null) return PsiReference.EMPTY_ARRAY;
+
                     Optional<PsiFile> file = location.getRelativeFile(element.getContainingFile().getVirtualFile().getPath());
                     return file.map(psiFile -> createFilePsiReference(url, element, psiFile)).orElse(PsiReference.EMPTY_ARRAY);
                 }
@@ -574,7 +603,7 @@ public final class LocationUtils {
         //Transition，defaultResponse（url）
 
 
-        int startIndex = attributeString.lastIndexOf("/");
+        int startIndex = attributeString.lastIndexOf(PATH_SEPARATOR);
         if(startIndex<0) {
             //沒有其他的目录
             result.add(new PsiRef(element,
@@ -635,6 +664,185 @@ public final class LocationUtils {
                     }
                 });
         return result;
+
+    }
+    /**
+     * 对location进行检查
+     * AbstractLocation：
+     *  widget-template-include（location）、transition-include（location）、screen（location）
+     *  subscreen-item（location）、section-include ( location  )、text （location）
+     *
+     *  AbStractForm：
+     *  form-single (extends)、form-list （extends）
+     *
+     * @param element
+     * @param holder
+     */
+    public static void inspectLocationFromDomElement(@NotNull DomElement element, @NotNull AnnotationHolder holder) {
+        if (!(element instanceof AbstractLocation abstractLocation)) {
+            return;
+        }
+        if(element.getXmlElement() == null) return;
+
+        String location;
+        XmlAttributeValue attributeLocation;
+
+        attributeLocation = abstractLocation.getLocation().getXmlAttributeValue();
+
+        location = MyDomUtils.getXmlAttributeValueString(attributeLocation).orElse(MyStringUtils.EMPTY_STRING);
+
+        if(element instanceof AbstractForm abstractForm) {
+            location = MyDomUtils.getXmlAttributeValueString(abstractForm.getExtends()).orElse(MyStringUtils.EMPTY_STRING);
+        }
+        LocationUtils.LocationDescriptor locationDescriptor = new LocationUtils.LocationDescriptor(location);
+
+        if(locationDescriptor.isEmpty()) {
+
+            //在DTD文件中定义了，不需要重复检查
+//            if(element.getXmlTag() == null) return;
+//
+//            if(TAG_NAME_MUST_HAVE_LOCATION.contains(element.getXmlTag().getName() )) {
+//                holder.newAnnotation(HighlightSeverity.ERROR, "需要定义location")
+//                        .range(element.getXmlElement().getTextRange())
+//                        .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+//                        .create();
+//                return;
+//            }
+
+            return;
+        }
+
+        //ToDo：如果location中包含${,则表示是动态内容，无法处理
+        if(locationDescriptor.isVariable()) return;
+        if(element.getXmlElement() == null) return;
+
+        PsiFile psiFile = null;
+        if(MyStringUtils.isEmpty(locationDescriptor.getFilePath())) {
+            //检查本文中的定义
+            if(locationDescriptor.isContent()) {
+                psiFile = element.getXmlElement().getContainingFile();
+            }
+
+        }else {
+            //查找对应的文件
+            psiFile = MyDomUtils.getFileFromLocation(element.getXmlElement().getProject(),
+                    locationDescriptor.getFilePath()).orElse(null);
+            if (psiFile == null) {
+//                holder.createProblem(attributeValue, ProblemHighlightType.ERROR, "没有找到文件：" + locationDescriptor.getFilePath(),
+//                        TextRange.from(1, locationDescriptor.getFilePath().length()));
+                holder.newAnnotation(HighlightSeverity.ERROR, "根据路径["+ locationDescriptor.getFilePath() +"]找不到对应的文件")
+                        .range(attributeLocation.getTextRange())
+                        .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        .create();
+                return;
+            }
+        }
+        if(locationDescriptor.isContent() && (psiFile != null) ) {
+            boolean targetNotExist = false;
+            if(element instanceof WidgetTemplateInclude) {
+                WidgetTemplate widgetTemplate = WidgetTemplateUtils.getWidgetTemplateFromFileByName(psiFile, locationDescriptor.getContentName())
+                        .orElse(null);
+                targetNotExist = (widgetTemplate == null);
+            }
+            if(element instanceof FormSingle ) {
+                FormSingle formSingle = ScreenUtils.getFormSingleFromScreenFileByName(psiFile, locationDescriptor.getContentName())
+                        .orElse(null);
+                targetNotExist = (formSingle == null);
+            }
+            if(element instanceof FormList ) {
+                FormList formList = ScreenUtils.getFormListFromScreenFileByName(psiFile, locationDescriptor.getContentName())
+                        .orElse(null);
+                targetNotExist = (formList == null);
+            }
+            if(targetNotExist) {
+                String errMsg;
+                if(MyStringUtils.isNotEmpty(locationDescriptor.getFilePath())) {
+                    errMsg = "在文件[" + locationDescriptor.getFilePath() + "]中没有找到[" + locationDescriptor.getContentName() + "]的定义";
+                }else {
+                    errMsg = "在当前文件中没有找到[" + locationDescriptor.getContentName() + "]的定义";
+                }
+
+//                holder.createProblem(attributeValue, ProblemHighlightType.ERROR,
+//                        errMsg,
+//                        TextRange.from(locationDescriptor.getContentStartIndex()+1, locationDescriptor.getContentName().length()));
+                holder.newAnnotation(HighlightSeverity.ERROR, errMsg)
+                        .range(TextRange.from(locationDescriptor.getContentStartIndex()+1, locationDescriptor.getContentName().length()))
+                        .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        .create();
+            }
+        }
+
+    }
+
+    public static void inspectLocationFromDomElement(@NotNull DomElement element, @NotNull DomElementAnnotationHolder holder) {
+        if (!(element instanceof AbstractLocation abstractLocation)) {
+            return;
+        }
+
+        String location;
+        GenericAttributeValue<String> attributeValue;
+
+        attributeValue = abstractLocation.getLocation();
+        location = MyDomUtils.getXmlAttributeValueString(attributeValue).orElse(MyStringUtils.EMPTY_STRING);
+
+        if(element instanceof AbstractForm abstractForm) {
+            location = MyDomUtils.getXmlAttributeValueString(abstractForm.getExtends()).orElse(MyStringUtils.EMPTY_STRING);
+        }
+        LocationUtils.LocationDescriptor locationDescriptor = new LocationUtils.LocationDescriptor(location);
+
+        if(locationDescriptor.isEmpty()) return;
+
+        //ToDo：如果location中包含${,则表示是动态内容，无法处理
+        if(locationDescriptor.isVariable()) return;
+        if(element.getXmlElement() == null) return;
+
+        PsiFile psiFile = null;
+        if(MyStringUtils.isEmpty(locationDescriptor.getFilePath())) {
+            //检查本文中的定义
+            if(locationDescriptor.isContent()) {
+                psiFile = element.getXmlElement().getContainingFile();
+            }
+
+        }else {
+            //查找对应的文件
+            psiFile = MyDomUtils.getFileFromLocation(element.getXmlElement().getProject(),
+                    locationDescriptor.getFilePath()).orElse(null);
+            if (psiFile == null) {
+                holder.createProblem(attributeValue, ProblemHighlightType.ERROR, "没有找到文件：" + locationDescriptor.getFilePath(),
+                        TextRange.from(1, locationDescriptor.getFilePath().length()));
+                return;
+            }
+        }
+        if(locationDescriptor.isContent() && (psiFile != null) ) {
+            boolean targetNotExist = false;
+            if(element instanceof WidgetTemplateInclude) {
+                WidgetTemplate widgetTemplate = WidgetTemplateUtils.getWidgetTemplateFromFileByName(psiFile, locationDescriptor.getContentName())
+                        .orElse(null);
+                targetNotExist = (widgetTemplate == null);
+            }
+            if(element instanceof FormSingle ) {
+                FormSingle formSingle = ScreenUtils.getFormSingleFromScreenFileByName(psiFile, locationDescriptor.getContentName())
+                        .orElse(null);
+                targetNotExist = (formSingle == null);
+            }
+            if(element instanceof FormList ) {
+                FormList formList = ScreenUtils.getFormListFromScreenFileByName(psiFile, locationDescriptor.getContentName())
+                        .orElse(null);
+                targetNotExist = (formList == null);
+            }
+            if(targetNotExist) {
+                String errMsg;
+                if(MyStringUtils.isNotEmpty(locationDescriptor.getFilePath())) {
+                    errMsg = "在文件[" + locationDescriptor.getFilePath() + "]中没有找到[" + locationDescriptor.getContentName() + "]的定义";
+                }else {
+                    errMsg = "在当前文件中没有找到[" + locationDescriptor.getContentName() + "]的定义";
+                }
+
+                holder.createProblem(attributeValue, ProblemHighlightType.ERROR,
+                        errMsg,
+                        TextRange.from(locationDescriptor.getContentStartIndex()+1, locationDescriptor.getContentName().length()));
+            }
+        }
 
     }
 

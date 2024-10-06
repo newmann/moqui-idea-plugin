@@ -74,9 +74,12 @@
       <dom.fileMetaData id="myPlugin.WidgetTemplatesDescription"
                         rootTagName="widget-templates"
                         implementation="org.moqui.idea.plugin.dom.description.WidgetTemplatesDescription"/>
+
       //2022-2024不同版本之间的API变化很大，同时用处也不低，暂时不起用
 <!--      <platform.backend.documentation.psiTargetProvider id="MoquiPsiDocumentationTargetProvider"-->
 <!--                                                        implementation="org.moqui.idea.plugin.quickDoc.MoquiPsiDocumentationTargetProvider"/>-->
+    <lang.documentationProvider language="XML" implementationClass="org.moqui.idea.plugin.quickDoc.QuickDocumentationProvider"/>
+    <lang.documentationProvider language="Groovy" implementationClass="org.moqui.idea.plugin.quickDoc.QuickDocumentationProvider"/>
 
       <lang.foldingBuilder language="XML"
                            implementationClass="org.moqui.idea.plugin.foldingBuilder.MoquiFoldingBuilder"/>
@@ -88,7 +91,8 @@
       <codeInsight.lineMarkerProvider id="myPlugin.XmlFileLineMarkerProvider" language="XML"
                                       implementationClass="org.moqui.idea.plugin.provider.FormFoldingLineMarkerProvider"/>
 
-<!--      <annotator language="XML" implementationClass="org.moqui.idea.plugin.annotator.EntityAnnotator"/>-->
+      <annotator language="Groovy" implementationClass="org.moqui.idea.plugin.annotator.GroovyAnnotator"/>
+      <annotator language="XML" implementationClass="org.moqui.idea.plugin.annotator.MoquiDomAnnotator"/>
 
 <!--  TODO:??? -->
 <!--      <definitionsScopedSearch id="myPlugin.EntitySearch"-->
@@ -101,8 +105,8 @@
 
 
 
-      <typedHandler implementation="org.moqui.idea.plugin.typedHandler.ServiceCallTypedHandler" id="myPlugin.ServiceCallTypedHandler"/>
-            <enterHandlerDelegate implementation="org.moqui.idea.plugin.typedHandler.MoquiEnterTypedHandler"/>
+    <typedHandler implementation="org.moqui.idea.plugin.typedHandler.ServiceCallTypedHandler" id="myPlugin.ServiceCallTypedHandler"/>
+    <enterHandlerDelegate implementation="org.moqui.idea.plugin.typedHandler.MoquiEnterTypedHandler"/>
 
 <!--      转跳 ctrl+click，ctrl+b-->
 <!--      <psi.referenceContributor id="myPlugin.EntityReferenceContributor" language="XML" order="first"-->
@@ -131,7 +135,7 @@
 <!--      <lookup.charFilter implementation="org.moqui.idea.plugin.contributor.MultiFieldCompletionCharFilter"-->
 <!--                         order="first" id="multiFieldCompletionCharFilter"/>-->
       <psi.referenceContributor language="Groovy" implementation="org.moqui.idea.plugin.contributor.GroovyCodeReferenceContributor"/>
-<!--      <completion.contributor order="first" language="Groovy" implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>-->
+
 
 <!--      <completion.contributor order="first" language="JAVA" implementationClass="org.moqui.idea.plugin.completion.contributor.JavaCompletionContributor"/>-->
 
@@ -173,10 +177,10 @@
 <!--                       enabledByDefault="true" level="ERROR"-->
 <!--                       implementationClass="org.moqui.idea.plugin.dom.inspection.EntitiesDomInspection"/>-->
       //这里的shortName需要和 MoquiDomCheckResoleInspection的getShortName返回值保持一致，否则报warning
-      <localInspection language="XML" shortName="MoquiDomCheckResoleInspection" bundle="messages.MoquiDomBundle" key="inspection.MoquiDomCheckResole"
-                             groupKey="inspection.group"
-                             enabledByDefault="true" level="ERROR"
-                             implementationClass="org.moqui.idea.plugin.dom.inspection.MoquiDomCheckResoleInspection"/>
+<!--      <localInspection language="XML" shortName="MoquiDomCheckResoleInspection" bundle="messages.MoquiDomBundle" key="inspection.MoquiDomCheckResole"-->
+<!--                             groupKey="inspection.group"-->
+<!--                             enabledByDefault="true" level="ERROR"-->
+<!--                             implementationClass="org.moqui.idea.plugin.dom.inspection.MoquiDomCheckResoleInspection"/>-->
 
       <standardResourceProvider implementation="org.moqui.idea.plugin.dom.xsd.MoquiXsdProvider"/>
 

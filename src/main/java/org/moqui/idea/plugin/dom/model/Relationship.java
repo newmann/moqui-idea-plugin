@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
+import org.moqui.idea.plugin.dom.converter.EntityNameReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.RelationshipPresentationProvider;
 
 import java.util.List;
@@ -25,7 +25,8 @@ public interface Relationship extends DomElement {
 
     @NotNull
     @Attribute(ATTR_RELATED)
-    @Convert(EntityFullNameConverter.class)
+//    @Convert(EntityNameConverter.class)
+    @Referencing(EntityNameReferenceConverter.class)
     GenericAttributeValue<String> getRelated();
     @NotNull
     @Attribute(ATTR_FK_NAME)

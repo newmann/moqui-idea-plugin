@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
+import org.moqui.idea.plugin.dom.converter.EntityNameReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.EecaPresentationProvider;
 
 @Presentation(icon = "MoquiIcons.EecaTag",provider = EecaPresentationProvider.class)
@@ -25,7 +25,8 @@ public interface Eeca extends DomElement {
 
     @NotNull
     @Attribute(ATTR_ENTITY)
-    @Convert(EntityFullNameConverter.class)
+//    @Convert(EntityFullNameConverter.class)
+    @Referencing(EntityNameReferenceConverter.class)
     GenericAttributeValue<String> getEntity();
 
     @NotNull

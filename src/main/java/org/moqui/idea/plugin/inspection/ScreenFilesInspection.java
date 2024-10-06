@@ -13,7 +13,6 @@ import org.moqui.idea.plugin.dom.model.EntityFindOne;
 import org.moqui.idea.plugin.dom.model.ServiceCall;
 import org.moqui.idea.plugin.dom.model.TransitionInclude;
 import org.moqui.idea.plugin.util.ScreenUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
 
 /**
  *
@@ -28,7 +27,7 @@ public class ScreenFilesInspection extends MoquiXmlFilesInspection {
 
     @Override
     protected void checkDomElement(@NotNull DomElement element, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
-        super.checkDomElement(element, holder, helper);
+//        super.checkDomElement(element, holder, helper);
         final Project project = element.getXmlElement().getProject();
         final PsiFile file = element.getXmlElement().getContainingFile();
         if(!ScreenUtils.isScreenFile(file)) return;
@@ -36,22 +35,22 @@ public class ScreenFilesInspection extends MoquiXmlFilesInspection {
 //        System.out.println(element.getClass().getName());
 
         if ((element instanceof ServiceCall serviceCall)) {
-            checkServiceCallTag(serviceCall,holder,helper);
+            checkServiceCallTag(serviceCall,holder);
             return;
         }
 
         if ((element instanceof EntityFindOne entityFindOne)) {
-            checkEntityFindOneTag(entityFindOne,holder,helper);
+            checkEntityFindOneTag(entityFindOne,holder);
             return;
         }
 
         if(element instanceof EntityFind entityFind) {
-            checkEntityFindTag(entityFind,holder,helper);
+            checkEntityFindTag(entityFind,holder);
             return;
         }
 
         if(element instanceof TransitionInclude transitionInclude) {
-            checkTransitionIncludeTag(transitionInclude,holder,helper);
+            checkTransitionIncludeTag(transitionInclude,holder);
             return;
         }
 

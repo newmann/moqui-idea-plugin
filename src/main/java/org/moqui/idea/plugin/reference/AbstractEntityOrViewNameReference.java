@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public class AbstractEntityOrViewNameReference extends PsiReferenceBase<PsiElement> {
+public class AbstractEntityOrViewNameReference extends PsiReferenceBase.Immediate<PsiElement> {
   public static AbstractEntityOrViewNameReference ofEntityNameReference(@NotNull PsiElement element, TextRange textRange, PsiElement resolve){
       return new AbstractEntityOrViewNameReference(element, textRange,EntityScope.ENTITY_ONLY,resolve);
   }
@@ -38,61 +38,17 @@ public class AbstractEntityOrViewNameReference extends PsiReferenceBase<PsiEleme
   }
 
   private final Logger LOG = Logger.getInstance(AbstractEntityOrViewNameReference.class);
-//  private final Optional<AbstractEntity> entityOptional;
-    private final String rangeString;
+
     private final EntityScope entityScope;
-    private final PsiElement myResolve;
-//  private final EntityUtils.EntityDescriptor entityDescriptor;
+
 
 
   public AbstractEntityOrViewNameReference(@NotNull PsiElement element, TextRange textRange, EntityScope entityScope, PsiElement resolve) {
-    super(element, textRange);
-      /**
-       * 包含包名的实体名
-       */
-      String entityName = getEntityName(element);
-    this.rangeString = textRange.substring(element.getText());
+    super(element, textRange,resolve);
+
     this.entityScope = entityScope;
-    this.myResolve = resolve;
-//    this.entityOptional = EntityUtils.getEntityOrViewEntityByName(element.getProject(), entityName);
 
-//    entityDescriptor = EntityUtils.getEntityDescriptorFromFullName(entityName);
   }
-
-  private String getEntityName(PsiElement element){
-    BeginAndEndCharPattern stringPattern = BeginAndEndCharPattern.of(element);
-//    String name = element.getText();
-//    if(name.charAt(0) == '"' || name.charAt(0)=='\'') name = name.substring(1);
-//    if(name.endsWith("\"")|| name.endsWith("'")) name = name.substring(0,name.length()-1);
-    return stringPattern.getContent();
-  }
-
-
-//  public  @NotNull ResolveResult[] multiResolve(boolean incompleteCode) {
-//    List<ResolveResult> resultArray = new ArrayList<>();
-//    if(entityOptional.isPresent()) {
-//
-//      if(rangeString.equals(entityOptional.get().getEntityName().getValue())) { //entity name matched
-//        if(entityOptional.get().getEntityName().getXmlAttributeValue()!=null) {
-//          resultArray.add(new PsiElementResolveResult(entityOptional.get().getEntityName().getXmlAttributeValue().getOriginalElement()));
-//        }
-//      }else { //package name matched
-//        if(entityOptional.get().getPackage().getXmlAttributeValue()!=null) {
-//          resultArray.add(new PsiElementResolveResult(entityOptional.get().getPackage().getXmlAttributeValue().getOriginalElement()));
-//        }
-//      }
-//    }
-//    return resultArray.toArray(new ResolveResult[0]);
-//  }
-
-  @Nullable
-  @Override
-  public PsiElement resolve() {
-    return myResolve;
-//    ResolveResult[] resolveResults = multiResolve(false);
-//    return resolveResults.length == 1 ? resolveResults[0].getElement() : null;
-  }
-
   @Override
   public  @NotNull  Object[] getVariants() {
 

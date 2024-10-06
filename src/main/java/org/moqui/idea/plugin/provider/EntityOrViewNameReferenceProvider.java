@@ -32,67 +32,69 @@ public class EntityOrViewNameReferenceProvider extends PsiReferenceProvider {
 
     @Override
     public @NotNull  PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
-        BeginAndEndCharPattern stringPattern = BeginAndEndCharPattern.of(psiElement);
-        if(stringPattern.getContent().isBlank()){
-//            logger.warn("EntityOrViewNameReferenceProvider->getReferencesByElement：is blank");
-            return new PsiReference[0];
-        }else {
-//            logger.warn("EntityOrViewNameReferenceProvider->getReferencesByElement：content is "+ stringPattern.getContent());
-            return createEntityNameReferences(psiElement.getProject(), psiElement, stringPattern.getContent(), stringPattern.getBeginChar().length());
-        }
+        return EntityUtils.createEntityOrViewNameReferences(psiElement.getProject(),psiElement,myEntityScope);
+
+//        BeginAndEndCharPattern stringPattern = BeginAndEndCharPattern.of(psiElement);
+//        if(stringPattern.getContent().isBlank()){
+////            logger.warn("EntityOrViewNameReferenceProvider->getReferencesByElement：is blank");
+//            return new PsiReference[0];
+//        }else {
+////            logger.warn("EntityOrViewNameReferenceProvider->getReferencesByElement：content is "+ stringPattern.getContent());
+//            return createEntityNameReferences(psiElement.getProject(), psiElement, stringPattern.getContent(), stringPattern.getBeginChar().length());
+//        }
     }
 
-    private @NotNull PsiReference[] createEntityNameReferences(@NotNull Project project, @NotNull PsiElement element, @NotNull String  entityName, @NotNull int startOffset) {
-        Optional<AbstractEntity> entityOptional = EntityUtils.getEntityOrViewEntityByName(project, entityName);
-
-        List<PsiReference> psiReferences = new ArrayList<>();
-        int lastDotIndex = entityName.lastIndexOf('.');
-
-        if(entityOptional.isPresent()) {
-            if(lastDotIndex >0) {
-
-                //package reference
-                psiReferences.add(createReference(element,
-                        new TextRange(startOffset,lastDotIndex + startOffset),
-                        MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getPackage().getXmlAttributeValue()).orElse(null))
-                );
-                //entityname reference
-                psiReferences.add(createReference(element,
-                        new TextRange(startOffset + lastDotIndex + 1,startOffset + entityName.length()),
-                        MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getEntityName().getXmlAttributeValue()).orElse(null))
-                );
-            }else {
-                //entityname reference
-                psiReferences.add(createReference(element,
-                        new TextRange(startOffset,startOffset + entityName.length()),
-                        MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getEntityName().getXmlAttributeValue()).orElse(null))
-                );
-
-            }
-
-        }else {
-            if (lastDotIndex <= 0) {
-                //没有含包名
-                psiReferences.add(createReference(element,
-                        new TextRange(startOffset,entityName.length() + startOffset),
-                        null));
-
-
-            } else {
-                psiReferences.add(createReference(element,
-                        new TextRange(startOffset + lastDotIndex + 1,entityName.length() + startOffset),
-                        null));
-
-            }
-        }
-        return psiReferences.toArray(new PsiReference[0]);
-    }
-
-    private PsiReference createReference(PsiElement element, TextRange textRange, PsiElement resolve){
-        return switch (myEntityScope) {
-            case ENTITY_ONLY -> AbstractEntityOrViewNameReference.ofEntityNameReference(element, textRange,resolve);
-            case VIEW_ONLY -> AbstractEntityOrViewNameReference.ofViewEntityNameReference(element, textRange,resolve);
-            case ENTITY_AND_VIEW -> AbstractEntityOrViewNameReference.ofEntityAndViewEntityNameReference(element, textRange,resolve);
-        };
-    }
+//    private @NotNull PsiReference[] createEntityNameReferences(@NotNull Project project, @NotNull PsiElement element, @NotNull String  entityName, @NotNull int startOffset) {
+//        Optional<AbstractEntity> entityOptional = EntityUtils.getEntityOrViewEntityByName(project, entityName);
+//
+//        List<PsiReference> psiReferences = new ArrayList<>();
+//        int lastDotIndex = entityName.lastIndexOf('.');
+//
+//        if(entityOptional.isPresent()) {
+//            if(lastDotIndex >0) {
+//
+//                //package reference
+//                psiReferences.add(createReference(element,
+//                        new TextRange(startOffset,lastDotIndex + startOffset),
+//                        MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getPackage().getXmlAttributeValue()).orElse(null))
+//                );
+//                //entityname reference
+//                psiReferences.add(createReference(element,
+//                        new TextRange(startOffset + lastDotIndex + 1,startOffset + entityName.length()),
+//                        MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getEntityName().getXmlAttributeValue()).orElse(null))
+//                );
+//            }else {
+//                //entityname reference
+//                psiReferences.add(createReference(element,
+//                        new TextRange(startOffset,startOffset + entityName.length()),
+//                        MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getEntityName().getXmlAttributeValue()).orElse(null))
+//                );
+//
+//            }
+//
+//        }else {
+//            if (lastDotIndex <= 0) {
+//                //没有含包名
+//                psiReferences.add(createReference(element,
+//                        new TextRange(startOffset,entityName.length() + startOffset),
+//                        null));
+//
+//
+//            } else {
+//                psiReferences.add(createReference(element,
+//                        new TextRange(startOffset + lastDotIndex + 1,entityName.length() + startOffset),
+//                        null));
+//
+//            }
+//        }
+//        return psiReferences.toArray(new PsiReference[0]);
+//    }
+//
+//    private PsiReference createReference(PsiElement element, TextRange textRange, PsiElement resolve){
+//        return switch (myEntityScope) {
+//            case ENTITY_ONLY -> AbstractEntityOrViewNameReference.ofEntityNameReference(element, textRange,resolve);
+//            case VIEW_ONLY -> AbstractEntityOrViewNameReference.ofViewEntityNameReference(element, textRange,resolve);
+//            case ENTITY_AND_VIEW -> AbstractEntityOrViewNameReference.ofEntityAndViewEntityNameReference(element, textRange,resolve);
+//        };
+//    }
 }

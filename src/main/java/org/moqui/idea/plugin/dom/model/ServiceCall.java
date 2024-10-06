@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.ServiceCallConverter;
+import org.moqui.idea.plugin.dom.converter.ServiceCallReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.ServiceCallPresentationProvider;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public interface ServiceCall extends DomElement {
     public static final String ATTR_OUT_MAP_ADD_TO_EXISTING = "out_map_add_to_existing";
     @NotNull
     @Attribute(ATTR_NAME)
-    @Convert(ServiceCallConverter.class)
+    @Referencing(ServiceCallReferenceConverter.class)
     GenericAttributeValue<String> getName();
 
     @NotNull

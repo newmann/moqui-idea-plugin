@@ -1,6 +1,5 @@
 package org.moqui.idea.plugin.action.flowManagement
 
-import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import org.jetbrains.annotations.NotNull
@@ -18,10 +17,10 @@ import javax.swing.JLabel
 /**
  * 创建Frame，并进行显示的相关初始化设置
  */
-fun showFlowFrame(@NotNull project: Project, @NotNull service: Service):Unit {
+fun showFlowFrame(@NotNull service: Service):Unit {
     showFrame(MyDomUtils.getValueOrEmptyString(service.name),FlowNodeModelBuilder.ofServiceModel(service))
 }
-fun showFlowFrame(@NotNull project: Project, @NotNull actions: Actions):Unit {
+fun showFlowFrame(@NotNull actions: Actions):Unit {
     showFrame("Actions Flow",FlowNodeModelBuilder.ofActionsModel(actions))
 }
 

@@ -1,5 +1,7 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
@@ -9,10 +11,10 @@ import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
-import com.intellij.util.xml.highlighting.DomHighlightingHelper;
 import icons.MoquiIcons;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.ServiceCallReference;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 import org.moqui.idea.plugin.service.ServicePsiElementService;
 import com.intellij.openapi.project.Project;
@@ -28,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByPsiElement;
-import static org.moqui.idea.plugin.util.MyStringUtils.camelToSlash;
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 
@@ -330,9 +331,8 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
      * 标准CRUD的命令是：update,delete,create
      * @param attributeValue
      * @param holder
-     * @param helper
      */
-    public static void inspectServiceCallFromAttribute(@NotNull GenericAttributeValue attributeValue, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
+    public static void inspectServiceCallFromAttribute(@NotNull GenericAttributeValue<String> attributeValue, @NotNull DomElementAnnotationHolder holder){
 
         XmlAttributeValue xmlAttributeValue = attributeValue.getXmlAttributeValue();
         if (xmlAttributeValue == null) { return;}
@@ -353,7 +353,6 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
             if(!(STANDARD_CRUD_COMMANDER.contains(serviceDescriptor.getVerb()))) {
                 holder.createProblem(attributeValue, HighlightSeverity.ERROR,
                         "The verb is not correctly,should use one of create/update/delete");
-
             }
 
             Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project,
@@ -376,7 +375,65 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         }
 
     }
+    public static void inspectServiceCallFromAttribute(@NotNull GenericAttributeValue<String> attributeValue, @NotNull AnnotationHolder holder) {
 
+        XmlAttributeValue xmlAttributeValue = attributeValue.getXmlAttributeValue();
+        if (xmlAttributeValue == null) { return;}
+
+        final String serviceCallName = attributeValue.getXmlAttributeValue().getValue();
+        final int serviceCallNameLength = attributeValue.getXmlAttributeValue().getValueTextRange().getLength();
+        final Project project =attributeValue.getXmlElement().getProject();
+        ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(serviceCallName);
+        if(serviceDescriptor.getVerb().isEmpty()) {
+//            holder.createProblem(attributeValue, HighlightSeverity.ERROR, "This is not a valid service call");
+            holder.newAnnotation(HighlightSeverity.ERROR, "This is not a valid service call")
+                    .range(xmlAttributeValue.getTextRange())
+                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                    .create();
+            return;
+        }
+
+//        Optional<String> optEntityName = EntityUtils.getEntityNameFromServiceCallName(serviceCallName);
+
+        if(serviceDescriptor.isCRUD() ) {
+
+            if(!(STANDARD_CRUD_COMMANDER.contains(serviceDescriptor.getVerb()))) {
+//                holder.createProblem(attributeValue, HighlightSeverity.ERROR,
+//                        "The verb is not correctly,should use one of create/update/delete");
+                holder.newAnnotation(HighlightSeverity.ERROR, "The verb is not correctly,should use one of create/update/delete")
+                        .range(xmlAttributeValue.getTextRange())
+                        .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        .create();
+            }
+
+            Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project,
+                    serviceDescriptor.getNoun());
+            final int index = serviceCallName.indexOf("#");
+            final int entityNameLength = serviceDescriptor.getNoun().length();
+
+
+            if (optionalXmlElement.isEmpty()) {
+//                holder.createProblem(attributeValue, HighlightSeverity.ERROR, "Missing attributeThe called Entity is not found",
+//                        TextRange.from(index+2,entityNameLength));
+                holder.newAnnotation(HighlightSeverity.ERROR, "Missing attributeThe called Entity is not found")
+                        .range(TextRange.from(index+2,entityNameLength))
+                        .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        .create();
+            }
+        }else {
+            Optional<Service> opService = ServiceUtils.getServiceByFullName(project, serviceCallName);
+
+            if (opService.isEmpty()) {
+//                holder.createProblem(attributeValue, HighlightSeverity.ERROR, "Called service is not found",
+//                        TextRange.from(1,serviceCallNameLength));
+                holder.newAnnotation(HighlightSeverity.ERROR, "Called service is not found")
+                        .range(TextRange.from(1,serviceCallNameLength))
+                        .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        .create();
+            }
+        }
+
+    }
     public static final Set<String> STANDARD_CRUD_COMMANDER =Set.of("create","update","delete","store");
     public static final Set<String> ORDER_BY_COMMANDER =Set.of("+","-","^");
     public static Optional<EntityFind> getCurrentEntityFind(@NotNull ConvertContext context){
@@ -489,6 +546,55 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         return resultList.toArray(new PsiReference[0]);
 
     }
+    /**
+     * 创建ServiceCall对应的ServiceCallReference
+     * @param project 所在project
+     * @param element 待处理的PsiElement
+     * @return PsiReference[]
+     */
+
+    public static   @NotNull PsiReference[] createServiceCallReferences(@NotNull Project project, @NotNull PsiElement element) {
+        BeginAndEndCharPattern stringPattern = BeginAndEndCharPattern.of(element);
+        List<PsiReference> psiReferences = new ArrayList<>();
+        int tmpStartOffset,tmpEndOffset;
+
+        if(stringPattern.getContent().isBlank()){
+            tmpStartOffset = stringPattern.getBeginChar().length();
+            tmpEndOffset = tmpStartOffset;
+            psiReferences.add(ServiceCallReference.of(element,
+                    new TextRange(tmpStartOffset,tmpEndOffset),null));//提供 code completion
+
+        }else {
+            List<Pair<TextRange,PsiElement>> textRangeList = createServiceCallReferencesResolve(element.getProject(),element);
+
+            textRangeList.forEach(item->{
+                psiReferences.add(ServiceCallReference.of(element,item.first,item.second));
+            });
+
+            if (psiReferences.isEmpty()) {
+
+                int lastDotIndex = stringPattern.getContent().lastIndexOf(SERVICE_NAME_DOT);
+                tmpEndOffset = stringPattern.getBeginChar().length() + stringPattern.getContent().length();
+
+                if(lastDotIndex>=0) {
+                    tmpStartOffset = lastDotIndex + stringPattern.getBeginChar().length()+1;
+                }else {
+                    int hashIndex = stringPattern.getContent().lastIndexOf(SERVICE_NAME_HASH);
+                    if (hashIndex>=0) {
+                        tmpStartOffset = hashIndex+ stringPattern.getBeginChar().length()+1;
+                    }else {
+                        tmpStartOffset = stringPattern.getBeginChar().length();
+                    }
+                }
+
+                psiReferences.add(ServiceCallReference.of(element,
+                        new TextRange(tmpStartOffset,tmpEndOffset),null));//提供 code completion
+            }
+
+        }
+        return psiReferences.toArray(new PsiReference[0]);
+
+    }
 
     /**
      * 将ServiceCall所在的PsiElement的Text进行匹配，以便在创建PsiReference时使用
@@ -496,7 +602,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
      * @param element 待处理的PsiElement
      * @return List<Pair<TextRange,PsiElement>>
      */
-    public static  @NotNull List<Pair<TextRange,PsiElement>> createServiceCallReferences(@NotNull Project project, @NotNull PsiElement element) {
+    public static  @NotNull List<Pair<TextRange,PsiElement>> createServiceCallReferencesResolve(@NotNull Project project, @NotNull PsiElement element) {
 
         List<Pair<TextRange,PsiElement>> resultArray = new ArrayList<>();
         BeginAndEndCharPattern elementTextPattern = BeginAndEndCharPattern.of(element);

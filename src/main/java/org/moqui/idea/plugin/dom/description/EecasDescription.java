@@ -1,6 +1,8 @@
 package org.moqui.idea.plugin.dom.description;
 
+import com.intellij.util.xml.highlighting.DomElementsAnnotator;
 import icons.MoquiIcons;
+import org.moqui.idea.plugin.annotator.MoquiDomAnnotator;
 import org.moqui.idea.plugin.dom.model.Eecas;
 import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.util.EecaUtils;

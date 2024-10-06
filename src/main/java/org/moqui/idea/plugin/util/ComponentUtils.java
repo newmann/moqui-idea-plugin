@@ -18,6 +18,7 @@ import java.util.*;
 
 
 public final class ComponentUtils {
+    public static String COMPONENT_LOCATION_PREFIX = "component://";
     private ComponentUtils() {
         throw new UnsupportedOperationException();
     }
@@ -54,6 +55,7 @@ public final class ComponentUtils {
      * @param element
      * @return
      */
+    @Deprecated
     public static String getComponentName(DomElement element){
 
         try {
@@ -72,6 +74,25 @@ public final class ComponentUtils {
             return null;
         }catch (NullPointerException ignored) {
             return null;
+        }
+
+    }
+    public static Optional<String> getComponentNameFromPath(@NotNull String path){
+        String[] splitArray;
+        if(path.contains(MyStringUtils.COMPONENT_PATH_TAG)) {
+            splitArray = path.split(MyStringUtils.COMPONENT_PATH_TAG);
+        }else if(path.contains(MyStringUtils.BASE_COMPONENT_PATH_TAG)) {
+            splitArray = path.split(MyStringUtils.BASE_COMPONENT_PATH_TAG);
+        }else if(path.contains(MyStringUtils.FRAMEWORK_PATH_TAG)) {
+            return Optional.of(MyStringUtils.FRAMEWORK_COMPONENT_NAME);
+        }else {
+            return Optional.empty();
+        }
+
+        if(splitArray.length == 2) {
+            return Optional.of(splitArray[1].split(LocationUtils.PATH_SEPARATOR)[0]);//取第一个“/”之前的内容，如果没有，则取全部
+        }else {
+            return Optional.empty();
         }
 
     }

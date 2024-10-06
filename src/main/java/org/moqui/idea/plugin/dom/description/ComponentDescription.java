@@ -3,9 +3,11 @@ package org.moqui.idea.plugin.dom.description;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomFileDescription;
+import com.intellij.util.xml.highlighting.DomElementsAnnotator;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.annotator.MoquiDomAnnotator;
 import org.moqui.idea.plugin.dom.model.Component;
 import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.util.ComponentUtils;
@@ -36,5 +38,6 @@ public class ComponentDescription extends DomFileDescription<Component> {
 //    protected void initializeFileDescription() {
 //        registerNamespacePolicy("EntitiesXml", "http://mybatis.org/dtd/mybatis-3-mapper.dtd");
 //    }
+
 
 }

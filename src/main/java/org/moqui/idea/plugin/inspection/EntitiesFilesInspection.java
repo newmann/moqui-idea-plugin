@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.inspection;
 
 import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlElement;
@@ -32,7 +31,7 @@ public class EntitiesFilesInspection extends MoquiXmlFilesInspection {
 
     @Override
     protected void checkDomElement(@NotNull DomElement element, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
-        super.checkDomElement(element, holder, helper);
+//        super.checkDomElement(element, holder, helper);
 //        final Project project = element.getXmlElement().getProject();
 
         XmlElement xmlElement = element.getXmlElement();
@@ -44,12 +43,12 @@ public class EntitiesFilesInspection extends MoquiXmlFilesInspection {
 //        System.out.println(element.getClass().getName());
 
         if ((element instanceof Relationship relationship)) {
-            checkRelationshipTag(relationship,holder,helper);
+            checkRelationshipTag(relationship,holder);
             return;
         }
 
         if ((element instanceof MemberEntity memberEntity)) {
-            checkMemberEntityTag(memberEntity,holder,helper);
+            checkMemberEntityTag(memberEntity,holder);
             return;
         }
 
@@ -61,14 +60,14 @@ public class EntitiesFilesInspection extends MoquiXmlFilesInspection {
 
     }
 
-    private void checkRelationshipTag(@NotNull Relationship relationship, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
+    private void checkRelationshipTag(@NotNull Relationship relationship, @NotNull DomElementAnnotationHolder holder) {
         GenericAttributeValue<String> attributeValue = relationship.getRelated();
-        EntityUtils.inspectEntityFromAttribute(attributeValue,holder,helper);
+        EntityUtils.inspectEntityFromAttribute(attributeValue,holder);
 
     }
-    private void checkMemberEntityTag(@NotNull MemberEntity memberEntity, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
+    private void checkMemberEntityTag(@NotNull MemberEntity memberEntity, @NotNull DomElementAnnotationHolder holder) {
         GenericAttributeValue<String> attributeValue = memberEntity.getEntityName();
-        EntityUtils.inspectEntityFromAttribute(attributeValue,holder,helper);
+        EntityUtils.inspectEntityFromAttribute(attributeValue,holder);
 
     }
     private void checkExtendEntityTag(@NotNull ExtendEntity extendEntity, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {

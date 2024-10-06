@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
+import org.moqui.idea.plugin.dom.converter.EntityAndViewNameReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.MemberEntityPresentationProvider;
 
 import java.util.List;
@@ -24,7 +24,8 @@ public interface MemberEntity extends AbstractMemberEntity {
 
     @NotNull
     @Attribute(ATTR_ENTITY_NAME)
-    @Convert(EntityFullNameConverter.class)
+//    @Convert(EntityFullNameConverter.class)
+    @Referencing(EntityAndViewNameReferenceConverter.class)
     GenericAttributeValue<String> getEntityName();
 
 //    @NotNull

@@ -1,19 +1,22 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.icons.AllIcons;
+import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
-import com.intellij.util.xml.highlighting.DomHighlightingHelper;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
@@ -348,9 +351,8 @@ public final class ScreenUtils {
      *
      * @param transitionInclude
      * @param holder
-     * @param helper
      */
-    public static void inspectTransitionInclude(@NotNull TransitionInclude transitionInclude, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
+    public static void inspectTransitionInclude(@NotNull TransitionInclude transitionInclude, @NotNull DomElementAnnotationHolder holder) {
 //        XmlAttributeValue xmlAttributeValue = attributeValue.getXmlAttributeValue();
 //        if (xmlAttributeValue == null) { return;}
         final Project project =transitionInclude.getXmlElement().getProject();
@@ -383,6 +385,74 @@ public final class ScreenUtils {
             }
 
         }
+
+    }
+    public static void inspectTransitionInclude(@NotNull TransitionInclude transitionInclude, @NotNull AnnotationHolder holder) {
+//        XmlAttributeValue xmlAttributeValue = attributeValue.getXmlAttributeValue();
+//        if (xmlAttributeValue == null) { return;}
+        if(transitionInclude.getXmlElement() == null) return;
+
+        final Project project =transitionInclude.getXmlElement().getProject();
+        String name = MyStringUtils.EMPTY_STRING;
+        XmlAttributeValue xmlAttributeName = transitionInclude.getName().getXmlAttributeValue();
+        if(xmlAttributeName == null) {
+            holder.newAnnotation(HighlightSeverity.ERROR, "Transition name is not defined")
+                    .range(transitionInclude.getXmlElement().getTextRange())
+                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                    .create();
+        }else {
+            name = xmlAttributeName.getValue();
+            if (MyStringUtils.isEmpty(name)) {
+                holder.newAnnotation(HighlightSeverity.ERROR, "Transition name is not defined")
+                        .range(xmlAttributeName.getTextRange())
+                        .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        .create();
+            }
+
+        }
+        final String location;
+        XmlAttributeValue xmlAttributeLocation = transitionInclude.getLocation().getXmlAttributeValue();
+        if(xmlAttributeLocation == null) {
+            holder.newAnnotation(HighlightSeverity.ERROR, "Transition location is not defined")
+                    .range(transitionInclude.getXmlElement().getTextRange())
+                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                    .create();
+        }else {
+            location = xmlAttributeLocation.getValue();
+            if (MyStringUtils.isEmpty(location)) {
+                holder.newAnnotation(HighlightSeverity.ERROR, "Transition location is not defined")
+                        .range(xmlAttributeLocation.getTextRange())
+                        .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        .create();
+            }else {
+                final Optional<DomFileElement<Screen>> optionalScreenDomFileElement = findScreenFileByLocation(project,location);
+                if(optionalScreenDomFileElement.isEmpty()) {
+                    holder.newAnnotation(HighlightSeverity.ERROR, "Transition location is not found")
+                            .range(xmlAttributeLocation.getTextRange())
+                            .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                            .create();
+//                    TextRange.from(1,transitionInclude.getLocation().getXmlAttributeValue().getValueTextRange().getLength()));
+
+                }else if(!MyStringUtils.isEmpty(name)) {
+                    final Optional<Transition> optionalTransition = findTransitionElementByName(optionalScreenDomFileElement.get(),name);
+
+                    if(optionalTransition.isEmpty()) {
+                        holder.newAnnotation(HighlightSeverity.ERROR, "Transition name is not found")
+                                .range(xmlAttributeName.getTextRange())
+                                .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                                .create();
+
+//                        TextRange.from(1,transitionInclude.getName().getXmlAttributeValue().getValueTextRange().getLength()));
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
 
     }
 

@@ -1,13 +1,10 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTagList;
+import com.intellij.util.xml.Referencing;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
-
-import java.util.List;
+import org.moqui.idea.plugin.dom.converter.EntityAndViewNameReferenceConverter;
 
 public interface DisplayEntity extends DomElement {
     public static final String TAG_NAME ="display-entity";
@@ -16,7 +13,8 @@ public interface DisplayEntity extends DomElement {
 //    @SubTagList(DependsOn.TAG_NAME)
 //    List<DependsOn> getDependsOnList();
     @NotNull
-    @Convert(EntityFullNameConverter.class)
+//    @Convert(EntityFullNameConverter.class)
+    @Referencing(EntityAndViewNameReferenceConverter.class)
     GenericAttributeValue<String> getEntityName();
 
     @NotNull GenericAttributeValue<String> getKeyFieldName();

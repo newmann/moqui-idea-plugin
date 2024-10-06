@@ -3,9 +3,11 @@ package org.moqui.idea.plugin.dom.description;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomFileDescription;
+import com.intellij.util.xml.highlighting.DomElementsAnnotator;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.annotator.MoquiDomAnnotator;
 import org.moqui.idea.plugin.dom.model.Resource;
 import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.util.RestApiUtils;
@@ -35,4 +37,5 @@ public class RestApiDescription extends DomFileDescription<Resource> {
     public boolean isMyFile(@NotNull XmlFile file, @Nullable Module module) {
         return RestApiUtils.isRestApiFile(file);
     }
+
 }

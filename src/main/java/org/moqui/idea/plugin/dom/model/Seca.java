@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.ServiceCallConverter;
+import org.moqui.idea.plugin.dom.converter.ServiceCallReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.SecaPresentationProvider;
 
 @Presentation(icon = "MoquiIcons.SecaTag", provider = SecaPresentationProvider.class)
@@ -21,7 +21,7 @@ public interface Seca extends DomElement {
 
     @NotNull
     @Attribute(ATTR_SERVICE)
-    @Convert(ServiceCallConverter.class)
+    @Referencing(ServiceCallReferenceConverter.class)
     GenericAttributeValue<String> getService();
 
     @NotNull

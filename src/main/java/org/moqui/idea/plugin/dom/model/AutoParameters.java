@@ -1,8 +1,11 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.Attribute;
+import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.Referencing;
+import com.intellij.util.xml.SubTagList;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
+import org.moqui.idea.plugin.dom.converter.EntityAndViewNameReferenceConverter;
 
 import java.util.List;
 
@@ -18,7 +21,8 @@ public interface AutoParameters extends AttListParameterGeneral {
 
     @NotNull
     @Attribute(ATTR_ENTITY_NAME)
-    @Convert(EntityFullNameConverter.class)
+//    @Convert(EntityFullNameConverter.class)
+    @Referencing(EntityAndViewNameReferenceConverter.class)
     GenericAttributeValue<String> getEntityName();
 
 

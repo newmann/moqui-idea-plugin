@@ -15,6 +15,7 @@ import java.util.Optional;
 /**
  * 根据Entity Tag，找到所有使用该entity的地方
  */
+@Deprecated
 public class EntitySearch extends QueryExecutorBase<XmlElement, DefinitionsScopedSearch.SearchParameters> {
 
     public EntitySearch(){

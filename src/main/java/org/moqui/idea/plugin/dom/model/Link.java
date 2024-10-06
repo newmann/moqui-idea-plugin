@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
+import org.moqui.idea.plugin.dom.converter.EntityAndViewNameReferenceConverter;
 import org.moqui.idea.plugin.dom.converter.UrlConverter;
 import org.moqui.idea.plugin.dom.presentation.LinkPresentationProvider;
 
@@ -47,7 +47,8 @@ public interface Link extends DomElement {
     @NotNull GenericAttributeValue<String> getDynamicLoadId();
     @NotNull GenericAttributeValue<String> getCondition();
     @NotNull
-    @Convert(EntityFullNameConverter.class)
+//    @Convert(EntityFullNameConverter.class)
+    @Referencing(EntityAndViewNameReferenceConverter.class)
     GenericAttributeValue<String> getEntityName();
 
     @NotNull GenericAttributeValue<String> getEntityKeyName();

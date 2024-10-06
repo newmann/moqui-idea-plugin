@@ -11,6 +11,7 @@ import java.util.List;
  * 为Convert提供服务
  * 根据当前ConvertContext context，找到可供快速输入的AbstractField
  */
+@Deprecated
 public interface AbstractFieldCompletionService {
 
   /**

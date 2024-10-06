@@ -7,7 +7,10 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.ConvertContext;
+import com.intellij.util.xml.CustomReferenceConverter;
+import com.intellij.util.xml.GenericDomValue;
+import com.intellij.util.xml.ResolvingConverter;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +27,7 @@ import java.util.Collection;
 /**
  * 对应到Entity的全称，含package，即为｛package｝.{entityName}
  */
+@Deprecated
 public class EntityFullNameConverter extends ResolvingConverter<AbstractEntity> implements CustomReferenceConverter {
     @Override
     public @Nullable AbstractEntity fromString(@Nullable @NonNls String s, ConvertContext context) {

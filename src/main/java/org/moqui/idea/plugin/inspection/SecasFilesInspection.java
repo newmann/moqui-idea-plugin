@@ -27,7 +27,7 @@ public class SecasFilesInspection extends MoquiXmlFilesInspection {
 
     @Override
     protected void checkDomElement(@NotNull DomElement element, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
-        super.checkDomElement(element, holder, helper);
+//        super.checkDomElement(element, holder, helper);
         final Project project = element.getXmlElement().getProject();
         final PsiFile file = element.getXmlElement().getContainingFile();
         if(!SecaUtils.isSecasFile(file)) return;
@@ -35,21 +35,21 @@ public class SecasFilesInspection extends MoquiXmlFilesInspection {
 //        System.out.println(element.getClass().getName());
 
         if ((element instanceof Seca seca)) {
-            checkSecaTag(seca,holder,helper);
+            checkSecaTag(seca,holder);
             return;
         }
 
         if(element instanceof ServiceCall serviceCall) {
-            checkServiceCallTag(serviceCall,holder,helper);
+            checkServiceCallTag(serviceCall,holder);
             return;
         }
 
 
     }
 
-    private void checkSecaTag(@NotNull Seca seca, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
+    private void checkSecaTag(@NotNull Seca seca, @NotNull DomElementAnnotationHolder holder) {
         GenericAttributeValue attributeValue = seca.getService();
-        ServiceUtils.inspectServiceCallFromAttribute(attributeValue, holder,helper);
+        ServiceUtils.inspectServiceCallFromAttribute(attributeValue, holder);
 
 
 

@@ -2,9 +2,8 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
-import org.intellij.lang.annotations.Identifier;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.ServiceCallConverter;
+import org.moqui.idea.plugin.dom.converter.ServiceCallReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.ServicePresentationProvider;
 
 import java.util.List;
@@ -39,7 +38,7 @@ public interface Service extends AbstractLocation {
     //for rest api end
     @NotNull
     @Attribute(ATTR_NAME)
-    @Convert(ServiceCallConverter.class)
+    @Referencing(ServiceCallReferenceConverter.class)
     GenericAttributeValue<String> getName();
 
     @NotNull

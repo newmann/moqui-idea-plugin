@@ -1,13 +1,11 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.ide.presentation.Presentation;
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.Attribute;
+import com.intellij.util.xml.Convert;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFullNameConverter;
 import org.moqui.idea.plugin.dom.converter.ViewEntityAliasConverter;
-import org.moqui.idea.plugin.dom.presentation.MemberEntityPresentationProvider;
-
-import java.util.List;
 
 public interface AbstractMemberEntity extends DomElement {
 

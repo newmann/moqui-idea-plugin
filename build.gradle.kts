@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.beiyelin"
-version = "20240829.01"
+version = "20241006.01"
 
 repositories {
   maven { setUrl("https://mirrors.cloud.tencent.com/gradle/")}
@@ -36,7 +36,7 @@ dependencies {
 //    create("IC", "2023.3.2")
   }
   // 使用 Maven Central 仓库中的依赖
-  implementation("org.apache.groovy:groovy:4.0.22")
+//  implementation("org.apache.groovy:groovy:4.0.22")
   implementation("org.jgrapht:jgrapht-core:1.5.2")
   implementation("com.github.tomnelson:jungrapht-visualization:1.4")
 }

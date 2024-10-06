@@ -1,14 +1,18 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import com.intellij.util.xml.highlighting.DomHighlightingHelper;
 import icons.MoquiIcons;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.reference.AbstractEntityOrViewNameReference;
 import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.service.AbstractIndexEntity;
 import org.moqui.idea.plugin.service.IndexEntity;
@@ -38,35 +42,35 @@ public final class EntityUtils {
         throw new UnsupportedOperationException();
     }
 
-    public static final class EntityDescriptor{
-        EntityDescriptor(){}
-        EntityDescriptor(@NotNull String fullName){
-            int index = fullName.lastIndexOf('.');
-            if (index<0) {
-                entityName = fullName;
-                entityPackage = MyStringUtils.EMPTY_STRING;
-            }else {
-                entityPackage = fullName.substring(0,index);
-                entityName = fullName.substring(index+1);
-            };
-        }
-        EntityDescriptor(String entityName,String entityPackage){
-            this.entityName = entityName;
-            this.entityPackage = entityPackage;
-        }
-        public String entityName;
-        public String entityPackage;
-
-
-        public String getFullName(){
-            if(MyStringUtils.isEmpty(entityPackage)) {
-                return entityName;
-            }else {
-                return entityPackage+"." +entityPackage;
-            }
-
-        }
-    }
+//    public static final class EntityDescriptor{
+//        EntityDescriptor(){}
+//        EntityDescriptor(@NotNull String fullName){
+//            int index = fullName.lastIndexOf('.');
+//            if (index<0) {
+//                entityName = fullName;
+//                entityPackage = MyStringUtils.EMPTY_STRING;
+//            }else {
+//                entityPackage = fullName.substring(0,index);
+//                entityName = fullName.substring(index+1);
+//            };
+//        }
+//        EntityDescriptor(String entityName,String entityPackage){
+//            this.entityName = entityName;
+//            this.entityPackage = entityPackage;
+//        }
+//        public String entityName;
+//        public String entityPackage;
+//
+//
+//        public String getFullName(){
+//            if(MyStringUtils.isEmpty(entityPackage)) {
+//                return entityName;
+//            }else {
+//                return entityPackage+"." +entityPackage;
+//            }
+//
+//        }
+//    }
 
     public static boolean isEntitiesFile(@Nullable PsiFile file){
         if(file == null) return false;
@@ -249,26 +253,6 @@ public final class EntityUtils {
         return Optional.of(result);
     }
 
-    /**
-     * 将一个字符串转化成EntityDescriptor
-     * @param fullName
-     * @return
-     */
-    public static EntityDescriptor getEntityDescriptorFromFullName(@NotNull String fullName){
-        int lastIndex = fullName.lastIndexOf(".");
-        EntityDescriptor entityDescriptor;
-        if(lastIndex<0) {
-            entityDescriptor = new EntityDescriptor();
-            entityDescriptor.entityName = fullName;
-        }else {
-
-            String entityName = fullName.substring(lastIndex + 1);
-            String entityPackage = fullName.substring(0, lastIndex);
-            entityDescriptor = new EntityDescriptor(entityName, entityPackage);
-        }
-        return entityDescriptor;
-
-    }
 
     /**
      * 获取所有定义Entity的指定属性内容
@@ -546,15 +530,14 @@ public final class EntityUtils {
      *
      * @param attributeValue
      * @param holder
-     * @param helper
      */
-    public static void inspectEntityFromAttribute(@NotNull GenericAttributeValue attributeValue, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
+    public static void inspectEntityFromAttribute(@NotNull GenericAttributeValue<String> attributeValue, @NotNull DomElementAnnotationHolder holder) {
         XmlAttributeValue xmlAttributeValue = attributeValue.getXmlAttributeValue();
         if (xmlAttributeValue == null) { return;}
 
         final String entityName = attributeValue.getXmlAttributeValue().getValue();
 //        final int length = attributeValue.getXmlAttributeValue().getValueTextRange().getLength();
-        final Project project =attributeValue.getXmlElement().getProject();
+        final Project project = xmlAttributeValue.getProject();
 
         Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project, entityName);
 
@@ -563,7 +546,57 @@ public final class EntityUtils {
         }
 
     }
+    public static void inspectEntityFromAttribute(@NotNull GenericAttributeValue<String> attributeValue, @NotNull AnnotationHolder holder) {
+        XmlAttributeValue xmlAttributeValue = attributeValue.getXmlAttributeValue();
+        if (xmlAttributeValue == null) { return;}
 
+        final String entityName = attributeValue.getXmlAttributeValue().getValue();
+//        final int length = attributeValue.getXmlAttributeValue().getValueTextRange().getLength();
+        final Project project = xmlAttributeValue.getProject();
+
+        Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project, entityName);
+
+        if (optionalXmlElement.isEmpty()) {
+            holder.newAnnotation(HighlightSeverity.ERROR, "Entity is not found")
+                    .range(xmlAttributeValue.getTextRange())
+                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                    .create();
+        }
+
+    }
+    public static void inspectExtendEntity(@NotNull ExtendEntity extendEntity, @NotNull DomElementAnnotationHolder holder) {
+        String entityName = MyDomUtils.getValueOrEmptyString(extendEntity.getEntityName());
+        XmlTag xmlTag = extendEntity.getXmlTag();
+        if(xmlTag == null) {return;}
+
+        Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(
+                xmlTag.getProject(), entityName);
+
+        if (optionalXmlElement.isEmpty()) {
+            int start = xmlTag.getTextOffset();
+            int length = xmlTag.getLocalName().length();
+
+            holder.createProblem(extendEntity, ProblemHighlightType.ERROR,"Entity is not found",
+                    TextRange.from(1, length));
+        }
+    }
+    public static void inspectExtendEntity(@NotNull ExtendEntity extendEntity, @NotNull AnnotationHolder holder) {
+        String entityName = MyDomUtils.getValueOrEmptyString(extendEntity.getEntityName());
+        XmlTag xmlTag = extendEntity.getXmlTag();
+        if(xmlTag == null) {return;}
+
+        Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(
+                xmlTag.getProject(), entityName);
+
+        if (optionalXmlElement.isEmpty()) {
+            int start = xmlTag.getTextOffset();
+            int length = xmlTag.getLocalName().length();
+            holder.newAnnotation(HighlightSeverity.ERROR, "Entity is not found")
+                    .range(TextRange.from(1, length))
+                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                    .create();
+        }
+    }
     /**
      * 根据TagName返回对应的icon，现在主要有Entity和ViewEntity
      * @param tagName
@@ -906,19 +939,7 @@ public final class EntityUtils {
 
     }
 
-    /**
-     * 创建EntityName对应的psiReference
-     * EntityName可能是下列3种形式：
-     * 1、｛EntityName｝
-     * 2、｛ShortAlias｝
-     * 3、｛package｝.｛EntityName｝
-     * 根据不同的内容，reference要分别对应到不同Entity属性上
-     * @param project
-     * @param element
-     * @param entityName
-     * @param startOffset 在element中的起始位置
-     * @return
-     */
+    @Deprecated
     public static @NotNull PsiReference[] createEntityNameReferences(@NotNull Project project, @NotNull PsiElement element, @NotNull String  entityName, @NotNull int startOffset) {
         Optional<AbstractEntity> optEntity = EntityUtils.getEntityOrViewEntityByName(project,entityName);
         if (optEntity.isEmpty()) return PsiReference.EMPTY_ARRAY;
@@ -965,7 +986,97 @@ public final class EntityUtils {
 
         return psiReferences.toArray(new PsiReference[0]);
     }
+    /**
+     * 创建EntityName对应的psiReference
+     * EntityName可能是下列3种形式：
+     * 1、｛EntityName｝
+     * 2、｛ShortAlias｝
+     * 3、｛package｝.｛EntityName｝
+     * 根据不同的内容，reference要分别对应到不同Entity属性上
+     * @param project
+     * @param element
+     * @return
+     */
+    public static @NotNull PsiReference[] createEntityOrViewNameReferences(@NotNull Project project, @NotNull PsiElement element,@NotNull EntityScope entityScope) {
+        BeginAndEndCharPattern stringPattern = BeginAndEndCharPattern.of(element);
+        List<PsiReference> psiReferences = new ArrayList<>();
+        int tmpStartOffset,tmpEndOffset;
 
+
+
+        String entityName = stringPattern.getContent();
+        if(entityName.isBlank()){
+            tmpStartOffset = stringPattern.getBeginChar().length();
+            tmpEndOffset = tmpStartOffset;
+            psiReferences.add(createEntityOrViewNameReference(element,
+                    new TextRange(tmpStartOffset,tmpEndOffset),null,entityScope));//提供 code completion
+
+        }else {
+            Optional<AbstractEntity> entityOptional = EntityUtils.getEntityOrViewEntityByName(project, entityName);
+            int lastDotIndex = entityName.lastIndexOf('.');
+            if(entityOptional.isPresent()) {
+                if(lastDotIndex >0) {
+                    tmpStartOffset = stringPattern.getBeginChar().length();
+                    tmpEndOffset = stringPattern.getBeginChar().length() + lastDotIndex;
+                    //package reference
+                    psiReferences.add(createEntityOrViewNameReference(element,
+                            new TextRange(tmpStartOffset,tmpEndOffset),
+                            MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getPackage().getXmlAttributeValue()).orElse(null),
+                            entityScope)
+                    );
+                    tmpStartOffset = stringPattern.getBeginChar().length()+ lastDotIndex +1;
+                    tmpEndOffset = stringPattern.getBeginChar().length() + entityName.length();
+
+                    //entityname reference
+                    psiReferences.add(createEntityOrViewNameReference(element,
+                            new TextRange(tmpStartOffset,tmpEndOffset),
+                            MyDomUtils.getPsiElementFromAttributeValue(entityOptional.get().getEntityName().getXmlAttributeValue()).orElse(null),
+                            entityScope)
+                    );
+                }else {
+                    tmpStartOffset = stringPattern.getBeginChar().length();
+                    tmpEndOffset = stringPattern.getBeginChar().length() + entityName.length();
+                    XmlAttributeValue attributeValue;
+                    //entityname reference，需要考虑shortAlias
+                    attributeValue = entityOptional.get().getEntityName().getXmlAttributeValue();
+                    if(entityOptional.get() instanceof Entity entity) {
+                        if(MyDomUtils.getValueOrEmptyString(entity.getShortAlias()).equals(entityName)) {
+                            attributeValue = entity.getShortAlias().getXmlAttributeValue();
+                        }
+                    }
+                    psiReferences.add(createEntityOrViewNameReference(element,
+                            new TextRange(tmpStartOffset, tmpEndOffset),
+                            MyDomUtils.getPsiElementFromAttributeValue(attributeValue).orElse(null),
+                            entityScope)
+                    );
+                }
+
+            }else {
+                if (lastDotIndex <= 0) {
+                    //没有含包名
+                    tmpStartOffset = stringPattern.getBeginChar().length();
+                    tmpEndOffset = tmpStartOffset + entityName.length();
+                } else {
+                    tmpStartOffset = stringPattern.getBeginChar().length() + lastDotIndex + 1;
+                    tmpEndOffset = stringPattern.getBeginChar().length() + entityName.length();
+
+                }
+                psiReferences.add(createEntityOrViewNameReference(element,
+                        new TextRange(tmpStartOffset,tmpEndOffset),
+                        null,entityScope));
+
+            }
+
+        }
+        return psiReferences.toArray(new PsiReference[0]);
+    }
+    public static PsiReference createEntityOrViewNameReference(@NotNull PsiElement element, @NotNull TextRange textRange, @Nullable PsiElement resolve,@NotNull EntityScope entityScope){
+        return switch (entityScope) {
+            case ENTITY_ONLY -> AbstractEntityOrViewNameReference.ofEntityNameReference(element, textRange,resolve);
+            case VIEW_ONLY -> AbstractEntityOrViewNameReference.ofViewEntityNameReference(element, textRange,resolve);
+            case ENTITY_AND_VIEW -> AbstractEntityOrViewNameReference.ofEntityAndViewEntityNameReference(element, textRange,resolve);
+        };
+    }
     /**
      * 根据Entity的Name和Package查找所有的ExtendEntity
      * @param project 当前项目

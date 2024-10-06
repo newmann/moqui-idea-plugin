@@ -17,6 +17,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.*;
 import com.intellij.util.xml.*;
+import kotlinx.html.B;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,10 +28,11 @@ import java.util.Set;
 import java.util.*;
 
 import static com.intellij.psi.xml.XmlTokenType.*;
+import static org.moqui.idea.plugin.util.ComponentUtils.COMPONENT_LOCATION_PREFIX;
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 public final class MyDomUtils {
-    public static String COMPONENT_LOCATION_PREFIX = "component://";
+
     public static String MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
     public static Map<String,String> MOQUI_XML_FILE_ROOT_TAGS = new HashMap<>(Map.of(
             Entities.TAG_NAME,Entities.VALUE_NoNamespaceSchemaLocation,
@@ -467,9 +469,25 @@ public final class MyDomUtils {
         });
 
     }
+    public static Optional<Boolean> getXmlAttributeValueBoolean(GenericAttributeValue<Boolean> value){
+        if(value == null) return Optional.empty();
+        return ApplicationManager.getApplication().runReadAction((Computable<Optional<Boolean>>) ()->{
+            if(value.getXmlAttributeValue() == null) return Optional.empty();
+            return Optional.ofNullable(value.getValue());
+        });
+
+    }
     public static @NotNull String getValueOrEmptyString(GenericAttributeValue<String> value){
         return getXmlAttributeValueString(value).orElse(MyStringUtils.EMPTY_STRING);
     }
+    public static @NotNull String getValueOrEmptyString(String value){
+        return value == null ? MyStringUtils.EMPTY_STRING : value;
+    }
+
+    public static @NotNull boolean getValueOrFalseBoolean(GenericAttributeValue<Boolean> value){
+        return getXmlAttributeValueBoolean(value).orElse(false);
+    }
+
     public static @NotNull Integer getValueOrZero(GenericAttributeValue<String> value){
         String s = getXmlAttributeValueString(value).orElse(MyStringUtils.EMPTY_STRING);
         try {
@@ -722,4 +740,26 @@ public final class MyDomUtils {
     public static Optional<PsiElement> getPsiElementFromAttributeValue(@Nullable XmlAttributeValue attributeValue) {
         return attributeValue == null ? Optional.empty() : Optional.of(attributeValue.getOriginalElement());
     }
+
+    public static Optional<VirtualFile> getVirtualFileFromPsiElement(@Nullable PsiElement psiElement) {
+        return getPsiFileFromPsiElement(psiElement).map(PsiFile::getVirtualFile);
+    }
+    public static Optional<PsiFile> getPsiFileFromPsiElement(@Nullable PsiElement psiElement) {
+        if(psiElement == null){
+            return Optional.empty();
+        }else {
+            return Optional.ofNullable(psiElement.getContainingFile());
+        }
+    }
+    public static Optional<String> getContainingFileNameFromPsiElement(@Nullable PsiElement psiElement) {
+        Optional<VirtualFile > tmp = getVirtualFileFromPsiElement(psiElement);
+        return tmp.map(VirtualFile::getName);
+    }
+    public static Optional<String> getContainingPathFromPsiElement(@Nullable PsiElement psiElement) {
+        Optional<VirtualFile > tmp = getVirtualFileFromPsiElement(psiElement);
+        return tmp.map(VirtualFile::getPath);
+    }
+
+
+
 }
