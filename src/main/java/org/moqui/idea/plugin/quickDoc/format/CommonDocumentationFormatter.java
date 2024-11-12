@@ -41,7 +41,7 @@ public class CommonDocumentationFormatter {
                 .flatMap(ComponentUtils::getComponentNameFromPath)
                 .orElse(MyStringUtils.EMPTY_STRING);
 
-        builder.append(text(isView ? "view" : "entity" + " name="))
+        builder.append(text((isView ? "view" : "entity") + " name="))
                 .append(text("\"" + MyDomUtils.getValueOrEmptyString(abstractEntity.getEntityName()) + "\"").bold())
                 .append(nbsp())
                 .append(text("package-name=\"" + MyDomUtils.getValueOrEmptyString(abstractEntity.getPackage()) + "\""))

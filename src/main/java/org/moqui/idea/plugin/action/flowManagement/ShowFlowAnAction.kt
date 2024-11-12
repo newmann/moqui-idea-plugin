@@ -27,7 +27,7 @@ class ShowFlowAnAction: AnAction() {
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        val project = e.project ?: return
+//        val project = e.project ?: return
         val psiFile = e.getData(CommonDataKeys.PSI_FILE) ?: return
         val offset = e.getData(CommonDataKeys.EDITOR)?.caretModel?.offset ?: return
 

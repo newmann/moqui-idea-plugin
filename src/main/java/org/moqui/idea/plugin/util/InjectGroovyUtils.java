@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.psi.xml.XmlAttributeValue;
 import org.intellij.plugins.intelliLang.inject.InjectedLanguage;
@@ -8,13 +9,34 @@ import org.intellij.plugins.intelliLang.inject.InjectorUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.groovy.GroovyLanguage;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.service.IndexService;
+import org.moqui.idea.plugin.service.IndexServiceParameter;
+import org.moqui.idea.plugin.service.MoquiIndexService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class InjectGroovyUtils {
     private InjectGroovyUtils() {
         throw new UnsupportedOperationException();
     }
+
+    public static  Map<String,String> PARAMETER_TYPE_GROOVY_VARIABLE = Map.ofEntries(
+            Map.entry("Map","def %s=[:]"),
+            Map.entry("Set","def %s=[] as Set"),
+            Map.entry("List","def %s=[:]"),
+            Map.entry("id","String %s"),
+            Map.entry("","String %s"),
+            Map.entry("text-indicator","String %s"),
+            Map.entry("text-short","String %s"),
+            Map.entry("text-medium","String %s"),
+            Map.entry("text-long","String %s"),
+            Map.entry("number-integer","Integer %s"),
+            Map.entry("number-decimal","Decimal %s"),
+            Map.entry("date-time","Date %s")
+    );
 
     public static String getDefaultImportPackages(){
         return System.lineSeparator() +
@@ -36,13 +58,73 @@ public class InjectGroovyUtils {
                 System.lineSeparator() +
                 "def ec = Moqui.getExecutionContext()" +
                 System.lineSeparator() +
-                "def context=[String : Object]" +
+                "def context=[ : ]" +
                 System.lineSeparator() +
-                "def result = [String : Object]"+
+                "def result = [ : ]"+
                 System.lineSeparator()
                 ;
     }
 
+    /**
+     * 获取当前element所在的Service的in和out参数定义，
+     * @param element
+     * @return
+     */
+    public static String getServiceInAndOutParameterDefine(@NotNull PsiElement element){
+        Optional<Service> serviceOptional = MyDomUtils.getLocalDomElementByPsiElement(element,Service.class);
+        return serviceOptional.map(service ->{
+            MoquiIndexService moquiIndexService = element.getProject().getService(MoquiIndexService.class);
+            Optional<IndexService> indexServiceOptional = moquiIndexService.getIndexServiceByFullName(ServiceUtils.getFullNameFromService(service));
+            return indexServiceOptional.map(indexService -> {
+                StringBuilder stringBuilder = new StringBuilder();
+
+                indexService.getInParameterMap().forEach((key,value)->{
+                    stringBuilder.append(getVariableDefineFromIndexServiceParameter(value));
+                });
+                indexService.getOutParameterMap().forEach((key,value)->{
+                    stringBuilder.append(getVariableDefineFromIndexServiceParameter(value));
+                });
+                return stringBuilder.toString();
+            }).orElse(MyStringUtils.EMPTY_STRING);
+
+        }).orElse(MyStringUtils.EMPTY_STRING);
+
+    }
+
+    /**
+     * 考虑到groovy的灵活性，只需要定义到第一层变量，第二层及以后的变量很少使用
+     * @param parameter
+     * @return
+     */
+    private static String getVariableDefineFromIndexServiceParameter(IndexServiceParameter parameter){
+        String result;
+        if(PARAMETER_TYPE_GROOVY_VARIABLE.containsKey(parameter.getType())) {
+            result = PARAMETER_TYPE_GROOVY_VARIABLE.get(parameter.getType());
+        }else {
+            result = parameter.getType()+ " %s";
+        }
+        return String.format(result,parameter.getParameterName()) + System.lineSeparator();
+
+//        switch(parameter.getType()) {
+//            case "Map"->{
+//                    return "def " + parameter.getParameterName()+"=[:]" + System.lineSeparator();
+//            }
+//            case "Set"->{return "def " + parameter.getParameterName()+"= [] as Set" + System.lineSeparator();}
+//            case "List"->{return "def " + parameter.getParameterName()+"=[]" + System.lineSeparator();}
+//            case MyStringUtils.EMPTY_STRING -> { return "String "+ parameter.getParameterName()+ System.lineSeparator();}
+//            case "id"->{return "String "+ parameter.getParameterName()+ System.lineSeparator();}
+//            case "text-indicator"->{return "Char(1) "+ parameter.getParameterName()+ System.lineSeparator();}
+//            case "text-short"->{return "String "+ parameter.getParameterName()+ System.lineSeparator();}
+//            case "text-medium"->{return "String "+ parameter.getParameterName()+ System.lineSeparator();}
+//            case "text-long"->{return "String "+ parameter.getParameterName()+ System.lineSeparator();}
+//            case "number-integer"->{return "Integer "+ parameter.getParameterName()+ System.lineSeparator();}
+//            case "number-decimal "->{return "Decimal "+ parameter.getParameterName()+ System.lineSeparator();}
+//
+//            case "date-time"->{return "Date "+ parameter.getParameterName()+ System.lineSeparator();}
+//
+//            default -> { return parameter.getType() +" " + parameter.getParameterName()+ System.lineSeparator(); }
+//        }
+    }
     public static InjectorUtils.InjectionInfo createInjectInfo(@NotNull XmlAttributeValue attributeValue,
                                                                @NotNull String prefix, @NotNull String suffix){
         PsiLanguageInjectionHost host = (PsiLanguageInjectionHost) attributeValue;

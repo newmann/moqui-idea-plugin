@@ -475,7 +475,7 @@ public final class MoquiIndexService {
 //    }
 
     /**
-     * 返回参数数组，第一个为in，第二个为out
+     * 返回service的传入参数
      * @param service
      * @return
      */
@@ -492,6 +492,12 @@ public final class MoquiIndexService {
         return inParameterMap;
 
     }
+
+    /**
+     * 返回service的传出参数
+     * @param service
+     * @return
+     */
     private Map<String, IndexServiceParameter> extractServiceOutParameterFieldMap(@NotNull org.moqui.idea.plugin.dom.model.Service service){
 
 
@@ -506,6 +512,11 @@ public final class MoquiIndexService {
 
     }
 
+    /**
+     * 分析Parameter结构，返回Map
+     * @param parameter
+     * @return
+     */
     private Map<String,IndexServiceParameter> extractParameterMap(@NotNull Parameter parameter){
         IndexServiceParameter indexServiceParameter = new IndexServiceParameter(parameter);
         Map<String,IndexServiceParameter> childParameterMap = new HashMap<>();
