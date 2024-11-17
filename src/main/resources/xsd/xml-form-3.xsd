@@ -26,6 +26,16 @@ along with this software (see the LICENSE.md file). If not, see
         <xs:enumeration value="find-display"/>
         <xs:enumeration value="hidden"/>
     </xs:restriction></xs:simpleType>
+    <!--            added by hxs-->
+    <xs:simpleType name="value-format-style">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="yyyy-MM-dd"/>
+            <xs:enumeration value="yyyy-MM-dd HH:ss"/>
+            <xs:enumeration value="0.00"/>
+            <xs:enumeration value="0.000"/>
+            <xs:enumeration value="#,##0.00"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:element name="parameter"><xs:complexType>
         <xs:attribute name="name" type="xs:string" use="required"/>
@@ -42,10 +52,12 @@ along with this software (see the LICENSE.md file). If not, see
     </xs:complexType></xs:element>
     <xs:element name="widget-template"><xs:complexType>
         <xs:sequence>
-            <xs:choice>
+<!--            modified by hxs-->
+            <xs:choice minOccurs="0">
                 <xs:element minOccurs="0" ref="SubFields"/>
                 <xs:element minOccurs="0" ref="AllWidgets"/>
             </xs:choice>
+<!--            modified end by hxs-->
             <xs:element minOccurs="0" maxOccurs="unbounded" ref="StandaloneFields"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
@@ -706,10 +718,12 @@ along with this software (see the LICENSE.md file). If not, see
         </xs:documentation>
     </xs:annotation><xs:complexType>
         <xs:sequence>
-            <xs:choice>
+<!--            modified by hxs -->
+            <xs:choice minOccurs="0">
                 <xs:element minOccurs="0" ref="SubFields"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="AllWidgets"/>
             </xs:choice>
+<!--            modified end here -->
             <xs:element minOccurs="0" maxOccurs="unbounded" ref="StandaloneFields"/>
             <xs:element minOccurs="0" maxOccurs="unbounded" ref="set"/>
         </xs:sequence>
@@ -738,8 +752,9 @@ along with this software (see the LICENSE.md file). If not, see
     <xs:element name="last-row-field" type="form-list-default-field"/>
     <xs:complexType name="form-list-default-field">
         <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" ref="StandaloneFields"/>
-            <xs:choice>
+<!--            modified by hxs -->
+<!--            <xs:element minOccurs="0" maxOccurs="unbounded" ref="StandaloneFields"/>-->
+            <xs:choice minOccurs="0">
                 <xs:element minOccurs="0" ref="SubFields"/>
                 <xs:element minOccurs="0" maxOccurs="unbounded" ref="AllWidgets"/>
             </xs:choice>
@@ -897,7 +912,7 @@ along with this software (see the LICENSE.md file). If not, see
             <xs:annotation><xs:documentation>Specifies the currency uomId (ISO code) used to format the value.
             Will only format as currency if this is specified.</xs:documentation></xs:annotation>
         </xs:attribute>
-        <xs:attribute name="format" type="xs:string">
+        <xs:attribute name="format" type="value-format-style">
             <xs:annotation><xs:documentation>Used to format the output of Number/Time/Date/Timestamp/etc objects.
                 With auto-fields-service will inherit from service parameter.</xs:documentation></xs:annotation>
         </xs:attribute>

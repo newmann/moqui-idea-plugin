@@ -3,6 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.NameValue;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.WidgetTemplatePresentationProvider;
 @Presentation(icon = "MoquiIcons.WidgetTemplate",provider = WidgetTemplatePresentationProvider.class)
@@ -12,6 +13,7 @@ public interface WidgetTemplate extends AllWidgets,SubFields,StandaloneFieldsLis
     public static final String ATTR_NAME="name";
 
     @NotNull
+    @NameValue
     @Attribute(ATTR_NAME)
     GenericAttributeValue<String> getName();
 

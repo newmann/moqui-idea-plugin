@@ -18,6 +18,10 @@ public class ScreenTreeStructureProvider extends AbstractTreeStructureProvider{
                     path.matches(MyStringUtils.COMPONENT_SCREEN_PATH_REGEXP)
                             || path.matches(MyStringUtils.BASE_COMPONENT_SCREEN_PATH_REGEXP)
                             || path.matches(MyStringUtils.FRAMEWORK_SCREEN_PATH_REGEXP)
+                            || path.matches(MyStringUtils.FRAMEWORK_TEMPLATE_PATH_REGEXP)
+                            || path.matches(MyStringUtils.COMPONENT_TEMPLATE_PATH_REGEXP)
+                            || path.matches(MyStringUtils.RUNTIME_TEMPLATE_PATH_REGEXP)
+
             );
         }
     }
@@ -33,6 +37,9 @@ public class ScreenTreeStructureProvider extends AbstractTreeStructureProvider{
                 path.matches(MyStringUtils.COMPONENT_SCREEN_PATH_REGEXP)
                 || path.matches(MyStringUtils.BASE_COMPONENT_SCREEN_PATH_REGEXP)
                 || path.matches(MyStringUtils.FRAMEWORK_SCREEN_PATH_REGEXP)
+                || path.matches(MyStringUtils.FRAMEWORK_TEMPLATE_PATH_REGEXP)
+                || path.matches(MyStringUtils.COMPONENT_TEMPLATE_PATH_REGEXP)
+                || path.matches(MyStringUtils.RUNTIME_TEMPLATE_PATH_REGEXP)
         );
     }
 }

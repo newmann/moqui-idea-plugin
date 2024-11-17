@@ -40,11 +40,12 @@ public final class MyStringUtils {
     public static final String COMPONENT_ENTITY_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]entity[/|\\\\]?).*";
     public static final String COMPONENT_SERVICE_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]service[/|\\\\]?).*";
     public static final String COMPONENT_SCREEN_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]screen[/|\\\\]?).*";
+    public static final String COMPONENT_TEMPLATE_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]template[/|\\\\]?).*";
     public static final String COMPONENT_SRC_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]src[/|\\\\]?).*";
     public static final String FRAMEWORK_DATA_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]data[/|\\\\]?).*";
     public static final String FRAMEWORK_ENTITY_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]entity[/|\\\\]?).*";
     public static final String FRAMEWORK_SRC_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]src[/|\\\\]?).*";
-
+    public static final String FRAMEWORK_TEMPLATE_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]template[/|\\\\]?).*";
     public static final String FRAMEWORK_SCREEN_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]screen[/|\\\\]?).*";
     public static final String FRAMEWORK_SERVICE_PATH_REGEXP = ".*([/|\\\\]framework[/|\\\\]service[/|\\\\]?).*";
     public static final String BASE_COMPONENT_DATA_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]data[/|\\\\]?).*";
@@ -53,6 +54,7 @@ public final class MyStringUtils {
     public static final String BASE_COMPONENT_SCREEN_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]screen[/|\\\\]?).*";
     public static final String BASE_COMPONENT_SRC_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]src[/|\\\\]?).*";
     public static final String BASE_COMPONENT_CHILD_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]base-component[/|\\\\])[a-zA-Z0-9_\\-\\.]+";
+    public static final String RUNTIME_TEMPLATE_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]template[/|\\\\]?).*";
     /**
      * Upper case first char string.
      *
@@ -253,4 +255,7 @@ public final class MyStringUtils {
         return builder.toString();
     }
 
+    public static boolean containGroovyVariables(@NotNull String content){
+        return content.contains("${");
+    }
 }

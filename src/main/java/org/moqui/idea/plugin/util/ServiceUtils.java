@@ -381,13 +381,22 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         if (xmlAttributeValue == null) { return;}
 
         final String serviceCallName = attributeValue.getXmlAttributeValue().getValue();
+        //判断是否包含Groovy 变量，如果是，则不进行处理，仅仅提示
+        if(MyStringUtils.containGroovyVariables(serviceCallName)) {
+            holder.newAnnotation(HighlightSeverity.WEAK_WARNING, "service call name contains Groovy variables")
+                    .range(xmlAttributeValue.getValueTextRange())
+                    .highlightType(ProblemHighlightType.WEAK_WARNING)
+                    .create();
+            return;
+        }
+
         final int serviceCallNameLength = attributeValue.getXmlAttributeValue().getValueTextRange().getLength();
         final Project project =attributeValue.getXmlElement().getProject();
         ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(serviceCallName);
         if(serviceDescriptor.getVerb().isEmpty()) {
 //            holder.createProblem(attributeValue, HighlightSeverity.ERROR, "This is not a valid service call");
             holder.newAnnotation(HighlightSeverity.ERROR, "This is not a valid service call")
-                    .range(xmlAttributeValue.getTextRange())
+                    .range(xmlAttributeValue.getValueTextRange())
                     .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                     .create();
             return;
@@ -401,7 +410,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 //                holder.createProblem(attributeValue, HighlightSeverity.ERROR,
 //                        "The verb is not correctly,should use one of create/update/delete");
                 holder.newAnnotation(HighlightSeverity.ERROR, "The verb is not correctly,should use one of create/update/delete")
-                        .range(xmlAttributeValue.getTextRange())
+                        .range(xmlAttributeValue.getValueTextRange())
                         .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         .create();
             }
@@ -416,7 +425,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 //                holder.createProblem(attributeValue, HighlightSeverity.ERROR, "Missing attributeThe called Entity is not found",
 //                        TextRange.from(index+2,entityNameLength));
                 holder.newAnnotation(HighlightSeverity.ERROR, "Missing attributeThe called Entity is not found")
-                        .range(TextRange.from(index+2,entityNameLength))
+                        .range(xmlAttributeValue.getValueTextRange())
                         .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         .create();
             }
@@ -427,7 +436,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 //                holder.createProblem(attributeValue, HighlightSeverity.ERROR, "Called service is not found",
 //                        TextRange.from(1,serviceCallNameLength));
                 holder.newAnnotation(HighlightSeverity.ERROR, "Called service is not found")
-                        .range(TextRange.from(1,serviceCallNameLength))
+                        .range(xmlAttributeValue.getValueTextRange())
                         .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         .create();
             }
@@ -557,6 +566,10 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         BeginAndEndCharPattern stringPattern = BeginAndEndCharPattern.of(element);
         List<PsiReference> psiReferences = new ArrayList<>();
         int tmpStartOffset,tmpEndOffset;
+
+        if(MyStringUtils.containGroovyVariables(stringPattern.getContent())) { //如果是groovy变量，则不进行处理
+            return new PsiReference[0];
+        }
 
         if(stringPattern.getContent().isBlank()){
             tmpStartOffset = stringPattern.getBeginChar().length();

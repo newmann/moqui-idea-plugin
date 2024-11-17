@@ -7,7 +7,6 @@ import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.MoquiConf;
-import org.moqui.idea.plugin.icon.MyIcons;
 import org.moqui.idea.plugin.util.MoquiConfUtils;
 
 import javax.swing.*;

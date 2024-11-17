@@ -19,11 +19,13 @@ import org.moqui.idea.plugin.dom.model.Entity
 import org.moqui.idea.plugin.dom.model.Service
 import org.moqui.idea.plugin.dom.model.Transition
 import org.moqui.idea.plugin.dom.model.ViewEntity
+import org.moqui.idea.plugin.dom.model.WidgetTemplate
 import org.moqui.idea.plugin.util.MyDomUtils
 import java.awt.event.MouseEvent
 
 class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
-    val CHECK_TAG: Set<String> = setOf(Entity.TAG_NAME,ViewEntity.TAG_NAME, Service.TAG_NAME,Transition.TAG_NAME)
+    val CHECK_TAG: Set<String> = setOf(Entity.TAG_NAME,ViewEntity.TAG_NAME, Service.TAG_NAME,
+        Transition.TAG_NAME,WidgetTemplate.TAG_NAME)
     override val id: String
         get() = "Moqui.references"
     override val name: String
@@ -60,6 +62,7 @@ class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
             ViewEntity.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, ViewEntity::class.java, false).map(ViewEntity::getEntityName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
             Service.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Service::class.java, false).map(Service::getNoun).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
             Transition.TAG_NAME->MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Transition::class.java, false).map(Transition::getName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
+            WidgetTemplate.TAG_NAME->MyDomUtils.getLocalDomElementByPsiElement(xmlTag, WidgetTemplate::class.java, false).map(WidgetTemplate::getName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
             else-> null
         }
     }

@@ -68,12 +68,12 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
     protected void checkDomElement(@NotNull DomElement element, @NotNull DomElementAnnotationHolder holder, @NotNull DomHighlightingHelper helper) {
 //        checkMultipleFields(element, holder, helper);
 
-        LocationUtils.inspectLocationFromDomElement(element,holder);
+//        LocationUtils.inspectLocationFromDomElement(element,holder);
 
-        if (element instanceof ServiceCall serviceCall) {
-            ServiceUtils.inspectServiceCallFromAttribute(serviceCall.getName(), holder);
-            return;
-        }
+//        if (element instanceof ServiceCall serviceCall) {
+//            ServiceUtils.inspectServiceCallFromAttribute(serviceCall.getName(), holder);
+//            return;
+//        }
 
         if ((element instanceof Relationship relationship)) {
 

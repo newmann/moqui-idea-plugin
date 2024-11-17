@@ -7,10 +7,15 @@ import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.model.WidgetTemplate;
+import org.moqui.idea.plugin.dom.model.WidgetTemplateInclude;
 import org.moqui.idea.plugin.util.LocationUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.WidgetTemplateUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * 针对location的处理，location有多种形式：
@@ -26,6 +31,10 @@ import java.util.Collection;
 public class LocationConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
     @Override
     public @NotNull Collection<? extends String> getVariants(ConvertContext context) {
+        Optional<WidgetTemplateInclude> widgetTemplateOptional = MyDomUtils.getLocalDomElementByConvertContext(context, WidgetTemplateInclude.class);
+        if(widgetTemplateOptional.isPresent()) {
+            return WidgetTemplateUtils.getWidgetTemplateIncludeLocations(context.getProject());
+        }
         return new ArrayList<>();
     }
 
@@ -33,4 +42,5 @@ public class LocationConverter extends ResolvingConverter.StringConverter implem
     public  @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
         return LocationUtils.createReferences(value,element,context);
     }
+
 }

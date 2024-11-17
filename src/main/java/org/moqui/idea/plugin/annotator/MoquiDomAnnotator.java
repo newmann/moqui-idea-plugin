@@ -8,9 +8,6 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
-import com.intellij.util.xml.DomUtil;
-import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
-import com.intellij.util.xml.highlighting.DomElementsAnnotator;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.*;
@@ -37,8 +34,14 @@ public class MoquiDomAnnotator implements Annotator {
     private  void processAnnotate(DomElement element, AnnotationHolder holder) {
 //        XmlFile xmlFile = DomUtil.getFile(element);
 //        if(!MyDomUtils.isMoquiXmlFile(xmlFile)) return;
+        if(element instanceof AbstractLocation) {
+            LocationUtils.inspectAbstractLocationLocation(element, holder);
+            if(element instanceof TransitionInclude transitionInclude) {
+                ScreenUtils.inspectTransitionInclude(transitionInclude, holder);
+            }
+            return;
+        }
 
-        LocationUtils.inspectLocationFromDomElement(element,holder);
 
         if (element instanceof ServiceCall serviceCall) {
             ServiceUtils.inspectServiceCallFromAttribute(serviceCall.getName(), holder);
@@ -69,14 +72,35 @@ public class MoquiDomAnnotator implements Annotator {
             EntityUtils.inspectEntityFromAttribute(abstractEntityName.getEntityName(),holder);
             return;
         }
-        if(element instanceof TransitionInclude transitionInclude) {
-            ScreenUtils.inspectTransitionInclude(transitionInclude, holder);
-            return;
-        }
+
 
         if ((element instanceof Seca seca)) {
             ServiceUtils.inspectServiceCallFromAttribute(seca.getService(), holder);
+            return;
         }
+
+        if(element instanceof ScreenBase screenBase) {
+            LocationUtils.inspectLocationFromAttribute(screenBase,screenBase.getMenuImage().getXmlAttributeValue(),holder);
+            return;
+        }
+        if(element instanceof ResourceFacade resourceFacade) {
+            LocationUtils.inspectLocationFromAttribute(resourceFacade,resourceFacade.getXmlActionsTemplateLocation().getXmlAttributeValue(),holder);
+            return;
+        }
+        if(element instanceof ScreenTextOutput screenTextOutput) {
+            LocationUtils.inspectLocationFromAttribute(screenTextOutput,screenTextOutput.getMacroTemplateLocation().getXmlAttributeValue(),holder);
+            return;
+        }
+
+        if(element instanceof LoadData loadData) {
+            LocationUtils.inspectLocationFromAttribute(loadData,loadData.getLocation().getXmlAttributeValue(),holder);
+            return;
+        }
+        if(element instanceof LoadEntity loadEntity) {
+            LocationUtils.inspectLocationFromAttribute(loadEntity,loadEntity.getLocation().getXmlAttributeValue(),holder);
+            return;
+        }
+
 
 
     }

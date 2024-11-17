@@ -10,7 +10,7 @@ public interface LoadEntity extends DomElement {
     public static final String TAG_NAME = "load-entity";
 
     @NotNull
-    //@Convert(LocationConverter.class)
+    @Convert(LocationConverter.class)
     GenericAttributeValue<String> getLocation();
 
 }
