@@ -139,7 +139,7 @@
 
 <!--      <completion.contributor order="first" language="JAVA" implementationClass="org.moqui.idea.plugin.completion.contributor.JavaCompletionContributor"/>-->
 
-      <renameHandler implementation="org.moqui.idea.plugin.refactoring.MoquiDomAttributeRenameHandler" order="first"/>
+<!--      <renameHandler implementation="org.moqui.idea.plugin.refactoring.MoquiDomAttributeRenameHandler" order="first"/>-->
 
 <!--      静态检查-->
 <!--      <localInspection language="XML" shortName="EecasFilesInspection"-->

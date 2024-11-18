@@ -133,6 +133,41 @@ public class CommonDocumentationFormatter {
 
         return fieldListBuilder.wrapWith(SECTIONS_TABLE);
     }
+    public static HtmlChunk.Element formatAbstractFieldList(List<AbstractField> fieldList) {
+        HtmlBuilder fieldListBuilder = new HtmlBuilder();
+
+        HtmlBuilder tableHeader = new HtmlBuilder();
+        tableHeader.append(text(Field.ATTR_NAME).wrapWith("th"));
+        tableHeader.append(nbsp().wrapWith("th"));
+        tableHeader.append(text(Field.ATTR_TYPE).wrapWith("th"));
+//        tableHeader.append(nbsp().wrapWith("th"));
+//        tableHeader.append(text(Field.ATTR_IS_PK).wrapWith("th"));
+//        tableHeader.append(nbsp().wrapWith("th"));
+//        tableHeader.append(text(Field.ATTR_NOT_NULL).wrapWith("th"));
+//        tableHeader.append(nbsp().wrapWith("th"));
+//        tableHeader.append(text(Description.TAG_NAME).wrapWith("th"));
+
+        fieldListBuilder.append(tableHeader.wrapWith("tr"));
+
+        fieldList.forEach(field -> {
+
+                    HtmlBuilder fieldBuilder = new HtmlBuilder();
+                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getName())).wrapWith(SECTION_CONTENT_CELL));
+                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getType())).wrapWith(GRAYED_ELEMENT).wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(text(MyDomUtils.getValueOrFalseBoolean(field.getIsPk())? "Y" : "").wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(text(MyDomUtils.getValueOrFalseBoolean(field.getNotNull())? "Y" : "").wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getDescription().getValue())).wrapWith(SECTION_CONTENT_CELL));
+
+                    fieldListBuilder.append(fieldBuilder.wrapWith("tr"));
+                }
+        );
+
+        return fieldListBuilder.wrapWith(SECTIONS_TABLE);
+    }
 
     public static HtmlChunk.Element formatTagValue(XmlTag xmlTag,String title, @NotNull String noContentMessage) {
         HtmlBuilder builder = new HtmlBuilder();

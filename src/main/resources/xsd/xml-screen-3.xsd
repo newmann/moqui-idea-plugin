@@ -467,8 +467,9 @@ along with this software (see the LICENSE.md file). If not, see
     </xs:attributeGroup>
 
     <xs:element name="transition-include"><xs:complexType>
-        <xs:attribute name="name" type="name-package" use="required"/>
+<!--        调整了先后次序，以便于在输入的时候，先输入location，然后在输入name hxs 20241118 -->
         <xs:attribute name="location" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="name-package" use="required"/>
         <xs:attribute name="method" type="xs:string"/>
     </xs:complexType></xs:element>
 

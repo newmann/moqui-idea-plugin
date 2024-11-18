@@ -1,27 +1,24 @@
 package org.moqui.idea.plugin.quickDoc;
 
 import com.intellij.lang.documentation.AbstractDocumentationProvider;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.text.HtmlBuilder;
-import com.intellij.openapi.util.text.HtmlChunk;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.service.IndexService;
-import org.moqui.idea.plugin.service.MoquiIndexService;
+import org.moqui.idea.plugin.quickDoc.format.CommonDocumentationFormatter;
+import org.moqui.idea.plugin.service.IndexViewEntity;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.intellij.lang.documentation.DocumentationMarkup.CONTENT_ELEMENT;
+import static com.intellij.openapi.util.text.HtmlChunk.text;
 import static org.moqui.idea.plugin.quickDoc.format.CommonDocumentationFormatter.*;
 
 public class QuickDocumentationProvider extends AbstractDocumentationProvider {
@@ -84,11 +81,23 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
 
         HtmlBuilder docBuilder = new HtmlBuilder()
                 .append(formatViewEntityDefinition(view));
+        //显示ViewEntity的字段定义
+        Optional<IndexViewEntity> indexViewEntityOptional = EntityUtils.getIndexViewEntityByViewEntity(view);
 
-        docBuilder.append(formatTagValue(view.getXmlTag(),null,"Not define view content"));
+        if(indexViewEntityOptional.isPresent()) {
+                List<AbstractField> abstractFieldList = indexViewEntityOptional.get().getAbstractFieldList().orElse(null);
+                if(abstractFieldList == null) {
+                    docBuilder.append("Not define view field");
+                }else{
+                    docBuilder.append(formatAbstractFieldList(abstractFieldList));
+                }
+        }else {
+            docBuilder.append("Not define view content");
+        }
 
         return docBuilder.toString();
     }
+
     public static String generateServiceDoc(PsiElement element) {
         Service service = MyDomUtils.getLocalDomElementByPsiElement(element,Service.class).orElse(null);
         if (service == null){return "Not found target Service.";}
