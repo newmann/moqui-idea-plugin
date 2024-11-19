@@ -3,12 +3,11 @@
 package org.moqui.idea.plugin.reference;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.util.IncorrectOperationException;
 import icons.MoquiIcons;
 import org.jetbrains.uast.UContinueExpression;
 import org.moqui.idea.plugin.dom.model.AbstractEntity;
-import org.moqui.idea.plugin.util.BeginAndEndCharPattern;
-import org.moqui.idea.plugin.util.EntityScope;
-import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.*;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
@@ -16,7 +15,6 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.util.MyStringUtils;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -41,11 +39,11 @@ public class AbstractEntityOrViewNameReference extends PsiReferenceBase.Immediat
 
     private final EntityScope entityScope;
 
-
+  private TextRange myTextRange;
 
   public AbstractEntityOrViewNameReference(@NotNull PsiElement element, TextRange textRange, EntityScope entityScope, PsiElement resolve) {
     super(element, textRange,resolve);
-
+    this.myTextRange = textRange;
     this.entityScope = entityScope;
 
   }
@@ -95,5 +93,13 @@ public class AbstractEntityOrViewNameReference extends PsiReferenceBase.Immediat
             }
     );
 
+  }
+
+  @Override
+  public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
+
+    return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
+
+//    return super.handleElementRename(newElementName);
   }
 }

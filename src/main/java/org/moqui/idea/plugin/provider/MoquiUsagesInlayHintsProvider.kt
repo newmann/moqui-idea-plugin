@@ -60,7 +60,7 @@ class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
         return when (xmlTag.name) {
             Entity.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Entity::class.java, false).map(Entity::getEntityName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
             ViewEntity.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, ViewEntity::class.java, false).map(ViewEntity::getEntityName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
-            Service.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Service::class.java, false).map(Service::getNoun).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
+            Service.TAG_NAME -> MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Service::class.java, false).map(Service::getVerb).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
             Transition.TAG_NAME->MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Transition::class.java, false).map(Transition::getName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
             WidgetTemplate.TAG_NAME->MyDomUtils.getLocalDomElementByPsiElement(xmlTag, WidgetTemplate::class.java, false).map(WidgetTemplate::getName).map(GenericAttributeValue<String>::getXmlAttributeValue).orElse(null)
             else-> null

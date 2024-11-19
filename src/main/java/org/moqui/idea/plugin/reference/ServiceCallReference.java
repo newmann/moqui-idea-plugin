@@ -8,6 +8,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
+import com.intellij.util.IncorrectOperationException;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,11 +23,15 @@ public class ServiceCallReference extends PsiReferenceBase.Immediate<PsiElement>
 
   private final Logger logger = Logger.getInstance(ServiceCallReference.class);
 
-//    private PsiElement myResolve;
+  private TextRange myTextRange;
+
+    private PsiElement myResolveElement;
 
   public ServiceCallReference(@NotNull PsiElement element, TextRange textRange,PsiElement resolveElement) {
     super(element, textRange,resolveElement);
-//    myResolve = resolveElement;
+    this.myTextRange = textRange;
+
+    myResolveElement = resolveElement;
   }
 
 //
@@ -140,5 +145,18 @@ public class ServiceCallReference extends PsiReferenceBase.Immediate<PsiElement>
     }
 
   }
+  @Override
+  public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
+    String newName = newElementName;
+    //如果指向了PsiFile，则需要将.xml后缀去掉
+    if(myResolveElement instanceof PsiFile) {
+      int index = newElementName.lastIndexOf(".xml");
+      if(index>0){
+        newName = newElementName.substring(0,index);
+      }
+    }
+    return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newName);
 
+//    return super.handleElementRename(newElementName);
+  }
 }
