@@ -9,14 +9,21 @@ import org.moqui.idea.plugin.util.MyDomUtils;
 /**
  * 由于在ViewEntity定义中，AliasAll可以定义prefix，所以需要处理这种情况
  */
-public final class IndexField {
+public final class IndexAbstractField {
+    public static IndexAbstractField of(@NotNull AbstractField abstractField, @NotNull AliasAll aliasAll){
+        return  new IndexAbstractField(abstractField,aliasAll);
+    }
+    public static IndexAbstractField of(@NotNull AbstractField abstractField){
+        return new IndexAbstractField(abstractField,null);
+    }
+
     private final String name;
     private final AbstractField abstractField;
     private final String type;
     private final AliasAll aliasAll;
 
 
-    IndexField(@NotNull AbstractField abstractField, @Nullable AliasAll aliasAll){
+    IndexAbstractField(@NotNull AbstractField abstractField, @Nullable AliasAll aliasAll){
         this.abstractField = abstractField;
         this.aliasAll = aliasAll;
         if(aliasAll == null) {

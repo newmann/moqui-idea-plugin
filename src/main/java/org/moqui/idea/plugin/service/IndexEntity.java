@@ -1,7 +1,5 @@
 package org.moqui.idea.plugin.service;
 
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.EntityUtils;
@@ -45,14 +43,14 @@ public final class IndexEntity extends AbstractIndexEntity {
         this.abstractFieldMap = new HashMap<>();
 
         for(Field field: this.entity.getFieldList()) {
-            abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
+            abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(field));
         }
         this.relationshipList = new ArrayList<>();
         relationshipList.addAll(this.entity.getRelationshipList());
 
         for(ExtendEntity extendEntity : extendEntityList){
             for(Field field: extendEntity.getFieldList()) {
-                this.abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
+                this.abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(field));
             }
             this.relationshipList.addAll(extendEntity.getRelationshipList());
         }
@@ -105,7 +103,7 @@ public final class IndexEntity extends AbstractIndexEntity {
     public Optional<List<Field>> getFieldList(){
         List<Field> fieldList = new ArrayList<>();
         for(String key: abstractFieldMap.keySet()){
-            fieldList.add((Field) abstractFieldMap.get(key));
+            fieldList.add((Field) abstractFieldMap.get(key).getAbstractField());
         }
         return Optional.of(fieldList);
 

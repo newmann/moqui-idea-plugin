@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.service;
 
 import com.intellij.openapi.vfs.VirtualFileManager;
-import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.listener.MoquiXmlVirtualFileManager;
 import org.moqui.idea.plugin.util.EntityUtils;
@@ -14,10 +13,8 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
 import java.util.*;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * 建立Entity，ViewEntity和Service的缓存
@@ -205,7 +202,7 @@ public final class MoquiIndexService {
         }
         if(!pending.isEmpty()) return false;
 
-        Map<String,AbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,entityMap);
+        Map<String, IndexAbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,entityMap);
 
         IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
         indexViewEntity.setAbstractFieldMap(fieldMap);
@@ -257,7 +254,7 @@ public final class MoquiIndexService {
         }
         if(!pending.isEmpty()) return false;
 
-        Map<String,AbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,entityMap);
+        Map<String,IndexAbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,entityMap);
 
         IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
         indexViewEntity.setAbstractFieldMap(fieldMap);
@@ -296,10 +293,11 @@ public final class MoquiIndexService {
 //        }
 //        return  result;
 //    }
-    private Map<String, AbstractField> extractViewEntityFieldMap(@NotNull ViewEntity viewEntity, @NotNull Map<String,AbstractIndexEntity> abstractIndexEntityMap) {
-        Map<String, AbstractField> result = new HashMap<>();
+    private Map<String, IndexAbstractField> extractViewEntityFieldMap(@NotNull ViewEntity viewEntity, @NotNull Map<String,AbstractIndexEntity> abstractIndexEntityMap) {
+        Map<String, IndexAbstractField> result = new HashMap<>();
         //添加alias
-        List<AbstractField> fieldList = new LinkedList<>(viewEntity.getAliasList());
+        List<IndexAbstractField> fieldList = new LinkedList<>(viewEntity.getAliasList().stream().map(IndexAbstractField::of).toList());
+                //new LinkedList<>(viewEntity.getAliasList());
         //对AliasAll进行处理
         List<AliasAll> aliasAllList = viewEntity.getAliasAllList();
         for(AliasAll aliasAll : aliasAllList) {
@@ -310,12 +308,13 @@ public final class MoquiIndexService {
 
             //根据alias在abstractIndexEntityMap中查找对应AbstractIndexEntity
             AbstractIndexEntity abstractIndexEntity = abstractIndexEntityMap.get(alias);
-            List<AbstractField> aliasAllFieldList = abstractIndexEntity.getAbstractFieldList().orElse(new ArrayList<>());;
+            List<IndexAbstractField> aliasAllFieldList = abstractIndexEntity.getAbstractFieldList().orElse(new ArrayList<>());
             fieldList.addAll(
                     EntityUtils.excludeFields(aliasAllFieldList,aliasAll.getExcludeList())
             );
+
         }
-        for(AbstractField field: fieldList) {
+        for(IndexAbstractField field: fieldList) {
             result.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
         }
 
@@ -360,7 +359,7 @@ public final class MoquiIndexService {
 
         }
     }
-    private Optional<List<AbstractField>> accessEntityOrViewEntityFields(@NotNull String entityName){
+    private Optional<List<IndexAbstractField>> accessEntityOrViewEntityFields(@NotNull String entityName){
         Optional<IndexEntity> entity = accessIndexEntityByName(entityName);
         if (entity.isPresent()) {
             return entity.get().getAbstractFieldList();
@@ -903,7 +902,7 @@ public final class MoquiIndexService {
 
     }
 
-    public Optional<List<AbstractField>> getEntityOrViewEntityFieldList(@NotNull String name){
+    public Optional<List<IndexAbstractField>> getEntityOrViewEntityFieldList(@NotNull String name){
         Optional<AbstractIndexEntity> optionalAbstractIndexEntity = getIndexEntityOrIndexViewEntity(name);
         return optionalAbstractIndexEntity.flatMap(AbstractIndexEntity::getAbstractFieldList);
 

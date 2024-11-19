@@ -2,11 +2,8 @@ package org.moqui.idea.plugin.service;
 
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.AbstractEntity;
-import org.moqui.idea.plugin.dom.model.AbstractField;
-import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,8 +13,8 @@ public abstract class AbstractIndexEntity extends AbstractIndex {
     protected  String packageName = MyStringUtils.EMPTY_STRING;
     protected String shortAlias = MyStringUtils.EMPTY_STRING;
     protected  String fullName = MyStringUtils.EMPTY_STRING;
-    protected Map<String, AbstractField> abstractFieldMap;
-
+//    protected Map<String, AbstractField> abstractFieldMap;
+    protected Map<String, IndexAbstractField> abstractFieldMap;
     protected AbstractEntity abstractEntity;
 
     public String getFullName(){
@@ -35,7 +32,7 @@ public abstract class AbstractIndexEntity extends AbstractIndex {
         return this.fullName.equals(name) || this.shortName.equals(name) || this.shortAlias.equals(name);
 
     }
-    public Optional<List<AbstractField>> getAbstractFieldList(){
+    public Optional<List<IndexAbstractField>> getAbstractFieldList(){
         return Optional.of(this.abstractFieldMap.values().stream().toList());
     }
     public Optional<List<String>> getFieldNameList(){

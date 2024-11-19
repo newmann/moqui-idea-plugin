@@ -2,7 +2,6 @@ package org.moqui.idea.plugin.service;
 
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
@@ -70,10 +69,10 @@ public final class IndexViewEntity extends AbstractIndexEntity {
 //        return Optional.of(abstractFieldMap.values().stream().toList());
 //
 //    }
-    public void setAbstractFieldMap(Map<String,AbstractField> abstractFieldMap){
+    public void setAbstractFieldMap(Map<String, IndexAbstractField> abstractFieldMap){
         this.abstractFieldMap = abstractFieldMap;
     }
-    public Map<String,AbstractField> getAbstractFieldMap(){
+    public Map<String, IndexAbstractField> getAbstractFieldMap(){
         return this.abstractFieldMap;
     }
 

@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
@@ -22,11 +23,11 @@ import java.util.Collection;
  * 1、获取Field的方式不同，所以需要放到子类中去实现
  */
 
-public abstract class AbstractEntityFieldNameConverter extends ResolvingConverter<AbstractField> implements CustomReferenceConverter {
+public abstract class AbstractEntityFieldNameConverter extends ResolvingConverter<IndexAbstractField> implements CustomReferenceConverter {
     protected final java.util.Set<String> ALLOW_PRE_CHARS = java.util.Set.of("+","-","^");
 
     @Override
-    public @Nullable AbstractField fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public @Nullable IndexAbstractField fromString(@Nullable @NonNls String s, ConvertContext context) {
         return getField(s, context);
     }
 
@@ -36,10 +37,10 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
      * @param context
      * @return
      */
-    abstract AbstractField getField(@Nullable @NonNls String s, ConvertContext context);
+    abstract IndexAbstractField getField(@Nullable @NonNls String s, ConvertContext context);
 
     @Override
-    public @NotNull Collection<? extends AbstractField> getVariants(ConvertContext context) {
+    public @NotNull Collection<IndexAbstractField> getVariants(ConvertContext context) {
         return getFieldVariants(context);
     }
 
@@ -48,10 +49,10 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
      * @param context
      * @return
      */
-    abstract @NotNull Collection<? extends AbstractField> getFieldVariants(ConvertContext context);
+    abstract @NotNull Collection<IndexAbstractField> getFieldVariants(ConvertContext context);
 
     @Override
-    public @Nullable LookupElement createLookupElement(AbstractField field) {
+    public @Nullable LookupElement createLookupElement(IndexAbstractField field) {
         if (field == null) return super.createLookupElement(field);
 
         return LookupElementBuilder.create(field,MyDomUtils.getValueOrEmptyString(field.getName()))
@@ -65,25 +66,25 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
      */
     abstract boolean isNotCheckElement(ConvertContext context);
 
-    @Override
-    public @Nullable PsiElement getPsiElement(@Nullable AbstractField resolvedValue) {
-        if(resolvedValue == null) return null;
-        return resolvedValue.getName().getXmlAttributeValue().getOriginalElement();
-    }
+//    @Override
+//    public @Nullable PsiElement getPsiElement(@Nullable IndexAbstractField resolvedValue) {
+//        if(resolvedValue == null) return null;
+//        return resolvedValue.getName().getXmlAttributeValue().getOriginalElement();
+//    }
 
     @Override
-    public @Nullable String toString(@Nullable AbstractField s, ConvertContext context) {
+    public @Nullable String toString(@Nullable IndexAbstractField s, ConvertContext context) {
         if (s == null) return null;
 
         return MyDomUtils.getValueOrEmptyString(s.getName());
     }
 
-    @Override
-    public boolean isReferenceTo(@NotNull PsiElement element, String stringValue, @Nullable AbstractField resolveResult, ConvertContext context) {
-        if(resolveResult==null) return false;
-        return  stringValue.equals(resolveResult.getName().getXmlAttributeValue().getValue());
-//        return super.isReferenceTo(element, stringValue, resolveResult, context);
-    }
+//    @Override
+//    public boolean isReferenceTo(@NotNull PsiElement element, String stringValue, @Nullable IndexAbstractField resolveResult, ConvertContext context) {
+//        if(resolveResult==null) return false;
+//        return  stringValue.equals(resolveResult.getName().getXmlAttributeValue().getValue());
+////        return super.isReferenceTo(element, stringValue, resolveResult, context);
+//    }
 
     @Override
     public @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {

@@ -15,6 +15,7 @@ import com.intellij.util.ProcessingContext;
 import org.assertj.core.util.Sets;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.util.*;
 
 import java.util.ArrayList;
@@ -199,7 +200,7 @@ public class MultiFieldNameCompletionContributor extends CompletionContributor {
     if(MyStringUtils.isEmpty(name)) return ;
     ProgressManager.checkCanceled();
 
-      List<AbstractField> fieldList = new ArrayList<>(EntityUtils.getEntityOrViewEntityFields(psiElement.getProject(), name));
+      List<IndexAbstractField> fieldList = new ArrayList<>(EntityUtils.getEntityOrViewEntityFields(psiElement.getProject(), name));
     fieldList.forEach(item ->{
       String fieldName = MyDomUtils.getValueOrEmptyString(item.getName());
       if(!inputedFields.contains(fieldName)) {

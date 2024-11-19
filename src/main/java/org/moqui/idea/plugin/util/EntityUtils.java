@@ -14,10 +14,7 @@ import icons.MoquiIcons;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.AbstractEntityOrViewNameReference;
 import org.moqui.idea.plugin.reference.PsiRef;
-import org.moqui.idea.plugin.service.AbstractIndexEntity;
-import org.moqui.idea.plugin.service.IndexEntity;
-import org.moqui.idea.plugin.service.IndexViewEntity;
-import org.moqui.idea.plugin.service.MoquiIndexService;
+import org.moqui.idea.plugin.service.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -412,13 +409,13 @@ public final class EntityUtils {
      * @param name
      * @return
      */
-    public static @NotNull Optional<List<AbstractField>> getViewEntityFieldList(@NotNull Project project, @NotNull String name){
+    public static @NotNull Optional<List<IndexAbstractField>> getViewEntityFieldList(@NotNull Project project, @NotNull String name){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         Optional<IndexViewEntity> indexViewEntity = moquiIndexService.getIndexViewEntityByName(name);
         return indexViewEntity.map(entity->entity.getAbstractFieldList().orElse(new ArrayList<>()));
 
     }
-    public static @NotNull Optional<List<AbstractField>> getViewEntityFieldList(@NotNull ViewEntity viewEntity) {
+    public static @NotNull Optional<List<IndexAbstractField>> getViewEntityFieldList(@NotNull ViewEntity viewEntity) {
         final Project project;
         if(viewEntity.getXmlElement() ==null) {
             return Optional.empty();
@@ -447,14 +444,14 @@ public final class EntityUtils {
     }
 
 
-    public static List<AbstractField> excludeFields(List<AbstractField> sourceFieldList,List<Exclude> excludeList){
+    public static List<IndexAbstractField> excludeFields(List<IndexAbstractField> sourceFieldList, List<Exclude> excludeList){
         final Set<String> excludeFieldNames = excludeList.stream().map(Exclude::getField)
                 .map(GenericAttributeValue::getXmlAttributeValue).filter(Objects::nonNull)
                 .map(XmlAttributeValue::getValue)
                 .collect(Collectors.toSet());
 
         return sourceFieldList.stream()
-                .filter(item->{ return !excludeFieldNames.contains(MyDomUtils.getValueOrEmptyString(item.getName()));})
+                .filter(item->{ return !excludeFieldNames.contains(MyDomUtils.getValueOrEmptyString(item.getAbstractField().getName()));})
                 .toList();
 
     }
@@ -812,7 +809,7 @@ public final class EntityUtils {
      * @param alias
      * @return
      */
-    public static Optional<List<AbstractField>> getAbstractFieldListFromViewEntityByAlias(@NotNull ViewEntity viewEntity,@NotNull String alias) {
+    public static Optional<List<IndexAbstractField>> getAbstractFieldListFromViewEntityByAlias(@NotNull ViewEntity viewEntity,@NotNull String alias) {
 
         AbstractIndexEntity abstractIndexEntity = getViewEntityAbstractIndexEntityByAlias(
                 viewEntity,
@@ -830,9 +827,9 @@ public final class EntityUtils {
      * @param entityName
      * @return
      */
-    public static @NotNull Collection<AbstractField> getEntityOrViewEntityFields(@NotNull Project project, @NotNull String entityName){
+    public static @NotNull Collection<IndexAbstractField> getEntityOrViewEntityFields(@NotNull Project project, @NotNull String entityName){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
-        Optional<List<AbstractField>> result = moquiIndexService.getEntityOrViewEntityFieldList(entityName);
+        Optional<List<IndexAbstractField>> result = moquiIndexService.getEntityOrViewEntityFieldList(entityName);
         return result.orElse(Collections.emptyList());
     }
     public static Optional<Entity> getCurrentEntity(ConvertContext context){
