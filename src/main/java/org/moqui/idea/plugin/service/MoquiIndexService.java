@@ -317,7 +317,7 @@ public final class MoquiIndexService {
             AbstractIndexEntity abstractIndexEntity = abstractIndexEntityMap.get(alias);
             List<IndexAbstractField> aliasAllFieldList = abstractIndexEntity.getIndexAbstractFieldList()
                     .orElse(new ArrayList<>());
-
+            //todo 如果IndexAbstractField也是个带prefix的AliasAll生成的话，就出问题了，但现在看所有的viewEntity都没有出现这种情况，还不知道framework是否支持这种view的定义方式
             List<IndexAbstractField> updateAliasAllFieldList = aliasAllFieldList.stream().map(item->{return IndexAbstractField.of(item.getAbstractField(),aliasAll);}).toList();
 
             fieldList.addAll(
@@ -860,17 +860,17 @@ public final class MoquiIndexService {
         return getIndexEntityOrIndexViewEntity(name).map(AbstractIndexEntity::getAbstractEntity);
     }
 
-    private Optional<AbstractEntity> accessEntityOrViewEntity(@NotNull String name) {
-        Optional<Entity> entity;
-        entity = accessEntityByName(name);
-        if(entity.isPresent()){
-            return Optional.of(entity.get());
-        }else {
-//            Optional<ViewEntity> viewEntity = accessViewEntityByName(name);
-            return Optional.ofNullable(accessViewEntityByName(name).orElse(null));
-        }
-
-    }
+//    private Optional<AbstractEntity> accessEntityOrViewEntity(@NotNull String name) {
+//        Optional<Entity> entity;
+//        entity = accessEntityByName(name);
+//        if(entity.isPresent()){
+//            return Optional.of(entity.get());
+//        }else {
+////            Optional<ViewEntity> viewEntity = accessViewEntityByName(name);
+//            return Optional.ofNullable(accessViewEntityByName(name).orElse(null));
+//        }
+//
+//    }
 
     public Optional<List<IndexAbstractField>> getEntityOrViewEntityFieldList(@NotNull String name){
         Optional<AbstractIndexEntity> optionalAbstractIndexEntity = getIndexEntityOrIndexViewEntity(name);

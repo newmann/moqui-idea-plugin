@@ -178,9 +178,8 @@ public class CommonDocumentationFormatter {
         tableHeader.append(text(Field.ATTR_TYPE).wrapWith("th"));
         tableHeader.append(nbsp().wrapWith("th"));
         tableHeader.append(text(AliasAll.ATTR_PREFIX).wrapWith("th"));
-
-//        tableHeader.append(nbsp().wrapWith("th"));
-//        tableHeader.append(text(Field.ATTR_NOT_NULL).wrapWith("th"));
+        tableHeader.append(nbsp().wrapWith("th"));
+        tableHeader.append(text(AliasAll.ATTR_ENTITY_ALIAS).wrapWith("th"));
 //        tableHeader.append(nbsp().wrapWith("th"));
 //        tableHeader.append(text(Description.TAG_NAME).wrapWith("th"));
 
@@ -194,8 +193,16 @@ public class CommonDocumentationFormatter {
                     fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getType())).wrapWith(GRAYED_ELEMENT).wrapWith(SECTION_CONTENT_CELL));
                     fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
                     fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getPrefix())).wrapWith(SECTION_CONTENT_CELL));
-//                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
-//                    fieldBuilder.append(text(MyDomUtils.getValueOrFalseBoolean(field.getNotNull())? "Y" : "").wrapWith(SECTION_CONTENT_CELL));
+                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+                    if(field.getAliasAll() == null) {
+                        if(field.getAbstractField() instanceof Alias aliasField) {
+                            fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(aliasField.getEntityAlias())).wrapWith(SECTION_CONTENT_CELL));
+                        }else {
+                            fieldBuilder.append(text(MyStringUtils.EMPTY_STRING).wrapWith(SECTION_CONTENT_CELL));
+                        }
+                    }else{
+                        fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getAliasAll().getEntityAlias())).wrapWith(SECTION_CONTENT_CELL));
+                    }
 //                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
 //                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getDescription().getValue())).wrapWith(SECTION_CONTENT_CELL));
 
