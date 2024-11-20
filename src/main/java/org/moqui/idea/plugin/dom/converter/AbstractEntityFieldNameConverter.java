@@ -22,12 +22,12 @@ import java.util.Collection;
  * 针对Field进行相关处理
  * 1、获取Field的方式不同，所以需要放到子类中去实现
  */
-
-public abstract class AbstractEntityFieldNameConverter extends ResolvingConverter<IndexAbstractField> implements CustomReferenceConverter {
+@Deprecated
+public abstract class AbstractEntityFieldNameConverter extends ResolvingConverter<AbstractField> implements CustomReferenceConverter {
     protected final java.util.Set<String> ALLOW_PRE_CHARS = java.util.Set.of("+","-","^");
 
     @Override
-    public @Nullable IndexAbstractField fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public @Nullable AbstractField fromString(@Nullable @NonNls String s, ConvertContext context) {
         return getField(s, context);
     }
 
@@ -37,10 +37,10 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
      * @param context
      * @return
      */
-    abstract IndexAbstractField getField(@Nullable @NonNls String s, ConvertContext context);
+    abstract AbstractField getField(@Nullable @NonNls String s, ConvertContext context);
 
     @Override
-    public @NotNull Collection<IndexAbstractField> getVariants(ConvertContext context) {
+    public @NotNull Collection<AbstractField> getVariants(ConvertContext context) {
         return getFieldVariants(context);
     }
 
@@ -49,10 +49,10 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
      * @param context
      * @return
      */
-    abstract @NotNull Collection<IndexAbstractField> getFieldVariants(ConvertContext context);
+    abstract @NotNull Collection<AbstractField> getFieldVariants(ConvertContext context);
 
     @Override
-    public @Nullable LookupElement createLookupElement(IndexAbstractField field) {
+    public @Nullable LookupElement createLookupElement(AbstractField field) {
         if (field == null) return super.createLookupElement(field);
 
         return LookupElementBuilder.create(field,MyDomUtils.getValueOrEmptyString(field.getName()))
@@ -73,7 +73,7 @@ public abstract class AbstractEntityFieldNameConverter extends ResolvingConverte
 //    }
 
     @Override
-    public @Nullable String toString(@Nullable IndexAbstractField s, ConvertContext context) {
+    public @Nullable String toString(@Nullable AbstractField s, ConvertContext context) {
         if (s == null) return null;
 
         return MyDomUtils.getValueOrEmptyString(s.getName());

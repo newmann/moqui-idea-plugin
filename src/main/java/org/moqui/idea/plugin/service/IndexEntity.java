@@ -40,17 +40,17 @@ public final class IndexEntity extends AbstractIndexEntity {
             this.fullName =  this.packageName + "." + this.shortName;
         }
 
-        this.abstractFieldMap = new HashMap<>();
+        this.indexAbstractFieldMap = new HashMap<>();
 
         for(Field field: this.entity.getFieldList()) {
-            abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(field));
+            indexAbstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(field));
         }
         this.relationshipList = new ArrayList<>();
         relationshipList.addAll(this.entity.getRelationshipList());
 
         for(ExtendEntity extendEntity : extendEntityList){
             for(Field field: extendEntity.getFieldList()) {
-                this.abstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(field));
+                this.indexAbstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(field));
             }
             this.relationshipList.addAll(extendEntity.getRelationshipList());
         }
@@ -102,8 +102,8 @@ public final class IndexEntity extends AbstractIndexEntity {
 
     public Optional<List<Field>> getFieldList(){
         List<Field> fieldList = new ArrayList<>();
-        for(String key: abstractFieldMap.keySet()){
-            fieldList.add((Field) abstractFieldMap.get(key).getAbstractField());
+        for(String key: indexAbstractFieldMap.keySet()){
+            fieldList.add((Field) indexAbstractFieldMap.get(key).getAbstractField());
         }
         return Optional.of(fieldList);
 

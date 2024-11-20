@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.dom.model.AliasAll;
 import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 /**
  * 由于在ViewEntity定义中，AliasAll可以定义prefix，所以需要处理这种情况
@@ -21,17 +22,20 @@ public final class IndexAbstractField {
     private final AbstractField abstractField;
     private final String type;
     private final AliasAll aliasAll;
-
+    private final String prefix;
+    private final String originFieldName;
 
     IndexAbstractField(@NotNull AbstractField abstractField, @Nullable AliasAll aliasAll){
         this.abstractField = abstractField;
         this.aliasAll = aliasAll;
+        this.originFieldName = MyDomUtils.getValueOrEmptyString(abstractField.getName());
         if(aliasAll == null) {
-            this.name = MyDomUtils.getValueOrEmptyString(abstractField.getName());
+            this.prefix = MyStringUtils.EMPTY_STRING;
         }else{
-            this.name = MyDomUtils.getValueOrEmptyString(aliasAll.getPrefix()) +
-                    MyDomUtils.getValueOrEmptyString(abstractField.getName());
+            this.prefix = MyDomUtils.getValueOrEmptyString(aliasAll.getPrefix());
         }
+
+        this.name = this.prefix + this.originFieldName;
 
         this.type = MyDomUtils.getValueOrEmptyString(abstractField.getType());
     }
@@ -52,6 +56,13 @@ public final class IndexAbstractField {
         return type;
     }
 
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public String getOriginFieldName() {
+        return originFieldName;
+    }
 
     public boolean isThisField(@NotNull String name){
         return this.name.equals(name);

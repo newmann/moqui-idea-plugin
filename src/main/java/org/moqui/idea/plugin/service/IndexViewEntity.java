@@ -70,10 +70,10 @@ public final class IndexViewEntity extends AbstractIndexEntity {
 //
 //    }
     public void setAbstractFieldMap(Map<String, IndexAbstractField> abstractFieldMap){
-        this.abstractFieldMap = abstractFieldMap;
+        this.indexAbstractFieldMap = abstractFieldMap;
     }
     public Map<String, IndexAbstractField> getAbstractFieldMap(){
-        return this.abstractFieldMap;
+        return this.indexAbstractFieldMap;
     }
 
 //    public boolean isValid(){

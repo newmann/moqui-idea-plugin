@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiElement;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +24,7 @@ public final class MyStringUtils {
         throw new UnsupportedOperationException();
     }
 
+    public static List<String> FIELD_SORT_CHAR_LIST = List.of("+","-","^");
     public static final String EMPTY_STRING = "";
 
     public static final String COMPONENT_PATH_TAG = "/runtime/component/";

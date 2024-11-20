@@ -41,7 +41,7 @@ public class FieldStringSplitUnit {
                 this.trimmedStringEndIndex = this.trimmedStringBeginIndex + trimmedString.length();
             }
         }
-        this.isContainGroovyVariable = originalString.contains("${");
+        this.isContainGroovyVariable = MyStringUtils.containGroovyVariables(originalString);
 
     }
     public String getOriginalString(){return this.originalString;}

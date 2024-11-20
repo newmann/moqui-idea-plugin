@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-@Deprecated
+
 public class PsiRef extends PsiReferenceBase<PsiElement> {
     private PsiElement psiElement;
     private TextRange textRange;

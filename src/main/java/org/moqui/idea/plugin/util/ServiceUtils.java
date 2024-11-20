@@ -444,7 +444,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
     }
     public static final Set<String> STANDARD_CRUD_COMMANDER =Set.of("create","update","delete","store");
-    public static final Set<String> ORDER_BY_COMMANDER =Set.of("+","-","^");
+
     public static Optional<EntityFind> getCurrentEntityFind(@NotNull ConvertContext context){
         return getLocalDomElementByConvertContext(context,EntityFind.class);
 

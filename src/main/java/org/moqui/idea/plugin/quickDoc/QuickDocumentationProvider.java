@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.quickDoc.format.CommonDocumentationFormatter;
+import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexViewEntity;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.intellij.openapi.util.text.HtmlChunk.text;
 import static org.moqui.idea.plugin.quickDoc.format.CommonDocumentationFormatter.*;
 
 public class QuickDocumentationProvider extends AbstractDocumentationProvider {
@@ -85,11 +84,11 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
         Optional<IndexViewEntity> indexViewEntityOptional = EntityUtils.getIndexViewEntityByViewEntity(view);
 
         if(indexViewEntityOptional.isPresent()) {
-                List<AbstractField> abstractFieldList = indexViewEntityOptional.get().getAbstractFieldList().orElse(null);
+                List<IndexAbstractField> abstractFieldList = indexViewEntityOptional.get().getIndexAbstractFieldList().orElse(null);
                 if(abstractFieldList == null) {
                     docBuilder.append("Not define view field");
                 }else{
-                    docBuilder.append(formatAbstractFieldList(abstractFieldList));
+                    docBuilder.append(formatIndexAbstractFieldList(abstractFieldList));
                 }
         }else {
             docBuilder.append("Not define view content");

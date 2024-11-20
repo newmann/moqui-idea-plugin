@@ -142,78 +142,78 @@ public final class MoquiIndexService {
      * 同时将未处理的memberEntity存放到IndexViewEntity对应属性中
      * @param fileElementList
      */
-    private void updateViewEntity(List<DomFileElement<Entities>> fileElementList){
-        List<ViewEntity> pendingViewEntities = new ArrayList<>();
-
-        for(DomFileElement<Entities> fileElement : fileElementList) {
-            for(ViewEntity viewEntity : fileElement.getRootElement().getViewEntities()) {
-                if(!addViewEntityToMap(viewEntity)) {
-                    pendingViewEntities.add(viewEntity);
-                }
-            }
-        }
-        for(int i=0; i<10; i++) {
-            pendingViewEntities.removeIf(this::addViewEntityToMap);
-        }
-        //将未处理的ViewEntity保存下来，在ToolWindows中进行后续的显示
-        this.pendingViewEntityList = pendingViewEntities;
-
-    }
+//    private void updateViewEntity(List<DomFileElement<Entities>> fileElementList){
+//        List<ViewEntity> pendingViewEntities = new ArrayList<>();
+//
+//        for(DomFileElement<Entities> fileElement : fileElementList) {
+//            for(ViewEntity viewEntity : fileElement.getRootElement().getViewEntities()) {
+//                if(!addViewEntityToMap(viewEntity)) {
+//                    pendingViewEntities.add(viewEntity);
+//                }
+//            }
+//        }
+//        for(int i=0; i<10; i++) {
+//            pendingViewEntities.removeIf(this::addViewEntityToMap);
+//        }
+//        //将未处理的ViewEntity保存下来，在ToolWindows中进行后续的显示
+//        this.pendingViewEntityList = pendingViewEntities;
+//
+//    }
     /**
      * 判断当前的ViewEntity是否能获取到字段定义，即对应的MemberEntity或MemberRelationship都已经获得了Field
      * @param viewEntity
      * @return
      */
-    private boolean addViewEntityToMap(@NotNull ViewEntity viewEntity){
-        Map<String,AbstractIndexEntity> entityMap = new HashMap<>();
-
-        for(MemberEntity memberEntity: viewEntity.getMemberEntityList()){
-            Optional<AbstractIndexEntity> optionalAbstractEntity =accessIndexEntityOrIndexViewEntity(MyDomUtils.getValueOrEmptyString(memberEntity.getEntityName()));
-            if (optionalAbstractEntity.isEmpty()) {
-                return false;
-            }else {
-                entityMap.put(MyDomUtils.getValueOrEmptyString(memberEntity.getEntityAlias()),optionalAbstractEntity.get());
-            }
-        };
-        List<MemberRelationship> pending = new ArrayList<>(viewEntity.getMemberRelationshipList());
-
-
-        //MemberRelationship可能是指向另外一个MemberRelationship，这时候需要先处理指向MemberEntity的，然后再一层一层找
-        for(int i=0; i<10; i++) {
-            Iterator<MemberRelationship> iterator = pending.iterator();
-            while (iterator.hasNext()) {
-                MemberRelationship memberRelationship = iterator.next();
-                String joinAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getJoinFromAlias());
-                AbstractIndexEntity foundAbstractIndexEntity = entityMap.get(joinAlias);
-                String relationshipName = MyDomUtils.getValueOrEmptyString(memberRelationship.getRelationship());
-                String entityAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getEntityAlias());
-
-                if (foundAbstractIndexEntity instanceof IndexEntity foundIndexEntity) {
-                    Relationship currentRelationship = foundIndexEntity.getRelationshipByName(relationshipName).orElse(null);
-                    if (currentRelationship != null) {
-                        Optional<AbstractIndexEntity> optRelatedIndexEntity = accessIndexEntityOrIndexViewEntity(MyDomUtils.getValueOrEmptyString(currentRelationship.getRelated()));
-                        if (optRelatedIndexEntity.isPresent()) {
-                            entityMap.put(entityAlias, optRelatedIndexEntity.get());
-                            iterator.remove();
-                        }
-                    }
-                }
-            }
-        }
-        if(!pending.isEmpty()) return false;
-
-        Map<String, IndexAbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,entityMap);
-
-        IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
-        indexViewEntity.setAbstractFieldMap(fieldMap);
-        indexViewEntity.setAbstractIndexEntityMap(entityMap);
-        this.indexViewEntityMap.put(indexViewEntity.getFullName(), indexViewEntity);
-        return true;
-
-    }
+//    private boolean addViewEntityToMap(@NotNull ViewEntity viewEntity){
+//        Map<String,AbstractIndexEntity> entityMap = new HashMap<>();
+//
+//        for(MemberEntity memberEntity: viewEntity.getMemberEntityList()){
+//            Optional<AbstractIndexEntity> optionalAbstractEntity =accessIndexEntityOrIndexViewEntity(MyDomUtils.getValueOrEmptyString(memberEntity.getEntityName()));
+//            if (optionalAbstractEntity.isEmpty()) {
+//                return false;
+//            }else {
+//                entityMap.put(MyDomUtils.getValueOrEmptyString(memberEntity.getEntityAlias()),optionalAbstractEntity.get());
+//            }
+//        };
+//        List<MemberRelationship> pending = new ArrayList<>(viewEntity.getMemberRelationshipList());
+//
+//
+//        //MemberRelationship可能是指向另外一个MemberRelationship，这时候需要先处理指向MemberEntity的，然后再一层一层找
+//        for(int i=0; i<10; i++) {
+//            Iterator<MemberRelationship> iterator = pending.iterator();
+//            while (iterator.hasNext()) {
+//                MemberRelationship memberRelationship = iterator.next();
+//                String joinAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getJoinFromAlias());
+//                AbstractIndexEntity foundAbstractIndexEntity = entityMap.get(joinAlias);
+//                String relationshipName = MyDomUtils.getValueOrEmptyString(memberRelationship.getRelationship());
+//                String entityAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getEntityAlias());
+//
+//                if (foundAbstractIndexEntity instanceof IndexEntity foundIndexEntity) {
+//                    Relationship currentRelationship = foundIndexEntity.getRelationshipByName(relationshipName).orElse(null);
+//                    if (currentRelationship != null) {
+//                        Optional<AbstractIndexEntity> optRelatedIndexEntity = accessIndexEntityOrIndexViewEntity(MyDomUtils.getValueOrEmptyString(currentRelationship.getRelated()));
+//                        if (optRelatedIndexEntity.isPresent()) {
+//                            entityMap.put(entityAlias, optRelatedIndexEntity.get());
+//                            iterator.remove();
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        if(!pending.isEmpty()) return false;
+//
+//        Map<String, IndexAbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,entityMap);
+//
+//        IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
+//        indexViewEntity.setAbstractFieldMap(fieldMap);
+//        indexViewEntity.setAbstractIndexEntityMap(entityMap);
+//        this.indexViewEntityMap.put(indexViewEntity.getFullName(), indexViewEntity);
+//        return true;
+//
+//    }
 
     private boolean addViewEntityToIndexViewEntityMap(@NotNull ViewEntity viewEntity){
-        Map<String,AbstractIndexEntity> entityMap = new HashMap<>();
+        Map<String,AbstractIndexEntity> aliasEntityMap = new HashMap<>();
 
         for(MemberEntity memberEntity: viewEntity.getMemberEntityList()){
             String entityName = MyDomUtils.getValueOrEmptyString(memberEntity.getEntityName());
@@ -224,7 +224,7 @@ public final class MoquiIndexService {
             if (optionalAbstractEntity.isEmpty()) {
                 return false;
             }else {
-                entityMap.put(MyDomUtils.getValueOrEmptyString(memberEntity.getEntityAlias()),optionalAbstractEntity.get());
+                aliasEntityMap.put(MyDomUtils.getValueOrEmptyString(memberEntity.getEntityAlias()),optionalAbstractEntity.get());
             }
         };
         List<MemberRelationship> pending = new ArrayList<>(viewEntity.getMemberRelationshipList());
@@ -236,7 +236,7 @@ public final class MoquiIndexService {
             while (iterator.hasNext()) {
                 MemberRelationship memberRelationship = iterator.next();
                 String joinAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getJoinFromAlias());
-                AbstractIndexEntity foundAbstractIndexEntity = entityMap.get(joinAlias);
+                AbstractIndexEntity foundAbstractIndexEntity = aliasEntityMap.get(joinAlias);
                 String relationshipName = MyDomUtils.getValueOrEmptyString(memberRelationship.getRelationship());
                 String entityAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getEntityAlias());
 
@@ -245,7 +245,7 @@ public final class MoquiIndexService {
                     if (currentRelationship != null) {
                         Optional<AbstractIndexEntity> optRelatedIndexEntity = getIndexEntityOrIndexViewEntity(MyDomUtils.getValueOrEmptyString(currentRelationship.getRelated()));
                         if (optRelatedIndexEntity.isPresent()) {
-                            entityMap.put(entityAlias, optRelatedIndexEntity.get());
+                            aliasEntityMap.put(entityAlias, optRelatedIndexEntity.get());
                             iterator.remove();
                         }
                     }
@@ -254,11 +254,11 @@ public final class MoquiIndexService {
         }
         if(!pending.isEmpty()) return false;
 
-        Map<String,IndexAbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,entityMap);
+        Map<String,IndexAbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,aliasEntityMap);
 
         IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
         indexViewEntity.setAbstractFieldMap(fieldMap);
-        indexViewEntity.setAbstractIndexEntityMap(entityMap);
+        indexViewEntity.setAbstractIndexEntityMap(aliasEntityMap);
 
         indexViewEntity.setLastRefreshStamp(System.currentTimeMillis());
 
@@ -293,6 +293,13 @@ public final class MoquiIndexService {
 //        }
 //        return  result;
 //    }
+
+    /**
+     * 获取指定ViewEntity的所有字段
+     * @param viewEntity 当前的ViewEntity
+     * @param abstractIndexEntityMap 当前ViewEntity的alias对应的AbstractIndexEntity
+     * @return
+     */
     private Map<String, IndexAbstractField> extractViewEntityFieldMap(@NotNull ViewEntity viewEntity, @NotNull Map<String,AbstractIndexEntity> abstractIndexEntityMap) {
         Map<String, IndexAbstractField> result = new HashMap<>();
         //添加alias
@@ -308,9 +315,13 @@ public final class MoquiIndexService {
 
             //根据alias在abstractIndexEntityMap中查找对应AbstractIndexEntity
             AbstractIndexEntity abstractIndexEntity = abstractIndexEntityMap.get(alias);
-            List<IndexAbstractField> aliasAllFieldList = abstractIndexEntity.getAbstractFieldList().orElse(new ArrayList<>());
+            List<IndexAbstractField> aliasAllFieldList = abstractIndexEntity.getIndexAbstractFieldList()
+                    .orElse(new ArrayList<>());
+
+            List<IndexAbstractField> updateAliasAllFieldList = aliasAllFieldList.stream().map(item->{return IndexAbstractField.of(item.getAbstractField(),aliasAll);}).toList();
+
             fieldList.addAll(
-                    EntityUtils.excludeFields(aliasAllFieldList,aliasAll.getExcludeList())
+                    EntityUtils.excludeFields(updateAliasAllFieldList,aliasAll.getExcludeList())
             );
 
         }
@@ -359,19 +370,19 @@ public final class MoquiIndexService {
 
         }
     }
-    private Optional<List<IndexAbstractField>> accessEntityOrViewEntityFields(@NotNull String entityName){
-        Optional<IndexEntity> entity = accessIndexEntityByName(entityName);
-        if (entity.isPresent()) {
-            return entity.get().getAbstractFieldList();
-        }else {
-            Optional<IndexViewEntity> viewEntity = accessIndexViewEntityByName(entityName);
-            if(viewEntity.isPresent()) {
-                return viewEntity.get().getAbstractFieldList();
-            }
-
-        }
-        return Optional.empty();
-    }
+//    private Optional<List<IndexAbstractField>> accessEntityOrViewEntityFields(@NotNull String entityName){
+//        Optional<IndexEntity> entity = accessIndexEntityByName(entityName);
+//        if (entity.isPresent()) {
+//            return entity.get().getIndexAbstractFieldList();
+//        }else {
+//            Optional<IndexViewEntity> viewEntity = accessIndexViewEntityByName(entityName);
+//            if(viewEntity.isPresent()) {
+//                return viewEntity.get().getIndexAbstractFieldList();
+//            }
+//
+//        }
+//        return Optional.empty();
+//    }
     private Optional<IndexService> getIndexInterfaceByFullName(@NotNull String fullName){
         checkAndUpdateInterface(fullName);
         return accessIndexInterfaceByFullName(fullName);
@@ -389,39 +400,8 @@ public final class MoquiIndexService {
     private Optional<IndexService> accessIndexServiceByName(@NotNull String serviceName){
         return Optional.ofNullable(this.indexServiceMap.get(serviceName));
 
-//        for(String key: this.indexServiceMap.keySet()) {
-//            IndexService indexInterface = this.indexServiceMap.get(key);
-//            if(indexInterface.isThisService(fullName)) return Optional.of(indexInterface);
-//        }
-//        return Optional.empty();
     }
-//    /**
-//     *
-//     * @param fileElement
-//     */
-//    private void updateServiceFromFile(DomFileElement<Services> fileElement){
-//        for(org.moqui.idea.plugin.dom.model.Service service: fileElement.getRootElement().getServiceList()) {
-//            if(ServiceUtils.isNotInterface(service)) {
-//                IndexService indexService = new IndexService(service);
-//                //处理interface
-//                Map<String,IndexServiceParameter> inParameterMap = new HashMap<>();
-//                Map<String,IndexServiceParameter> outParameterMap = new HashMap<>();
-//                for(Implements implementsItem: service.getImplementsList()){
-//                    IndexService interfaceService = accessIndexInterfaceByName(MyDomUtils.getValueOrEmptyString(implementsItem.getService())).orElse(null);
-//                    if (interfaceService != null) {
-//                        inParameterMap.putAll(interfaceService.getInParameterMap());
-//                        outParameterMap.putAll(interfaceService.getOutParameterMap());
-//                    }
-//                }
-//                inParameterMap.putAll(extractServiceInParameterFieldMap(service));
-//                outParameterMap.putAll(extractServiceOutParameterFieldMap(service));
-//                indexService.setInParameterMap(inParameterMap);
-//                indexService.setOutParameterMap(outParameterMap);
-//
-//                indexServiceMap.put(indexService.getFullName(), indexService);
-//            }
-//        }
-//    }
+
     private boolean addServiceToIndexServiceMap(@NotNull org.moqui.idea.plugin.dom.model.Service service){
         IndexService indexService = new IndexService(service);
         //处理interface
@@ -462,16 +442,6 @@ public final class MoquiIndexService {
         return true;
 
     }
-//    private void updateInterfaceFromFile(DomFileElement<Services> fileElement){
-//        for(org.moqui.idea.plugin.dom.model.Service service: fileElement.getRootElement().getServiceList()) {
-//            if(ServiceUtils.isInterface(service)) {
-//                IndexService indexService = new IndexService(service);
-//                indexService.setInParameterMap(extractServiceInParameterFieldMap(service));
-//                indexService.setOutParameterMap(extractServiceOutParameterFieldMap(service));
-//                indexInterfaceMap.put(indexService.getFullName(), indexService);
-//            }
-//        }
-//    }
 
     /**
      * 返回service的传入参数
@@ -615,15 +585,15 @@ public final class MoquiIndexService {
     /**
      * 处理ViewEntity的更新
      */
-    private void checkAndUpdateView(@NotNull String entityName){
+    private void checkAndUpdateView(@NotNull String viewName){
         synchronized (MUTEX_VIEW) {
-            IndexViewEntity indexViewEntity = (IndexViewEntity)accessIndexViewEntityByName(entityName).orElse(null);
+            IndexViewEntity indexViewEntity = (IndexViewEntity)accessIndexViewEntityByName(viewName).orElse(null);
             if(indexViewEntity != null && indexViewEntity.getLastRefreshStamp()>= this.entityXmlFileLastUpdatedStamp ) return;
 
-            ViewEntity viewEntity = EntityUtils.getViewEntityByNameFromFile(this.project, entityName).orElse(null);
+            ViewEntity viewEntity = EntityUtils.getViewEntityByNameFromFile(this.project, viewName).orElse(null);
             if(viewEntity==null) {
                 //从IndexViewEntityMap中删除
-                removeIndexViewEntityByName(entityName);
+                removeIndexViewEntityByName(viewName);
             }else {
                 //添加
                 addViewEntityToIndexViewEntityMap(viewEntity);
@@ -776,10 +746,10 @@ public final class MoquiIndexService {
 
     }
 
-    public Optional<ViewEntity> getViewEntityByName(@NotNull String name) {
-        checkAndUpdateView(name);
-        return accessViewEntityByName(name);
-    }
+//    public Optional<ViewEntity> getViewEntityByName(@NotNull String name) {
+//        checkAndUpdateView(name);
+//        return accessViewEntityByName(name);
+//    }
     private Optional<IndexViewEntity> accessIndexViewEntityByName(@NotNull String name) {
         for(String key: this.indexViewEntityMap.keySet()) {
             if(this.indexViewEntityMap.get(key).isThisEntity(name)) return Optional.of(this.indexViewEntityMap.get(key));
@@ -904,7 +874,7 @@ public final class MoquiIndexService {
 
     public Optional<List<IndexAbstractField>> getEntityOrViewEntityFieldList(@NotNull String name){
         Optional<AbstractIndexEntity> optionalAbstractIndexEntity = getIndexEntityOrIndexViewEntity(name);
-        return optionalAbstractIndexEntity.flatMap(AbstractIndexEntity::getAbstractFieldList);
+        return optionalAbstractIndexEntity.flatMap(AbstractIndexEntity::getIndexAbstractFieldList);
 
 //        checkAndUpdateMap();
 //        Optional<IndexEntity> indexEntity = accessIndexEntityByName(name);

@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.service;
 
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.AbstractEntity;
+import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public abstract class AbstractIndexEntity extends AbstractIndex {
     protected String shortAlias = MyStringUtils.EMPTY_STRING;
     protected  String fullName = MyStringUtils.EMPTY_STRING;
 //    protected Map<String, AbstractField> abstractFieldMap;
-    protected Map<String, IndexAbstractField> abstractFieldMap;
+    protected Map<String, IndexAbstractField> indexAbstractFieldMap;
     protected AbstractEntity abstractEntity;
 
     public String getFullName(){
@@ -32,12 +33,20 @@ public abstract class AbstractIndexEntity extends AbstractIndex {
         return this.fullName.equals(name) || this.shortName.equals(name) || this.shortAlias.equals(name);
 
     }
-    public Optional<List<IndexAbstractField>> getAbstractFieldList(){
-        return Optional.of(this.abstractFieldMap.values().stream().toList());
+    public Optional<List<IndexAbstractField>> getIndexAbstractFieldList(){
+        return Optional.of(this.indexAbstractFieldMap.values().stream().toList());
     }
-    public Optional<List<String>> getFieldNameList(){
-        return Optional.of(abstractFieldMap.keySet().stream().toList());
+    public Optional<List<AbstractField>> getAbstractFieldList(){
+        return Optional.of(this.indexAbstractFieldMap.values().stream().map(IndexAbstractField::getAbstractField).toList());
+    }
 
+    public Optional<List<String>> getFieldNameList(){
+        return Optional.of(indexAbstractFieldMap.keySet().stream().toList());
+
+    }
+
+    public Optional<Map<String,IndexAbstractField>> getIndexAbstractFieldMap(){
+        return Optional.of(indexAbstractFieldMap);
     }
 
     public AbstractEntity getAbstractEntity() {

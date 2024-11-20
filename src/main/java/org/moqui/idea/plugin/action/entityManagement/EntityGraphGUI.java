@@ -8,6 +8,7 @@ import com.intellij.ui.table.JBTable;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.dom.model.Relationship;
+import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 import org.moqui.idea.plugin.util.EntityUtils;

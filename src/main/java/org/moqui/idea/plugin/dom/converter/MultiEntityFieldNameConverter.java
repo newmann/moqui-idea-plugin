@@ -10,6 +10,7 @@ import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.util.*;
 
 import javax.swing.text.html.parser.Entity;
@@ -26,6 +27,7 @@ public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConv
         return null;
     }
 
+    //todo 需要重写 ， check 设置为null，是不是就可以不用再次在MoquiDomCheckResoleInspection中进行判断了
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
         final String fieldsStr = value.getStringValue();
@@ -84,22 +86,23 @@ public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConv
         if(entityName.equals(MyStringUtils.EMPTY_STRING)) return PsiReference.EMPTY_ARRAY;
 
 
-        Collection<AbstractField> fieldList = EntityUtils.getEntityOrViewEntityFields(context.getProject(), entityName);
+        Collection<IndexAbstractField> fieldList = EntityUtils.getEntityOrViewEntityFields(context.getProject(), entityName);
 
         for(FieldStringSplitUnit fieldName : fieldNameList) {
             if (fieldName.isContainGroovyVariable() || fieldName.isEmpty()) continue;
 
-            AbstractField field = fieldList.stream().filter(item->{
+            IndexAbstractField field = fieldList.stream().filter(item->{
                 String itemFieldName = MyDomUtils.getValueOrEmptyString(item.getName());
                 return itemFieldName.equals(fieldName.getTrimmedString());
             }).findFirst().orElse(null);
+
             if (field != null) {
                 result.add(new PsiRef(element,
                         new TextRange(1+fieldName.getTrimmedStringBeginIndex(),1+ fieldName.getTrimmedStringEndIndex()),
-                        field.getName().getXmlAttributeValue()));
+                        field.getAbstractField().getName().getXmlAttributeValue()));
 
             }else {
-                //todo check 设置为null，是不是就可以不用再次在MoquiDomCheckResoleInspection中进行判断了
+
                 result.add(new PsiRef(element,
                         new TextRange( 1 + fieldName.getTrimmedStringBeginIndex(),1 + fieldName.getTrimmedStringEndIndex()),
                         null));

@@ -6,6 +6,7 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.DomElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.IndexServiceParameter;
 import org.moqui.idea.plugin.util.ComponentUtils;
@@ -157,6 +158,42 @@ public class CommonDocumentationFormatter {
                     fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getType())).wrapWith(GRAYED_ELEMENT).wrapWith(SECTION_CONTENT_CELL));
 //                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
 //                    fieldBuilder.append(text(MyDomUtils.getValueOrFalseBoolean(field.getIsPk())? "Y" : "").wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(text(MyDomUtils.getValueOrFalseBoolean(field.getNotNull())? "Y" : "").wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+//                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getDescription().getValue())).wrapWith(SECTION_CONTENT_CELL));
+
+                    fieldListBuilder.append(fieldBuilder.wrapWith("tr"));
+                }
+        );
+
+        return fieldListBuilder.wrapWith(SECTIONS_TABLE);
+    }
+    public static HtmlChunk.Element formatIndexAbstractFieldList(List<IndexAbstractField> fieldList) {
+        HtmlBuilder fieldListBuilder = new HtmlBuilder();
+
+        HtmlBuilder tableHeader = new HtmlBuilder();
+        tableHeader.append(text(Field.ATTR_NAME).wrapWith("th"));
+        tableHeader.append(nbsp().wrapWith("th"));
+        tableHeader.append(text(Field.ATTR_TYPE).wrapWith("th"));
+        tableHeader.append(nbsp().wrapWith("th"));
+        tableHeader.append(text(AliasAll.ATTR_PREFIX).wrapWith("th"));
+
+//        tableHeader.append(nbsp().wrapWith("th"));
+//        tableHeader.append(text(Field.ATTR_NOT_NULL).wrapWith("th"));
+//        tableHeader.append(nbsp().wrapWith("th"));
+//        tableHeader.append(text(Description.TAG_NAME).wrapWith("th"));
+
+        fieldListBuilder.append(tableHeader.wrapWith("tr"));
+
+        fieldList.forEach(field -> {
+
+                    HtmlBuilder fieldBuilder = new HtmlBuilder();
+                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getName())).wrapWith(SECTION_CONTENT_CELL));
+                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getType())).wrapWith(GRAYED_ELEMENT).wrapWith(SECTION_CONTENT_CELL));
+                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getPrefix())).wrapWith(SECTION_CONTENT_CELL));
 //                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
 //                    fieldBuilder.append(text(MyDomUtils.getValueOrFalseBoolean(field.getNotNull())? "Y" : "").wrapWith(SECTION_CONTENT_CELL));
 //                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));

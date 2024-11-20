@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.MyBundle;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.util.*;
 
 import java.util.ArrayList;
@@ -161,11 +162,11 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
             if(fieldStringList.isEmpty()) return;
 
 
-            Collection<AbstractField> fieldList = EntityUtils.getEntityOrViewEntityFields(element.getXmlElement().getProject(), entityName);
+            Collection<IndexAbstractField> fieldList = EntityUtils.getEntityOrViewEntityFields(element.getXmlElement().getProject(), entityName);
             for(FieldStringSplitUnit fieldString : fieldStringList) {
                 if(fieldString.isContainGroovyVariable() || fieldString.isEmpty()) continue;
 
-                AbstractField field = fieldList.stream().filter(item -> {
+                IndexAbstractField field = fieldList.stream().filter(item -> {
                     String itemFieldName = MyDomUtils.getValueOrEmptyString(item.getName());
                     return itemFieldName.equals(fieldString.getTrimmedString());
                 }).findFirst().orElse(null);
