@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.ServicesPresentationProvider;
 
 import java.util.List;
-@Stubbed
+//@Stubbed
 @Presentation(provider = ServicesPresentationProvider.class)
 public interface Services extends DomElement {
     public static final String TAG_NAME = "services";

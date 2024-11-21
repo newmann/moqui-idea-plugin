@@ -47,6 +47,7 @@ public class MoquiXmlVirtualFileManager implements VirtualFileListener {
             }else {
                 if(EntityUtils.isEntitiesFile(psiFile)) {
                     moquiIndexService.setEntityXmlFileLastUpdatedStamp(System.currentTimeMillis());
+                    moquiIndexService.setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());//修改entity的xml，则service也需要更新
                 }
             }
         }

@@ -2,7 +2,6 @@ package org.moqui.idea.plugin.dom.inspection;
 
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomUtil;
@@ -157,22 +156,22 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
             }
 //            String[] fieldNameArray = fieldsString.split(",");
 //            if (fieldNameArray.length == 0) return;
-            List<FieldStringSplitUnit> fieldStringList = EntityUtils.splitFieldString(fieldsString).orElse(new ArrayList<FieldStringSplitUnit>());
+            List<FieldDescriptor> fieldStringList = EntityUtils.extractFieldDescriptorList(fieldsString,1).orElse(new ArrayList<FieldDescriptor>());
 
             if(fieldStringList.isEmpty()) return;
 
 
             Collection<IndexAbstractField> fieldList = EntityUtils.getEntityOrViewEntityFields(element.getXmlElement().getProject(), entityName);
-            for(FieldStringSplitUnit fieldString : fieldStringList) {
+            for(FieldDescriptor fieldString : fieldStringList) {
                 if(fieldString.isContainGroovyVariable() || fieldString.isEmpty()) continue;
 
                 IndexAbstractField field = fieldList.stream().filter(item -> {
                     String itemFieldName = MyDomUtils.getValueOrEmptyString(item.getName());
-                    return itemFieldName.equals(fieldString.getTrimmedString());
+                    return itemFieldName.equals(fieldString.getFieldName());
                 }).findFirst().orElse(null);
                 if (field == null) {
-                    holder.createProblem(attributeValue, ProblemHighlightType.ERROR, "字段[" + fieldString.getTrimmedString() + "]没有找到对应的定义",
-                            TextRange.from(1 + fieldString.getTrimmedStringBeginIndex(), 1 + fieldString.getTrimmedStringEndIndex()));//这里要用checkFieldName
+                    holder.createProblem(attributeValue, ProblemHighlightType.ERROR, "字段[" + fieldString.getFieldName() + "]没有找到对应的定义",
+                            TextRange.from(1 + fieldString.getFieldNameBeginIndex(), 1 + fieldString.getFieldNameEndIndex()));//这里要用checkFieldName
                 }
             }
 //            int startIndex = 1;

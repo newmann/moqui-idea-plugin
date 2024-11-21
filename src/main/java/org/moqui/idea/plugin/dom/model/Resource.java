@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.ResourcePresentationProvider;
 
 import java.util.List;
-@Stubbed
+//@Stubbed
 @Presentation(provider = ResourcePresentationProvider.class)
 public interface Resource extends DomElement {
     public static final String TAG_NAME = "resource";

@@ -1,5 +1,6 @@
 package org.moqui.idea.plugin.service;
 
+import net.bytebuddy.utility.nullability.NeverNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.AbstractField;
@@ -12,10 +13,17 @@ import org.moqui.idea.plugin.util.MyStringUtils;
  */
 public final class IndexAbstractField {
     public static IndexAbstractField of(@NotNull AbstractField abstractField, @NotNull AliasAll aliasAll){
-        return  new IndexAbstractField(abstractField,aliasAll);
+        return  new IndexAbstractField(null,abstractField,aliasAll);
+    }
+
+    public static IndexAbstractField of(@NotNull AbstractIndexEntity abstractIndexEntity,@NotNull AbstractField abstractField, @NotNull AliasAll aliasAll){
+        return  new IndexAbstractField(abstractIndexEntity,abstractField,aliasAll);
+    }
+    public static IndexAbstractField of(@NotNull AbstractIndexEntity abstractIndexEntity,@NotNull AbstractField abstractField){
+        return new IndexAbstractField(abstractIndexEntity, abstractField,null);
     }
     public static IndexAbstractField of(@NotNull AbstractField abstractField){
-        return new IndexAbstractField(abstractField,null);
+        return new IndexAbstractField(null, abstractField,null);
     }
 
     private final String name;
@@ -24,8 +32,9 @@ public final class IndexAbstractField {
     private final AliasAll aliasAll;
     private final String prefix;
     private final String originFieldName;
+    private AbstractIndexEntity abstractIndexEntity;
 
-    IndexAbstractField(@NotNull AbstractField abstractField, @Nullable AliasAll aliasAll){
+    IndexAbstractField(@Nullable AbstractIndexEntity abstractIndexEntity, @NotNull AbstractField abstractField, @Nullable AliasAll aliasAll){
         this.abstractField = abstractField;
         this.aliasAll = aliasAll;
         this.originFieldName = MyDomUtils.getValueOrEmptyString(abstractField.getName());
@@ -35,9 +44,15 @@ public final class IndexAbstractField {
             this.prefix = MyDomUtils.getValueOrEmptyString(aliasAll.getPrefix());
         }
 
-        this.name = this.prefix + this.originFieldName;
+        if(this.prefix.equals(MyStringUtils.EMPTY_STRING)) {
+            this.name = this.originFieldName;
+        }else{
+            this.name = this.prefix + MyStringUtils.upperCaseFirstChar(this.originFieldName);
+        }
+
 
         this.type = MyDomUtils.getValueOrEmptyString(abstractField.getType());
+        this.abstractIndexEntity = abstractIndexEntity;
     }
 
     public AbstractField getAbstractField(){
@@ -68,4 +83,10 @@ public final class IndexAbstractField {
         return this.name.equals(name);
     }
 
+    public AbstractIndexEntity getAbstractIndexEntity() {
+        return abstractIndexEntity;
+    }
+    public void setAbstractIndexEntity(@NotNull AbstractIndexEntity abstractIndexEntity){
+        this.abstractIndexEntity = abstractIndexEntity;
+    }
 }

@@ -5,9 +5,11 @@ import org.moqui.idea.plugin.dom.model.AbstractEntity;
 import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public abstract class AbstractIndexEntity extends AbstractIndex {
     protected  String shortName = MyStringUtils.EMPTY_STRING;
@@ -34,7 +36,11 @@ public abstract class AbstractIndexEntity extends AbstractIndex {
 
     }
     public Optional<List<IndexAbstractField>> getIndexAbstractFieldList(){
-        return Optional.of(this.indexAbstractFieldMap.values().stream().toList());
+        if(this.indexAbstractFieldMap == null) {
+            return Optional.empty();
+        }else {
+            return Optional.of(new ArrayList<>(this.indexAbstractFieldMap.values()));
+        }
     }
     public Optional<List<AbstractField>> getAbstractFieldList(){
         return Optional.of(this.indexAbstractFieldMap.values().stream().map(IndexAbstractField::getAbstractField).toList());

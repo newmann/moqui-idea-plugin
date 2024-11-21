@@ -179,7 +179,10 @@ public class CommonDocumentationFormatter {
         tableHeader.append(nbsp().wrapWith("th"));
         tableHeader.append(text(AliasAll.ATTR_PREFIX).wrapWith("th"));
         tableHeader.append(nbsp().wrapWith("th"));
-        tableHeader.append(text(AliasAll.ATTR_ENTITY_ALIAS).wrapWith("th"));
+        tableHeader.append(text(Alias.ATTR_FUNCTION).wrapWith("th"));
+
+        tableHeader.append(nbsp().wrapWith("th"));
+        tableHeader.append(text("Entity Name").wrapWith("th"));
 //        tableHeader.append(nbsp().wrapWith("th"));
 //        tableHeader.append(text(Description.TAG_NAME).wrapWith("th"));
 
@@ -194,15 +197,23 @@ public class CommonDocumentationFormatter {
                     fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
                     fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getPrefix())).wrapWith(SECTION_CONTENT_CELL));
                     fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
-                    if(field.getAliasAll() == null) {
-                        if(field.getAbstractField() instanceof Alias aliasField) {
-                            fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(aliasField.getEntityAlias())).wrapWith(SECTION_CONTENT_CELL));
-                        }else {
-                            fieldBuilder.append(text(MyStringUtils.EMPTY_STRING).wrapWith(SECTION_CONTENT_CELL));
-                        }
-                    }else{
-                        fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getAliasAll().getEntityAlias())).wrapWith(SECTION_CONTENT_CELL));
+                    if(field.getAbstractField() instanceof Alias aliasField) {
+                        fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(aliasField.getFunction())).wrapWith(SECTION_CONTENT_CELL));
+                    }else {
+                        fieldBuilder.append(text(MyStringUtils.EMPTY_STRING).wrapWith(SECTION_CONTENT_CELL));
                     }
+
+                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
+                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getAbstractIndexEntity().getShortName())).wrapWith(SECTION_CONTENT_CELL));
+//                    if(field.getAliasAll() == null) {
+//                        if(field.getAbstractField() instanceof Alias aliasField) {
+//                            fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(aliasField.getEntityAlias())).wrapWith(SECTION_CONTENT_CELL));
+//                        }else {
+//                            fieldBuilder.append(text(MyStringUtils.EMPTY_STRING).wrapWith(SECTION_CONTENT_CELL));
+//                        }
+//                    }else{
+//                        fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getAliasAll().getEntityAlias())).wrapWith(SECTION_CONTENT_CELL));
+//                    }
 //                    fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
 //                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getDescription().getValue())).wrapWith(SECTION_CONTENT_CELL));
 

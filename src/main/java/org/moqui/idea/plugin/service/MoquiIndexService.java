@@ -7,7 +7,6 @@ import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
@@ -257,7 +256,7 @@ public final class MoquiIndexService {
         Map<String,IndexAbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,aliasEntityMap);
 
         IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
-        indexViewEntity.setAbstractFieldMap(fieldMap);
+        indexViewEntity.setIndexAbstractFieldMap(fieldMap);
         indexViewEntity.setAbstractIndexEntityMap(aliasEntityMap);
 
         indexViewEntity.setLastRefreshStamp(System.currentTimeMillis());
@@ -598,7 +597,6 @@ public final class MoquiIndexService {
                 //添加
                 addViewEntityToIndexViewEntityMap(viewEntity);
             }
-
 
         }
 
@@ -1034,10 +1032,26 @@ public final class MoquiIndexService {
     public List<ViewEntity> getPendingViewEntityList(){return pendingViewEntityList;}
 
     public void setEntityXmlFileLastUpdatedStamp(long entityXmlFileLastUpdatedStamp) {
+        //将所有的缓存删除，简单控制保障内存泄漏
+        synchronized (MUTEX_ENTITY) {
+            this.indexEntityMap.clear();
+        }
+        synchronized (MUTEX_VIEW) {
+            this.indexViewEntityMap.clear();
+        }
+
         this.entityXmlFileLastUpdatedStamp = entityXmlFileLastUpdatedStamp;
     }
 
     public void setServiceXmlFileLastUpdatedStamp(long serviceXmlFileLastUpdatedStamp) {
+        //将所有的缓存删除，简单控制保障内存泄漏
+        synchronized (MUTEX_SERVICE) {
+            this.indexServiceMap.clear();
+        }
+        synchronized (MUTEX_INTERFACE) {
+            this.indexInterfaceMap.clear();
+        }
+
         this.serviceXmlFileLastUpdatedStamp = serviceXmlFileLastUpdatedStamp;
     }
 

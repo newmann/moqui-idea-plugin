@@ -25,6 +25,8 @@ public final class MyStringUtils {
     }
 
     public static List<String> FIELD_SORT_CHAR_LIST = List.of("+","-","^");
+    public static final String FIELD_NAME_REGEXP = "^\\s*[+-^]?([A-Za-z0-9_]+)\\s*$";
+    public static Pattern FIELD_NAME_PATTERN = Pattern.compile(FIELD_NAME_REGEXP);
     public static final String EMPTY_STRING = "";
 
     public static final String COMPONENT_PATH_TAG = "/runtime/component/";

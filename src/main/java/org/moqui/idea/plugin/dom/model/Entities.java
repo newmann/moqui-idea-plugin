@@ -6,7 +6,7 @@ import com.intellij.util.xml.SubTagList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-@Stubbed
+//@Stubbed
 public interface Entities extends DomElement {
     public static final String TAG_NAME = "entities";
     public static final String ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";

@@ -7,7 +7,7 @@ import com.intellij.util.xml.SubTagList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-@Stubbed
+//@Stubbed
 public interface MoquiConf extends DomElement {
     public static final String TAG_NAME = "moqui-conf";
     public static final String ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";

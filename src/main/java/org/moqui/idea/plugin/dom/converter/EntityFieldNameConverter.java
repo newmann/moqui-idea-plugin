@@ -15,55 +15,59 @@ import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.FieldDescriptor;
+import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
 
 public class EntityFieldNameConverter extends ResolvingConverter.StringConverter  implements CustomReferenceConverter<String> {
     @Override
     public @NotNull PsiReference[] createReferences(GenericDomValue<String> genericDomValue, PsiElement psiElement, ConvertContext convertContext) {
-        final String valueStr = genericDomValue.getStringValue();
-        if(MyStringUtils.isEmpty(valueStr)) return PsiReference.EMPTY_ARRAY;
-        TextRange textRange;
-        String fieldName;
-        final String firstChar = valueStr.substring(0,1);
-        if(MyStringUtils.FIELD_SORT_CHAR_LIST.contains(firstChar)) {
-            fieldName = valueStr.substring(1);
-            textRange = new TextRange(2,valueStr.length()+1);
-        }else {
-            fieldName = valueStr;
-            textRange = new TextRange(1,valueStr.length()+1);
-        }
-        List<PsiReference> resultList = new ArrayList<>();
+        final String valueStr = MyDomUtils.getValueOrEmptyString(genericDomValue.getStringValue());
+        FieldDescriptor fieldDescriptor = FieldDescriptor.of(valueStr,1,valueStr.length()+1);
+//        Matcher matcher = MyStringUtils.FIELD_NAME_PATTERN.matcher(valueStr);
+//
+//        if(!matcher.find()) return PsiReference.EMPTY_ARRAY;
+//
+//        String fieldName = matcher.group(1);
 
-        IndexAbstractField indexAbstractField = EntityUtils.getIndexAbstractFieldByConvertContext(fieldName,convertContext).orElse(null);
+
+//        List<PsiReference> resultList = new ArrayList<>();
+
+        IndexAbstractField indexAbstractField = EntityUtils.getIndexAbstractFieldByConvertContext(fieldDescriptor.getFieldName(),convertContext).orElse(null);
         if (indexAbstractField == null) {
             return PsiReference.EMPTY_ARRAY;
         }
-        if(indexAbstractField.getOriginFieldName().equals(fieldName)){
-            resultList.add(new PsiRef(psiElement,
-                    textRange,
-                    indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
-        }else{
-            int prefixIndex = valueStr.indexOf(indexAbstractField.getPrefix());
-            if(prefixIndex>=0){
-                resultList.add(new PsiRef(psiElement,
-                        TextRange.create(prefixIndex,prefixIndex+indexAbstractField.getPrefix().length()),
-                        indexAbstractField.getAliasAll().getPrefix().getXmlAttributeValue()));
-            }
-            int originFieldIndex = valueStr.indexOf(indexAbstractField.getOriginFieldName());
-            if(originFieldIndex>=0){
-                resultList.add(new PsiRef(psiElement,
-                        TextRange.create(originFieldIndex,originFieldIndex+indexAbstractField.getOriginFieldName().length()),
-                        indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
-            }
 
-        }
+        return EntityUtils.createFieldNameReference(psiElement,fieldDescriptor,indexAbstractField);
 
-        return resultList.toArray(new PsiReference[0]);
+//        if(indexAbstractField.getOriginFieldName().equals(fieldName)){
+//            int fieldIndex = valueStr.indexOf(indexAbstractField.getOriginFieldName());
+//            resultList.add(new PsiRef(psiElement,
+//                    TextRange.create(fieldIndex+1,fieldIndex+1+indexAbstractField.getOriginFieldName().length()),
+//                    indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
+//        }else{
+//            int prefixIndex = valueStr.indexOf(indexAbstractField.getPrefix());
+//            if(prefixIndex>=0){
+//                resultList.add(new PsiRef(psiElement,
+//                        TextRange.create(prefixIndex+1,prefixIndex+1+indexAbstractField.getPrefix().length()),
+//                        indexAbstractField.getAliasAll().getPrefix().getXmlAttributeValue()));
+//            }
+//            int originFieldIndex = valueStr.indexOf(MyStringUtils.upperCaseFirstChar(indexAbstractField.getOriginFieldName()));
+//            if(originFieldIndex>=0){
+//                resultList.add(new PsiRef(psiElement,
+//                        TextRange.create(originFieldIndex+1,originFieldIndex+1+indexAbstractField.getOriginFieldName().length()),
+//                        indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
+//            }
+//
+//        }
+//
+//        return resultList.toArray(new PsiReference[0]);
 
     }
 

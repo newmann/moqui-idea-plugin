@@ -69,12 +69,13 @@ public final class IndexViewEntity extends AbstractIndexEntity {
 //        return Optional.of(abstractFieldMap.values().stream().toList());
 //
 //    }
-    public void setAbstractFieldMap(Map<String, IndexAbstractField> abstractFieldMap){
+    public void setIndexAbstractFieldMap(Map<String, IndexAbstractField> abstractFieldMap){
+        abstractFieldMap.values().forEach(item->{item.setAbstractIndexEntity(this);});
         this.indexAbstractFieldMap = abstractFieldMap;
     }
-    public Map<String, IndexAbstractField> getAbstractFieldMap(){
-        return this.indexAbstractFieldMap;
-    }
+//    public Map<String, IndexAbstractField> getAbstractFieldMap(){
+//        return this.indexAbstractFieldMap;
+//    }
 
 //    public boolean isValid(){
 //        if(!this.viewEntity.isValid()) return false;

@@ -1,6 +1,5 @@
 package org.moqui.idea.plugin.dom.converter;
 
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.ConvertContext;
@@ -9,12 +8,11 @@ import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.util.*;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,14 +25,14 @@ public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConv
         return null;
     }
 
-    //todo 需要重写 ， check 设置为null，是不是就可以不用再次在MoquiDomCheckResoleInspection中进行判断了
+
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
         final String fieldsStr = value.getStringValue();
         if(MyStringUtils.isEmpty(fieldsStr)) return PsiReference.EMPTY_ARRAY;
 //        String[] fieldNameArray = EntityUtils.splitFieldString(fieldsStr).orElse(new ArrayList<>()).toArray(new String[0]);
 
-        List<FieldStringSplitUnit> fieldNameList = EntityUtils.splitFieldString(fieldsStr).orElse(new ArrayList<>());
+        List<FieldDescriptor> fieldNameList = EntityUtils.extractFieldDescriptorList(fieldsStr,1).orElse(new ArrayList<>());
 
 
         final String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
@@ -88,71 +86,31 @@ public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConv
 
         Collection<IndexAbstractField> fieldList = EntityUtils.getEntityOrViewEntityFields(context.getProject(), entityName);
 
-        for(FieldStringSplitUnit fieldName : fieldNameList) {
+        for(FieldDescriptor fieldName : fieldNameList) {
+
             if (fieldName.isContainGroovyVariable() || fieldName.isEmpty()) continue;
 
-            IndexAbstractField field = fieldList.stream().filter(item->{
+            fieldList.stream().filter(item -> {
                 String itemFieldName = MyDomUtils.getValueOrEmptyString(item.getName());
-                return itemFieldName.equals(fieldName.getTrimmedString());
-            }).findFirst().orElse(null);
+                return itemFieldName.equals(fieldName.getFieldName());
+            }).findFirst()
+                    .ifPresent(field ->
+                            result.addAll(Arrays.stream(EntityUtils.createFieldNameReference(element, fieldName, field)).toList()));
 
-            if (field != null) {
-                result.add(new PsiRef(element,
-                        new TextRange(1+fieldName.getTrimmedStringBeginIndex(),1+ fieldName.getTrimmedStringEndIndex()),
-                        field.getAbstractField().getName().getXmlAttributeValue()));
-
-            }else {
-
-                result.add(new PsiRef(element,
-                        new TextRange( 1 + fieldName.getTrimmedStringBeginIndex(),1 + fieldName.getTrimmedStringEndIndex()),
-                        null));
-
-            }
+//            if (field != null) {
+//                result.add(new PsiRef(element,
+//                        new TextRange(1+fieldName.getFieldNameBeginIndex(),1+ fieldName.getFieldNameEndIndex()),
+//                        field.getAbstractField().getName().getXmlAttributeValue()));
+//
+//            }else {
+//
+//                result.add(new PsiRef(element,
+//                        new TextRange( 1 + fieldName.getFieldNameBeginIndex(),1 + fieldName.getFieldNameEndIndex()),
+//                        null));
+//
+//            }
         }
 
-//        int startIndex = 1;
-//
-//        for(int i = 0; i< fieldNameArray.length; i++) {
-//            String fieldName;
-//            fieldName = fieldNameArray[i];
-//
-//            if(MyStringUtils.isEmpty(fieldName.trim())) {
-//                startIndex = startIndex + fieldName.length();
-//                continue;
-//            }
-//
-//
-//            //判断该字段是否为Groovy变量，如果是，则跳过
-//            if(EntityUtils.fieldIsGroovyVariable(fieldName)){
-//                startIndex = startIndex + fieldName.length();
-//                continue;
-//            }
-//
-//            //判断fieldName的第一个字符是否为控制字符，如果是，则跳过第一个字符
-//            if(EntityUtils.fieldHasOrderCommand(fieldName)){
-//                fieldName = fieldName.substring(1);
-//                startIndex = startIndex +1;
-//            }
-//
-//            String finalFieldName = fieldName;
-//            AbstractField field = fieldList.stream().filter(item->{
-//                String itemFieldName = MyDomUtils.getValueOrEmptyString(item.getName());
-//                if(MyStringUtils.isEmpty(itemFieldName)) return false;
-//
-//                return itemFieldName.equals(finalFieldName);
-//            }).findFirst().orElse(null);
-//
-//
-//            if (field != null) {
-//
-//                result[i] = new PsiRef(element,
-//                        new TextRange(startIndex,startIndex+fieldName.length()),
-//                        field.getName().getXmlAttributeValue());
-//
-//            }
-//            startIndex = startIndex + fieldName.length() +1;
-//
-//        }
 
         return result.toArray(new PsiReference[0]);
     }

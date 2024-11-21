@@ -1134,28 +1134,28 @@ public final class EntityUtils {
      * 字段实例：
      * 1、 orderId,orderPartSeqId,shipmentMethodEnumId,quantityTotal
      * 2、resQuantity${onlyPartlyShipped != 'true' ? '' : ',issuedQuantity'}${excludeNotPickLoc == 'false' ? '' : ',itemBomQuantityTotal'}
-     * @param fieldString
-     * @return
+     * @param fieldString 待处理的字符串
+     * @return Optional<List<FieldDescriptor>>
      */
-    public static Optional<List<FieldStringSplitUnit>> splitFieldString(@NotNull String fieldString) {
-        List<FieldStringSplitUnit> result = new ArrayList<>();
+    public static Optional<List<FieldDescriptor>> extractFieldDescriptorList(@NotNull String fieldString, int offset) {
+        List<FieldDescriptor> result = new ArrayList<>();
         StringBuilder curField= new StringBuilder(MyStringUtils.EMPTY_STRING);
         boolean inVariable = false;
         int beginIndex = 0;
 
         int fieldLength = fieldString.length();
         for(int i =0; i< fieldLength;i++){
-            if(fieldString.substring(i,i+1).equals(EntityUtils.ENTITY_FIELD_COMMA)){
+            if(fieldString.startsWith(EntityUtils.ENTITY_FIELD_COMMA, i)){
                 if(!inVariable) {
-                    FieldStringSplitUnit fieldStringSplitUnit = new FieldStringSplitUnit(curField.toString(),beginIndex,i);
+                    FieldDescriptor fieldDescriptor = new FieldDescriptor(curField.toString(),beginIndex + offset,i + offset);
 
-                    result.add(fieldStringSplitUnit);
+                    result.add(fieldDescriptor);
                     curField = new StringBuilder(MyStringUtils.EMPTY_STRING);
                     beginIndex = i+1;
                 }
             }else {
 
-                if((i<=fieldLength-2) && fieldString.substring(i,i+2).equals("${")) {
+                if((i<=fieldLength-2) && fieldString.startsWith("${", i)) {
                     inVariable = true;
 
                 }
@@ -1167,8 +1167,8 @@ public final class EntityUtils {
             }
         }
         if(!curField.toString().equals(MyStringUtils.EMPTY_STRING)) {
-            FieldStringSplitUnit fieldStringSplitUnit = new FieldStringSplitUnit(curField.toString(),beginIndex,fieldLength);
-            result.add(fieldStringSplitUnit);
+            FieldDescriptor fieldDescriptor = new FieldDescriptor(curField.toString(),beginIndex+offset,fieldLength+offset);
+            result.add(fieldDescriptor);
         }
 
         return Optional.of(result);
@@ -1471,5 +1471,37 @@ public final class EntityUtils {
             final String itemName = MyDomUtils.getValueOrEmptyString(item.getName());
             return fieldName.equals(itemName);
         }).findFirst();
+    }
+
+    public static @NotNull PsiReference[] createFieldNameReference(@NotNull PsiElement psiElement, @NotNull FieldDescriptor fieldDescriptor, @NotNull IndexAbstractField indexAbstractField){
+        if (fieldDescriptor.isContainGroovyVariable() || fieldDescriptor.isEmpty()) return PsiReference.EMPTY_ARRAY;
+
+        List<PsiReference> resultList = new ArrayList<>();
+
+        if(indexAbstractField.getOriginFieldName().equals(fieldDescriptor.getFieldName())){
+
+            resultList.add(new PsiRef(psiElement,
+                    TextRange.create(fieldDescriptor.getFieldNameBeginIndex(),fieldDescriptor.getFieldNameEndIndex()),
+                    indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
+        }else{
+            String valueStr = fieldDescriptor.getOriginalString();
+            int prefixIndex = valueStr.indexOf(indexAbstractField.getPrefix());
+            if(prefixIndex>=0){
+                resultList.add(new PsiRef(psiElement,
+                        TextRange.create(fieldDescriptor.getFieldNameBeginIndex()+prefixIndex
+                                ,fieldDescriptor.getFieldNameBeginIndex()+ prefixIndex+indexAbstractField.getPrefix().length()),
+                        indexAbstractField.getAliasAll().getPrefix().getXmlAttributeValue()));
+            }
+            int originFieldIndex = valueStr.indexOf(MyStringUtils.upperCaseFirstChar(indexAbstractField.getOriginFieldName()));
+            if(originFieldIndex>=0){
+                resultList.add(new PsiRef(psiElement,
+                        TextRange.create(fieldDescriptor.getFieldNameBeginIndex()+ originFieldIndex,
+                                fieldDescriptor.getFieldNameBeginIndex()+ originFieldIndex+indexAbstractField.getOriginFieldName().length()),
+                        indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
+            }
+
+        }
+
+        return resultList.toArray(new PsiReference[0]);
     }
 }

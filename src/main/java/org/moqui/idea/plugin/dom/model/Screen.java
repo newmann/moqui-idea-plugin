@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.LocationConverter;
 
 import java.util.List;
-@Stubbed
+//@Stubbed
 public interface Screen extends ScreenBase,SectionElements,AbstractLocation {
     public static final String TAG_NAME = "screen";
     public static final String ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";

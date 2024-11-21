@@ -4,7 +4,7 @@ import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-@Stubbed
+//@Stubbed
 public interface EntityFacadeXml extends DomElement {
     public static final String TAG_NAME = "entity-facade-xml";
 
