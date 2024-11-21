@@ -7,8 +7,6 @@ import com.intellij.util.xml.DomElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.service.IndexAbstractField;
-import org.moqui.idea.plugin.service.IndexService;
-import org.moqui.idea.plugin.service.IndexServiceParameter;
 import org.moqui.idea.plugin.util.ComponentUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
@@ -204,7 +202,7 @@ public class CommonDocumentationFormatter {
                     }
 
                     fieldBuilder.append(nbsp().wrapWith(SECTION_CONTENT_CELL));
-                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getAbstractIndexEntity().getShortName())).wrapWith(SECTION_CONTENT_CELL));
+                    fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getFromAbstractIndexEntity().getShortName())).wrapWith(SECTION_CONTENT_CELL));
 //                    if(field.getAliasAll() == null) {
 //                        if(field.getAbstractField() instanceof Alias aliasField) {
 //                            fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(aliasField.getEntityAlias())).wrapWith(SECTION_CONTENT_CELL));

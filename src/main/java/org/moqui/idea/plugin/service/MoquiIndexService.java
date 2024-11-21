@@ -301,8 +301,17 @@ public final class MoquiIndexService {
      */
     private Map<String, IndexAbstractField> extractViewEntityFieldMap(@NotNull ViewEntity viewEntity, @NotNull Map<String,AbstractIndexEntity> abstractIndexEntityMap) {
         Map<String, IndexAbstractField> result = new HashMap<>();
+        List<IndexAbstractField> fieldList = new ArrayList<>();
         //添加alias
-        List<IndexAbstractField> fieldList = new LinkedList<>(viewEntity.getAliasList().stream().map(IndexAbstractField::of).toList());
+        for(Alias alias: viewEntity.getAliasList()) {
+            String aliasName = MyDomUtils.getValueOrEmptyString(alias.getEntityAlias());
+            if(MyStringUtils.isEmpty(aliasName)) continue;
+            //根据alias在abstractIndexEntityMap中查找对应AbstractIndexEntity
+            AbstractIndexEntity abstractIndexEntity = abstractIndexEntityMap.get(aliasName);
+
+            fieldList.add(IndexAbstractField.of(abstractIndexEntity,alias));
+        }
+//        List<IndexAbstractField> fieldList = new LinkedList<>(viewEntity.getAliasList().stream().map(IndexAbstractField::of).toList());
                 //new LinkedList<>(viewEntity.getAliasList());
         //对AliasAll进行处理
         List<AliasAll> aliasAllList = viewEntity.getAliasAllList();
@@ -317,7 +326,7 @@ public final class MoquiIndexService {
             List<IndexAbstractField> aliasAllFieldList = abstractIndexEntity.getIndexAbstractFieldList()
                     .orElse(new ArrayList<>());
             //todo 如果IndexAbstractField也是个带prefix的AliasAll生成的话，就出问题了，但现在看所有的viewEntity都没有出现这种情况，还不知道framework是否支持这种view的定义方式
-            List<IndexAbstractField> updateAliasAllFieldList = aliasAllFieldList.stream().map(item->{return IndexAbstractField.of(item.getAbstractField(),aliasAll);}).toList();
+            List<IndexAbstractField> updateAliasAllFieldList = aliasAllFieldList.stream().map(item->{return IndexAbstractField.of(abstractIndexEntity,item.getAbstractField(),aliasAll);}).toList();
 
             fieldList.addAll(
                     EntityUtils.excludeFields(updateAliasAllFieldList,aliasAll.getExcludeList())

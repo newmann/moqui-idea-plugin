@@ -43,14 +43,14 @@ public final class IndexEntity extends AbstractIndexEntity {
         this.indexAbstractFieldMap = new HashMap<>();
 
         for(Field field: this.entity.getFieldList()) {
-            indexAbstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(field));
+            indexAbstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(this,field));
         }
         this.relationshipList = new ArrayList<>();
         relationshipList.addAll(this.entity.getRelationshipList());
 
         for(ExtendEntity extendEntity : extendEntityList){
             for(Field field: extendEntity.getFieldList()) {
-                this.indexAbstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(field));
+                this.indexAbstractFieldMap.put(MyDomUtils.getValueOrEmptyString(field.getName()), IndexAbstractField.of(this,field));
             }
             this.relationshipList.addAll(extendEntity.getRelationshipList());
         }

@@ -1204,7 +1204,10 @@ public final class EntityUtils {
                 if(curKeyMap != null) {
                     switch(curAttributeName) {
                         case KeyMap.ATTR_FIELD_NAME -> {
-                            result.addAll(curEntity.getFieldList().stream().map(IndexAbstractField::of).toList());
+//                            result.addAll(curEntity.getFieldList().stream().map(IndexAbstractField::of).toList());
+                            result.addAll(getEntityIndexAbstractFieldList(context.getProject(),
+                                    MyDomUtils.getValueOrEmptyString(curEntity.getEntityName())));
+
                         }
                         case KeyMap.ATTR_RELATED -> {
 
@@ -1226,7 +1229,10 @@ public final class EntityUtils {
             IndexField curIndexField = getCurrentIndexField(context).orElse(null);
             if(curIndexField != null) {
                 if(curAttributeName.equals(IndexField.ATTR_NAME)) {
-                    result.addAll(curEntity.getFieldList().stream().map(IndexAbstractField::of).toList());
+//                    result.addAll(curEntity.getFieldList().stream().map(IndexAbstractField::of).toList());
+                    result.addAll(getEntityIndexAbstractFieldList(context.getProject(),
+                            MyDomUtils.getValueOrEmptyString(curEntity.getEntityName())));
+
                 }
             }
         }
@@ -1473,35 +1479,40 @@ public final class EntityUtils {
         }).findFirst();
     }
 
-    public static @NotNull PsiReference[] createFieldNameReference(@NotNull PsiElement psiElement, @NotNull FieldDescriptor fieldDescriptor, @NotNull IndexAbstractField indexAbstractField){
+    public static @NotNull PsiReference[] createFieldNameReference(@NotNull PsiElement psiElement, @NotNull FieldDescriptor fieldDescriptor, @Nullable IndexAbstractField indexAbstractField){
         if (fieldDescriptor.isContainGroovyVariable() || fieldDescriptor.isEmpty()) return PsiReference.EMPTY_ARRAY;
 
         List<PsiReference> resultList = new ArrayList<>();
-
-        if(indexAbstractField.getOriginFieldName().equals(fieldDescriptor.getFieldName())){
-
+        if(indexAbstractField == null) {
             resultList.add(new PsiRef(psiElement,
                     TextRange.create(fieldDescriptor.getFieldNameBeginIndex(),fieldDescriptor.getFieldNameEndIndex()),
-                    indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
-        }else{
-            String valueStr = fieldDescriptor.getOriginalString();
-            int prefixIndex = valueStr.indexOf(indexAbstractField.getPrefix());
-            if(prefixIndex>=0){
+                    null)); //提示错误
+
+        }else {
+            if (indexAbstractField.getOriginFieldName().equals(fieldDescriptor.getFieldName())) {
+
                 resultList.add(new PsiRef(psiElement,
-                        TextRange.create(fieldDescriptor.getFieldNameBeginIndex()+prefixIndex
-                                ,fieldDescriptor.getFieldNameBeginIndex()+ prefixIndex+indexAbstractField.getPrefix().length()),
-                        indexAbstractField.getAliasAll().getPrefix().getXmlAttributeValue()));
-            }
-            int originFieldIndex = valueStr.indexOf(MyStringUtils.upperCaseFirstChar(indexAbstractField.getOriginFieldName()));
-            if(originFieldIndex>=0){
-                resultList.add(new PsiRef(psiElement,
-                        TextRange.create(fieldDescriptor.getFieldNameBeginIndex()+ originFieldIndex,
-                                fieldDescriptor.getFieldNameBeginIndex()+ originFieldIndex+indexAbstractField.getOriginFieldName().length()),
+                        TextRange.create(fieldDescriptor.getFieldNameBeginIndex(), fieldDescriptor.getFieldNameEndIndex()),
                         indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
+            } else {
+                String valueStr = fieldDescriptor.getOriginalString();
+                int prefixIndex = valueStr.indexOf(indexAbstractField.getPrefix());
+                if (prefixIndex >= 0) {
+                    resultList.add(new PsiRef(psiElement,
+                            TextRange.create(fieldDescriptor.getFieldNameBeginIndex() + prefixIndex
+                                    , fieldDescriptor.getFieldNameBeginIndex() + prefixIndex + indexAbstractField.getPrefix().length()),
+                            indexAbstractField.getAliasAll().getPrefix().getXmlAttributeValue()));
+                }
+                int originFieldIndex = valueStr.indexOf(MyStringUtils.upperCaseFirstChar(indexAbstractField.getOriginFieldName()));
+                if (originFieldIndex >= 0) {
+                    resultList.add(new PsiRef(psiElement,
+                            TextRange.create(fieldDescriptor.getFieldNameBeginIndex() + originFieldIndex,
+                                    fieldDescriptor.getFieldNameBeginIndex() + originFieldIndex + indexAbstractField.getOriginFieldName().length()),
+                            indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
+                }
+
             }
-
         }
-
         return resultList.toArray(new PsiReference[0]);
     }
 }

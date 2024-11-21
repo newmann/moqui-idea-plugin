@@ -70,7 +70,7 @@ public final class IndexViewEntity extends AbstractIndexEntity {
 //
 //    }
     public void setIndexAbstractFieldMap(Map<String, IndexAbstractField> abstractFieldMap){
-        abstractFieldMap.values().forEach(item->{item.setAbstractIndexEntity(this);});
+        abstractFieldMap.values().forEach(item->{item.setInAbstractIndexEntity(this);});
         this.indexAbstractFieldMap = abstractFieldMap;
     }
 //    public Map<String, IndexAbstractField> getAbstractFieldMap(){

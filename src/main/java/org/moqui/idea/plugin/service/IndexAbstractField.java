@@ -1,6 +1,5 @@
 package org.moqui.idea.plugin.service;
 
-import net.bytebuddy.utility.nullability.NeverNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.AbstractField;
@@ -12,18 +11,18 @@ import org.moqui.idea.plugin.util.MyStringUtils;
  * 由于在ViewEntity定义中，AliasAll可以定义prefix，所以需要处理这种情况
  */
 public final class IndexAbstractField {
-    public static IndexAbstractField of(@NotNull AbstractField abstractField, @NotNull AliasAll aliasAll){
-        return  new IndexAbstractField(null,abstractField,aliasAll);
+    public static IndexAbstractField of(@NotNull AbstractIndexEntity fromAbstractIndexEntity,@NotNull AbstractField abstractField, @NotNull AliasAll aliasAll){
+        return  new IndexAbstractField(null,fromAbstractIndexEntity,abstractField,aliasAll);
     }
 
-    public static IndexAbstractField of(@NotNull AbstractIndexEntity abstractIndexEntity,@NotNull AbstractField abstractField, @NotNull AliasAll aliasAll){
-        return  new IndexAbstractField(abstractIndexEntity,abstractField,aliasAll);
+    public static IndexAbstractField of(@NotNull AbstractIndexEntity inAbstractIndexEntity,@NotNull AbstractIndexEntity fromAbstractIndexEntity,@NotNull AbstractField abstractField, @NotNull AliasAll aliasAll){
+        return  new IndexAbstractField(inAbstractIndexEntity,fromAbstractIndexEntity,abstractField,aliasAll);
     }
-    public static IndexAbstractField of(@NotNull AbstractIndexEntity abstractIndexEntity,@NotNull AbstractField abstractField){
-        return new IndexAbstractField(abstractIndexEntity, abstractField,null);
+    public static IndexAbstractField of(@NotNull AbstractIndexEntity inAbstractIndexEntity,@NotNull AbstractIndexEntity fromAbstractIndexEntity,@NotNull AbstractField abstractField){
+        return new IndexAbstractField(inAbstractIndexEntity,fromAbstractIndexEntity, abstractField,null);
     }
-    public static IndexAbstractField of(@NotNull AbstractField abstractField){
-        return new IndexAbstractField(null, abstractField,null);
+    public static IndexAbstractField of(@NotNull AbstractIndexEntity fromAbstractIndexEntity,@NotNull AbstractField abstractField){
+        return new IndexAbstractField(null, fromAbstractIndexEntity,abstractField,null);
     }
 
     private final String name;
@@ -32,9 +31,10 @@ public final class IndexAbstractField {
     private final AliasAll aliasAll;
     private final String prefix;
     private final String originFieldName;
-    private AbstractIndexEntity abstractIndexEntity;
+    private AbstractIndexEntity inAbstractIndexEntity;
+    private AbstractIndexEntity fromAbstractIndexEntity;
 
-    IndexAbstractField(@Nullable AbstractIndexEntity abstractIndexEntity, @NotNull AbstractField abstractField, @Nullable AliasAll aliasAll){
+    IndexAbstractField(@Nullable AbstractIndexEntity inAbstractIndexEntity, @NotNull AbstractIndexEntity fromAbstractIndexEntity, @NotNull AbstractField abstractField, @Nullable AliasAll aliasAll){
         this.abstractField = abstractField;
         this.aliasAll = aliasAll;
         this.originFieldName = MyDomUtils.getValueOrEmptyString(abstractField.getName());
@@ -52,7 +52,8 @@ public final class IndexAbstractField {
 
 
         this.type = MyDomUtils.getValueOrEmptyString(abstractField.getType());
-        this.abstractIndexEntity = abstractIndexEntity;
+        this.inAbstractIndexEntity = inAbstractIndexEntity;
+        this.fromAbstractIndexEntity = fromAbstractIndexEntity;
     }
 
     public AbstractField getAbstractField(){
@@ -83,10 +84,14 @@ public final class IndexAbstractField {
         return this.name.equals(name);
     }
 
-    public AbstractIndexEntity getAbstractIndexEntity() {
-        return abstractIndexEntity;
+    public AbstractIndexEntity getInAbstractIndexEntity() {
+        return inAbstractIndexEntity;
     }
-    public void setAbstractIndexEntity(@NotNull AbstractIndexEntity abstractIndexEntity){
-        this.abstractIndexEntity = abstractIndexEntity;
+    public void setInAbstractIndexEntity(@NotNull AbstractIndexEntity inAbstractIndexEntity){
+        this.inAbstractIndexEntity = inAbstractIndexEntity;
+    }
+
+    public AbstractIndexEntity getFromAbstractIndexEntity() {
+        return fromAbstractIndexEntity;
     }
 }

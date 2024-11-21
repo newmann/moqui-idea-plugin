@@ -40,9 +40,9 @@ public class EntityFieldNameConverter extends ResolvingConverter.StringConverter
 //        List<PsiReference> resultList = new ArrayList<>();
 
         IndexAbstractField indexAbstractField = EntityUtils.getIndexAbstractFieldByConvertContext(fieldDescriptor.getFieldName(),convertContext).orElse(null);
-        if (indexAbstractField == null) {
-            return PsiReference.EMPTY_ARRAY;
-        }
+//        if (indexAbstractField == null) {
+//            return PsiReference.EMPTY_ARRAY;
+//        }
 
         return EntityUtils.createFieldNameReference(psiElement,fieldDescriptor,indexAbstractField);
 

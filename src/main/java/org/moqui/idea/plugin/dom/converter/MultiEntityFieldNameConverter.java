@@ -90,12 +90,12 @@ public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConv
 
             if (fieldName.isContainGroovyVariable() || fieldName.isEmpty()) continue;
 
-            fieldList.stream().filter(item -> {
+            IndexAbstractField field = fieldList.stream().filter(item -> {
                 String itemFieldName = MyDomUtils.getValueOrEmptyString(item.getName());
                 return itemFieldName.equals(fieldName.getFieldName());
-            }).findFirst()
-                    .ifPresent(field ->
-                            result.addAll(Arrays.stream(EntityUtils.createFieldNameReference(element, fieldName, field)).toList()));
+            }).findFirst().orElse(null);
+
+            result.addAll(Arrays.stream(EntityUtils.createFieldNameReference(element, fieldName, field)).toList());
 
 //            if (field != null) {
 //                result.add(new PsiRef(element,
