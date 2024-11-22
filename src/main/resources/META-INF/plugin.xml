@@ -127,6 +127,8 @@
 
       <completion.contributor language="XML"
                                     implementationClass="org.moqui.idea.plugin.contributor.MultiFieldNameCompletionContributor"/>
+      <completion.contributor language="XML"
+                              implementationClass="org.moqui.idea.plugin.contributor.AliasNameCompletionContributor"/>
 
       <completion.contributor language="XML" order="first"
                               implementationClass="org.moqui.idea.plugin.contributor.TransitionCompletionContributor"/>

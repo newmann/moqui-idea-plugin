@@ -1,10 +1,7 @@
 package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTag;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.SecaPresentationProvider;
 import org.moqui.idea.plugin.dom.presentation.SectionPresentationProvider;
@@ -15,7 +12,10 @@ public interface Section extends SectionElements {
 
     public static final String ATTR_CONDITION = "condition";
 
-    @NotNull GenericAttributeValue<String> getName();
+    @NotNull
+    @NameValue
+    GenericAttributeValue<String> getName();
+
     @NotNull
     @Attribute(ATTR_CONDITION)
     GenericAttributeValue<String> getConditionAttr();

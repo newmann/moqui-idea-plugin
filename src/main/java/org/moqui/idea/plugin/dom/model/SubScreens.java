@@ -21,6 +21,7 @@ public interface SubScreens extends DomElement {
     @Attribute(ATTR_DEFAULT_ITEM)
     @Convert(LocationConverter.class)
     GenericAttributeValue<String> getDefaultItem();
+
     @NotNull GenericAttributeValue<String> getAlwaysUseFullPath();
 
 }

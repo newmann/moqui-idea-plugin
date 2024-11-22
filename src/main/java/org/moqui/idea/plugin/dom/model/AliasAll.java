@@ -21,6 +21,7 @@ public interface AliasAll extends DomElement {
 
     @NotNull
     @Attribute(ATTR_PREFIX)
+    @NameValue
     GenericAttributeValue<String> getPrefix();
 
     //for entity definition

@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.codeInspection.util.InspectionMessage;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -9,18 +8,14 @@ import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.AbstractTransition;
-import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.util.LocationUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
 
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * link->url
@@ -49,7 +44,7 @@ public class UrlConverter extends ResolvingConverter.StringConverter implements 
 
     @Override
     public @NotNull Collection<String> getVariants(ConvertContext context) {
-        return ScreenUtils.getTransitionList(context).stream()
+        return ScreenUtils.getAbstractTransitionListFromConvertContext(context).stream()
                 .map(item-> {
                     return MyDomUtils.getXmlAttributeValueString(item.getName()).orElse(MyStringUtils.EMPTY_STRING);
                 })

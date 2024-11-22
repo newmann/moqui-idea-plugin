@@ -8,7 +8,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlAttributeValue;
@@ -68,18 +67,31 @@ public final class ScreenUtils {
      * @param context
      * @return
      */
-    public static List<AbstractTransition> getTransitionList(ConvertContext context) {
+    public static List<AbstractTransition> getAbstractTransitionListFromConvertContext(ConvertContext context) {
 
         List<AbstractTransition> result = new ArrayList<AbstractTransition>();
 
 
         Screen screen = ScreenUtils.getCurrentScreen(context).orElse(null);
+        return getAbstractTransitionListFromScreen(screen);
+
+//        if(screen != null){
+//            result.addAll(screen.getTransitionList());
+//            result.addAll(screen.getTransitionIncludeList());
+//        }
+//        return result;
+    }
+    public static List<AbstractTransition> getAbstractTransitionListFromScreen(@Nullable Screen screen) {
+
+        List<AbstractTransition> result = new ArrayList<AbstractTransition>();
+
         if(screen != null){
             result.addAll(screen.getTransitionList());
             result.addAll(screen.getTransitionIncludeList());
         }
         return result;
     }
+
     /**
      * 根据当前位置找到所在screen的所有可用的SubScreensItem
      *
@@ -119,9 +131,13 @@ public final class ScreenUtils {
      * @param context
      * @return
      */
-    public static Optional<AbstractTransition> getTransitionByName(String transitionName, ConvertContext context) {
-        List<AbstractTransition> transitionList = getTransitionList(context);
-        return transitionList.stream().filter(
+    public static Optional<AbstractTransition> getAbstractTransitionFromConvertContextByName(String transitionName, ConvertContext context) {
+        List<AbstractTransition> transitionList = getAbstractTransitionListFromConvertContext(context);
+        return getAbstractTransitionFromListByName(transitionList,transitionName);
+    }
+
+    public static Optional<AbstractTransition> getAbstractTransitionFromListByName(@NotNull List<AbstractTransition> abstractTransitionList,@NotNull String transitionName){
+        return abstractTransitionList.stream().filter(
                 item->{
                     String str = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
                             .orElse(MyStringUtils.EMPTY_STRING);
@@ -167,10 +183,10 @@ public final class ScreenUtils {
         List<PsiElement> resultList = new ArrayList<>();
         final Project project = psiElement.getProject();
 
-        Optional<DomFileElement<Screen>> optionalScreenDomFileElement = findScreenFileByLocation(project,location);
+        Optional<DomFileElement<Screen>> optionalScreenDomFileElement = getScreenFileByLocation(project,location);
 
         if(optionalScreenDomFileElement.isPresent()) {
-            Optional<Transition> optionalTransition = findTransitionElementByName(optionalScreenDomFileElement.get(),name);
+            Optional<Transition> optionalTransition = getTransitionFromDomFileElementByName(optionalScreenDomFileElement.get(),name);
             if(optionalTransition.isPresent()) {
                 resultList.add(optionalTransition.get().getXmlElement());
             }
@@ -186,7 +202,7 @@ public final class ScreenUtils {
      * @param location
      * @return
      */
-    public static  Optional<DomFileElement<Screen>> findScreenFileByLocation(@NotNull Project project,@NotNull String location){
+    public static  Optional<DomFileElement<Screen>> getScreenFileByLocation(@NotNull Project project, @NotNull String location){
 
         final String componentPreStr = "component://";
         String relativePathName;
@@ -196,6 +212,10 @@ public final class ScreenUtils {
         } else {
             relativePathName = location;
         }
+//        return MyDomUtils.findDomFileElementsByRootClass(project, Screen.class)
+//                .stream()
+//                .filter(screenDomFileElement -> screenDomFileElement.getFile().getVirtualFile().getPath().contains(relativePathName))
+//                .findFirst();
 
         List<DomFileElement<Screen>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Screen.class);
         for(DomFileElement<Screen> fileElement : fileElementList) {
@@ -207,13 +227,16 @@ public final class ScreenUtils {
         return Optional.empty();
     }
 
-    public static Optional<Transition> findTransitionElementByName(@NotNull DomFileElement<Screen> fileElement, @NotNull String name){
-        for(Transition transition: fileElement.getRootElement().getTransitionList()) {
-            if(transition.getName().getXmlAttributeValue().getValue().equals(name)) {
-                return Optional.of(transition);
-            }
-        }
-        return Optional.empty();
+    public static Optional<Transition> getTransitionFromDomFileElementByName(@NotNull DomFileElement<Screen> fileElement, @NotNull String name){
+        return fileElement.getRootElement().getTransitionList().stream()
+                .filter(transition -> MyDomUtils.getValueOrEmptyString(transition.getName()).equals(name))
+                .findFirst();
+//        for(Transition transition: fileElement.getRootElement().getTransitionList()) {
+//            if(MyDomUtils.getValueOrEmptyString(transition.getName()).equals(name)) {
+//                return Optional.of(transition);
+//            }
+//        }
+//        return Optional.empty();
     }
     public static List<Transition> getTransitionListFromScreenFile(@NotNull DomFileElement<Screen> fileElement){
         return fileElement.getRootElement().getTransitionList();
@@ -370,13 +393,13 @@ public final class ScreenUtils {
             return;
         }
 
-        final Optional<DomFileElement<Screen>> optionalScreenDomFileElement = findScreenFileByLocation(project,location);
+        final Optional<DomFileElement<Screen>> optionalScreenDomFileElement = getScreenFileByLocation(project,location);
         if(optionalScreenDomFileElement.isEmpty()) {
             holder.createProblem(transitionInclude.getLocation(), HighlightSeverity.ERROR,"Transition location is not found");
 //                    TextRange.from(1,transitionInclude.getLocation().getXmlAttributeValue().getValueTextRange().getLength()));
 
         }else {
-            final Optional<Transition> optionalTransition = findTransitionElementByName(optionalScreenDomFileElement.get(),name);
+            final Optional<Transition> optionalTransition = getTransitionFromDomFileElementByName(optionalScreenDomFileElement.get(),name);
 
             if(optionalTransition.isEmpty()) {
                 holder.createProblem(transitionInclude.getName(), HighlightSeverity.ERROR,"Transition name is not found");
@@ -425,7 +448,7 @@ public final class ScreenUtils {
                         .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         .create();
             }else {
-                final Optional<DomFileElement<Screen>> optionalScreenDomFileElement = findScreenFileByLocation(project,location);
+                final Optional<DomFileElement<Screen>> optionalScreenDomFileElement = getScreenFileByLocation(project,location);
                 if(optionalScreenDomFileElement.isEmpty()) {
                     holder.newAnnotation(HighlightSeverity.ERROR, "Transition location is not found")
                             .range(xmlAttributeLocation.getTextRange())
@@ -434,7 +457,7 @@ public final class ScreenUtils {
 //                    TextRange.from(1,transitionInclude.getLocation().getXmlAttributeValue().getValueTextRange().getLength()));
 
                 }else if(!MyStringUtils.isEmpty(name)) {
-                    final Optional<Transition> optionalTransition = findTransitionElementByName(optionalScreenDomFileElement.get(),name);
+                    final Optional<Transition> optionalTransition = getTransitionFromDomFileElementByName(optionalScreenDomFileElement.get(),name);
 
                     if(optionalTransition.isEmpty()) {
                         holder.newAnnotation(HighlightSeverity.ERROR, "Transition name is not found")

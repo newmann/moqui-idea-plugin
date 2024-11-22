@@ -488,8 +488,8 @@ public final class LocationUtils {
      }
 
     public static @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
-        String valueStr = value.getStringValue();
-        if(valueStr ==null) return PsiReference.EMPTY_ARRAY;
+//        String valueStr = value.getStringValue();
+//        if(valueStr ==null) return PsiReference.EMPTY_ARRAY;
         Project project = context.getProject();
         if(project ==null) return PsiReference.EMPTY_ARRAY;
         String url = value.getStringValue();
@@ -498,7 +498,7 @@ public final class LocationUtils {
 
         switch(location.type) {
             case TransitionName -> {
-                Optional<AbstractTransition> optTransition = ScreenUtils.getTransitionByName(url,context);
+                Optional<AbstractTransition> optTransition = ScreenUtils.getAbstractTransitionFromConvertContextByName(url,context);
                 if (optTransition.isEmpty()) return PsiReference.EMPTY_ARRAY;
 
                 final AbstractTransition transition = optTransition.get();
@@ -520,6 +520,13 @@ public final class LocationUtils {
                         Location subScreensItemLocation = new Location(context.getProject(),
                                 MyDomUtils.getValueOrEmptyString(subScreensItem.get().getLocation()));
                         file = Optional.ofNullable(subScreensItemLocation.getFile());
+                    }else{ //提示错误
+                        PsiReference[] psiReferences = new PsiReference[1];
+                        psiReferences[0] = new PsiRef(element,
+                                new TextRange(1,
+                                        url.length()+1),
+                                null);
+                        return psiReferences;
                     }
                 }
                 return file.map(psiFile -> createFilePsiReference(url, element, psiFile)).orElse(PsiReference.EMPTY_ARRAY);

@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.reference;
 
 
+import com.intellij.openapi.util.NlsSafe;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
@@ -8,6 +9,7 @@ import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class PsiRef extends PsiReferenceBase.Immediate<PsiElement> {
 
@@ -20,15 +22,15 @@ public class PsiRef extends PsiReferenceBase.Immediate<PsiElement> {
 //        this.myResolve = myResolve;
     }
 
+//    @NotNull
+//    @Override
+//    public String getCanonicalText() {
+//        return MyStringUtils.lowerCaseFirstChar(this.myTextRange.substring(this.myElement.getText()));
+//    }
+//
 //
 //    @Override
-//    public @Nullable PsiElement resolve() {
-//        return myResolve;
+//    public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
+//        return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
 //    }
-
-    @Override
-    public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
-        int i=0;
-        return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
-    }
 }

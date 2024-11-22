@@ -28,13 +28,7 @@ import java.util.stream.Collectors;
  *      subscreens-item name="EditTimeEntry"
  */
 public class TransitionConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
-//    @Override
-//    public @Nullable AbstractTransition fromString(@Nullable @NonNls String s, ConvertContext context) {
-//        if(s == null) return null;
-//        return getTransition(s,context)
-//                .orElse(null);
-//
-//    }
+
 
 
     @Override
@@ -78,30 +72,6 @@ public class TransitionConverter extends ResolvingConverter.StringConverter impl
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
         return LocationUtils.createReferences(value,element,context);
-//        String related = value.getStringValue();
-//        if (related == null) return PsiReference.EMPTY_ARRAY;
-//        if(related.trim().equals(".")) return PsiReference.EMPTY_ARRAY; //指向当前form，无需转跳
-//        PsiRef psiRef;
-//        Optional<AbstractTransition> optTransition = getTransition(related,context);
-//        if (optTransition.isEmpty()) {
-//            psiRef = new PsiRef(element,
-//                    new TextRange(1,
-//                            related.length() + 1),
-//                    null);//用于报错
-//
-//        }else {
-//            final AbstractTransition transition = optTransition.get();
-//
-//            psiRef = new PsiRef(element,
-//                    new TextRange(1,
-//                            related.length() + 1),
-//                    transition.getName().getXmlAttributeValue());
-//        }
-//        PsiReference[] result = new PsiReference[1];
-//        result[0] = psiRef;
-//
-//        return result;
-
     }
     /**
      * 根据当前位置找到所有可用的Transition

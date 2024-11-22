@@ -12,21 +12,15 @@ import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
-import icons.MoquiIcons;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.converter.insert.ExtendEntityNameAndPackageInsertionHandler;
-import org.moqui.idea.plugin.dom.model.AbstractEntity;
 import org.moqui.idea.plugin.dom.model.AbstractMemberEntity;
-import org.moqui.idea.plugin.dom.model.Entity;
-import org.moqui.idea.plugin.dom.model.MemberEntity;
 import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.util.EntityUtils;
 
 import javax.swing.*;
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * ViewEntity定义中的alias处理

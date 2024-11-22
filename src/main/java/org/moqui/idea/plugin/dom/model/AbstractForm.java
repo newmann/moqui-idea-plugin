@@ -20,6 +20,7 @@ public interface AbstractForm extends DomElement {
 
     @NotNull
     @Attribute(ATTR_NAME)
+    @NameValue
     GenericAttributeValue<String> getName();
     @NotNull
     @Attribute(ATTR_EXTENDS)

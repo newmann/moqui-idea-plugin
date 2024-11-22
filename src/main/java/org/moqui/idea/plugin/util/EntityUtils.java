@@ -3,32 +3,33 @@ package org.moqui.idea.plugin.util;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import icons.MoquiIcons;
-import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.reference.AbstractEntityOrViewNameReference;
-import org.moqui.idea.plugin.reference.PsiRef;
-import org.moqui.idea.plugin.service.*;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.xml.XmlElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.reference.AbstractEntityOrViewNameReference;
+import org.moqui.idea.plugin.reference.EntityFieldNameReference;
+//import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.service.*;
 
 import javax.swing.*;
-import java.util.*;
 import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.moqui.idea.plugin.util.MyDomUtils.getCurrentAttributeName;
-import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
+import static org.moqui.idea.plugin.util.MyDomUtils.*;
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 
@@ -757,6 +758,7 @@ public final class EntityUtils {
         final MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         return moquiIndexService.getIndexViewEntityByName(getFullNameFromEntity(viewEntity));
     }
+
     /**
      * 获取当前ViewEntity所有定义的MemberEntity和MemberRelationship
      * @param context
@@ -770,6 +772,14 @@ public final class EntityUtils {
         return  getViewEntityAbstractMemberEntity(viewEntity);
 
     }
+    public static Collection<AbstractMemberEntity> getViewEntityAbstractMemberEntity(@NotNull PsiElement psiElement){
+
+        ViewEntity viewEntity = getLocalDomElementByPsiElement(psiElement,ViewEntity.class).orElse(null);
+        if (viewEntity == null) return new ArrayList<>();
+        return  getViewEntityAbstractMemberEntity(viewEntity);
+
+    }
+
     public static Collection<AbstractMemberEntity> getViewEntityAbstractMemberEntity(@NotNull ViewEntity viewEntity){
         Collection<AbstractMemberEntity> result = new ArrayList<>();
 
@@ -948,7 +958,7 @@ public final class EntityUtils {
 
     }
 
-    @Deprecated
+//    @Deprecated
     public static @NotNull PsiReference[] createEntityNameReferences(@NotNull Project project, @NotNull PsiElement element, @NotNull String  entityName, @NotNull int startOffset) {
         Optional<AbstractEntity> optEntity = EntityUtils.getEntityOrViewEntityByName(project,entityName);
         if (optEntity.isEmpty()) return PsiReference.EMPTY_ARRAY;
@@ -1484,28 +1494,28 @@ public final class EntityUtils {
 
         List<PsiReference> resultList = new ArrayList<>();
         if(indexAbstractField == null) {
-            resultList.add(new PsiRef(psiElement,
+            resultList.add(EntityFieldNameReference.of(psiElement,
                     TextRange.create(fieldDescriptor.getFieldNameBeginIndex(),fieldDescriptor.getFieldNameEndIndex()),
                     null)); //提示错误
 
         }else {
             if (indexAbstractField.getOriginFieldName().equals(fieldDescriptor.getFieldName())) {
 
-                resultList.add(new PsiRef(psiElement,
+                resultList.add(EntityFieldNameReference.of(psiElement,
                         TextRange.create(fieldDescriptor.getFieldNameBeginIndex(), fieldDescriptor.getFieldNameEndIndex()),
                         indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));
             } else {
                 String valueStr = fieldDescriptor.getOriginalString();
                 int prefixIndex = valueStr.indexOf(indexAbstractField.getPrefix());
                 if (prefixIndex >= 0) {
-                    resultList.add(new PsiRef(psiElement,
+                    resultList.add(EntityFieldNameReference.of(psiElement,
                             TextRange.create(fieldDescriptor.getFieldNameBeginIndex() + prefixIndex
                                     , fieldDescriptor.getFieldNameBeginIndex() + prefixIndex + indexAbstractField.getPrefix().length()),
                             indexAbstractField.getAliasAll().getPrefix().getXmlAttributeValue()));
                 }
                 int originFieldIndex = valueStr.indexOf(MyStringUtils.upperCaseFirstChar(indexAbstractField.getOriginFieldName()));
                 if (originFieldIndex >= 0) {
-                    resultList.add(new PsiRef(psiElement,
+                    resultList.add(EntityFieldNameReference.of(psiElement,
                             TextRange.create(fieldDescriptor.getFieldNameBeginIndex() + originFieldIndex,
                                     fieldDescriptor.getFieldNameBeginIndex() + originFieldIndex + indexAbstractField.getOriginFieldName().length()),
                             indexAbstractField.getAbstractField().getName().getXmlAttributeValue()));

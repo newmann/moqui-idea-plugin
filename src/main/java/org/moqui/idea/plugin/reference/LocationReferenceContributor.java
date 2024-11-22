@@ -8,14 +8,11 @@ import com.intellij.psi.*;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
-import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -65,7 +62,7 @@ public class LocationReferenceContributor extends PsiReferenceContributor {
                         final Project project = element.getProject();
                         final String location = attributeValue.getValue();
 
-                        Optional<DomFileElement<Screen>> optScreenFile = ScreenUtils.findScreenFileByLocation(project,location);
+                        Optional<DomFileElement<Screen>> optScreenFile = ScreenUtils.getScreenFileByLocation(project,location);
                         if (optScreenFile.isEmpty()) return PsiReference.EMPTY_ARRAY;
 
                         TextRange textRange = new TextRange(1,location.length()+1);
