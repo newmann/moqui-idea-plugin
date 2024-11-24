@@ -1,15 +1,9 @@
 package org.moqui.idea.plugin.action.flowManagement.widget;
 
-import com.intellij.ui.components.JBPanel;
-import icons.MoquiIcons;
 import org.moqui.idea.plugin.util.ServiceCallDescriptor;
-import org.moqui.idea.plugin.util.ServiceUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.Arrays;
-import java.util.Optional;
 
 public class ServiceCallFlowNode extends FlowNode  {
     private final ServiceCallFlowNodeModel serviceCallFlowNodeModel;

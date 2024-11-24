@@ -26,6 +26,7 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
  * SubScreen DefaultItem指向自己定义的subscreen或相对路径下的screen
  *
  */
+@Deprecated
 public class SubScreensDefaultItemCompletionContributor extends CompletionContributor {
 
   SubScreensDefaultItemCompletionContributor(){

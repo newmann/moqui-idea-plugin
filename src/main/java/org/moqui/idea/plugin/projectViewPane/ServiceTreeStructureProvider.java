@@ -4,7 +4,10 @@ import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
-import org.moqui.idea.plugin.util.*;
+import org.moqui.idea.plugin.util.MyStringUtils;
+import org.moqui.idea.plugin.util.RestApiUtils;
+import org.moqui.idea.plugin.util.SecaUtils;
+import org.moqui.idea.plugin.util.ServiceUtils;
 
 public class ServiceTreeStructureProvider extends AbstractTreeStructureProvider{
     @Override

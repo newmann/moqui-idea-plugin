@@ -1,7 +1,7 @@
 package org.moqui.idea.plugin.service.impl;
 
-import org.moqui.idea.plugin.service.FindRelatedItemService;
 import com.intellij.psi.PsiElement;
+import org.moqui.idea.plugin.service.FindRelatedItemService;
 
 import javax.swing.*;
 import java.util.ArrayList;

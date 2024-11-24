@@ -15,7 +15,8 @@ import org.moqui.idea.plugin.dom.model.Service;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
 
 import static org.moqui.idea.plugin.util.ServiceUtils.getServiceOrInterfaceByFullName;
 

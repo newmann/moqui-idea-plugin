@@ -3,29 +3,32 @@ package org.moqui.idea.plugin.util;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.xml.ConvertContext;
+import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import icons.MoquiIcons;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.reference.ServiceCallReference;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 import org.moqui.idea.plugin.service.ServicePsiElementService;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.util.xml.DomElement;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.*;
 import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
@@ -303,16 +306,16 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
     public static List<PsiElement> getRelatedService(@NotNull PsiElement psiElement, @NotNull String fullName) {
         List<PsiElement> resultList = new ArrayList<>();
 
-        ServicePsiElementService servicePsiElementService =
-                psiElement.getProject().getService(ServicePsiElementService.class);
-
-        DomElement target = servicePsiElementService.getPsiElementByFullName(fullName);
-        if (target == null) {
-//            CustomNotifier.warn(psiElement.getProject(), "发现找不到的Service，fullName：" + fullName +", 所在文件："
-//                    +psiElement.getContainingFile().getVirtualFile().getPath());
-        }else {
-            resultList.add((PsiElement) target.getXmlElement());
-        }
+//        ServicePsiElementService servicePsiElementService =
+//                psiElement.getProject().getService(ServicePsiElementService.class);
+//
+//        DomElement target = servicePsiElementService.getPsiElementByFullName(fullName);
+//        if (target == null) {
+////            CustomNotifier.warn(psiElement.getProject(), "发现找不到的Service，fullName：" + fullName +", 所在文件："
+////                    +psiElement.getContainingFile().getVirtualFile().getPath());
+//        }else {
+//            resultList.add((PsiElement) target.getXmlElement());
+//        }
         return resultList;
     }
 

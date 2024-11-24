@@ -16,8 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.AbstractForm;
 import org.moqui.idea.plugin.dom.model.Field;
-import org.moqui.idea.plugin.dom.model.FormList;
-import org.moqui.idea.plugin.dom.model.FormSingle;
 import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;

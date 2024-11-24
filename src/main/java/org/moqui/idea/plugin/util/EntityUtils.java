@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.AbstractEntityOrViewNameReference;
 import org.moqui.idea.plugin.reference.EntityFieldNameReference;
-//import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.service.*;
 

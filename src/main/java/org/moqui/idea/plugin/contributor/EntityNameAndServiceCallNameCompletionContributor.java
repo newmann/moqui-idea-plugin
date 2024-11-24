@@ -1,12 +1,9 @@
 package org.moqui.idea.plugin.contributor;
 
-import com.intellij.codeInsight.completion.CompletionType;
-import icons.MoquiIcons;
-import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.util.MyDomUtils;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
@@ -16,14 +13,19 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlToken;
 import com.intellij.util.xml.DomElement;
+import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.model.Eecas;
+import org.moqui.idea.plugin.dom.model.Entities;
+import org.moqui.idea.plugin.dom.model.Secas;
+import org.moqui.idea.plugin.dom.model.Services;
 import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
+import org.moqui.idea.plugin.util.ServiceUtils;
 
 import javax.swing.*;
 import java.util.*;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.intellij.psi.xml.XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN;

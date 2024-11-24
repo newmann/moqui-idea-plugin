@@ -17,8 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.util.MyDomUtils;
 
-import static com.intellij.psi.xml.XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN;
-
 public class MoquiEnterTypedHandler implements EnterHandlerDelegate {
         private static final Logger LOGGER = Logger.getInstance(MoquiEnterTypedHandler.class);
         private XmlAttributeValue nextValue;

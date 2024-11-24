@@ -10,17 +10,20 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.ConvertContext;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomFileElement;
+import com.intellij.util.xml.DomUtil;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.*;
-import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.dom.model.*;
 
 import javax.swing.*;
 import java.util.*;
@@ -250,6 +253,25 @@ public final class ScreenUtils {
     public static List<FormSingle> getFormSingleListFromScreenFile(@NotNull DomFileElement<Screen> fileElement){
         Widgets widgets = fileElement.getRootElement().getWidgets();
         return DomUtil.getChildrenOf(widgets,FormSingle.class);
+    }
+
+    /**
+     * 包括section和section-iterate
+     * @param fileElement screen的DomFileElement
+     * @return List<Section></Section>
+     */
+    public static List<Section> getSectionListFromScreenFile(@NotNull DomFileElement<Screen> fileElement){
+        Widgets widgets = fileElement.getRootElement().getWidgets();
+        return DomUtil.getChildrenOf(widgets,Section.class);
+    }
+    public static Optional<Section> getSectionFromScreenFileByName(@NotNull DomFileElement<Screen> fileElement,@NotNull String sectionName){
+
+        return getSectionFromSectionList(getSectionListFromScreenFile(fileElement),sectionName);
+    }
+    public static Optional<Section> getSectionFromSectionList(@NotNull List<Section> sectionList,@NotNull String sectionName) {
+        return sectionList.stream()
+                .filter(section -> MyDomUtils.getValueOrEmptyString(section.getName()).equals(sectionName))
+                .findFirst();
     }
 
     public static List<FormSingle> getFormSingleListFromScreenFile(PsiFile file){
@@ -587,15 +609,11 @@ public final class ScreenUtils {
 
         }
         public static ArrayList<Menu> sortMenuArrayList(@NotNull ArrayList<Menu> menus){
-            menus.sort(new Comparator<Menu>() {
-
-                @Override
-                public int compare(Menu menu, Menu t1) {
-                    if (Objects.equals(t1.getMenuIndex(), menu.getMenuIndex())) {
-                        return menu.getTitle().compareTo(t1.getTitle());
-                    } else {
-                        return menu.getMenuIndex() - t1.getMenuIndex();
-                    }
+            menus.sort((menu, t1) -> {
+                if (Objects.equals(t1.getMenuIndex(), menu.getMenuIndex())) {
+                    return menu.getTitle().compareTo(t1.getTitle());
+                } else {
+                    return menu.getMenuIndex() - t1.getMenuIndex();
                 }
             });
             //对子菜单进行排序

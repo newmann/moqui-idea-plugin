@@ -5,8 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 import static org.moqui.idea.plugin.util.MyStringUtils.isEmpty;
-import static org.moqui.idea.plugin.util.ServiceUtils.SERVICE_NAME_HASH;
 import static org.moqui.idea.plugin.util.ServiceUtils.SERVICE_NAME_DOT;
+import static org.moqui.idea.plugin.util.ServiceUtils.SERVICE_NAME_HASH;
 
 public class ServiceCallDescriptor {
     public static ServiceCallDescriptor of(@NotNull String fulllName){

@@ -1,12 +1,9 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.FieldRefConverter;
 import org.moqui.idea.plugin.dom.converter.LocationConverter;
 import org.moqui.idea.plugin.dom.converter.TransitionConverter;
-import org.moqui.idea.plugin.dom.presentation.FormSinglePresentationProvider;
 
 import java.util.List;
 

@@ -7,8 +7,6 @@ import org.moqui.idea.plugin.dom.model.Eeca;
 import org.moqui.idea.plugin.service.FindRelatedItemService;
 import org.moqui.idea.plugin.util.EecaUtils;
 import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.ScreenUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
 
 import javax.swing.*;
 import java.util.List;

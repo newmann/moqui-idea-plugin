@@ -12,6 +12,7 @@ import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static com.intellij.lang.documentation.DocumentationMarkup.*;
@@ -98,6 +99,17 @@ public class CommonDocumentationFormatter {
         return extendBuilder.wrapWith(CONTENT_ELEMENT);
     }
     public static HtmlChunk.Element formatFieldList(List<Field> fieldList) {
+
+//        List<Field> sortedList = fieldList.stream()
+//                .sorted(new Comparator<Field>() {
+//                    @Override
+//                    public int compare(Field field, Field t1) {
+//                        String n1 = MyDomUtils.getValueOrEmptyString(field.getName());
+//                        String n2= MyDomUtils.getValueOrEmptyString(t1.getName());
+//                        return n1.compareTo(n2);
+//                    }
+//                })
+//                .toList();
         HtmlBuilder fieldListBuilder = new HtmlBuilder();
 
         HtmlBuilder tableHeader = new HtmlBuilder();
@@ -168,6 +180,11 @@ public class CommonDocumentationFormatter {
         return fieldListBuilder.wrapWith(SECTIONS_TABLE);
     }
     public static HtmlChunk.Element formatIndexAbstractFieldList(List<IndexAbstractField> fieldList) {
+
+        List<IndexAbstractField> sortedList = fieldList.stream()
+                .sorted(Comparator.comparing(IndexAbstractField::getName))
+                .toList();
+
         HtmlBuilder fieldListBuilder = new HtmlBuilder();
 
         HtmlBuilder tableHeader = new HtmlBuilder();
@@ -186,7 +203,7 @@ public class CommonDocumentationFormatter {
 
         fieldListBuilder.append(tableHeader.wrapWith("tr"));
 
-        fieldList.forEach(field -> {
+        sortedList.forEach(field -> {
 
                     HtmlBuilder fieldBuilder = new HtmlBuilder();
                     fieldBuilder.append(text(MyDomUtils.getValueOrEmptyString(field.getName())).wrapWith(SECTION_CONTENT_CELL));

@@ -4,7 +4,6 @@ import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ProcessingContext;
@@ -15,7 +14,7 @@ import org.moqui.idea.plugin.util.ComponentUtils;
 import org.moqui.idea.plugin.util.EntityUtils;
 
 import java.util.Map;
-
+@Deprecated
 public class EntityOrViewNameCompletionProvider extends CompletionProvider<CompletionParameters> {
 
     @Override

@@ -3,10 +3,11 @@ package org.moqui.idea.plugin.injector;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomElementVisitor;
+import org.intellij.plugins.intelliLang.inject.InjectorUtils;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.InjectGroovyUtils;
-import org.intellij.plugins.intelliLang.inject.InjectorUtils;
+
 import java.util.List;
 
 public class ServiceVisitor implements DomElementVisitor {

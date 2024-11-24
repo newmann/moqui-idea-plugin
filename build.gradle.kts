@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.beiyelin"
-version = "20241006.01"
+version = "20241124.01"
 
 repositories {
   maven { setUrl("https://mirrors.cloud.tencent.com/gradle/")}

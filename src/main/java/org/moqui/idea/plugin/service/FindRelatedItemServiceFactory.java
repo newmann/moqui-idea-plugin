@@ -7,7 +7,7 @@ import org.moqui.idea.plugin.service.impl.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Deprecated
 public class FindRelatedItemServiceFactory {
   private static final List<FindRelatedItemService> findRelatedItemServiceList = new ArrayList<>();
 

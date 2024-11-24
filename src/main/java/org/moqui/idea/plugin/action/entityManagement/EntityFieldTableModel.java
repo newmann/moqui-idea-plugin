@@ -4,10 +4,8 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.dom.model.Field;
-import org.moqui.idea.plugin.util.MyDomUtils;
 
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.util.ArrayList;
 import java.util.List;

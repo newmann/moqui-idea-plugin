@@ -43,14 +43,10 @@ public class EntitiesPackageEditCompletionService implements EditCompletionServi
 
     @Override
     public List<LookupElementBuilder> findCompletionItem(PsiElement psiElement) {
-        List<LookupElementBuilder> lookupElementBuilders = new ArrayList<LookupElementBuilder>();
         Set<String> packageSet = EntityUtils.getEntityAttributes(psiElement.getProject(),Entity.ATTR_PACKAGE,"");
-        lookupElementBuilders.addAll(
-          packageSet.stream().map(item->{
-              return LookupElementBuilder.create(item).withCaseSensitivity(true);
-          }).collect(Collectors.toList())
-        );
 
-        return lookupElementBuilders;
+        return new ArrayList<LookupElementBuilder>(packageSet.stream().map(item -> {
+            return LookupElementBuilder.create(item).withCaseSensitivity(true);
+        }).collect(Collectors.toList()));
     }
 }

@@ -12,7 +12,9 @@ import com.intellij.util.xml.highlighting.DomHighlightingHelper;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.dom.model.ExtendEntity;
+import org.moqui.idea.plugin.dom.model.MemberEntity;
+import org.moqui.idea.plugin.dom.model.Relationship;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 

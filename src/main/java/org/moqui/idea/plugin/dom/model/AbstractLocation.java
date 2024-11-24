@@ -1,8 +1,10 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.Attribute;
+import com.intellij.util.xml.Convert;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.AllPackageConverter;
 import org.moqui.idea.plugin.dom.converter.LocationConverter;
 
 public interface AbstractLocation extends DomElement {

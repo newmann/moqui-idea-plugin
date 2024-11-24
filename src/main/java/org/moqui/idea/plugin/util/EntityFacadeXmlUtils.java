@@ -2,7 +2,6 @@ package org.moqui.idea.plugin.util;
 
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.Eecas;
 import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
 
 

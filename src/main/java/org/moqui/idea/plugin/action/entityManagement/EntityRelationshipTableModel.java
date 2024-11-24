@@ -2,8 +2,6 @@ package org.moqui.idea.plugin.action.entityManagement;
 
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.AbstractField;
-import org.moqui.idea.plugin.dom.model.Field;
 import org.moqui.idea.plugin.dom.model.Relationship;
 
 import javax.swing.event.TableModelListener;

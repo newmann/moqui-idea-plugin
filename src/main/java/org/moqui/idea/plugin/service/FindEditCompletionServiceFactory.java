@@ -5,7 +5,7 @@ import org.moqui.idea.plugin.service.impl.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Deprecated
 public class FindEditCompletionServiceFactory {
   private static final List<EditCompletionService> completionServiceList = new ArrayList<>();
 

@@ -1,11 +1,12 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.Attribute;
+import com.intellij.util.xml.Convert;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityFieldNameConverter;
 import org.moqui.idea.plugin.dom.converter.ViewEntityAliasConverter;
-
-import java.util.List;
 
 public interface ComplexAliasField extends DomElement {
     public static final String TAG_NAME = "complex-alias-field";

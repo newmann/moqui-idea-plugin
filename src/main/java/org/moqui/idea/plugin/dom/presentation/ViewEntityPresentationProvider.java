@@ -3,7 +3,6 @@ package org.moqui.idea.plugin.dom.presentation;
 import com.intellij.ide.presentation.PresentationProvider;
 import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.dom.model.ViewEntity;
 
 public class ViewEntityPresentationProvider extends PresentationProvider<ViewEntity> {

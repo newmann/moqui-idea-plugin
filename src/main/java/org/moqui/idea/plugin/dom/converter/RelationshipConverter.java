@@ -2,7 +2,6 @@ package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -18,7 +17,6 @@ import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.service.AbstractIndexEntity;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.service.IndexViewEntity;
-import org.moqui.idea.plugin.service.MoquiIndexService;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;

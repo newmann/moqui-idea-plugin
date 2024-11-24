@@ -1,9 +1,9 @@
 package org.moqui.idea.plugin.quickDoc;
 
 import com.intellij.model.Pointer;
+import com.intellij.navigation.TargetPresentation;
 import com.intellij.platform.backend.documentation.DocumentationResult;
 import com.intellij.platform.backend.documentation.DocumentationTarget;
-import com.intellij.navigation.TargetPresentation;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

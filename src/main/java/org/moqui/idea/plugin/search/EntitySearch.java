@@ -1,10 +1,10 @@
 package org.moqui.idea.plugin.search;
 
+import com.intellij.openapi.application.QueryExecutorBase;
+import com.intellij.psi.search.searches.DefinitionsScopedSearch;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlElement;
-import com.intellij.openapi.application.QueryExecutorBase;
-import com.intellij.psi.search.searches.DefinitionsScopedSearch;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.util.EntityUtils;

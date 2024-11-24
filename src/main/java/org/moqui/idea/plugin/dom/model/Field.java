@@ -2,11 +2,9 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.SubTag;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.presentation.EntityPresentationProvider;
 import org.moqui.idea.plugin.dom.presentation.FieldPresentationProvider;
 
 @Presentation(provider = FieldPresentationProvider.class)

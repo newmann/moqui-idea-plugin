@@ -1,4 +1,4 @@
-package org.moqui.idea.plugin.dom.converter.insert;
+package org.moqui.idea.plugin.dom.converter.insertHandler;
 
 import org.jetbrains.annotations.NotNull;
 

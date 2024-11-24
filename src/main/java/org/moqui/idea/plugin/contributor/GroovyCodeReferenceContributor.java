@@ -16,6 +16,7 @@ import static org.jetbrains.plugins.groovy.lang.psi.patterns.GroovyPatterns.groo
 
 public class GroovyCodeReferenceContributor extends PsiReferenceContributor {
     public static final String ENTITY_FACADE_CLASS = "org.moqui.entity.EntityFacade";
+    public static final String ENTITY_FIND_CLASS = "org.moqui.entity.EntityFind";
     public static final String ENTITY_IMPL_FACADE_CLASS = "org.moqui.impl.entity.EntityFacadeImpl";
     public static final String SERVICE_CALL_SYNC_CLASS = "org.moqui.service.ServiceCallSync";
     public static final String SERVICE_CALL_ASYNC_CLASS = "org.moqui.service.ServiceCallAsync";
@@ -35,6 +36,8 @@ public class GroovyCodeReferenceContributor extends PsiReferenceContributor {
                     groovyLiteralExpression().methodCallParameter(0, psiMethod().withName("name").definedInClass(SERVICE_CALL_SYNC_CLASS)),
                     groovyLiteralExpression().methodCallParameter(0, psiMethod().withName("name").definedInClass(SERVICE_CALL_ASYNC_CLASS))
             ));
+
+
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {

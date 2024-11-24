@@ -8,12 +8,14 @@ import org.intellij.plugins.intelliLang.inject.InjectedLanguage;
 import org.intellij.plugins.intelliLang.inject.InjectorUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.groovy.GroovyLanguage;
-import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.dom.model.InParameters;
+import org.moqui.idea.plugin.dom.model.OutParameters;
+import org.moqui.idea.plugin.dom.model.Parameter;
+import org.moqui.idea.plugin.dom.model.Service;
 import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.IndexServiceParameter;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

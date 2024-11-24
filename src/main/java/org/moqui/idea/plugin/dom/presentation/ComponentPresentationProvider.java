@@ -4,7 +4,6 @@ import com.intellij.ide.presentation.PresentationProvider;
 import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Component;
-import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 

@@ -1,8 +1,8 @@
 package org.moqui.idea.plugin.util;
 
-import org.moqui.idea.plugin.dom.model.Secas;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.dom.model.Secas;
 
 
 public final class SecaUtils {

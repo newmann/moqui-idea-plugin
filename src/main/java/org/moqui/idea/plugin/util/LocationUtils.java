@@ -60,6 +60,7 @@ public final class LocationUtils {
         private Boolean isComponentFile = false;
         private Boolean isFrameworkFile = false;
 
+        private String relativePath;//
         public PsiFile getContainingFile() {
             return containingFile;
         }
@@ -98,6 +99,7 @@ public final class LocationUtils {
                 isComponentFile = true;
                 isFrameworkFile = false;
             }
+            relativePath = extractComponentRelativePath(path).orElse(MyStringUtils.EMPTY_STRING);
 //            String[] splits = this.path.split("/runtime/component/");
 //            if(splits.length != 2) {
 //                splits = this.path.split("/runtime/base-component/");
@@ -170,25 +172,73 @@ public final class LocationUtils {
          * @return
          */
         public String getComponentRelativePath() {
-            String[] splitArray;
-            if(path.contains(MyStringUtils.COMPONENT_PATH_TAG)) {
-                splitArray = path.split(MyStringUtils.COMPONENT_PATH_TAG);
-            }else if(path.contains(MyStringUtils.BASE_COMPONENT_PATH_TAG)) {
-                splitArray = path.split(MyStringUtils.BASE_COMPONENT_PATH_TAG);
-            }else if(path.contains(MyStringUtils.FRAMEWORK_PATH_TAG)) {
-                splitArray = path.split(MyStringUtils.FRAMEWORK_PATH_TAG);
-            }else {
+            if(this.relativePath.equals(MyStringUtils.EMPTY_STRING)) {
                 return MyStringUtils.EMPTY_STRING;
-            }
-
-            if(splitArray.length == 2) {
-                return ComponentUtils.COMPONENT_LOCATION_PREFIX+splitArray[1];
             }else {
-                return MyStringUtils.EMPTY_STRING;
+                return ComponentUtils.COMPONENT_LOCATION_PREFIX+relativePath;
             }
+//            String[] splitArray;
+//            if(path.contains(MyStringUtils.COMPONENT_PATH_TAG)) {
+//                splitArray = path.split(MyStringUtils.COMPONENT_PATH_TAG);
+//            }else if(path.contains(MyStringUtils.BASE_COMPONENT_PATH_TAG)) {
+//                splitArray = path.split(MyStringUtils.BASE_COMPONENT_PATH_TAG);
+//            }else if(path.contains(MyStringUtils.FRAMEWORK_PATH_TAG)) {
+//                splitArray = path.split(MyStringUtils.FRAMEWORK_PATH_TAG);
+//            }else {
+//                return MyStringUtils.EMPTY_STRING;
+//            }
+//
+//            if(splitArray.length == 2) {
+//                return ComponentUtils.COMPONENT_LOCATION_PREFIX+splitArray[1];
+//            }else {
+//                return MyStringUtils.EMPTY_STRING;
+//            }
 
         }
+
+        public String getRelativePath() {
+            return relativePath;
+        }
     }
+
+    /**
+     * 在component下的相对位置，同时需要考虑framework
+     * @param path
+     * @return
+     */
+    public static Optional<String> extractComponentRelativePath(@NotNull String path){
+        String[] splitArray;
+        if(path.contains(MyStringUtils.COMPONENT_PATH_TAG)) {
+            splitArray = path.split(MyStringUtils.COMPONENT_PATH_TAG);
+        }else if(path.contains(MyStringUtils.BASE_COMPONENT_PATH_TAG)) {
+            splitArray = path.split(MyStringUtils.BASE_COMPONENT_PATH_TAG);
+        }else if(path.contains(MyStringUtils.FRAMEWORK_PATH_TAG)) {
+            splitArray = path.split(MyStringUtils.FRAMEWORK_PATH_TAG);
+        }else {
+            return Optional.empty();
+        }
+
+        if(splitArray.length == 2) {
+            return Optional.of(splitArray[1]);
+        }else {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * 为了缩短在Complete list中文件名的长度，将常用的字符串缩短，主要是/screen/
+     * @param path
+     * @return
+     */
+    public static String simplifyComponentRelativePath(@NotNull String path){
+//        int index = path.indexOf("/screen/");
+//        if(index < 0) return path;
+//
+//        int lastSlashIndex = path.lastIndexOf("/");
+//        return path.substring(0,index) + "@" + path.substring(lastSlashIndex);
+        return path.replace("/screen/","@");
+    }
+
     public enum LocationType{
         Unknown, //根据location无法判断具体类型的，需要根据所在的context，进一步判断，
         ComponentFile, //component://SimpleScreens/template/party/PartyForms.xml（指向一个文件 ）

@@ -1,11 +1,8 @@
 package org.moqui.idea.plugin.action.entityManagement;
 
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.MemberEntity;
-import org.moqui.idea.plugin.service.MoquiIndexService;
-import org.moqui.idea.plugin.util.MyDomUtils;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;

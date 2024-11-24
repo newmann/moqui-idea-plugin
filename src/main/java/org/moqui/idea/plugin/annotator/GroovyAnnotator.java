@@ -5,14 +5,11 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.xml.XmlAttribute;
-import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.contributor.GroovyCodeReferenceContributor;
 import org.moqui.idea.plugin.util.BeginAndEndCharPattern;
 import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
 
 import java.util.Optional;
 

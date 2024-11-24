@@ -16,7 +16,7 @@ import icons.MoquiIcons;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.converter.insert.ExtendEntityNameAndPackageInsertionHandler;
+import org.moqui.idea.plugin.dom.converter.insertHandler.ExtendEntityNameAndPackageInsertionHandler;
 import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.dom.model.ExtendEntity;
 import org.moqui.idea.plugin.reference.PsiRef;

@@ -1,4 +1,4 @@
-package org.moqui.idea.plugin.dom.converter.insert;
+package org.moqui.idea.plugin.dom.converter.insertHandler;
 
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;

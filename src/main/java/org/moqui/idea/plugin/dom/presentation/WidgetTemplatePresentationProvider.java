@@ -2,7 +2,6 @@ package org.moqui.idea.plugin.dom.presentation;
 
 import com.intellij.ide.presentation.PresentationProvider;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.Eeca;
 import org.moqui.idea.plugin.dom.model.WidgetTemplate;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;

@@ -1,4 +1,4 @@
-package org.moqui.idea.plugin.dom.converter.insert;
+package org.moqui.idea.plugin.dom.converter.insertHandler;
 
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;
@@ -8,12 +8,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomManager;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.AbstractEntity;
 import org.moqui.idea.plugin.dom.model.Alias;
-import org.moqui.idea.plugin.dom.model.ExtendEntity;
 import org.moqui.idea.plugin.util.MyDomUtils;
 
 public class AliasNameInsertionHandler implements InsertHandler<LookupElement>{

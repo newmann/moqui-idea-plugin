@@ -1,11 +1,12 @@
 package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.Attribute;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.SubTagList;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.LocationConverter;
 import org.moqui.idea.plugin.dom.presentation.ComponentPresentationProvider;
-import org.moqui.idea.plugin.dom.presentation.EntityPresentationProvider;
 
 import java.util.List;
 //@Stubbed

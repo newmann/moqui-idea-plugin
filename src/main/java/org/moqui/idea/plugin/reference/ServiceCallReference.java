@@ -7,14 +7,22 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.*;
+import com.intellij.psi.ElementManipulators;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.util.*;
+import org.moqui.idea.plugin.util.BeginAndEndCharPattern;
+import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
+import org.moqui.idea.plugin.util.ServiceUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ServiceCallReference extends PsiReferenceBase.Immediate<PsiElement> {
   public static ServiceCallReference of(@NotNull PsiElement element, TextRange textRange, PsiElement resolveElement){

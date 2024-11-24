@@ -8,7 +8,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class EntityFieldNameReference extends PsiReferenceBase.Immediate<PsiElement> {
 

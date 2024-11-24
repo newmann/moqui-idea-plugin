@@ -3,7 +3,6 @@ package org.moqui.idea.plugin.action.flowManagement.widget;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiElement;
 
-import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -11,14 +10,11 @@ public class ExpandableFlowNodeModel extends FlowNodeModel {
     private static final Logger LOGGER = Logger.getInstance(ExpandableFlowNodeModel.class);
 
     protected boolean isExpanded = false;
-    protected final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
-        @Override
-        public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-            if(propertyChangeEvent.getPropertyName().equals(PROPERTY_NAME_LAYOUT_CHANGE)) {
+    protected final PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
+        if(propertyChangeEvent.getPropertyName().equals(PROPERTY_NAME_LAYOUT_CHANGE)) {
 //                LOGGER.warn("ExpandableFlowNodeModel "+ getType() +":"+ getName() + " call processLayout ");
-                processLayout();
-                firePropertyChange(propertyChangeEvent);
-            }
+            processLayout();
+            firePropertyChange(propertyChangeEvent);
         }
     };
 

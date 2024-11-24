@@ -1,6 +1,6 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 
 public interface EntityMakeValue extends AbstractEntityName {

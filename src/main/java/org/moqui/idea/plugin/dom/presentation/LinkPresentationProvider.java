@@ -1,10 +1,8 @@
 package org.moqui.idea.plugin.dom.presentation;
 
 import com.intellij.ide.presentation.PresentationProvider;
-import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Link;
-import org.moqui.idea.plugin.dom.model.Section;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 

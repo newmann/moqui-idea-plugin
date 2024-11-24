@@ -4,7 +4,8 @@ import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
-import org.moqui.idea.plugin.util.*;
+import org.moqui.idea.plugin.util.MoquiConfUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class ScreenTreeStructureProvider extends AbstractTreeStructureProvider{
     @Override

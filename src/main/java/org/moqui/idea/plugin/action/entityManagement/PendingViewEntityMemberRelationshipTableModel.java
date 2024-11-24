@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.MemberRelationship;
 import org.moqui.idea.plugin.dom.model.ViewEntity;
 import org.moqui.idea.plugin.service.MoquiIndexService;
-import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 import javax.swing.event.TableModelListener;

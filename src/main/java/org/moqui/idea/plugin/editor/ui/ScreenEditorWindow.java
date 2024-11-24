@@ -10,7 +10,6 @@ import org.moqui.idea.plugin.dom.model.FormSingle;
 import org.moqui.idea.plugin.dom.model.Screen;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class ScreenEditorWindow extends BasicDomElementComponent<Screen> {
     private JPanel editorWindow;

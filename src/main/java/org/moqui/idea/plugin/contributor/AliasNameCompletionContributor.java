@@ -1,27 +1,31 @@
 package org.moqui.idea.plugin.contributor;
 
-import com.intellij.codeInsight.completion.*;
+import com.intellij.codeInsight.completion.CompletionContributor;
+import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlPatterns;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.util.ProcessingContext;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.insert.AliasInsertObject;
-import org.moqui.idea.plugin.dom.converter.insert.AliasNameInsertionHandler;
-import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.dom.converter.insertHandler.AliasInsertObject;
+import org.moqui.idea.plugin.dom.converter.insertHandler.AliasNameInsertionHandler;
+import org.moqui.idea.plugin.dom.model.AbstractMemberEntity;
+import org.moqui.idea.plugin.dom.model.Alias;
+import org.moqui.idea.plugin.dom.model.Entities;
+import org.moqui.idea.plugin.dom.model.ViewEntity;
+import org.moqui.idea.plugin.provider.AliasNameCompletionProvider;
 import org.moqui.idea.plugin.service.AbstractIndexEntity;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexEntity;
-import org.moqui.idea.plugin.util.*;
+import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByPsiElement;
@@ -32,16 +36,18 @@ import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByPsiEleme
  * 选定字段后，自动将对应表的别名插入
  *
  */
+@Deprecated
 public class AliasNameCompletionContributor extends CompletionContributor {
 
   AliasNameCompletionContributor(){
-    extend(CompletionType.BASIC, getCapture(), new CompletionProvider<>() {
-      @Override
-      protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
-        PsiElement psiElement = parameters.getPosition();
-        result.addAllElements(findCompletionItem(psiElement));
-      }
-    });
+    extend(CompletionType.BASIC, AliasNameCompletionProvider.ALIAS_NAME_PATTERN,AliasNameCompletionProvider.of());
+//    extend(CompletionType.BASIC, getCapture(), new CompletionProvider<>() {
+//      @Override
+//      protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
+//        PsiElement psiElement = parameters.getPosition();
+//        result.addAllElements(findCompletionItem(psiElement));
+//      }
+//    });
   }
   private static PsiElementPattern.Capture<PsiElement> getCapture() {
     return psiElement().inside(

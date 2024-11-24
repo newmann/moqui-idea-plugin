@@ -11,10 +11,11 @@ import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Component;
-import org.moqui.idea.plugin.dom.model.Entities;
-import org.moqui.idea.plugin.dom.model.Entity;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 public final class ComponentUtils {

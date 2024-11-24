@@ -7,15 +7,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.stubs.AbstractStubIndex;
-import com.intellij.psi.stubs.StubIndex;
 import com.intellij.ui.AnimatedIcon;
-import com.intellij.ui.TreeUIHelper;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.xml.stubs.index.DomElementClassIndex;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.action.menuManagement.MenuManagementGUI;
 import org.moqui.idea.plugin.dom.model.Component;
 import org.moqui.idea.plugin.dom.model.DependsOn;
 import org.moqui.idea.plugin.util.ComponentUtils;
@@ -32,8 +27,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ComponentDepends extends JPanel {
     private static final Logger LOGGER = Logger.getInstance(ComponentDepends.class);
@@ -53,12 +49,7 @@ public class ComponentDepends extends JPanel {
         add(refreshButton,BorderLayout.NORTH);
 
         initComponentTree();
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                refreshDepend();
-            }
-        });
+        refreshButton.addActionListener(actionEvent -> refreshDepend());
     }
 
     private void initComponentTree(){

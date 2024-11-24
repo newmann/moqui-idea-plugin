@@ -18,9 +18,9 @@ import java.util.List;
 
 public interface MyDomService {
 
-  static MyDomService getInstance() {
-    return ApplicationManager.getApplication().getService(MyDomService.class);
-  }
+//  static MyDomService getInstance() {
+//    return ApplicationManager.getApplication().getService(MyDomService.class);
+//  }
 
   @NotNull
   List<Services> getServicesList(@NotNull PsiClass psiClass,

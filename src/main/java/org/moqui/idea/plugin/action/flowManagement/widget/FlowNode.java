@@ -33,14 +33,11 @@ public abstract class FlowNode extends JPanel implements MouseListener {
         if(model instanceof ExpandableFlowNodeModel expandableFlowNodeModel) {
             JButton extendButton = new JButton(MoquiIcons.ServiceTag);
 
-            extendButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent) {
-                    if (expandableFlowNodeModel.isExpanded()) {
-                        expandableFlowNodeModel.closeContent();
-                    } else {
-                        expandableFlowNodeModel.expandContent();
-                    }
+            extendButton.addActionListener(actionEvent -> {
+                if (expandableFlowNodeModel.isExpanded()) {
+                    expandableFlowNodeModel.closeContent();
+                } else {
+                    expandableFlowNodeModel.expandContent();
                 }
             });
             extendButton.setBounds(1, 1, 32, 32);

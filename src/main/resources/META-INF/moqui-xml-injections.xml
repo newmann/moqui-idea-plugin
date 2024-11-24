@@ -2,4 +2,5 @@
     <extensions defaultExtensionNs="org.intellij.intelliLang">
         <injectionConfig config="MoquiGroovyInjections.xml"/>
     </extensions>
+    <depends>org.intellij.intelliLang</depends>
 </idea-plugin>

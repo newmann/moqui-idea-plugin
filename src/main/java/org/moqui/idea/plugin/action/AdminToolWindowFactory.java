@@ -10,12 +10,9 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.action.menuManagement.MenuManagementGUI;
 import org.moqui.idea.plugin.action.componentManagement.ComponentDepends;
-import org.moqui.idea.plugin.action.entityManagement.EntityManagementGUI;
 import org.moqui.idea.plugin.action.entityManagement.PendingViewEntityManagementGUI;
-import org.moqui.idea.plugin.action.entityManagement.ViewEntityManagementGUI;
-import org.moqui.idea.plugin.action.serviceManagement.ServiceManagementGUI;
+import org.moqui.idea.plugin.action.menuManagement.MenuManagementGUI;
 import org.moqui.idea.plugin.util.MyDomUtils;
 
 import javax.swing.*;
@@ -62,14 +59,14 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
         ComponentDepends componentDepends = new ComponentDepends(this.project);
         addToolBar(componentDepends,"Component","Loading all components and dependencies", MoquiIcons.ComponentTag);
 
-        EntityManagementGUI entityManagementGUI = new EntityManagementGUI(this.project);
-        addToolBar(entityManagementGUI,"Entity","Loading all entities", MoquiIcons.EntityTag);
-
-        ViewEntityManagementGUI viewEntityManagementGUI = new ViewEntityManagementGUI(this.project); //
-        addToolBar(viewEntityManagementGUI,"View","Loading all view entities", MoquiIcons.ViewEntityTag);
-
-        ServiceManagementGUI serviceManagementGUI = new ServiceManagementGUI(this.project); //
-        addToolBar(serviceManagementGUI,"Service","Loading all services", MoquiIcons.ServiceTag);
+//        EntityManagementGUI entityManagementGUI = new EntityManagementGUI(this.project);
+//        addToolBar(entityManagementGUI,"Entity","Loading all entities", MoquiIcons.EntityTag);
+//
+//        ViewEntityManagementGUI viewEntityManagementGUI = new ViewEntityManagementGUI(this.project); //
+//        addToolBar(viewEntityManagementGUI,"View","Loading all view entities", MoquiIcons.ViewEntityTag);
+//
+//        ServiceManagementGUI serviceManagementGUI = new ServiceManagementGUI(this.project); //
+//        addToolBar(serviceManagementGUI,"Service","Loading all services", MoquiIcons.ServiceTag);
 
         MenuManagementGUI menuManagementGUI = new MenuManagementGUI(this.project); //
         addToolBar(menuManagementGUI,"Menu","Loading all menus", AllIcons.Ide.Gift);//TODO update icon

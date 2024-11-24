@@ -29,6 +29,7 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
  * 5、代表自己的 .
  *
  */
+@Deprecated
 public class TransitionCompletionContributor extends CompletionContributor {
 
   TransitionCompletionContributor(){

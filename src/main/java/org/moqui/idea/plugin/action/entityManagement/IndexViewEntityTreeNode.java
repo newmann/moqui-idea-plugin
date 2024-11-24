@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.action.entityManagement;
 
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.service.IndexViewEntity;
 
 public class IndexViewEntityTreeNode {

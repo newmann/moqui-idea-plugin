@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 @Deprecated
-@Service(Service.Level.PROJECT)
 public final class ServicePsiElementService {
     private final Project project;
 
@@ -43,17 +42,15 @@ public final class ServicePsiElementService {
         final String className = optClassName.get();
 
         //先将原来的数据删除
-        for(Iterator<Map.Entry<String, org.moqui.idea.plugin.dom.model.Service>> it = serviceTags.entrySet().iterator(); it.hasNext();) {
-            Map.Entry<String, org.moqui.idea.plugin.dom.model.Service> item = it.next();
+        for (Map.Entry<String, org.moqui.idea.plugin.dom.model.Service> item : serviceTags.entrySet()) {
             String key = item.getKey();
-            if (key.indexOf(className) == 0 ) {
+            if (key.indexOf(className) == 0) {
                 serviceTags.remove(item);
             }
         }
-        for(Iterator<Map.Entry<String, org.moqui.idea.plugin.dom.model.Service>> it = interfaceTags.entrySet().iterator(); it.hasNext();) {
-            Map.Entry<String, org.moqui.idea.plugin.dom.model.Service> item = it.next();
+        for (Map.Entry<String, org.moqui.idea.plugin.dom.model.Service> item : interfaceTags.entrySet()) {
             String key = item.getKey();
-            if (key.indexOf(className) == 0 ) {
+            if (key.indexOf(className) == 0) {
                 interfaceTags.remove(item);
             }
         }
@@ -83,9 +80,9 @@ public final class ServicePsiElementService {
     }
 
 
-    public Map<String,DomElement> getAllServiceDomElements(){
-        Map<String,DomElement> result = new HashMap<String,DomElement>();
-        result.putAll(serviceTags);
-        return result;
-    }
+//    public Map<String,DomElement> getAllServiceDomElements(){
+//        Map<String,DomElement> result = new HashMap<String,DomElement>();
+//        result.putAll(serviceTags);
+//        return result;
+//    }
 }

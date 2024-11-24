@@ -8,7 +8,9 @@ import com.intellij.util.xml.highlighting.DomHighlightingHelper;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.dom.model.EntityFind;
+import org.moqui.idea.plugin.dom.model.EntityFindOne;
+import org.moqui.idea.plugin.dom.model.ServiceCall;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
 /**

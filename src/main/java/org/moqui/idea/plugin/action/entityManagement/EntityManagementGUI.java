@@ -7,8 +7,6 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.table.JBTable;
-
-
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.AbstractField;
@@ -130,36 +128,28 @@ public class EntityManagementGUI extends JPanel {
         });
     }
     private void initButtonSearchListener(){
-        buttonSearch.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                refreshEntityTree();
-            }
-        });
+        buttonSearch.addActionListener(actionEvent -> refreshEntityTree());
     }
     private void initTreeEntityListener(){
-        treeEntity.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent treeSelectionEvent) {
-                TreePath path = treeSelectionEvent.getPath();
-                Object lastObject = path.getLastPathComponent();
-                if(lastObject instanceof DefaultMutableTreeNode mutableTreeNode) {
-                    if(mutableTreeNode.getUserObject() instanceof IndexEntityTreeNode indexEntityTreeNode) {
+        treeEntity.addTreeSelectionListener(treeSelectionEvent -> {
+            TreePath path = treeSelectionEvent.getPath();
+            Object lastObject = path.getLastPathComponent();
+            if(lastObject instanceof DefaultMutableTreeNode mutableTreeNode) {
+                if(mutableTreeNode.getUserObject() instanceof IndexEntityTreeNode indexEntityTreeNode) {
 
-                        java.util.List<AbstractField> abstractFieldList = indexEntityTreeNode.getIndexEntity().getAbstractFieldList().orElse(new ArrayList<>());
-                        EntityFieldTableModel entityFieldTableModel = new EntityFieldTableModel(abstractFieldList);
-                        tableField.setModel(entityFieldTableModel);
+                    List<AbstractField> abstractFieldList = indexEntityTreeNode.getIndexEntity().getAbstractFieldList().orElse(new ArrayList<>());
+                    EntityFieldTableModel entityFieldTableModel = new EntityFieldTableModel(abstractFieldList);
+                    tableField.setModel(entityFieldTableModel);
 //                        tableField.setAutoResizeMode(JBTable.AUTO_RESIZE_ALL_COLUMNS);
 //                        tableField.setPreferredScrollableViewportSize(
 //                                new Dimension(tableField.getPreferredSize().width,
 //                                        tableField.getRowHeight()* tableField.getRowCount()) );
 
-                        List<Relationship> relationshipList = indexEntityTreeNode.getIndexEntity().getRelationshipList();
-                        EntityRelationshipTableModel entityRelationshipTableModel = new EntityRelationshipTableModel(relationshipList);
-                        tableRelationship.setModel(entityRelationshipTableModel);
+                    List<Relationship> relationshipList = indexEntityTreeNode.getIndexEntity().getRelationshipList();
+                    EntityRelationshipTableModel entityRelationshipTableModel = new EntityRelationshipTableModel(relationshipList);
+                    tableRelationship.setModel(entityRelationshipTableModel);
 //                        tableRelationship.setAutoResizeMode(JBTable.AUTO_RESIZE_ALL_COLUMNS);
 
-                    }
                 }
             }
         });

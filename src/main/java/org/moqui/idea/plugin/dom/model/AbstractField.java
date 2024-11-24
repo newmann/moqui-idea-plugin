@@ -2,7 +2,6 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.AllPackageConverter;
 
 /**
  * Field，Alias，Parameter的父类，以便进行统一处理

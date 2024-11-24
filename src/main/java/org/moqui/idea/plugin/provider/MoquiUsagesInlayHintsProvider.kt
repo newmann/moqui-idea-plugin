@@ -15,12 +15,7 @@ import com.intellij.psi.xml.XmlTag
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Query
 import com.intellij.util.xml.GenericAttributeValue
-import org.moqui.idea.plugin.dom.model.Entity
-import org.moqui.idea.plugin.dom.model.Service
-import org.moqui.idea.plugin.dom.model.Transition
-import org.moqui.idea.plugin.dom.model.TransitionInclude
-import org.moqui.idea.plugin.dom.model.ViewEntity
-import org.moqui.idea.plugin.dom.model.WidgetTemplate
+import org.moqui.idea.plugin.dom.model.*
 import org.moqui.idea.plugin.util.MyDomUtils
 import java.awt.event.MouseEvent
 

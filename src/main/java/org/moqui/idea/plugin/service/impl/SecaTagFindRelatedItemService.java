@@ -2,12 +2,12 @@ package org.moqui.idea.plugin.service.impl;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlAttribute;
-import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlToken;
 import org.moqui.idea.plugin.dom.model.Seca;
-import org.moqui.idea.plugin.dom.model.ServiceCall;
 import org.moqui.idea.plugin.service.FindRelatedItemService;
-import org.moqui.idea.plugin.util.*;
+import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.SecaUtils;
+import org.moqui.idea.plugin.util.ServiceUtils;
 
 import javax.swing.*;
 import java.util.List;

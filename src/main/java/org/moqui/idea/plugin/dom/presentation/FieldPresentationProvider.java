@@ -5,7 +5,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Field;
-import org.moqui.idea.plugin.dom.model.Link;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 import javax.swing.*;

@@ -1,11 +1,10 @@
 package org.moqui.idea.plugin.service.impl;
 
-import org.moqui.idea.plugin.dom.model.ServiceCall;
-import org.moqui.idea.plugin.service.FindRelatedItemService;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlToken;
-import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.model.ServiceCall;
+import org.moqui.idea.plugin.service.FindRelatedItemService;
 import org.moqui.idea.plugin.util.*;
 
 import javax.swing.*;

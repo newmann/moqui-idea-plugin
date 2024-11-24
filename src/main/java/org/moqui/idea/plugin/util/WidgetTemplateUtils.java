@@ -1,6 +1,5 @@
 package org.moqui.idea.plugin.util;
 
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlFile;
@@ -9,15 +8,12 @@ import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.Emecas;
-import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.dom.model.WidgetTemplate;
 import org.moqui.idea.plugin.dom.model.WidgetTemplates;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
 

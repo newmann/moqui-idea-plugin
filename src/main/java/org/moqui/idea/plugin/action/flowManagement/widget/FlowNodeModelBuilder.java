@@ -1,6 +1,5 @@
 package org.moqui.idea.plugin.action.flowManagement.widget;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
 import org.apache.commons.lang3.tuple.MutablePair;

@@ -1,8 +1,7 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.SubTagList;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.LocationConverter;
 
 import java.util.List;
 

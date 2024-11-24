@@ -2,7 +2,6 @@ package org.moqui.idea.plugin.action.serviceManagement;
 
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.service.IndexService;
-import org.moqui.idea.plugin.service.IndexViewEntity;
 
 public class ServiceTreeNode {
     private final IndexService indexService;
