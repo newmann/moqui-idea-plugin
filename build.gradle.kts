@@ -1,6 +1,6 @@
 plugins {
   id("java")
-  id("groovy")
+//  id("groovy")
   id("org.jetbrains.kotlin.jvm") version "1.9.21"
 //  id("org.jetbrains.intellij") version "1.16.1"
   id("org.jetbrains.intellij.platform") version "2.0.1"
@@ -37,8 +37,8 @@ dependencies {
   }
   // 使用 Maven Central 仓库中的依赖
 //  implementation("org.apache.groovy:groovy:4.0.22")
-  implementation("org.jgrapht:jgrapht-core:1.5.2")
-  implementation("com.github.tomnelson:jungrapht-visualization:1.4")
+//  implementation("org.jgrapht:jgrapht-core:1.5.2")
+//  implementation("com.github.tomnelson:jungrapht-visualization:1.4")
 }
 
 java {
@@ -72,7 +72,8 @@ tasks {
 
   patchPluginXml {
     sinceBuild.set("231") //2023.1版https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#earlier-versions
-    untilBuild.set("241.*")//2024.1 java 17
+//    untilBuild.set("241.*")//2024.1 java 17
+    untilBuild.set("243.*")
   }
 
   signPlugin {
