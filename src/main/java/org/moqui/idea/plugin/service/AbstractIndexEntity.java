@@ -5,10 +5,7 @@ import org.moqui.idea.plugin.dom.model.AbstractEntity;
 import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class AbstractIndexEntity extends AbstractIndex {
@@ -35,27 +32,34 @@ public abstract class AbstractIndexEntity extends AbstractIndex {
         return this.fullName.equals(name) || this.shortName.equals(name) || this.shortAlias.equals(name);
 
     }
-    public Optional<List<IndexAbstractField>> getIndexAbstractFieldList(){
+    public @NotNull List<IndexAbstractField> getIndexAbstractFieldList(){
         if(this.indexAbstractFieldMap == null) {
-            return Optional.empty();
+            return new ArrayList<>();
         }else {
-            return Optional.of(new ArrayList<>(this.indexAbstractFieldMap.values()));
+            return new ArrayList<>(this.indexAbstractFieldMap.values());
         }
     }
-    public Optional<List<AbstractField>> getAbstractFieldList(){
-        return Optional.of(this.indexAbstractFieldMap.values().stream().map(IndexAbstractField::getAbstractField).toList());
+    public @NotNull List<AbstractField> getAbstractFieldList(){
+        if(this.indexAbstractFieldMap == null) {
+            return new ArrayList<>();
+        }else {
+            return this.indexAbstractFieldMap.values().stream().map(IndexAbstractField::getAbstractField).toList();
+        }
     }
 
-    public Optional<List<String>> getFieldNameList(){
-        return Optional.of(indexAbstractFieldMap.keySet().stream().toList());
+    public @NotNull List<String> getFieldNameList(){
+        if(this.indexAbstractFieldMap == null) return new ArrayList<>();
+
+        return indexAbstractFieldMap.keySet().stream().toList();
 
     }
 
-    public Optional<Map<String,IndexAbstractField>> getIndexAbstractFieldMap(){
-        return Optional.of(indexAbstractFieldMap);
+    public @NotNull Map<String,IndexAbstractField> getIndexAbstractFieldMap(){
+        if(this.indexAbstractFieldMap == null ) return new HashMap<>();
+        return indexAbstractFieldMap;
     }
 
-    public AbstractEntity getAbstractEntity() {
-        return abstractEntity;
+    public Optional<AbstractEntity> getAbstractEntity() {
+        return Optional.ofNullable(abstractEntity);
     }
 }

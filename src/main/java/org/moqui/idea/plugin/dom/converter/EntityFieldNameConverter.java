@@ -1,10 +1,14 @@
 package org.moqui.idea.plugin.dom.converter;
 
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.FilterMapList;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.util.EntityUtils;
@@ -14,7 +18,7 @@ import org.moqui.idea.plugin.util.MyDomUtils;
 import java.util.Collection;
 import java.util.Collections;
 
-public class EntityFieldNameConverter extends ResolvingConverter.StringConverter  implements CustomReferenceConverter<String> {
+public class EntityFieldNameConverter extends ResolvingConverter<String>  implements CustomReferenceConverter<String> {
     @Override
     public @NotNull PsiReference[] createReferences(GenericDomValue<String> genericDomValue, PsiElement psiElement, ConvertContext convertContext) {
         final String valueStr = MyDomUtils.getValueOrEmptyString(genericDomValue.getStringValue());
@@ -40,12 +44,24 @@ public class EntityFieldNameConverter extends ResolvingConverter.StringConverter
 
     @NotNull
     @Override
-    public Collection<? extends String> getVariants(ConvertContext convertContext) {
+    public Collection<String> getVariants(ConvertContext convertContext) {
         XmlElement xmlElement = convertContext.getXmlElement();
         if(xmlElement== null) return Collections.emptyList();
         if(needNotCreatePsiReference(xmlElement)) return Collections.emptyList();
 
 
         return EntityUtils.getIndexAbstractFieldListByConvertContext(convertContext).stream().map(IndexAbstractField::getName).toList();
+    }
+
+    @Nullable
+    @Override
+    public String fromString(@Nullable @NonNls String s, ConvertContext convertContext) {
+        return s;
+    }
+
+    @Nullable
+    @Override
+    public String toString(@Nullable String s, ConvertContext convertContext) {
+        return s;
     }
 }

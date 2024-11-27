@@ -399,7 +399,7 @@ public final class EntityUtils {
     public static @NotNull List<IndexAbstractField> getEntityIndexAbstractFieldList(@NotNull Project project,@NotNull String entityName){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         Optional<IndexEntity> indexEntity = moquiIndexService.getIndexEntityByName(entityName);
-        return indexEntity.map(entity -> entity.getIndexAbstractFieldList().orElse(new ArrayList<>())).orElseGet(ArrayList::new);
+        return indexEntity.map(AbstractIndexEntity::getIndexAbstractFieldList).orElseGet(ArrayList::new);
 
     }
 
@@ -421,16 +421,16 @@ public final class EntityUtils {
      * @param name
      * @return
      */
-    public static @NotNull Optional<List<IndexAbstractField>> getViewEntityIndexAbstractFieldList(@NotNull Project project, @NotNull String name){
+    public static @NotNull List<IndexAbstractField> getViewEntityIndexAbstractFieldList(@NotNull Project project, @NotNull String name){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         Optional<IndexViewEntity> indexViewEntity = moquiIndexService.getIndexViewEntityByName(name);
-        return indexViewEntity.map(entity->entity.getIndexAbstractFieldList().orElse(new ArrayList<>()));
+        return indexViewEntity.map(AbstractIndexEntity::getIndexAbstractFieldList).orElse(new ArrayList<>());
 
     }
-    public static @NotNull Optional<List<IndexAbstractField>> getViewEntityIndexAbstractFieldList(@NotNull ViewEntity viewEntity) {
+    public static @NotNull List<IndexAbstractField> getViewEntityIndexAbstractFieldList(@NotNull ViewEntity viewEntity) {
         final Project project;
         if(viewEntity.getXmlElement() ==null) {
-            return Optional.empty();
+            return new ArrayList<>();
         }else {
             project = viewEntity.getXmlElement().getProject();
         }
@@ -463,7 +463,7 @@ public final class EntityUtils {
                 .collect(Collectors.toSet());
 
         return sourceFieldList.stream()
-                .filter(item->{ return !excludeFieldNames.contains(MyDomUtils.getValueOrEmptyString(item.getAbstractField().getName()));})
+                .filter(item->{ return !excludeFieldNames.contains(MyDomUtils.getValueOrEmptyString(item.getName()));})
                 .toList();
 
     }
@@ -818,11 +818,7 @@ public final class EntityUtils {
 
         Optional<IndexViewEntity> optionalIndexViewEntity = moquiIndexService.getIndexViewEntityByName(viewEntityFullName);
 
-        if(optionalIndexViewEntity.isPresent()) {
-            return optionalIndexViewEntity.get().getAbstractIndexEntityByAlias(alias);
-        }else {
-            return Optional.empty();
-        }
+        return optionalIndexViewEntity.flatMap(indexViewEntity -> indexViewEntity.getAbstractIndexEntityByAlias(alias));
     }
     /**
      * 根据EntityAlias找到对应的AbstractIndexEntity，直接返回AbstractFieldList等
@@ -830,13 +826,13 @@ public final class EntityUtils {
      * @param alias
      * @return
      */
-    public static Optional<List<IndexAbstractField>> getIndexAbstractFieldListFromViewEntityByAlias(@NotNull ViewEntity viewEntity, @NotNull String alias) {
+    public static @NotNull List<IndexAbstractField> getIndexAbstractFieldListFromViewEntityByAlias(@NotNull ViewEntity viewEntity, @NotNull String alias) {
 
         AbstractIndexEntity abstractIndexEntity = getViewEntityAbstractIndexEntityByAlias(
                 viewEntity,
                 alias
         ).orElse(null);
-        if(abstractIndexEntity == null) return Optional.empty();
+        if(abstractIndexEntity == null) return new ArrayList<>();
 
         return abstractIndexEntity.getIndexAbstractFieldList();
     }
@@ -850,8 +846,7 @@ public final class EntityUtils {
      */
     public static @NotNull Collection<IndexAbstractField> getEntityOrViewEntityFields(@NotNull Project project, @NotNull String entityName){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
-        Optional<List<IndexAbstractField>> result = moquiIndexService.getEntityOrViewEntityFieldList(entityName);
-        return result.orElse(Collections.emptyList());
+        return moquiIndexService.getEntityOrViewEntityFieldList(entityName);
     }
     public static Optional<Entity> getCurrentEntity(ConvertContext context){
         return getLocalDomElementByConvertContext(context,Entity.class);
@@ -1295,14 +1290,14 @@ public final class EntityUtils {
                             //fieldName，取MemberEntity属性joinFromAlias对应表的字段
                             result.addAll(getIndexAbstractFieldListFromViewEntityByAlias(
                                     curViewEntity,
-                                    MyDomUtils.getValueOrEmptyString(curMemberEntity.getJoinFromAlias())).orElse(new ArrayList<>()));
+                                    MyDomUtils.getValueOrEmptyString(curMemberEntity.getJoinFromAlias())));
 
                         }
                         case (KeyMap.ATTR_RELATED)->{
                             //related，取MemberEntity属性entityName对应表的字段
                             result.addAll(getIndexAbstractFieldListFromViewEntityByAlias(
                                     curViewEntity,
-                                    MyDomUtils.getValueOrEmptyString(curMemberEntity.getEntityAlias())).orElse(new ArrayList<>()));
+                                    MyDomUtils.getValueOrEmptyString(curMemberEntity.getEntityAlias())));
 
                         }
                     }
@@ -1329,13 +1324,12 @@ public final class EntityUtils {
                         case ECondition.ATTR_FIELD_NAME -> {
                             if(entityAlias.isEmpty()) {
                                 //没有alias，就去当前ViewEntity的所有Fields
-                                result.addAll(getViewEntityIndexAbstractFieldList(curViewEntity)
-                                        .orElse(new ArrayList<>()));
+                                result.addAll(getViewEntityIndexAbstractFieldList(curViewEntity));
 
                             }else {
                                 result.addAll(getIndexAbstractFieldListFromViewEntityByAlias(
                                         curViewEntity,
-                                        entityAlias).orElse(new ArrayList<>()));
+                                        entityAlias));
 
                             }
                         }
@@ -1345,7 +1339,7 @@ public final class EntityUtils {
                                 if(curMemberEntity!=null) {
                                     result.addAll(getIndexAbstractFieldListFromViewEntityByAlias(
                                             curViewEntity,
-                                            MyDomUtils.getValueOrEmptyString(curMemberEntity.getEntityAlias())).orElse(new ArrayList<>()));
+                                            MyDomUtils.getValueOrEmptyString(curMemberEntity.getEntityAlias())));
 
                                 }
 
@@ -1353,7 +1347,7 @@ public final class EntityUtils {
 
                                 result.addAll(getIndexAbstractFieldListFromViewEntityByAlias(
                                         curViewEntity,
-                                        toEntityAlias).orElse(new ArrayList<>()));
+                                        toEntityAlias));
                             }
                         }
                     }
@@ -1371,15 +1365,13 @@ public final class EntityUtils {
                     ComplexAliasField curComplexAliasField = getCurrentComplexAliasField(context).orElse(null);
                     if(curComplexAliasField != null) {
                         result.addAll(getIndexAbstractFieldListFromViewEntityByAlias(curViewEntity,
-                                        MyDomUtils.getValueOrEmptyString(curComplexAliasField.getEntityAlias()))
-                                .orElse(new ArrayList<>()));
+                                        MyDomUtils.getValueOrEmptyString(curComplexAliasField.getEntityAlias())));
                     }
                 }else {
                     //ViewEntity-Alias(field)
                     if (curAttributeName.equals(Alias.ATTR_FIELD)) {
                         result.addAll(getIndexAbstractFieldListFromViewEntityByAlias(curViewEntity,
-                                        MyDomUtils.getValueOrEmptyString(curAlias.getEntityAlias()))
-                                .orElse(new ArrayList<>()));
+                                        MyDomUtils.getValueOrEmptyString(curAlias.getEntityAlias())));
                     }
                 }
             }
@@ -1391,8 +1383,7 @@ public final class EntityUtils {
                     //ViewEntity-AliasAll-Exclude（Field）
                     if (curAttributeName.equals(Exclude.ATTR_FIELD)) {
                         result.addAll(getIndexAbstractFieldListFromViewEntityByAlias(curViewEntity,
-                                        MyDomUtils.getValueOrEmptyString(curAliasAll.getEntityAlias()))
-                                .orElse(new ArrayList<>()));
+                                        MyDomUtils.getValueOrEmptyString(curAliasAll.getEntityAlias())));
                     }
                 }
             }

@@ -221,7 +221,8 @@ public final class MoquiIndexService {
 
             Optional<AbstractIndexEntity> optionalAbstractEntity =getIndexEntityOrIndexViewEntity(entityName);
             if (optionalAbstractEntity.isEmpty()) {
-                return false;
+                continue;
+                //return false;//如果没有找到，先跳过去
             }else {
                 aliasEntityMap.put(MyDomUtils.getValueOrEmptyString(memberEntity.getEntityAlias()),optionalAbstractEntity.get());
             }
@@ -308,7 +309,7 @@ public final class MoquiIndexService {
             if(MyStringUtils.isEmpty(aliasName)) continue;
             //根据alias在abstractIndexEntityMap中查找对应AbstractIndexEntity
             AbstractIndexEntity abstractIndexEntity = abstractIndexEntityMap.get(aliasName);
-
+            if(abstractIndexEntity == null) continue;
             fieldList.add(IndexAbstractField.of(abstractIndexEntity,alias));
         }
 //        List<IndexAbstractField> fieldList = new LinkedList<>(viewEntity.getAliasList().stream().map(IndexAbstractField::of).toList());
@@ -316,23 +317,30 @@ public final class MoquiIndexService {
         //对AliasAll进行处理
         List<AliasAll> aliasAllList = viewEntity.getAliasAllList();
         for(AliasAll aliasAll : aliasAllList) {
-            String alias = MyDomUtils.getValueOrEmptyString(aliasAll.getEntityAlias());
-            if(MyStringUtils.isEmpty(alias)) continue;
+            String aliasName = MyDomUtils.getValueOrEmptyString(aliasAll.getEntityAlias());
+            if(MyStringUtils.isEmpty(aliasName)) continue;
 
 //            List<AbstractField> aliasAllFieldList = new ArrayList<>();
 
             //根据alias在abstractIndexEntityMap中查找对应AbstractIndexEntity
-            AbstractIndexEntity abstractIndexEntity = abstractIndexEntityMap.get(alias);
-            List<IndexAbstractField> aliasAllFieldList = abstractIndexEntity.getIndexAbstractFieldList()
-                    .orElse(new ArrayList<>());
+            AbstractIndexEntity abstractIndexEntity = abstractIndexEntityMap.get(aliasName);
+            if(abstractIndexEntity == null) continue;
+
             //todo 如果IndexAbstractField也是个带prefix的AliasAll生成的话，就出问题了，但现在看所有的viewEntity都没有出现这种情况，还不知道framework是否支持这种view的定义方式
-            List<IndexAbstractField> updateAliasAllFieldList = aliasAllFieldList.stream().map(item->{return IndexAbstractField.of(abstractIndexEntity,item.getAbstractField(),aliasAll);}).toList();
+
+            List<IndexAbstractField> aliasAllFieldList = abstractIndexEntity.getIndexAbstractFieldList();
+            List<IndexAbstractField> exclutedAliasAllFieldList = EntityUtils.excludeFields(aliasAllFieldList,aliasAll.getExcludeList());
+
+            //在将AliasAll和字段进行绑定，以便处理prefix
 
             fieldList.addAll(
-                    EntityUtils.excludeFields(updateAliasAllFieldList,aliasAll.getExcludeList())
+                    exclutedAliasAllFieldList.stream()
+                            .map(item->IndexAbstractField.of(abstractIndexEntity,item.getAbstractField(),aliasAll))
+                            .toList()
             );
 
         }
+
         for(IndexAbstractField field: fieldList) {
             result.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
         }
@@ -864,7 +872,7 @@ public final class MoquiIndexService {
 
     }
     public Optional<AbstractEntity> getEntityOrViewEntity(@NotNull String name) {
-        return getIndexEntityOrIndexViewEntity(name).map(AbstractIndexEntity::getAbstractEntity);
+        return getIndexEntityOrIndexViewEntity(name).flatMap(AbstractIndexEntity::getAbstractEntity);
     }
 
 //    private Optional<AbstractEntity> accessEntityOrViewEntity(@NotNull String name) {
@@ -879,9 +887,9 @@ public final class MoquiIndexService {
 //
 //    }
 
-    public Optional<List<IndexAbstractField>> getEntityOrViewEntityFieldList(@NotNull String name){
+    public @NotNull List<IndexAbstractField> getEntityOrViewEntityFieldList(@NotNull String name){
         Optional<AbstractIndexEntity> optionalAbstractIndexEntity = getIndexEntityOrIndexViewEntity(name);
-        return optionalAbstractIndexEntity.flatMap(AbstractIndexEntity::getIndexAbstractFieldList);
+        return optionalAbstractIndexEntity.map(AbstractIndexEntity::getIndexAbstractFieldList).orElse(new ArrayList<>());
 
 //        checkAndUpdateMap();
 //        Optional<IndexEntity> indexEntity = accessIndexEntityByName(name);

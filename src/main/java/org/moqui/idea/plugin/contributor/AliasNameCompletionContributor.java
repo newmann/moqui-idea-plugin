@@ -81,28 +81,27 @@ public class AliasNameCompletionContributor extends CompletionContributor {
       abstractIndexEntity = EntityUtils.getViewEntityAbstractIndexEntityByAlias(viewEntity, alias).orElse(null);
 
       if(abstractIndexEntity != null){
-        indexAbstractFieldList = abstractIndexEntity.getIndexAbstractFieldList().orElse(null);
-        if(indexAbstractFieldList != null){
+        indexAbstractFieldList = abstractIndexEntity.getIndexAbstractFieldList();
           for (IndexAbstractField indexAbstractField : indexAbstractFieldList) {
-            String fieldName = MyDomUtils.getValueOrEmptyString(indexAbstractField.getName());
-            if(!enteredAliasNameCollection.contains(fieldName)) { //跳过已经输入的alias
-              if (abstractIndexEntity instanceof IndexEntity) {
-                icon = MoquiIcons.EntityTag;
-              } else {
-                icon = MoquiIcons.ViewEntityTag;
+              String fieldName = MyDomUtils.getValueOrEmptyString(indexAbstractField.getName());
+              if (!enteredAliasNameCollection.contains(fieldName)) { //跳过已经输入的alias
+                  if (abstractIndexEntity instanceof IndexEntity) {
+                      icon = MoquiIcons.EntityTag;
+                  } else {
+                      icon = MoquiIcons.ViewEntityTag;
+                  }
+                  AliasInsertObject aliasInsertObject = AliasInsertObject.of(alias);
+                  lookupElementBuilders.add(
+                          LookupElementBuilder.create(aliasInsertObject, fieldName)
+                                  .withInsertHandler(AliasNameInsertionHandler.INSTANCE)
+                                  .withCaseSensitivity(false)
+                                  .withIcon(icon)
+                                  .withTypeText(alias)
+                  );
               }
-              AliasInsertObject aliasInsertObject = AliasInsertObject.of(alias);
-              lookupElementBuilders.add(
-                      LookupElementBuilder.create(aliasInsertObject, fieldName)
-                              .withInsertHandler(AliasNameInsertionHandler.INSTANCE)
-                              .withCaseSensitivity(false)
-                              .withIcon(icon)
-                              .withTypeText(alias)
-              );
-            }
           }
 
-        };
+          ;
       }
     }
     return lookupElementBuilders;

@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.service;
 
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
@@ -37,7 +38,7 @@ public final class IndexViewEntity extends AbstractIndexEntity {
         if(this.packageName.equals(MyStringUtils.EMPTY_STRING)){
             this.fullName = this.shortName;
         }else {
-            this.fullName =  this.packageName + "." + this.shortName;
+            this.fullName =  this.packageName + EntityUtils.ENTITY_NAME_DOT + this.shortName;
         }
 
     }

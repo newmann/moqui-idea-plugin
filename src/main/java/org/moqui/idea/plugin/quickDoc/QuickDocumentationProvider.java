@@ -87,8 +87,8 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
         Optional<IndexViewEntity> indexViewEntityOptional = EntityUtils.getIndexViewEntityByViewEntity(view);
 
         if(indexViewEntityOptional.isPresent()) {
-                List<IndexAbstractField> abstractFieldList = indexViewEntityOptional.get().getIndexAbstractFieldList().orElse(null);
-                if(abstractFieldList == null) {
+                List<IndexAbstractField> abstractFieldList = indexViewEntityOptional.get().getIndexAbstractFieldList();
+                if(abstractFieldList.isEmpty()) {
                     docBuilder.append("Not define view field");
                 }else{
                     docBuilder.append(formatIndexAbstractFieldList(abstractFieldList));

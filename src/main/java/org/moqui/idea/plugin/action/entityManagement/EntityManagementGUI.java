@@ -137,7 +137,7 @@ public class EntityManagementGUI extends JPanel {
             if(lastObject instanceof DefaultMutableTreeNode mutableTreeNode) {
                 if(mutableTreeNode.getUserObject() instanceof IndexEntityTreeNode indexEntityTreeNode) {
 
-                    List<AbstractField> abstractFieldList = indexEntityTreeNode.getIndexEntity().getAbstractFieldList().orElse(new ArrayList<>());
+                    List<AbstractField> abstractFieldList = indexEntityTreeNode.getIndexEntity().getAbstractFieldList();
                     EntityFieldTableModel entityFieldTableModel = new EntityFieldTableModel(abstractFieldList);
                     tableField.setModel(entityFieldTableModel);
 //                        tableField.setAutoResizeMode(JBTable.AUTO_RESIZE_ALL_COLUMNS);

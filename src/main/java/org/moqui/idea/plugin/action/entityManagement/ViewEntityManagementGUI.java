@@ -142,7 +142,7 @@ public class ViewEntityManagementGUI extends JPanel {
             if(lastObject instanceof DefaultMutableTreeNode mutableTreeNode) {
                 if(mutableTreeNode.getUserObject() instanceof IndexViewEntityTreeNode indexViewEntityTreeNode) {
 
-                    List<AbstractField> abstractFieldList = indexViewEntityTreeNode.getIndexViewEntity().getAbstractFieldList().orElse(new ArrayList<>());
+                    List<AbstractField> abstractFieldList = indexViewEntityTreeNode.getIndexViewEntity().getAbstractFieldList();
                     ViewEntityFieldTableModel viewEntityFieldTableModel = new ViewEntityFieldTableModel(abstractFieldList);
                     tableField.setModel(viewEntityFieldTableModel);
 
