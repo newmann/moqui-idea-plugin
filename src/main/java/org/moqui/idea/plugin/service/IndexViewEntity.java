@@ -80,7 +80,7 @@ public final class IndexViewEntity extends AbstractIndexEntity {
 //    }
 
 
-    public Map<String, AbstractIndexEntity> getMemberIndexEntityMap() {
+    public Map<String, AbstractIndexEntity> getAbstractIndexEntityMap() {
         return abstractIndexEntityMap;
     }
 

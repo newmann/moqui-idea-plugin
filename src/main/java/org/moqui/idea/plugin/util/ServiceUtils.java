@@ -472,6 +472,10 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         return getLocalDomElementByConvertContext(context,EntityDeleteByCondition.class);
 
     }
+    public static Optional<EntityDeleteByCondition> getCurrentEntityDeleteByCondition(@NotNull PsiElement psiElement){
+        return getLocalDomElementByPsiElement(psiElement,EntityDeleteByCondition.class);
+
+    }
     public static Optional<Service> getCurrentService(@NotNull ConvertContext context){
         return getLocalDomElementByConvertContext(context,Service.class);
 

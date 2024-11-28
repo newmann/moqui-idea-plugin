@@ -1,13 +1,23 @@
 package org.moqui.idea.plugin.reference;
 
 
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
+import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.service.IndexAbstractField;
+import org.moqui.idea.plugin.service.IndexEntity;
+import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.ServiceUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EntityFieldNameReference extends PsiReferenceBase.Immediate<PsiElement> {
 
@@ -26,8 +36,25 @@ public class EntityFieldNameReference extends PsiReferenceBase.Immediate<PsiElem
     }
 
     @Override
-    public Object @NotNull [] getVariants() {
-        return super.getVariants();
+    public @NotNull Object[] getVariants() {
+        List<LookupElement> variants = new ArrayList<>();
+
+        List<IndexAbstractField> indexAbstractFieldList = EntityUtils.getIndexAbstractFieldListByPsiElement(myElement);
+
+        addLookupElement(indexAbstractFieldList,variants);
+
+        return variants.toArray();
+    }
+
+    private void addLookupElement(@NotNull List<IndexAbstractField> indexAbstractFieldList, @NotNull List<LookupElement> lookupList){
+        indexAbstractFieldList.forEach(item->{
+
+            lookupList.add(LookupElementBuilder.create(item.getName())
+                    .withCaseSensitivity(false)
+                    .withIcon(item.getInAbstractIndexEntity() instanceof IndexEntity ? MoquiIcons.EntityTag: MoquiIcons.ViewEntityTag)
+                    .withTypeText(item.getInAbstractIndexEntity() == null? "N/A": item.getInAbstractIndexEntity().getShortName()));
+        });
+
     }
 //    @NotNull
 //    @Override

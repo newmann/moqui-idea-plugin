@@ -253,12 +253,10 @@ public final class MoquiIndexService {
             }
         }
         if(!pending.isEmpty()) return false;
-
-        Map<String,IndexAbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,aliasEntityMap);
-
         IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
-        indexViewEntity.setIndexAbstractFieldMap(fieldMap);
         indexViewEntity.setAbstractIndexEntityMap(aliasEntityMap);
+
+        refreshIndexViewEntityFieldMap(indexViewEntity);
 
         indexViewEntity.setLastRefreshStamp(System.currentTimeMillis());
 
@@ -296,26 +294,28 @@ public final class MoquiIndexService {
 
     /**
      * 获取指定ViewEntity的所有字段
-     * @param viewEntity 当前的ViewEntity
-     * @param abstractIndexEntityMap 当前ViewEntity的alias对应的AbstractIndexEntity
-     * @return
+     * @param indexViewEntity 当前的ViewEntity
      */
-    private Map<String, IndexAbstractField> extractViewEntityFieldMap(@NotNull ViewEntity viewEntity, @NotNull Map<String,AbstractIndexEntity> abstractIndexEntityMap) {
+    private void refreshIndexViewEntityFieldMap(@NotNull IndexViewEntity indexViewEntity) {
         Map<String, IndexAbstractField> result = new HashMap<>();
         List<IndexAbstractField> fieldList = new ArrayList<>();
         //添加alias
-        for(Alias alias: viewEntity.getAliasList()) {
+        for(Alias alias: indexViewEntity.getViewEntity().getAliasList()) {
             String aliasName = MyDomUtils.getValueOrEmptyString(alias.getEntityAlias());
-            if(MyStringUtils.isEmpty(aliasName)) continue;
-            //根据alias在abstractIndexEntityMap中查找对应AbstractIndexEntity
-            AbstractIndexEntity abstractIndexEntity = abstractIndexEntityMap.get(aliasName);
-            if(abstractIndexEntity == null) continue;
-            fieldList.add(IndexAbstractField.of(abstractIndexEntity,alias));
+            //如果是计算字段，则aliasName为空，这时，将当前的viewEntity作为fromAbstractIndexEntity
+            if(MyStringUtils.isEmpty(aliasName)) {
+                fieldList.add(IndexAbstractField.of(indexViewEntity, alias));
+            }else {
+                //根据alias在abstractIndexEntityMap中查找对应AbstractIndexEntity
+                AbstractIndexEntity abstractIndexEntity = indexViewEntity.getAbstractIndexEntityByAlias(aliasName).orElse(null);
+                if (abstractIndexEntity == null) continue;
+                fieldList.add(IndexAbstractField.of(abstractIndexEntity, alias));
+            }
         }
 //        List<IndexAbstractField> fieldList = new LinkedList<>(viewEntity.getAliasList().stream().map(IndexAbstractField::of).toList());
                 //new LinkedList<>(viewEntity.getAliasList());
         //对AliasAll进行处理
-        List<AliasAll> aliasAllList = viewEntity.getAliasAllList();
+        List<AliasAll> aliasAllList = indexViewEntity.getViewEntity().getAliasAllList();
         for(AliasAll aliasAll : aliasAllList) {
             String aliasName = MyDomUtils.getValueOrEmptyString(aliasAll.getEntityAlias());
             if(MyStringUtils.isEmpty(aliasName)) continue;
@@ -323,7 +323,7 @@ public final class MoquiIndexService {
 //            List<AbstractField> aliasAllFieldList = new ArrayList<>();
 
             //根据alias在abstractIndexEntityMap中查找对应AbstractIndexEntity
-            AbstractIndexEntity abstractIndexEntity = abstractIndexEntityMap.get(aliasName);
+            AbstractIndexEntity abstractIndexEntity = indexViewEntity.getAbstractIndexEntityByAlias(aliasName).orElse(null);
             if(abstractIndexEntity == null) continue;
 
             //todo 如果IndexAbstractField也是个带prefix的AliasAll生成的话，就出问题了，但现在看所有的viewEntity都没有出现这种情况，还不知道framework是否支持这种view的定义方式
@@ -345,7 +345,8 @@ public final class MoquiIndexService {
             result.put(MyDomUtils.getValueOrEmptyString(field.getName()),field);
         }
 
-        return  result;
+        indexViewEntity.setIndexAbstractFieldMap(result);
+
     }
 
 

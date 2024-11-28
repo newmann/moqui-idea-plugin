@@ -31,8 +31,8 @@ public final class IndexAbstractField {
     private final AliasAll aliasAll;
     private final String prefix;
     private final String originFieldName;
-    private AbstractIndexEntity inAbstractIndexEntity;
-    private AbstractIndexEntity fromAbstractIndexEntity;
+    private AbstractIndexEntity inAbstractIndexEntity;//字段在在哪个ViewEntity中定义 比如Alias，定义在A ViewEntity，但映射到B Entity
+    private AbstractIndexEntity fromAbstractIndexEntity;//字段是从哪个Entity引用过来
 
     IndexAbstractField(@Nullable AbstractIndexEntity inAbstractIndexEntity, @NotNull AbstractIndexEntity fromAbstractIndexEntity, @NotNull AbstractField abstractField, @Nullable AliasAll aliasAll){
         this.abstractField = abstractField;

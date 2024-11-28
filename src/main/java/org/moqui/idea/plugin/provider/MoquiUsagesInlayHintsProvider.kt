@@ -17,6 +17,7 @@ import com.intellij.util.Query
 import com.intellij.util.xml.GenericAttributeValue
 import org.moqui.idea.plugin.dom.model.*
 import org.moqui.idea.plugin.util.MyDomUtils
+import org.moqui.idea.plugin.util.RestApiUtils
 import java.awt.event.MouseEvent
 
 class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
@@ -37,7 +38,7 @@ class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
     }
 
 
-    override fun acceptsFile(file: PsiFile): Boolean = MyDomUtils.isMoquiXmFile(file);
+    override fun acceptsFile(file: PsiFile): Boolean = MyDomUtils.isMoquiXmFile(file) && !RestApiUtils.isRestApiFile(file); //将Rest接口定义排除在外
 
     override fun getHint(element: PsiElement, file: PsiFile): String? {
         return getVisionInfo(element)?.text;
