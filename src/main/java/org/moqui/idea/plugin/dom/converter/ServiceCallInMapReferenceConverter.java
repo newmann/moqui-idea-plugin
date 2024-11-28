@@ -22,11 +22,12 @@ public class ServiceCallInMapReferenceConverter implements CustomReferenceConver
 
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
-        final String fieldsStr = value.getStringValue();
+        String fieldsStr = value.getStringValue();
         if(MyStringUtils.isEmpty(fieldsStr)) return PsiReference.EMPTY_ARRAY;
 
-
         List<FieldDescriptor> fieldNameList = ServiceUtils.extractMapFieldDescriptorList(fieldsStr,1);
+        if(fieldNameList.isEmpty()) return PsiReference.EMPTY_ARRAY;
+
 
         ServiceCall serviceCall = MyDomUtils.getLocalDomElementByConvertContext(context,ServiceCall.class).orElse(null);
         if(serviceCall == null) return PsiReference.EMPTY_ARRAY;
