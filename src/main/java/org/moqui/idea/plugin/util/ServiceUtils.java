@@ -13,7 +13,6 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.xml.ConvertContext;
-import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
@@ -21,14 +20,18 @@ import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.reference.EntityFieldNameReference;
 import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.reference.ServiceCallReference;
+import org.moqui.idea.plugin.service.IndexAbstractField;
+import org.moqui.idea.plugin.service.IndexService;
+import org.moqui.idea.plugin.service.IndexServiceParameter;
 import org.moqui.idea.plugin.service.MoquiIndexService;
-import org.moqui.idea.plugin.service.ServicePsiElementService;
 
 import javax.swing.*;
 import java.util.Set;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
@@ -57,8 +60,8 @@ public final class ServiceUtils {
     /**
      *判断一个Service是否为interface
      *
-     * @param service
-     * @return
+     * @param service 待判断的Service
+     * @return boolean
      */
     public static boolean isInterface(@NotNull Service service){
         if(!service.isValid()) return false;
@@ -67,10 +70,10 @@ public final class ServiceUtils {
         return SERVICE_INTERFACE.equals(type);
     }
     public static boolean isNotInterface(@Nullable Service service) {
-        return !isInterface(service);
+        return service != null && !isInterface(service);
     }
     public static boolean isService(@Nullable Service service){
-        return !isInterface(service);
+        return isNotInterface(service);
     }
     public static boolean isNotService(@Nullable Service service){
         return !isService(service);
@@ -84,9 +87,9 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
     /**
      * 根据服务的全称找到对应的服务定义的Service
-     * @param project
+     * @param project 当前Project
      * @param fullName 调用的服务名称，格式类似 moqui.work.TicketServices.get#ServiceStationByServiceLocation
-     * @return
+     * @return Optional<Service>
      */
     public static Optional<Service> getServiceByFullName(@NotNull Project project, @NotNull String fullName){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
@@ -113,15 +116,15 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
                     return Optional.of(service);
                 }
-            };
+            }
         }
         return Optional.empty();
     }
     /**
      *path 格式是：../runtime/component/{componentName}/service/...
      * 后面的路径对应类名称
-     * @param path
-     * @return
+     * @param path 路径字符串
+     * @return Optional<String>
      */
     public static Optional<String> extractClassNameFromPath(@NotNull String path){
         String pathSeparator = "/"; //idea的virtual file 的path都统一“/”
@@ -190,7 +193,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
         List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
 
-        Set<String> classNameSet = new HashSet<String>();
+        Set<String> classNameSet = new HashSet<>();
         fileElementList.forEach(item ->{
             Optional<String> optClassName =extractClassNameFromPath(item.getFile().getVirtualFile().getPath());
             if(optClassName.isPresent()) {
@@ -207,14 +210,14 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
     }
     /**
      * 返回所有可用于Interface的全名称，不仅仅type为interface的，也包括其他类型的service
-     * @param project
-     * @return
+     * @param project 当前Project
+     * @return Set<String>
      */
     public static @NotNull Set<String> getInterfaceFullNameSet(@NotNull Project project, @Nullable String filterStr){
 
 
         List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
-        Set<String> classNameSet = new HashSet<String>();
+        Set<String> classNameSet = new HashSet<>();
         fileElementList.forEach(item ->{
 
             for(Service service: item.getRootElement().getServiceList()) {
@@ -235,9 +238,9 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
     /**
      * 根据类名返回这个类所有的完整服务名
-     * @param project
-     * @param className
-     * @return
+     * @param project 当前Project
+     * @param className 类名
+     * @return Set<String>
      */
     public static @NotNull Set<String> getServiceFullNameAction(@NotNull Project project, @NotNull  String className) {
 
@@ -735,6 +738,79 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         return resultArray;
 
     }
+    /**
+     * 针对ServiceCall的inMap和outMap的字符串进行处理，收集可以匹配Parameter的内容
+     *
+     * 字符串实例：
+     * 1、 [invoiceId:invoiceId]
+     * 2、 [invoiceId:invoiceId, emailTypeEnumId:'PsetInvoiceFinalized']
+     * 3、[invoiceId:invoiceId, statusId:(statusId == 'InvoiceFinalized' ? 'InvoicePmtRecvd' : 'InvoicePmtSent')]
+     * 4、context + [flattenDocument:false]
+     * 5、subMap + [baseWorkEffortId:child.workEffortId, parentWorkEffortId:workEffortId]
+     * @param fieldString 待处理的字符串
+     * @return List<FieldDescriptor>
+     */
+    public static List<FieldDescriptor> extractMapFieldDescriptorList(@NotNull String fieldString, int offset) {
+        List<FieldDescriptor> result = new ArrayList<>();
+        Matcher matcher = MyStringUtils.IN_OUT_MAP_NAME_PATTERN.matcher(fieldString);
+
+        while(matcher.find()) {
+            String localField = matcher.group(1);
+            int localOffset = offset + matcher.start(1);
+            int splitOffset = 0;
+            String[] splitField = localField.split(",");
+            for(String splitItem: splitField){
+                int index = splitItem.indexOf(":");
+                if(index>0){
+                    result.add(FieldDescriptor.of(fieldString,
+                            localOffset+splitOffset,
+                            localOffset+splitOffset+index
+                            ));
+
+                }
+                splitOffset += splitItem.length() + 1; //增加逗号的长度
+            }
+
+        }
+        return result;
+    }
+
+    /**
+     * 获取IndexService
+     * @param project 当前Project
+     * @param serviceName Service full Name
+     * @return Optional<IndexService>
+     */
+    public static @NotNull Optional<IndexService> getIndexService(@NotNull Project project, @NotNull String serviceName){
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        return moquiIndexService.getIndexServiceByFullName(serviceName);
+    }
+
+    /**
+     * 创建map中字段的reference
+     * @param psiElement 当前属性的PsiElement
+     * @param fieldDescriptor 待处理的参数
+     * @param indexServiceParameter 指向的目标parameter
+     * @return 返回PsiRef
+     */
+    public static @NotNull PsiReference[] createMapNameReference(@NotNull PsiElement psiElement, @NotNull FieldDescriptor fieldDescriptor, @Nullable IndexServiceParameter indexServiceParameter){
+        if (fieldDescriptor.isContainGroovyVariable() || fieldDescriptor.isEmpty()) return PsiReference.EMPTY_ARRAY;
+
+        List<PsiReference> resultList = new ArrayList<>();
+        if(indexServiceParameter == null) {
+            resultList.add(PsiRef.of(psiElement,
+                    TextRange.create(fieldDescriptor.getFieldNameBeginIndex(),fieldDescriptor.getFieldNameEndIndex()),
+                    null)); //提示错误
+
+        }else {
+            resultList.add(PsiRef.of(psiElement,
+                    TextRange.create(fieldDescriptor.getFieldNameBeginIndex(), fieldDescriptor.getFieldNameEndIndex()),
+                    indexServiceParameter.getAbstractField().getName().getXmlAttributeValue()));
+
+        }
+        return resultList.toArray(new PsiReference[0]);
+    }
+
 }
 
 

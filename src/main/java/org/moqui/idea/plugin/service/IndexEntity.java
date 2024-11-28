@@ -14,7 +14,7 @@ public final class IndexEntity extends AbstractIndexEntity {
 
 
 
-    private List<ExtendEntity> extendEntityList =new ArrayList<>();
+    private List<ExtendEntity> extendEntityList;
 
     private List<Relationship> relationshipList = new ArrayList<>();
     IndexEntity(@NotNull Entity entity,@NotNull List<ExtendEntity> extendEntityList){
@@ -110,7 +110,7 @@ public final class IndexEntity extends AbstractIndexEntity {
     }
     public Optional<Relationship> getRelationshipByName(@NotNull String relationshipName){
         return relationshipList.stream()
-                .filter(item->{return EntityUtils.isThisRelationshipRelatedName(item,relationshipName);})
+                .filter(item->EntityUtils.isThisRelationshipRelatedName(item,relationshipName))
                 .findFirst();
     }
 

@@ -8,6 +8,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class PsiRef extends PsiReferenceBase.Immediate<PsiElement> {
 
+    public static PsiRef of(@NotNull PsiElement psiElement, TextRange textRange, PsiElement myResolve){
+        return new PsiRef(psiElement,textRange,myResolve);
+    }
+
     private final TextRange myTextRange;
 //    private final PsiElement myResolve;
     public PsiRef(@NotNull PsiElement psiElement, TextRange textRange, PsiElement myResolve) {

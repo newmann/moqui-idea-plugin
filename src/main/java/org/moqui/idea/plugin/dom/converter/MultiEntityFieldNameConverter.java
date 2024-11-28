@@ -11,18 +11,15 @@ import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.util.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * 针对多个字段的处理，比如OrderBy和SelectField
  */
-public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter {
+public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
     @Override
     public @NotNull Collection<? extends String> getVariants(ConvertContext context) {
-        return null;
+        return new ArrayList<>();
     }
 
 
@@ -59,26 +56,34 @@ public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConv
                 (secondTagName.equals(EntityFindOne.TAG_NAME) || secondTagName.equals(EntityFind.TAG_NAME) || secondTagName.equals(EntityFindCount.TAG_NAME))
                         && (firstTagName.equals(SelectField.TAG_NAME)|| firstTagName.equals(OrderBy.TAG_NAME) || firstTagName.equals(SearchFormInputs.TAG_NAME))
         ) {
-            switch (secondTagName) {
-                case EntityFindOne.TAG_NAME:
-                    EntityFindOne entityFindOne= ServiceUtils.getCurrentEntityFindOne(context).orElse(null);
-                    entityName = MyDomUtils.getXmlAttributeValueString(entityFindOne.getEntityName().getXmlAttributeValue())
+            entityName = switch (secondTagName) {
+                case EntityFindOne.TAG_NAME ->
+                    ServiceUtils.getCurrentEntityFindOne(context)
+                            .map(item->MyDomUtils.getValueOrEmptyString(item.getEntityName()))
                             .orElse(MyStringUtils.EMPTY_STRING);
+//                    EntityFindOne entityFindOne = ServiceUtils.getCurrentEntityFindOne(context).orElse(null);
+//                    if(entityFindOne == null){
+//                        yield MyStringUtils.EMPTY_STRING;
+//                    }else {
+//                        yield MyDomUtils.getValueOrEmptyString(entityFindOne.getEntityName());
+//                    }
 
-                    break;
-                case EntityFind.TAG_NAME:
-                    EntityFind entityFind= ServiceUtils.getCurrentEntityFind(context).orElse(null);
-                    entityName = MyDomUtils.getXmlAttributeValueString(entityFind.getEntityName().getXmlAttributeValue())
+                case EntityFind.TAG_NAME ->
+                    ServiceUtils.getCurrentEntityFind(context)
+                            .map(item->MyDomUtils.getValueOrEmptyString(item.getEntityName()))
                             .orElse(MyStringUtils.EMPTY_STRING);
+//                    EntityFind entityFind = ServiceUtils.getCurrentEntityFind(context).orElse(null);
+//                    yield MyDomUtils.getValueOrEmptyString(entityFind.getEntityName());
 
-                    break;
-                case EntityFindCount.TAG_NAME:
-                    EntityFindCount entityFindCount= ServiceUtils.getCurrentEntityFindCount(context).orElse(null);
-                    entityName = MyDomUtils.getXmlAttributeValueString(entityFindCount.getEntityName().getXmlAttributeValue())
+                case EntityFindCount.TAG_NAME ->
+                    ServiceUtils.getCurrentEntityFindCount(context)
+                            .map(item->MyDomUtils.getValueOrEmptyString(item.getEntityName()))
                             .orElse(MyStringUtils.EMPTY_STRING);
-
-                        break;
-            }
+//                    EntityFindCount entityFindCount = ServiceUtils.getCurrentEntityFindCount(context).orElse(null);
+//                    yield MyDomUtils.getValueOrEmptyString(entityFindCount.getEntityName());
+//                }
+                default -> entityName;
+            };
 
         }
         if(entityName.equals(MyStringUtils.EMPTY_STRING)) return PsiReference.EMPTY_ARRAY;
