@@ -236,7 +236,7 @@ public final class EntityUtils {
         }
         return Optional.empty();
     }
-    public static Optional<List<ExtendEntity>> getExtendEntityListByNameFromFile(@NotNull Project project
+    public static List<ExtendEntity> getExtendEntityListByNameFromFile(@NotNull Project project
             , @NotNull String name){
         List<DomFileElement<Entities>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Entities.class);
         List<ExtendEntity> result = new ArrayList<>();
@@ -247,7 +247,7 @@ public final class EntityUtils {
             }
 
         }
-        return Optional.of(result);
+        return result;
     }
 
 
@@ -305,7 +305,7 @@ public final class EntityUtils {
      */
     public static @NotNull List<Relationship> getEntityRelationshipList(@NotNull Project project,@NotNull String entityName){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
-        return moquiIndexService.getRelationshipListByEntityName(entityName).orElse(new ArrayList<Relationship>());
+        return moquiIndexService.getRelationshipListByEntityName(entityName);
     }
 //    /**
 //     * 获取所有定义的ViewEntity某个属性的内容
@@ -387,7 +387,7 @@ public final class EntityUtils {
     public static @NotNull List<Field> getEntityFieldList(@NotNull Project project,@NotNull String entityName){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         Optional<IndexEntity> indexEntity = moquiIndexService.getIndexEntityByName(entityName);
-        return indexEntity.map(entity -> entity.getFieldList().orElse(new ArrayList<>())).orElseGet(ArrayList::new);
+        return indexEntity.map(IndexEntity::getFieldList).orElseGet(ArrayList::new);
 
     }
     /**
@@ -1096,7 +1096,7 @@ public final class EntityUtils {
      * @param entityName
      * @return Collection<ExtendEntity>
      */
-    public static Optional<List<ExtendEntity>> getExtendEntityListByName(@NotNull Project project, @NotNull String entityName){
+    public static @NotNull List<ExtendEntity> getExtendEntityListByName(@NotNull Project project, @NotNull String entityName){
 
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         return moquiIndexService.getExtendEntityListByEntityName(entityName);
@@ -1139,9 +1139,9 @@ public final class EntityUtils {
      * 1、 orderId,orderPartSeqId,shipmentMethodEnumId,quantityTotal
      * 2、resQuantity${onlyPartlyShipped != 'true' ? '' : ',issuedQuantity'}${excludeNotPickLoc == 'false' ? '' : ',itemBomQuantityTotal'}
      * @param fieldString 待处理的字符串
-     * @return Optional<List<FieldDescriptor>>
+     * @return List<FieldDescriptor>
      */
-    public static Optional<List<FieldDescriptor>> extractFieldDescriptorList(@NotNull String fieldString, int offset) {
+    public static List<FieldDescriptor> extractFieldDescriptorList(@NotNull String fieldString, int offset) {
         List<FieldDescriptor> result = new ArrayList<>();
         StringBuilder curField= new StringBuilder(MyStringUtils.EMPTY_STRING);
         boolean inVariable = false;
@@ -1175,7 +1175,7 @@ public final class EntityUtils {
             result.add(fieldDescriptor);
         }
 
-        return Optional.of(result);
+        return result;
     }
 
     /**

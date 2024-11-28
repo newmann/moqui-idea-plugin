@@ -25,6 +25,10 @@ public class EntityFieldNameReference extends PsiReferenceBase.Immediate<PsiElem
 //        this.myResolve = myResolve;
     }
 
+    @Override
+    public Object @NotNull [] getVariants() {
+        return super.getVariants();
+    }
 //    @NotNull
 //    @Override
 //    public String getCanonicalText() {

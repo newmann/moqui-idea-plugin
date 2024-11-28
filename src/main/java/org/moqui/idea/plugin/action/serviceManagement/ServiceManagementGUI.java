@@ -195,10 +195,10 @@ public class ServiceManagementGUI extends JPanel {
 
         //添加InParameters
         node = getOrCreateTreeNode(functionNameNode,"In Parameters");
-        addParameterToNode(node,service.getInParametersAbstractFieldList().orElse(new ArrayList<>()));
+        addParameterToNode(node,service.getInParametersAbstractFieldList());
         //添加Out Parameters
         node = getOrCreateTreeNode(functionNameNode,"Out Parameters");
-        addParameterToNode(node,service.getOutParametersAbstractFieldList().orElse(new ArrayList<>()));
+        addParameterToNode(node,service.getOutParametersAbstractFieldList());
 
 //        createTreeNodeForEntity(node, service);
     }

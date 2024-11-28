@@ -100,12 +100,12 @@ public final class IndexEntity extends AbstractIndexEntity {
 //    }
 
 
-    public Optional<List<Field>> getFieldList(){
+    public @NotNull List<Field> getFieldList(){
         List<Field> fieldList = new ArrayList<>();
         for(String key: indexAbstractFieldMap.keySet()){
             fieldList.add((Field) indexAbstractFieldMap.get(key).getAbstractField());
         }
-        return Optional.of(fieldList);
+        return fieldList;
 
     }
     public Optional<Relationship> getRelationshipByName(@NotNull String relationshipName){

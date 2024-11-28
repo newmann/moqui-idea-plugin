@@ -64,7 +64,7 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
         if (entity == null){return "Not found target Entity.";}
 
         List<ExtendEntity> extendEntityCollection = EntityUtils.getExtendEntityListByName(element.getProject(),
-                MyDomUtils.getValueOrEmptyString(entity.getEntityName())).orElse(new ArrayList<>());
+                MyDomUtils.getValueOrEmptyString(entity.getEntityName()));
 
         HtmlBuilder docBuilder = new HtmlBuilder()
                 .append(formatEntityDefinition(entity));

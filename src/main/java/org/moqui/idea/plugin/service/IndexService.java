@@ -82,20 +82,20 @@ public final class IndexService extends AbstractIndex {
         return outParameterMap;
     }
 
-    public Optional<List<String>> getInParametersNameList(){
-        return Optional.of(inParameterMap.keySet().stream().toList());
+    public @NotNull List<String> getInParametersNameList(){
+        return inParameterMap.keySet().stream().toList();
 
     }
-    public Optional<List<String>> getOutParametersNameList(){
-        return Optional.of(outParameterMap.keySet().stream().toList());
+    public @NotNull List<String> getOutParametersNameList(){
+        return outParameterMap.keySet().stream().toList();
 
     }
-    public Optional<List<IndexServiceParameter>> getInParametersAbstractFieldList(){
-        return Optional.of(new ArrayList<>(inParameterMap.values()));
+    public List<IndexServiceParameter> getInParametersAbstractFieldList(){
+        return new ArrayList<>(inParameterMap.values());
 
     }
-    public Optional<List<IndexServiceParameter>> getOutParametersAbstractFieldList(){
-        return Optional.of(new ArrayList<>(outParameterMap.values()));
+    public List<IndexServiceParameter> getOutParametersAbstractFieldList(){
+        return new ArrayList<>(outParameterMap.values());
     }
     public boolean isThisService(@NotNull String name){
         return this.fullName.equals(name);

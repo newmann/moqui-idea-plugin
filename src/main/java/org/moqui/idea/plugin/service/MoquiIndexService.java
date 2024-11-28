@@ -386,19 +386,7 @@ public final class MoquiIndexService {
 
         }
     }
-//    private Optional<List<IndexAbstractField>> accessEntityOrViewEntityFields(@NotNull String entityName){
-//        Optional<IndexEntity> entity = accessIndexEntityByName(entityName);
-//        if (entity.isPresent()) {
-//            return entity.get().getIndexAbstractFieldList();
-//        }else {
-//            Optional<IndexViewEntity> viewEntity = accessIndexViewEntityByName(entityName);
-//            if(viewEntity.isPresent()) {
-//                return viewEntity.get().getIndexAbstractFieldList();
-//            }
-//
-//        }
-//        return Optional.empty();
-//    }
+
     private Optional<IndexService> getIndexInterfaceByFullName(@NotNull String fullName){
         checkAndUpdateInterface(fullName);
         return accessIndexInterfaceByFullName(fullName);
@@ -532,7 +520,7 @@ public final class MoquiIndexService {
         String include = MyDomUtils.getValueOrEmptyString(autoParameters.getInclude());
 
         if(entity.isPresent()) {
-            fieldList = entity.get().getFieldList().orElse(new ArrayList<>());
+            fieldList = entity.get().getFieldList();
             switch (include) {
                 case ServiceUtils.SERVICE_AUTO_PARAMETERS_INCLUDE_NONPK-> {
                     for(Field field: fieldList){
@@ -582,7 +570,7 @@ public final class MoquiIndexService {
                 return;
             }
 
-            List<ExtendEntity> extendEntityList =EntityUtils.getExtendEntityListByNameFromFile(this.project,entityName).orElse(new ArrayList<>());
+            List<ExtendEntity> extendEntityList =EntityUtils.getExtendEntityListByNameFromFile(this.project,entityName);
             //添加
             if (indexEntity == null) {
                 indexEntity = new IndexEntity(entity,extendEntityList);
@@ -777,77 +765,8 @@ public final class MoquiIndexService {
 
     }
 
-//    /**
-//     * 返回所有符合查询字符串的Entity全名
-//     * @param searchStr
-//     * @return
-//     */
-//    public List<String> searchEntityAndViewEntityFullNames(String searchStr){
-//        checkAndUpdateMap();
-//
-//        if(searchStr == null){searchStr = MyStringUtils.EMPTY_STRING;}
-//
-//        final String searchToken = trim(searchStr);
-//
-//        if(Objects.equals(searchToken, MyStringUtils.EMPTY_STRING)) {
-//            return getAllEntityAndViewEntityFullNames();
-//        }else {
-//            List<String> result = new ArrayList<String>();
-//            indexEntityMap.forEach((key, value)->{if(value.getFullName().indexOf(searchToken)>0) result.add(key);});
-//            indexViewEntityMap.forEach((key, value)->{if(value.getFullName().indexOf(searchToken)>0) result.add(key);});
-//            return result;
-//        }
-//    }
 
-//    public List<String> getAllEntityAndViewEntityFullNames(){
-//        checkAndUpdateMap();
-//
-//        List<String> result = new ArrayList<String>();
-//        this.indexEntityMap.forEach((key, value)->{result.add(value.getFullName());});
-//        this.indexViewEntityMap.forEach((key, value)->{result.add(value.getFullName());});
-//        return result;
-//    }
 
-//    public Map<String,DomElement> getAllEntityDomElements(){
-//        checkAndUpdateMap();
-//
-//        Map<String,DomElement> result = new HashMap<String,DomElement>();
-//        this.indexEntityMap.forEach((key, value)->{result.put(value.getFullName(),value.getEntity());});
-//        this.indexViewEntityMap.forEach((key, value)->{result.put(value.getFullName(),value.getViewEntity());});
-//        return result;
-//    }
-
-//    public Optional<List<Entity>> getAllEntity(){
-//        checkAndUpdateMap();
-//        List<Entity> result = new ArrayList<>();
-//
-//        for(String key : indexEntityMap.keySet()) {
-//            result.add(indexEntityMap.get(key).getEntity());
-//        }
-//        return Optional.of(result);
-//    }
-//    public Optional<List<ViewEntity>> getAllViewEntity(){
-//        checkAndUpdateMap();
-//        List<ViewEntity> result = new ArrayList<>();
-//        for(String key : indexViewEntityMap.keySet()) {
-//            result.add(indexViewEntityMap.get(key).getViewEntity());
-//        }
-//        return Optional.of(result);
-//    }
-
-//    public Collection<AbstractEntity> getAllEntityAndViewEntity(){
-//        checkAndUpdateMap();
-//        Collection<AbstractEntity> result = new ArrayList<>();
-//
-//        for(String key : indexEntityMap.keySet()) {
-//            result.add(indexEntityMap.get(key).getEntity());
-//        }
-//
-//        for(String key : indexViewEntityMap.keySet()) {
-//            result.add(indexViewEntityMap.get(key).getViewEntity());
-//        }
-//        return result;
-//    }
     private Optional<AbstractIndexEntity> accessIndexEntityOrIndexViewEntity(@NotNull String name) {
 
         Optional<IndexEntity> indexEntity = accessIndexEntityByName(name);
@@ -903,18 +822,18 @@ public final class MoquiIndexService {
 
 
     }
-    public Optional<List<Field>> getEntityFieldList(@NotNull String name){
+    public List<Field> getEntityFieldList(@NotNull String name){
         Optional<IndexEntity> indexEntity = getIndexEntityByName(name);
-        return indexEntity.flatMap(IndexEntity::getFieldList);
+        return indexEntity.map(IndexEntity::getFieldList).orElseGet(ArrayList::new);
     }
 
-    public Optional<List<ExtendEntity>> getExtendEntityListByEntityName(@NotNull String name){
+    public @NotNull List<ExtendEntity> getExtendEntityListByEntityName(@NotNull String name){
         Optional<IndexEntity> indexEntity = getIndexEntityByName(name);
-        return indexEntity.map(IndexEntity::getExtendEntityList);
+        return indexEntity.map(IndexEntity::getExtendEntityList).orElse(new ArrayList<>());
     }
-    public Optional<List<Relationship>> getRelationshipListByEntityName(@NotNull String name){
+    public @NotNull List<Relationship> getRelationshipListByEntityName(@NotNull String name){
         Optional<IndexEntity> indexEntity = getIndexEntityByName(name);
-        return indexEntity.map(IndexEntity::getRelationshipList);
+        return indexEntity.map(IndexEntity::getRelationshipList).orElse(new ArrayList<>());
     }
 
     public Map<String,IndexEntity> getIndexEntityMap(){return this.indexEntityMap;}

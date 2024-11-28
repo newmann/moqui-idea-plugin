@@ -62,14 +62,7 @@ public final class IndexViewEntity extends AbstractIndexEntity {
 
 
 
-//    public Optional<List<String>> getFieldNameList(){
-//        return Optional.of(abstractFieldMap.keySet().stream().toList());
-//
-//    }
-//    public Optional<List<AbstractField>> getAbstractFieldList(){
-//        return Optional.of(abstractFieldMap.values().stream().toList());
-//
-//    }
+
     public void setIndexAbstractFieldMap(Map<String, IndexAbstractField> abstractFieldMap){
         abstractFieldMap.values().forEach(item->{item.setInAbstractIndexEntity(this);});
         this.indexAbstractFieldMap = abstractFieldMap;

@@ -156,7 +156,7 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
             }
 //            String[] fieldNameArray = fieldsString.split(",");
 //            if (fieldNameArray.length == 0) return;
-            List<FieldDescriptor> fieldStringList = EntityUtils.extractFieldDescriptorList(fieldsString,1).orElse(new ArrayList<FieldDescriptor>());
+            List<FieldDescriptor> fieldStringList = EntityUtils.extractFieldDescriptorList(fieldsString,1);
 
             if(fieldStringList.isEmpty()) return;
 

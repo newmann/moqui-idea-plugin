@@ -32,7 +32,7 @@ public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConv
         if(MyStringUtils.isEmpty(fieldsStr)) return PsiReference.EMPTY_ARRAY;
 //        String[] fieldNameArray = EntityUtils.splitFieldString(fieldsStr).orElse(new ArrayList<>()).toArray(new String[0]);
 
-        List<FieldDescriptor> fieldNameList = EntityUtils.extractFieldDescriptorList(fieldsStr,1).orElse(new ArrayList<>());
+        List<FieldDescriptor> fieldNameList = EntityUtils.extractFieldDescriptorList(fieldsStr,1);
 
 
         final String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
