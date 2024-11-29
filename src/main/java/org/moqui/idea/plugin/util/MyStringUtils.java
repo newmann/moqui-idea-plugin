@@ -205,6 +205,16 @@ public final class MyStringUtils {
         );
     }
     public static @NotNull
+    String removeDummyOnly(@Nullable String str) {
+        if (str == null) {
+            return EMPTY_STRING;
+        }
+        return str.replace(DUMMY_IDENTIFIER, "")
+                .replace(DUMMY_IDENTIFIER_TRIMMED, "")
+                .replace(DUMMY_IDENTIFIER_DECAPITALIZED,"")
+        ;
+    }
+    public static @NotNull
     String getDummyFrontString(@Nullable String str) {
         if (str == null) {
             return EMPTY_STRING;

@@ -94,9 +94,19 @@ public final class IndexService extends AbstractIndex {
         return new ArrayList<>(inParameterMap.values());
 
     }
+    public Optional<IndexServiceParameter> getInParametersByName(@NotNull String parameterName){
+        return Optional.ofNullable(this.inParameterMap.get(parameterName));
+
+    }
+    public Optional<IndexServiceParameter> getOutParametersByName(@NotNull String parameterName){
+        return Optional.ofNullable(this.outParameterMap.get(parameterName));
+
+    }
+
     public List<IndexServiceParameter> getOutParametersAbstractFieldList(){
         return new ArrayList<>(outParameterMap.values());
     }
+
     public boolean isThisService(@NotNull String name){
         return this.fullName.equals(name);
     }

@@ -20,10 +20,9 @@ import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.reference.EntityFieldNameReference;
 import org.moqui.idea.plugin.reference.PsiRef;
 import org.moqui.idea.plugin.reference.ServiceCallReference;
-import org.moqui.idea.plugin.service.IndexAbstractField;
+import org.moqui.idea.plugin.reference.ServiceInParameterReference;
 import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.IndexServiceParameter;
 import org.moqui.idea.plugin.service.MoquiIndexService;
@@ -31,7 +30,6 @@ import org.moqui.idea.plugin.service.MoquiIndexService;
 import javax.swing.*;
 import java.util.Set;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.getLocalDomElementByConvertContext;
@@ -747,31 +745,93 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
      * 3、[invoiceId:invoiceId, statusId:(statusId == 'InvoiceFinalized' ? 'InvoicePmtRecvd' : 'InvoicePmtSent')]
      * 4、context + [flattenDocument:false]
      * 5、subMap + [baseWorkEffortId:child.workEffortId, parentWorkEffortId:workEffortId]
+     * 6、context + [contactMechId:addressFcmList[0].contactMechId, contactMechPurposeId:'PostalPrimary']，注意[]嵌套[]
      * @param fieldString 待处理的字符串
      * @return List<FieldDescriptor>
      */
     public static List<FieldDescriptor> extractMapFieldDescriptorList(@NotNull String fieldString, int offset) {
         List<FieldDescriptor> result = new ArrayList<>();
-        Matcher matcher = MyStringUtils.IN_OUT_MAP_NAME_PATTERN.matcher(fieldString);
+        int totalLength = fieldString.length();
+        int stepIndex = 0;
+        int fieldBeginIndex = 0;
+        boolean inMap = false;
+        boolean inField = false;
+        int nestingCount = 0;
 
-        while(matcher.find()) {
-            String localField = matcher.group(1);
-            int localOffset = offset + matcher.start(1);
-            int splitOffset = 0;
-            String[] splitField = localField.split(",");
-            for(String splitItem: splitField){
-                int index = splitItem.indexOf(":");
-                if(index>0){
-                    result.add(FieldDescriptor.of(fieldString,
-                            localOffset+splitOffset,
-                            localOffset+splitOffset+index
-                            ));
+        StringBuilder fieldName = new StringBuilder(MyStringUtils.EMPTY_STRING);
+        while(stepIndex<totalLength){
+            switch (fieldString.charAt(stepIndex)){
+                case '['->{
+                    if(inMap) {
+                        nestingCount += 1;
+                    }else{
+                        fieldBeginIndex = stepIndex + 1;
+                        inMap = true;
+                        inField = true;
+                    }
+                }
+                case ']'->{
+                    if(inMap){
+                        if(nestingCount == 0){
+                            inMap = false;
+                        }else{
+                            nestingCount -=1;
+                        }
+                    }
+                }
+                case ',' ->{
+                    if(inMap){
+                        fieldBeginIndex = stepIndex+1;
+                        inField = true;
+                    }
+                }
+                case ':' ->{
+                    if(inField){
+                        result.add(FieldDescriptor.of(fieldName.toString(),
+                                offset+fieldBeginIndex,
+                                offset+stepIndex
+                                ));
+                        inField = false;
+                        fieldName = new StringBuilder(MyStringUtils.EMPTY_STRING);
+                    }
+                }
+                default -> {
+                    if(inField) fieldName.append(fieldString.charAt(stepIndex));
 
                 }
-                splitOffset += splitItem.length() + 1; //增加逗号的长度
-            }
 
+
+            }
+            stepIndex +=1;
         }
+        //如果最后一个字符是","，则补充一个空字段
+        if(inField){
+            result.add(FieldDescriptor.of(fieldName.toString(),
+                    offset+fieldBeginIndex,
+                    offset+stepIndex
+            ));
+        }
+
+//        Matcher matcher = MyStringUtils.IN_OUT_MAP_NAME_PATTERN.matcher(fieldString);
+
+//        while(matcher.find()) {
+//            String localField = matcher.group(1);
+//            int localOffset = offset + matcher.start(1);
+//            int splitOffset = 0;
+//            String[] splitField = localField.split(",");
+//            for(String splitItem: splitField){
+//                int index = splitItem.indexOf(":");
+//                if(index>0){
+//                    result.add(FieldDescriptor.of(splitItem.substring(0,index),
+//                            localOffset+splitOffset,
+//                            localOffset+splitOffset+index
+//                            ));
+//
+//                }
+//                splitOffset += splitItem.length() + 1; //增加逗号的长度
+//            }
+//
+//        }
         return result;
     }
 
@@ -784,6 +844,15 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
     public static @NotNull Optional<IndexService> getIndexService(@NotNull Project project, @NotNull String serviceName){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         return moquiIndexService.getIndexServiceByFullName(serviceName);
+    }
+    /**
+     * 获取Service的InParameter
+     * @param project 当前Project
+     * @param serviceName Service full Name
+     * @return List<IndexServiceParameter>
+     */
+    public static @NotNull List<IndexServiceParameter> getServiceInParamterList(@NotNull Project project, @NotNull String serviceName){
+        return getIndexService(project,serviceName).map(IndexService::getInParametersAbstractFieldList).orElse(new ArrayList<>());
     }
 
     /**
@@ -798,12 +867,12 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
         List<PsiReference> resultList = new ArrayList<>();
         if(indexServiceParameter == null) {
-            resultList.add(PsiRef.of(psiElement,
+            resultList.add(ServiceInParameterReference.of(psiElement,
                     TextRange.create(fieldDescriptor.getFieldNameBeginIndex(),fieldDescriptor.getFieldNameEndIndex()),
                     null)); //提示错误
 
         }else {
-            resultList.add(PsiRef.of(psiElement,
+            resultList.add(ServiceInParameterReference.of(psiElement,
                     TextRange.create(fieldDescriptor.getFieldNameBeginIndex(), fieldDescriptor.getFieldNameEndIndex()),
                     indexServiceParameter.getAbstractField().getName().getXmlAttributeValue()));
 

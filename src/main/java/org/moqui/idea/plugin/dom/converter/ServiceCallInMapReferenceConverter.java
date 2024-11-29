@@ -45,12 +45,7 @@ public class ServiceCallInMapReferenceConverter implements CustomReferenceConver
 
         for(FieldDescriptor fieldName : fieldNameList) {
 
-            if (fieldName.isContainGroovyVariable() || fieldName.isEmpty()) continue;
-
-            IndexServiceParameter parameter = indexService.getInParametersAbstractFieldList().stream().filter(item -> {
-                String itemFieldName = MyDomUtils.getValueOrEmptyString(item.getParameterName());
-                return itemFieldName.equals(fieldName.getFieldName());
-            }).findFirst().orElse(null);
+            IndexServiceParameter parameter = indexService.getInParametersByName(fieldName.getFieldName()).orElse(null);
 
             result.addAll(Arrays.stream(ServiceUtils.createMapNameReference(element, fieldName, parameter)).toList());
 
