@@ -214,7 +214,7 @@ public class MoquiGroovyToXmlInjector implements MultiHostInjector {
 
         PsiLanguageInjectionHost host = (PsiLanguageInjectionHost) script.getXmlTag().getValue().getTextElements()[0];
 
-        String inAndOutParameter = InjectGroovyUtils.getServiceInAndOutParameterDefine(context);
+        String inAndOutParameter = InjectGroovyUtils.getServiceInAndOutParameterDefine(context).orElse(null);
 
         String sbPrefix = InjectGroovyUtils.getDefaultImportPackages();
 

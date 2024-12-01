@@ -69,10 +69,10 @@ public class InjectGroovyUtils {
 
     /**
      * 获取当前element所在的Service的in和out参数定义，
-     * @param element
-     * @return
+     * @param element 当前PsiElement
+     * @return Optional<String>
      */
-    public static String getServiceInAndOutParameterDefine(@NotNull PsiElement element){
+    public static Optional<String> getServiceInAndOutParameterDefine(@NotNull PsiElement element){
         Optional<Service> serviceOptional = MyDomUtils.getLocalDomElementByPsiElement(element,Service.class);
         return serviceOptional.map(service ->{
             MoquiIndexService moquiIndexService = element.getProject().getService(MoquiIndexService.class);
@@ -80,23 +80,17 @@ public class InjectGroovyUtils {
             return indexServiceOptional.map(indexService -> {
                 StringBuilder stringBuilder = new StringBuilder();
 
-                indexService.getInParameterMap().forEach((key,value)->{
-                    stringBuilder.append(getVariableDefineFromIndexServiceParameter(value));
-                });
-                indexService.getOutParameterMap().forEach((key,value)->{
-                    stringBuilder.append(getVariableDefineFromIndexServiceParameter(value));
-                });
+                indexService.getInParameterMap().forEach((key,value)-> stringBuilder.append(getVariableDefineFromIndexServiceParameter(value)));
+                indexService.getOutParameterMap().forEach((key,value)-> stringBuilder.append(getVariableDefineFromIndexServiceParameter(value)));
                 return stringBuilder.toString();
             }).orElse(MyStringUtils.EMPTY_STRING);
 
-        }).orElse(MyStringUtils.EMPTY_STRING);
+        });
 
     }
 
     /**
      * 考虑到groovy的灵活性，只需要定义到第一层变量，第二层及以后的变量很少使用
-     * @param parameter
-     * @return
      */
     private static String getVariableDefineFromIndexServiceParameter(IndexServiceParameter parameter){
         String result;
@@ -107,25 +101,6 @@ public class InjectGroovyUtils {
         }
         return String.format(result,parameter.getParameterName()) + System.lineSeparator();
 
-//        switch(parameter.getType()) {
-//            case "Map"->{
-//                    return "def " + parameter.getParameterName()+"=[:]" + System.lineSeparator();
-//            }
-//            case "Set"->{return "def " + parameter.getParameterName()+"= [] as Set" + System.lineSeparator();}
-//            case "List"->{return "def " + parameter.getParameterName()+"=[]" + System.lineSeparator();}
-//            case MyStringUtils.EMPTY_STRING -> { return "String "+ parameter.getParameterName()+ System.lineSeparator();}
-//            case "id"->{return "String "+ parameter.getParameterName()+ System.lineSeparator();}
-//            case "text-indicator"->{return "Char(1) "+ parameter.getParameterName()+ System.lineSeparator();}
-//            case "text-short"->{return "String "+ parameter.getParameterName()+ System.lineSeparator();}
-//            case "text-medium"->{return "String "+ parameter.getParameterName()+ System.lineSeparator();}
-//            case "text-long"->{return "String "+ parameter.getParameterName()+ System.lineSeparator();}
-//            case "number-integer"->{return "Integer "+ parameter.getParameterName()+ System.lineSeparator();}
-//            case "number-decimal "->{return "Decimal "+ parameter.getParameterName()+ System.lineSeparator();}
-//
-//            case "date-time"->{return "Date "+ parameter.getParameterName()+ System.lineSeparator();}
-//
-//            default -> { return parameter.getType() +" " + parameter.getParameterName()+ System.lineSeparator(); }
-//        }
     }
     public static InjectorUtils.InjectionInfo createInjectInfo(@NotNull XmlAttributeValue attributeValue,
                                                                @NotNull String prefix, @NotNull String suffix){
@@ -172,50 +147,22 @@ public class InjectGroovyUtils {
                 XmlAttributeValue defaultAttributeValue = parameter.getDefault().getXmlAttributeValue();
                 if(defaultAttributeValue == null) {
                     //定义变量
-//                    prefix = "def ";
-//                    suffix = System.lineSeparator();
-//                    textRange = MyDomUtils.createAttributeTextRange(nameAttributeValue);
-//                    host = (PsiLanguageInjectionHost) nameAttributeValue;
-//
-//                    injectedLanguage = InjectedLanguage.create(GroovyLanguage.INSTANCE.getID(), prefix, suffix, false);
-//                    list.add(new InjectorUtils.InjectionInfo(host, injectedLanguage, textRange));
+
                     list.add(createInjectInfo(nameAttributeValue,"def ",System.lineSeparator()));
                 }else {
                     //name部分
-//                    prefix = "def ";
-//                    suffix = " ";
-//                    textRange =MyDomUtils.createAttributeTextRange(nameAttributeValue);
-//                    host = (PsiLanguageInjectionHost) nameAttributeValue;
-//                    injectedLanguage = InjectedLanguage.create(GroovyLanguage.INSTANCE.getID(),prefix,suffix,false);
-//                    list.add(new InjectorUtils.InjectionInfo(host,injectedLanguage,textRange));
+
                     list.add(createInjectInfo(nameAttributeValue,"def "," "));
 
                     //default 部分
-//                    prefix = "=\"${";
-//                    suffix = "}\" "+System.lineSeparator();
-//                    textRange = MyDomUtils.createAttributeTextRange(defaultAttributeValue);
-//                    host = (PsiLanguageInjectionHost) defaultAttributeValue;
-//                    injectedLanguage = InjectedLanguage.create(GroovyLanguage.INSTANCE.getID(),prefix,suffix,false);
-//                    list.add(new InjectorUtils.InjectionInfo(host,injectedLanguage,textRange));
 
                     list.add(createInjectInfo(defaultAttributeValue,"=\"${","}\" "+System.lineSeparator()));
                 }
             }else {
                 //name部分
-//                prefix = "def ";
-//                suffix = " ";
-//                textRange =MyDomUtils.createAttributeTextRange(nameAttributeValue);
-//                host = (PsiLanguageInjectionHost) nameAttributeValue;
-//                injectedLanguage = InjectedLanguage.create(GroovyLanguage.INSTANCE.getID(),prefix,suffix,false);
-//                list.add(new InjectorUtils.InjectionInfo(host,injectedLanguage,textRange));
+
                 list.add(createInjectInfo(nameAttributeValue,"def "," "));
                 //defaultValue 部分
-//                prefix = "=\"";
-//                suffix = "\" "+System.lineSeparator();
-//                textRange = MyDomUtils.createAttributeTextRange(defaultValueAttributeValue);
-//                host = (PsiLanguageInjectionHost) defaultValueAttributeValue;
-//                injectedLanguage = InjectedLanguage.create(GroovyLanguage.INSTANCE.getID(),prefix,suffix,false);
-//                list.add(new InjectorUtils.InjectionInfo(host,injectedLanguage,textRange));
                 list.add(createInjectInfo(defaultValueAttributeValue,"=\"","\" "+System.lineSeparator()));
             }
 
@@ -238,31 +185,13 @@ public class InjectGroovyUtils {
 //            InjectedLanguage injectedLanguage;
             XmlAttributeValue defaultAttributeValue = parameter.getDefaultValue().getXmlAttributeValue();
             if (defaultAttributeValue == null) {
-//                prefix = "def ";
-//                suffix = System.lineSeparator();
-//                textRange = MyDomUtils.createAttributeTextRange(nameAttributeValue);
-//                host = (PsiLanguageInjectionHost) nameAttributeValue;
-//
-//                injectedLanguage = InjectedLanguage.create(GroovyLanguage.INSTANCE.getID(), prefix, suffix, false);
-//                list.add(new InjectorUtils.InjectionInfo(host, injectedLanguage, textRange));
+
                 list.add(createInjectInfo(nameAttributeValue,"def ",System.lineSeparator()));
 
             } else {
                 //name部分
-//                prefix = "def ";
-//                suffix = " ";
-//                textRange = MyDomUtils.createAttributeTextRange(nameAttributeValue);
-//                host = (PsiLanguageInjectionHost) nameAttributeValue;
-//                injectedLanguage = InjectedLanguage.create(GroovyLanguage.INSTANCE.getID(), prefix, suffix, false);
-//                list.add(new InjectorUtils.InjectionInfo(host, injectedLanguage, textRange));
                 list.add(createInjectInfo(nameAttributeValue,"def "," "));
                 //defaultValue 部分
-//                prefix = "=";
-//                suffix = System.lineSeparator();
-//                textRange = MyDomUtils.createAttributeTextRange(nameAttributeValue);
-//                host = (PsiLanguageInjectionHost) defaultAttributeValue;
-//                injectedLanguage = InjectedLanguage.create(GroovyLanguage.INSTANCE.getID(), prefix, suffix, false);
-//                list.add(new InjectorUtils.InjectionInfo(host, injectedLanguage, textRange));
                 list.add(createInjectInfo(defaultAttributeValue,"=",System.lineSeparator()));
             }
 
@@ -270,11 +199,6 @@ public class InjectGroovyUtils {
         }
     }
 
-    /**
-     *
-     * @param set
-     * @param list
-     */
     public static void extractSetInjectionInfo(@NotNull org.moqui.idea.plugin.dom.model.Set set, @NotNull List<InjectorUtils.InjectionInfo> list) {
         /**
          * <#macro set>

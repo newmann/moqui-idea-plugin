@@ -8,9 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.contributor.MultiFieldNameCompletionContributor;
 import org.moqui.idea.plugin.dom.model.ServiceCall;
-import org.moqui.idea.plugin.provider.ServiceCallInMapCompletionProvider;
 import org.moqui.idea.plugin.util.MyDomUtils;
 
 public class ServiceCallTypedHandler extends TypedHandlerDelegate {
@@ -23,39 +21,32 @@ public class ServiceCallTypedHandler extends TypedHandlerDelegate {
         if (at == null) {
             return Result.CONTINUE;
         }
-        switch (c){
-            case ',','['->{
-                if(ServiceCallInMapCompletionProvider.IN_MAP_PATTERN.accepts(at)){
+        if(at.getParent() instanceof XmlTag tag) {
+            if (tag.getName().equals(ServiceCall.TAG_NAME)) {
+                if (c == '.') {
                     AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
                     return Result.STOP;
                 }
-
-            }
-            default -> {
-                if(at.getParent() instanceof XmlTag tag) {
-                    if (tag.getName().equals(ServiceCall.TAG_NAME)) {
-                        if (c == '.') {
-                            AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
-                            return Result.STOP;
-                        }
-                    }
-                }
-
             }
         }
-//        if (c == ',') {
-//            if (MultiFieldNameCompletionContributor.getCapture().accepts(at)) {
-//                AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
-//                return Result.STOP;
+//        switch (c){
+//            case ',','['->{
+//                if(ServiceCallInMapCompletionProvider.IN_MAP_PATTERN.accepts(at)){
+//                    AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
+//                    return Result.STOP;
+//                }
+//
 //            }
-//        } else {
-//            if(at.getParent() instanceof XmlTag tag) {
-//                if (tag.getName().equals(ServiceCall.TAG_NAME)) {
-//                    if (c == '.') {
-//                        AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
-//                        return Result.STOP;
+//            default -> {
+//                if(at.getParent() instanceof XmlTag tag) {
+//                    if (tag.getName().equals(ServiceCall.TAG_NAME)) {
+//                        if (c == '.') {
+//                            AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
+//                            return Result.STOP;
+//                        }
 //                    }
 //                }
+//
 //            }
 //        }
 

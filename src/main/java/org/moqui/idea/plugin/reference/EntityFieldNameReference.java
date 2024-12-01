@@ -8,15 +8,19 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
+import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.util.IncorrectOperationException;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
+import org.moqui.idea.plugin.util.FieldDescriptor;
+import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class EntityFieldNameReference extends PsiReferenceBase.Immediate<PsiElement> {
@@ -38,31 +42,48 @@ public class EntityFieldNameReference extends PsiReferenceBase.Immediate<PsiElem
     @Override
     public @NotNull Object[] getVariants() {
         List<LookupElement> variants = new ArrayList<>();
+        List<String> inputedFields = getInputtedFieldSet(myElement);
 
         List<IndexAbstractField> indexAbstractFieldList = EntityUtils.getIndexAbstractFieldListByPsiElement(myElement);
 
-        addLookupElement(indexAbstractFieldList,variants);
+        indexAbstractFieldList.forEach(item ->{
+            String fieldName = MyDomUtils.getValueOrEmptyString(item.getName());
+            if(!inputedFields.contains(fieldName)) {
+                variants.add(
+                        LookupElementBuilder.create(fieldName)
+                                .withCaseSensitivity(false)
+                                .withTailText(MyStringUtils.formatFieldNameTrailText(MyDomUtils.getValueOrEmptyString(item.getType())))
+                                .withTypeText(item.getInAbstractIndexEntity() == null? "N/A": item.getInAbstractIndexEntity().getShortName())
+                                .withIcon(item.getInAbstractIndexEntity() instanceof IndexEntity ? MoquiIcons.EntityTag: MoquiIcons.ViewEntityTag)
+                );
+            }
+        });
 
         return variants.toArray();
     }
 
-    private void addLookupElement(@NotNull List<IndexAbstractField> indexAbstractFieldList, @NotNull List<LookupElement> lookupList){
-        indexAbstractFieldList.forEach(item->{
-
-            lookupList.add(LookupElementBuilder.create(item.getName())
-                    .withCaseSensitivity(false)
-                    .withIcon(item.getInAbstractIndexEntity() instanceof IndexEntity ? MoquiIcons.EntityTag: MoquiIcons.ViewEntityTag)
-                    .withTypeText(item.getInAbstractIndexEntity() == null? "N/A": item.getInAbstractIndexEntity().getShortName()));
-        });
-
-    }
-//    @NotNull
-//    @Override
-//    public String getCanonicalText() {
-//        LOG.warn("Source:" + this.myElement.getText() +", TextRange:"+ this.myTextRange.toString() + ", result:" + MyStringUtils.lowerCaseFirstChar(this.myTextRange.substring(this.myElement.getText())));
-//        return MyStringUtils.lowerCaseFirstChar(this.myTextRange.substring(this.myElement.getText()));
+//    private void addLookupElement(@NotNull List<IndexAbstractField> indexAbstractFieldList, @NotNull List<LookupElement> lookupList){
+//        indexAbstractFieldList.forEach(item->{
+//
+//            lookupList.add(LookupElementBuilder.create(item.getName())
+//                    .withCaseSensitivity(false)
+//                    .withTailText(MyStringUtils.formatFieldNameTrailText(MyDomUtils.getValueOrEmptyString(item.getType())))
+//                    .withIcon(item.getInAbstractIndexEntity() instanceof IndexEntity ? MoquiIcons.EntityTag: MoquiIcons.ViewEntityTag)
+//                    .withTypeText(item.getInAbstractIndexEntity() == null? "N/A": item.getInAbstractIndexEntity().getShortName()));
+//        });
+//
 //    }
+    private List<String> getInputtedFieldSet(@NotNull PsiElement psiElement) {
+        XmlAttribute xmlAttribute = MyDomUtils.getCurrentAttribute(psiElement).orElse(null);
+        if (xmlAttribute == null ) return Collections.emptyList();
+        if ( xmlAttribute.getValue() == null) return Collections.emptyList();
 
+        final String inputStr = xmlAttribute.getValue().trim();
+        if (inputStr.isEmpty()) return Collections.emptyList();
+        List<FieldDescriptor> fieldDescriptorList = EntityUtils.extractFieldDescriptorList(MyStringUtils.removeDummyOnly(inputStr),0);
+
+        return fieldDescriptorList.stream().map(FieldDescriptor::getFieldName).toList();
+    }
 
     @Override
     public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {

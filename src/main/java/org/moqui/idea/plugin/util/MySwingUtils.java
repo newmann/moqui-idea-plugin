@@ -19,7 +19,6 @@ public final class MySwingUtils {
 
     /**
      * 创建Tree实例，添加TreeSpeedSearch功能
-     * @return
      */
     public static @NotNull Tree createTree(){
         Tree result = new Tree();
@@ -33,8 +32,6 @@ public final class MySwingUtils {
 
     /**
      * 为组建创建一个ScrollPane
-     * @param tree
-     * @return
      */
     public static @NotNull JBScrollPane createScrollPane(Tree tree){
         JBScrollPane result = new JBScrollPane();
@@ -46,7 +43,7 @@ public final class MySwingUtils {
         return createHorizontalSplitPane(0.5);
     }
 
-    public static @NotNull  JSplitPane createHorizontalSplitPane(@NotNull double dividerLocation){
+    public static @NotNull  JSplitPane createHorizontalSplitPane(double dividerLocation){
         JSplitPane result = new JSplitPane();
         result.setDividerLocation(dividerLocation);
         result.setOrientation(JSplitPane.HORIZONTAL_SPLIT);

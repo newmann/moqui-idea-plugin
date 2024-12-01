@@ -30,6 +30,7 @@ import java.util.List;
  * - 表示倒序排列
  * ^ 表示大小写敏感
  */
+@Deprecated
 public class MultiFieldNameCompletionProvider extends AbstractSimpleCompletionProvider {
     public static MultiFieldNameCompletionProvider of(){
         return new MultiFieldNameCompletionProvider();
@@ -72,7 +73,8 @@ public class MultiFieldNameCompletionProvider extends AbstractSimpleCompletionPr
                 lookupElementBuilders.add(
                         LookupElementBuilder.create(fieldName)
                                 .withCaseSensitivity(false)
-                                .withTypeText(MyDomUtils.getValueOrEmptyString(item.getType()))
+                                .withTailText(MyStringUtils.formatFieldNameTrailText(MyDomUtils.getValueOrEmptyString(item.getType())))
+                                .withTypeText(MyDomUtils.getValueOrEmptyString(item.getInAbstractIndexEntity().getShortName()))
                                 .withInsertHandler(new FieldInsertHandler())
                 );
             }
@@ -92,7 +94,7 @@ public class MultiFieldNameCompletionProvider extends AbstractSimpleCompletionPr
         String[] fieldSplits = MyStringUtils.getDummyFrontString(inputStr).split(",");
         return List.of(fieldSplits);
     }
-    private static class FieldInsertHandler implements InsertHandler {
+    private static class FieldInsertHandler implements InsertHandler<LookupElement> {
         @Override
         public void handleInsert(@NotNull InsertionContext insertionContext, @NotNull LookupElement lookupElement) {
             if (insertionContext.getCompletionChar() == ',') {

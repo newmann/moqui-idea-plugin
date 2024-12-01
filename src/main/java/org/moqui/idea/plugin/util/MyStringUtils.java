@@ -139,8 +139,6 @@ public final class MyStringUtils {
 
     /**
      * 驼峰转下划线
-     * @param camelStr
-     * @return
      */
     public static String camelToSlash(String camelStr){
         String[] strings = splitByCharacterType(camelStr, true);
@@ -154,7 +152,7 @@ public final class MyStringUtils {
             return ArrayUtils.EMPTY_STRING_ARRAY;
         } else {
             char[] c = str.toCharArray();
-            List<String> list = new ArrayList();
+            List<String> list = new ArrayList<>();
             int tokenStart = 0;
             int currentType = Character.getType(c[tokenStart]);
 
@@ -176,7 +174,7 @@ public final class MyStringUtils {
             }
 
             list.add(new String(c, tokenStart, c.length - tokenStart));
-            return (String[])list.toArray(new String[list.size()]);
+            return list.toArray(new String[0]);
         }
     }
 
@@ -238,8 +236,8 @@ public final class MyStringUtils {
 
     /**
      * 对xml字符串进行转化，以便能在html中显示
-     * @param xml
-     * @return
+     * @param xml 待处理的xml字符串
+     * @return String
      */
     public static String formatXmlForHtml(@NotNull String xml){
         return xml.replaceAll("<","&lt;")
@@ -273,4 +271,9 @@ public final class MyStringUtils {
     public static boolean containGroovyVariables(@NotNull String content){
         return content.contains("${");
     }
+
+    public static String formatFieldNameTrailText(@NotNull String trailText){
+        return isEmpty(trailText)? trailText : "[" + trailText + "]";
+    }
+
 }

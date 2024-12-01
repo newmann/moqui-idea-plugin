@@ -16,12 +16,8 @@ import java.util.*;
 /**
  * 针对多个字段的处理，比如OrderBy和SelectField
  */
-public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
-    @Override
-    public @NotNull Collection<? extends String> getVariants(ConvertContext context) {
-        return new ArrayList<>();
-    }
 
+public class MultiEntityFieldNameReferenceConverter implements CustomReferenceConverter<String> {
 
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
@@ -35,22 +31,7 @@ public class MultiEntityFieldNameConverter extends ResolvingConverter.StringConv
         final String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
         final String secondTagName = MyDomUtils.getSecondParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
 
-//        if (fieldNameArray.length == 0) {
-//            fieldNameArray = new String[1];
-//            fieldNameArray[0] = fieldsStr;
-//        }
-
-//        PsiReference[] result = new PsiReference[fieldNameList.size()];
         List<PsiReference> result = new ArrayList<>();
-        //EntityFindOne , SelectField (FieldName)，
-        //EntityFind , SelectField (FieldName)，
-        //EntityFindCount , SelectField (FieldName)，
-
-        //EntityFind , OrderBy (FieldName)，
-        //EntityFindCount , OrderBy (FieldName)，
-
-        //EntityFind, SearchFormInputs(DefaultOrderBy)
-
         String entityName = MyStringUtils.EMPTY_STRING;
         if (
                 (secondTagName.equals(EntityFindOne.TAG_NAME) || secondTagName.equals(EntityFind.TAG_NAME) || secondTagName.equals(EntityFindCount.TAG_NAME))

@@ -18,7 +18,7 @@ public class ServiceCallReferenceProvider extends PsiReferenceProvider {
 
     @Override
     public @NotNull  PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
-        return ServiceUtils.createServiceCallReferences(psiElement.getProject(),psiElement);
+        return ServiceUtils.createServiceCallReferences(psiElement);
 
     }
 }

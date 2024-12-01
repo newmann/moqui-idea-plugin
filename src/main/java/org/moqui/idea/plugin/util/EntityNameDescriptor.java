@@ -7,7 +7,6 @@ public class EntityNameDescriptor {
         return new EntityNameDescriptor(fullName);
     }
 
-    EntityNameDescriptor(){}
     EntityNameDescriptor(@NotNull String fullName){
         int index = fullName.lastIndexOf(EntityUtils.ENTITY_NAME_DOT);
         if (index<0) {
@@ -18,14 +17,14 @@ public class EntityNameDescriptor {
             myPackageName = fullName.substring(0,index);
             myEntityName = fullName.substring(index+1);
             myEntityNameIndex = index + 1;
-        };
+        }
     }
     EntityNameDescriptor(String entityName,String packageName){
         this.myEntityName = entityName;
         this.myPackageName = packageName;
     }
-    private String myEntityName = MyStringUtils.EMPTY_STRING;
-    private String myPackageName = MyStringUtils.EMPTY_STRING;
+    private String myEntityName;
+    private String myPackageName;
     private int myEntityNameIndex = 0;
 
     public String getEntityName() {

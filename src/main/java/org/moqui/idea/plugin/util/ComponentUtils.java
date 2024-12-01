@@ -2,11 +2,7 @@ package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,42 +36,12 @@ public final class ComponentUtils {
         Map<String,Component> result = new HashMap<>();
         for(DomFileElement<Component> fileElement : fileElementList) {
             Component component = fileElement.getRootElement();
-            String name = ReadAction.compute(()->{
-                return component.getName().getStringValue();
-            });
+            String name = ReadAction.compute(()->component.getName().getStringValue());
             result.put(name,component);
 
         }
         return result;
 
-
-    }
-
-    /**
-     * 根据某个DomElement找到所在的Component的名称
-     * @param element
-     * @return
-     */
-    @Deprecated
-    public static String getComponentName(DomElement element){
-
-        try {
-            PsiFile file = element.getXmlElement().getContainingFile();
-            PsiDirectory dir = file.getParent();
-            //todo 应该有更好的处理办法
-            for(int i = 0; i<10;  i++) {
-                XmlFile componentFile = (XmlFile) dir.findFile("component.xml");
-                if(isComponentFile(componentFile)) {
-                    XmlTag rootTag = componentFile.getRootTag();
-                    return rootTag.getAttribute(Component.ATTR_NAME).getValue();
-                }else{
-                    dir = dir.getParent();
-                }
-            }
-            return null;
-        }catch (NullPointerException ignored) {
-            return null;
-        }
 
     }
     public static Optional<String> getComponentNameFromPath(@NotNull String path){

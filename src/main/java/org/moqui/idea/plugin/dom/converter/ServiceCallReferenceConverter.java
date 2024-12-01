@@ -35,7 +35,7 @@ public class ServiceCallReferenceConverter implements CustomReferenceConverter<S
 
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
-        return ServiceUtils.createServiceCallReferences(element.getProject(),element);
+        return ServiceUtils.createServiceCallReferences(element);
 
     }
 //

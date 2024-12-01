@@ -66,27 +66,15 @@ public final class ScreenUtils {
     }
     /**
      * 根据当前位置找到所在screen的所有可用的Transition
-     *
-     * @param context
-     * @return
      */
     public static List<AbstractTransition> getAbstractTransitionListFromConvertContext(ConvertContext context) {
 
-        List<AbstractTransition> result = new ArrayList<AbstractTransition>();
-
-
         Screen screen = ScreenUtils.getCurrentScreen(context).orElse(null);
         return getAbstractTransitionListFromScreen(screen);
-
-//        if(screen != null){
-//            result.addAll(screen.getTransitionList());
-//            result.addAll(screen.getTransitionIncludeList());
-//        }
-//        return result;
     }
     public static List<AbstractTransition> getAbstractTransitionListFromScreen(@Nullable Screen screen) {
 
-        List<AbstractTransition> result = new ArrayList<AbstractTransition>();
+        List<AbstractTransition> result = new ArrayList<>();
 
         if(screen != null){
             result.addAll(screen.getTransitionList());
@@ -97,9 +85,6 @@ public final class ScreenUtils {
 
     /**
      * 根据当前位置找到所在screen的所有可用的SubScreensItem
-     *
-     * @param context
-     * @return
      */
     public static List<SubScreensItem> getSubScreensItemList(ConvertContext context) {
         return getSubScreensItemList(getCurrentScreen(context).orElse(null));
@@ -130,9 +115,6 @@ public final class ScreenUtils {
     }
     /**
      * 根据当前位置和名称对应的Transition
-     * @param transitionName
-     * @param context
-     * @return
      */
     public static Optional<AbstractTransition> getAbstractTransitionFromConvertContextByName(String transitionName, ConvertContext context) {
         List<AbstractTransition> transitionList = getAbstractTransitionListFromConvertContext(context);
@@ -152,10 +134,6 @@ public final class ScreenUtils {
     /**
      * 根据location，找到对应的文件
      * location格式为：component://xxxx
-     *
-     * @param psiElement
-     * @param location
-     * @return
      */
     public static List<PsiElement> getRelatedScreenFile(@NotNull PsiElement psiElement, @NotNull String location) {
         List<PsiElement> resultList = new ArrayList<>();
@@ -190,9 +168,7 @@ public final class ScreenUtils {
 
         if(optionalScreenDomFileElement.isPresent()) {
             Optional<Transition> optionalTransition = getTransitionFromDomFileElementByName(optionalScreenDomFileElement.get(),name);
-            if(optionalTransition.isPresent()) {
-                resultList.add(optionalTransition.get().getXmlElement());
-            }
+            optionalTransition.ifPresent(transition -> resultList.add(transition.getXmlElement()));
 
         }
 
@@ -202,8 +178,6 @@ public final class ScreenUtils {
 
     /**
      * 根據location，找到对应的DomFileElement
-     * @param location
-     * @return
      */
     public static  Optional<DomFileElement<Screen>> getScreenFileByLocation(@NotNull Project project, @NotNull String location){
 
@@ -215,10 +189,6 @@ public final class ScreenUtils {
         } else {
             relativePathName = location;
         }
-//        return MyDomUtils.findDomFileElementsByRootClass(project, Screen.class)
-//                .stream()
-//                .filter(screenDomFileElement -> screenDomFileElement.getFile().getVirtualFile().getPath().contains(relativePathName))
-//                .findFirst();
 
         List<DomFileElement<Screen>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Screen.class);
         for(DomFileElement<Screen> fileElement : fileElementList) {
@@ -234,12 +204,6 @@ public final class ScreenUtils {
         return fileElement.getRootElement().getTransitionList().stream()
                 .filter(transition -> MyDomUtils.getValueOrEmptyString(transition.getName()).equals(name))
                 .findFirst();
-//        for(Transition transition: fileElement.getRootElement().getTransitionList()) {
-//            if(MyDomUtils.getValueOrEmptyString(transition.getName()).equals(name)) {
-//                return Optional.of(transition);
-//            }
-//        }
-//        return Optional.empty();
     }
     public static List<Transition> getTransitionListFromScreenFile(@NotNull DomFileElement<Screen> fileElement){
         return fileElement.getRootElement().getTransitionList();
@@ -247,8 +211,6 @@ public final class ScreenUtils {
 
     /**
      * 获取某个Screen中所有的FormSingle定义
-     * @param fileElement
-     * @return
      */
     public static List<FormSingle> getFormSingleListFromScreenFile(@NotNull DomFileElement<Screen> fileElement){
         Widgets widgets = fileElement.getRootElement().getWidgets();
@@ -298,7 +260,7 @@ public final class ScreenUtils {
     /**
      * 获取文件中所有Form定义，返回AbstractForm
      * @param file 所在文件
-     * @return
+     * @return List<AbstractForm>
      */
     public static List<AbstractForm> getAbstractFormFromScreenFile(PsiFile file){
         List<AbstractForm> abstractFormList = new ArrayList<>();
@@ -384,35 +346,26 @@ public final class ScreenUtils {
     }
     public static Optional<FormList> getFormListFromScreenFileByName(@NotNull PsiFile file,@NotNull String formListName){
         List<FormList> formSingleList = getFormListListFromScreenFile(file);
-        return formSingleList.stream().filter(item->{
-            final String name = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
-                    .orElse(MyStringUtils.EMPTY_STRING);
-            return name.equals(formListName);
-        }).findFirst();
+        return formSingleList.stream().filter(item->MyDomUtils.getValueOrEmptyString(item.getName()).equals(formListName))
+                .findFirst();
     }
     /**
      * 用在Inspection中
      * 根据指定的属性来进行location位置的验证
-     *
-     * @param transitionInclude
-     * @param holder
      */
     public static void inspectTransitionInclude(@NotNull TransitionInclude transitionInclude, @NotNull DomElementAnnotationHolder holder) {
-//        XmlAttributeValue xmlAttributeValue = attributeValue.getXmlAttributeValue();
-//        if (xmlAttributeValue == null) { return;}
-        final Project project =transitionInclude.getXmlElement().getProject();
+        XmlElement xmlElement = transitionInclude.getXmlElement();
+        if(xmlElement == null) return;
 
-        final String name = transitionInclude.getName().getValue();
-        final String location = transitionInclude.getLocation().getValue();
+        final Project project =xmlElement.getProject();
+
+        final String name = MyDomUtils.getValueOrEmptyString(transitionInclude.getName());
+        final String location = MyDomUtils.getValueOrEmptyString(transitionInclude.getLocation());
 
         if (MyStringUtils.isEmpty(location)) {
             holder.createProblem(transitionInclude, HighlightSeverity.ERROR,"Transition location is not defined");
             return;
 
-        }
-        if (MyStringUtils.isEmpty(location)) {
-            holder.createProblem(transitionInclude, HighlightSeverity.ERROR,"transition name is not defined");
-            return;
         }
 
         final Optional<DomFileElement<Screen>> optionalScreenDomFileElement = getScreenFileByLocation(project,location);
@@ -433,18 +386,17 @@ public final class ScreenUtils {
 
     }
     public static void inspectTransitionInclude(@NotNull TransitionInclude transitionInclude, @NotNull AnnotationHolder holder) {
-//        XmlAttributeValue xmlAttributeValue = attributeValue.getXmlAttributeValue();
-//        if (xmlAttributeValue == null) { return;}
         if(transitionInclude.getXmlElement() == null) return;
 
         final Project project =transitionInclude.getXmlElement().getProject();
-        String name = MyStringUtils.EMPTY_STRING;
+        String name ;
         XmlAttributeValue xmlAttributeName = transitionInclude.getName().getXmlAttributeValue();
         if(xmlAttributeName == null) {
             holder.newAnnotation(HighlightSeverity.ERROR, "Transition name is not defined")
                     .range(transitionInclude.getXmlElement().getTextRange())
                     .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                     .create();
+            return;
         }else {
             name = xmlAttributeName.getValue();
             if (MyStringUtils.isEmpty(name)) {
@@ -503,8 +455,6 @@ public final class ScreenUtils {
 
     /**
      * 获取FormSingle的Field定义，
-     * @param abstractForm
-     * @return
      */
     public static List<Field> getFieldListFromForm(@NotNull AbstractForm abstractForm){
         List<Field> result = new ArrayList<>();
@@ -529,12 +479,6 @@ public final class ScreenUtils {
 
             if(psiFile != null) {
                 AbstractForm extendForm = getAbstractFormFromScreenFileByName(psiFile,extendFormName).orElse(null);
-
-//                if(abstractForm instanceof FormSingle) {
-//                    extendForm = getFormSingleFromScreenFileByName(psiFile, extendFormName).orElse(null);
-//                }else {
-//                    extendForm = getFormListFromScreenFileByName(psiFile, extendFormName).orElse(null);
-//                }
 
                 if(extendForm != null) {
                     //嵌套调用
@@ -585,15 +529,12 @@ public final class ScreenUtils {
 
         private LocationUtils.MoquiFile containingMoquiFile;
         private PsiDirectory containingDirectory;
-//        public static Menu of(Screen screen){
-//
-//        }
 
         /**
          * 获取project的所有的menu
          */
         public static ArrayList<Menu> findAllMenuArrayList(@NotNull Project project){
-            ArrayList<Menu> menus = new ArrayList<Menu>();
+            ArrayList<Menu> menus = new ArrayList<>();
 
             List<Screen> screenList = MoquiConfUtils.getAllScreens(project);
             ApplicationManager.getApplication().runReadAction(()->{
@@ -624,8 +565,6 @@ public final class ScreenUtils {
         }
         /**
          * 根据当前的SubScreensItem获取所有的下属子菜单
-         * @param screensItem
-         * @return
          */
         public static Menu of(@NotNull SubScreensItem screensItem){
             if(screensItem.getXmlElement() == null){return null;}
@@ -663,8 +602,6 @@ public final class ScreenUtils {
 
         /**
          * 根据文件创建Menu
-         * @param psiFile
-         * @return
          */
         public static Menu of(@NotNull PsiFile psiFile){
             //如果psiFile不是Screen文件，则返回null
@@ -708,15 +645,11 @@ public final class ScreenUtils {
 
         /**
          * 根据目录创建Menu
-         * @param psiDirectory
-         * @return
          */
         public static Menu of(@NotNull PsiDirectory psiDirectory){
 
             Menu result = new Menu();
 //            //查找对应的文件
-//            LocationUtils.MoquiFile file = new LocationUtils.MoquiFile(psiFile);
-//            result.setContainingMoquiFile(file);
 
             result.setName(psiDirectory.getName());
             result.setTitle(psiDirectory.getName());
@@ -735,10 +668,10 @@ public final class ScreenUtils {
         /**
          * 获取当前
          * @param menu 当前的menu
-         * @return
+         * @return ArrayList<Menu>
          */
         public static ArrayList<Menu> getChildMenus(@NotNull Menu menu){
-            ArrayList<Menu> menus = new ArrayList<Menu>();
+            ArrayList<Menu> menus = new ArrayList<>();
             LocationUtils.MoquiFile moquiFile = menu.getContainingMoquiFile();
             if(moquiFile == null) {
                 return menus;
@@ -761,7 +694,7 @@ public final class ScreenUtils {
         }
         public static ArrayList<Menu> getChildMenusBySubScreens(@NotNull Menu menu,@NotNull SubScreens subScreens){
             return ApplicationManager.getApplication().runReadAction((Computable<ArrayList<Menu>>) ()->{
-                ArrayList<Menu> menus = new ArrayList<Menu>();
+                ArrayList<Menu> menus = new ArrayList<>();
                 for(SubScreensItem item : subScreens.getSubScreensItemList()) {
                     Menu subMenu = of(item);
                     if(subMenu != null)  subMenu.setParent(menu);
@@ -776,14 +709,11 @@ public final class ScreenUtils {
          * 获取指定路径下的文件和子目录
          * 1、剔除后缀的文件名为menu的名字
          * 2、子目录名为menu名字
-         * @param menu
-         * @param path
-         * @return
          */
         public static ArrayList<Menu> getChildMenusByPath(@NotNull Menu menu,@NotNull String path){
             LocationUtils.MoquiFile moquiFile = menu.getContainingMoquiFile();
             List<PsiFile> fileList;
-            ArrayList<Menu> menus = new ArrayList<Menu>();
+            ArrayList<Menu> menus = new ArrayList<>();
 
             Project project;
             if(moquiFile !=null) {
@@ -801,16 +731,6 @@ public final class ScreenUtils {
                     menus.add(subMenu);
                 }
             }
-
-            //只有在特定情况下才需要处理子目录，比如静态文件，其他都不需要处理子目录
-            //处理子目录
-//            List<PsiDirectory> directoryList = MyDomUtils.findPsiDirectoriesByPath(project,path);
-//            for(PsiDirectory directory : directoryList) {
-//                Menu dirMenu = of(directory);
-//                dirMenu.setParent(menu);
-//                menus.add(dirMenu);
-//            }
-
             return menus;
 
         }

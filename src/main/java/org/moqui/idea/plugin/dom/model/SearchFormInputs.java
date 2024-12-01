@@ -2,7 +2,7 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.MultiEntityFieldNameConverter;
+import org.moqui.idea.plugin.dom.converter.MultiEntityFieldNameReferenceConverter;
 
 public interface SearchFormInputs extends DomElement {
     public static final String TAG_NAME = "search-form-inputs";
@@ -17,7 +17,7 @@ public interface SearchFormInputs extends DomElement {
 
     @NotNull
     @Attribute(ATTR_DEFAULT_ORDER_BY)
-    @Convert(MultiEntityFieldNameConverter.class)
+    @Referencing(MultiEntityFieldNameReferenceConverter.class)
     GenericAttributeValue<String> getDefaultOrderBy();
 
     @NotNull GenericAttributeValue<String> getSkipFields();

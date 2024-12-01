@@ -29,7 +29,7 @@ public final class MoquiConfUtils {
     /**
      * 通过同一个component下其他文件的文件名，获得本component的MoquiConf.xml
      * MoquiConf.xml就在component根目录下
-     * @return
+     * @return Optional<PsiFile>
      */
     public static Optional<PsiFile> getMoquiConfFileByComponentFileName(@NotNull Project  project, @NotNull String componentFileName){
         String[] parts = componentFileName.split(MyStringUtils.COMPONENT_PATH_TAG);
@@ -46,7 +46,7 @@ public final class MoquiConfUtils {
      * 从MoquiConf文件中获取指定名称的SubScreenItem，也就是菜单入口
      * @param file MoquiConf的PsiFile
      * @param itemName SubScreenItem的name
-     * @return
+     * @return Optional<SubScreensItem>
      */
     public static Optional<SubScreensItem> getSubScreensItem(@NotNull PsiFile file,@NotNull String itemName){
         DomFileElement<MoquiConf> moquiConfDomFileElement = MyDomUtils.convertPsiFileToDomFile(file,MoquiConf.class);
@@ -60,12 +60,12 @@ public final class MoquiConfUtils {
     /**
      * 获取所有的Screen定义
      * 只需要取runtime/base-component和runtime/component下的定义，其他路径下的不需要
-     * @param project
-     * @return
+     * @param project 当前Project
+     * @return  List<Screen>
      */
     public static List<Screen> getAllScreens(@NotNull Project project){
         List<DomFileElement<MoquiConf>> moquiConfList = MyDomUtils.findDomFileElementsByRootClass(project,MoquiConf.class);
-        ArrayList<Screen> result = new ArrayList<Screen>();
+        ArrayList<Screen> result = new ArrayList<>();
         for(DomFileElement<MoquiConf> moquiConf: moquiConfList) {
             ApplicationManager.getApplication().runReadAction(()->{
                 String path = moquiConf.getFile().getVirtualFile().getPath();

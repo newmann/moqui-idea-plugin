@@ -31,7 +31,7 @@ import java.util.Optional;
  * relationship
  */
 
-public class RelationshipConverter extends ResolvingConverter<Relationship> implements CustomReferenceConverter {
+public class RelationshipConverter extends ResolvingConverter<Relationship> implements CustomReferenceConverter<Relationship> {
     @Override
     public @Nullable Relationship fromString(@Nullable @NonNls String s, ConvertContext context) {
         if(s == null) return null;
@@ -83,6 +83,8 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
         String related = value.getStringValue();
+        if(related == null) return PsiReference.EMPTY_ARRAY;
+
         Optional<Relationship> opRelationship = getRelationship(related,context);
 
         if (opRelationship.isEmpty()) return PsiReference.EMPTY_ARRAY;
@@ -92,7 +94,7 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
         int charIndex = related.indexOf("#");
         if(charIndex< 0) {
             PsiReference[] psiReferences = new PsiReference[1];
-            if(relationship.getShortAlias().getXmlAttributeValue().getValue().equals(related)) {
+            if(MyDomUtils.getValueOrEmptyString(relationship.getShortAlias()).equals(related)) {
 
                 psiReferences[0] = new PsiRef(element,
                         new TextRange(1,
@@ -101,8 +103,7 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
 
                 return psiReferences;
 
-            }
-            if(relationship.getRelated().getXmlAttributeValue().getValue().equals(related)) {
+            } else if (MyDomUtils.getValueOrEmptyString(relationship.getRelated()).equals(related)) {
                 psiReferences[0] = new PsiRef(element,
                         new TextRange(1,
                                 related.length()+1),
@@ -113,8 +114,6 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
         }else {
             //${title}#${related-entity-name}
             PsiReference[] psiReferences = new PsiReference[2];
-            final String title = relationship.getTitle().getXmlAttributeValue().getValue();
-            final String entityName = relationship.getRelated().getXmlAttributeValue().getValue();
 
             psiReferences[0] = new PsiRef(element,
                     new TextRange(1,
@@ -132,9 +131,6 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
     }
     /**
      * 根据当前位置找到所有可用的Relationship
-     *
-     * @param context
-     * @return
      */
     private List<Relationship> getRelationshipList(ConvertContext context) {
         List<Relationship> result = new ArrayList<>();
@@ -204,14 +200,11 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
     }
     /**
      * 根据当前位置对应的Relationship
-     * @param related
-     * @param context
-     * @return
      */
     private Optional<Relationship> getRelationship(String related, ConvertContext context) {
         List<Relationship> relationshipList = getRelationshipList(context);
         return relationshipList.stream().filter(
-                item->{return EntityUtils.isThisRelationshipRelatedName(item,related);}
+                item->EntityUtils.isThisRelationshipRelatedName(item,related)
         ).findFirst();
 
     }

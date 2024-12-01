@@ -57,10 +57,10 @@ public final class LocationUtils {
         private final String fileFullName;//文件全称，含文件名和扩展名
 
         private String componentName;//所在Component名称
-        private Boolean isComponentFile = false;
-        private Boolean isFrameworkFile = false;
+        private final Boolean isComponentFile;
+        private final Boolean isFrameworkFile;
 
-        private String relativePath;//
+        private final String relativePath;//
         public PsiFile getContainingFile() {
             return containingFile;
         }
@@ -100,25 +100,6 @@ public final class LocationUtils {
                 isFrameworkFile = false;
             }
             relativePath = extractComponentRelativePath(path).orElse(MyStringUtils.EMPTY_STRING);
-//            String[] splits = this.path.split("/runtime/component/");
-//            if(splits.length != 2) {
-//                splits = this.path.split("/runtime/base-component/");
-//            }
-//            if(splits.length == 2) {
-//                index = splits[1].indexOf(PATH_SEPARATOR);
-//                if (index > 0) {
-//                    this.componentName = splits[1].substring(0, index);
-//                }else {
-//                    this.componentName = splits[1];
-//                }
-//                isComponentFile = true;
-//            }else {
-//                this.componentName = MyStringUtils.EMPTY_STRING;
-//                isComponentFile = false;
-//                //判断是否在framework下面
-//                isFrameworkFile = this.path.contains(MyStringUtils.FRAMEWORK_PATH_TAG);
-//            }
-
 
         }
         public String getContainingSubScreensPath(){
@@ -132,18 +113,6 @@ public final class LocationUtils {
         public String getPath() {
             return path;
         }
-//       public void setContainingFile(PsiFile containingFile) {
-//            this.containingFile = containingFile;
-//        }
-//
-//        public void setPath(String path) {
-//            this.path = path;
-//        }
-//
-//
-//        public void setFileName(String fileName) {
-//            this.fileName = fileName;
-//        }
 
         public String getComponentName(){return this.componentName;}
 
@@ -169,7 +138,7 @@ public final class LocationUtils {
 
         /**
          * 返回按component://方式的路径
-         * @return
+         * @return String
          */
         public String getComponentRelativePath() {
             if(this.relativePath.equals(MyStringUtils.EMPTY_STRING)) {
@@ -177,23 +146,6 @@ public final class LocationUtils {
             }else {
                 return ComponentUtils.COMPONENT_LOCATION_PREFIX+relativePath;
             }
-//            String[] splitArray;
-//            if(path.contains(MyStringUtils.COMPONENT_PATH_TAG)) {
-//                splitArray = path.split(MyStringUtils.COMPONENT_PATH_TAG);
-//            }else if(path.contains(MyStringUtils.BASE_COMPONENT_PATH_TAG)) {
-//                splitArray = path.split(MyStringUtils.BASE_COMPONENT_PATH_TAG);
-//            }else if(path.contains(MyStringUtils.FRAMEWORK_PATH_TAG)) {
-//                splitArray = path.split(MyStringUtils.FRAMEWORK_PATH_TAG);
-//            }else {
-//                return MyStringUtils.EMPTY_STRING;
-//            }
-//
-//            if(splitArray.length == 2) {
-//                return ComponentUtils.COMPONENT_LOCATION_PREFIX+splitArray[1];
-//            }else {
-//                return MyStringUtils.EMPTY_STRING;
-//            }
-
         }
 
         public String getRelativePath() {
@@ -203,8 +155,8 @@ public final class LocationUtils {
 
     /**
      * 在component下的相对位置，同时需要考虑framework
-     * @param path
-     * @return
+     * @param path 当前Path
+     * @return Optional<String>
      */
     public static Optional<String> extractComponentRelativePath(@NotNull String path){
         String[] splitArray;
@@ -227,15 +179,11 @@ public final class LocationUtils {
 
     /**
      * 为了缩短在Complete list中文件名的长度，将常用的字符串缩短，主要是/screen/
-     * @param path
-     * @return
+     * @param path 待处理的Path
+     * @return String
      */
     public static String simplifyComponentRelativePath(@NotNull String path){
-//        int index = path.indexOf("/screen/");
-//        if(index < 0) return path;
-//
-//        int lastSlashIndex = path.lastIndexOf("/");
-//        return path.substring(0,index) + "@" + path.substring(lastSlashIndex);
+
         return path.replace("/screen/","@");
     }
 
@@ -348,11 +296,11 @@ public final class LocationUtils {
 
          /**
           * 直接根据location获取可能存在的文件
-          * @return
+          * @return Optional<PsiFile
           */
         public Optional<PsiFile> getFileByLocation(){
             return MyDomUtils.getFileFromLocation(project, location);
-        };
+        }
 
         public Optional<PsiFile> getRelativeFile(@NotNull String currentFilePathName){
             if(this.type != LocationType.RelativeScreenFile) return Optional.empty();
@@ -395,9 +343,9 @@ public final class LocationUtils {
 
          /**
           * 为//component://SimpleScreens/screen/SimpleScreens/Search.xml#SearchOptions这种格式的路径创建Reference
-          * @param element
-          * @param context
-          * @return
+          * @param element 当前PsiElement
+          * @param context 当前ConvertContext
+          * @return PsiReference[]
           */
          public  @NotNull PsiReference[] createComponentContentPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context){
             //添加路径和文件的reference
@@ -446,9 +394,9 @@ public final class LocationUtils {
 
          /**
           * 同一个screen文件中的extend
-          * @param element
-          * @param context
-          * @return
+          * @param element 当前PsiElement
+          * @param context 当前ConvertContext
+          * @return PsiReference[]
           */
          public  @NotNull PsiReference[] createLocalFormExtendPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context){
 
@@ -488,26 +436,6 @@ public final class LocationUtils {
              return result.toArray(new PsiReference[0]);
          }
 
-         /**
-          * 绝对路径的Reference
-          * @param element
-          * @param context
-          * @return
-          */
-         public  @NotNull PsiReference[] createAbsoluteUrlPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context) {
-             //将开头的两个"//"字符剔除
-             String[] pathArray = location.substring(2).split(PATH_SEPARATOR);
-
-
-            return PsiReference.EMPTY_ARRAY;
-         }
-
-//        public Optional<PsiFile> getComponentFile(){
-//            if(type != LocationType.ComponentFile) return Optional.empty();
-//            Optional<PsiFile> fileOptional = MyDomUtils.getFileFromLocation(project,location);
-//            this.file = fileOptional.orElse(null);
-//            return fileOptional;
-//        }
 
          public String getLocation() {
              return location;
@@ -538,8 +466,6 @@ public final class LocationUtils {
      }
 
     public static @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
-//        String valueStr = value.getStringValue();
-//        if(valueStr ==null) return PsiReference.EMPTY_ARRAY;
         Project project = context.getProject();
         if(project ==null) return PsiReference.EMPTY_ARRAY;
         String url = value.getStringValue();
@@ -631,10 +557,10 @@ public final class LocationUtils {
 
     /**
      * 为文件创建对应的Reference，文件名是对应到具体文件，每一级的文件夹也对应到相应的文件夹
-     * @param attributeString
-     * @param element
-     * @param file
-     * @return
+     * @param attributeString 当前PsiElement对应的内容
+     * @param element 当前PsiElement
+     * @param file 指向的文件
+     * @return PsiReference[]
      */
     public static @NotNull PsiReference[] createFilePsiReference(@NotNull String attributeString, @NotNull PsiElement element, @NotNull PsiFile file){
 
@@ -691,19 +617,15 @@ public final class LocationUtils {
 
     /**
      * 根据当前的PsiElement，找到相对路径下所有的文件
-     * @param psiElement
-     * @return
+     * @param psiElement 当前PsiElement
+     * @return List<PsiFile>
      */
     public static List<PsiFile> getRelativeScreenFileList(@NotNull PsiElement psiElement) {
 
         PsiFile file = psiElement.getContainingFile().getOriginalFile();
         String relativePath = MyStringUtils.removeLastDotString(file.getVirtualFile().getPath());
 
-//        int index =relativePath.lastIndexOf(".xml");
-//        if(index > 0) {
-//            relativePath = relativePath.substring(0,index);
-//        }
-        List<PsiFile> result = new ArrayList<PsiFile>();
+        List<PsiFile> result = new ArrayList<>();
         MyDomUtils.findPsiFilesByPath(psiElement.getProject(),relativePath)
                 .forEach(item->{
                     if(ScreenUtils.isScreenFile(item)) {
@@ -718,21 +640,14 @@ public final class LocationUtils {
      * AbstractLocation：
      *  widget-template-include（location）、transition-include（location）、screen（location）
      *  subscreen-item（location）、section-include ( location  )、text （location）
-     *
      *  AbStractForm：
      *  form-single (extends)、form-list （extends）
-     *
-     * @param element
-     * @param holder
      */
     public static void inspectAbstractLocationLocation(@NotNull DomElement element, @NotNull AnnotationHolder holder) {
         if (!(element instanceof AbstractLocation abstractLocation)) {
             return;
         }
         if(element.getXmlElement() == null) return;
-//        Project project = element.getXmlElement().getProject();
-//
-//        String url;
         XmlAttributeValue locationAttr;
 
         if(element instanceof AbstractForm abstractForm) {
@@ -748,7 +663,7 @@ public final class LocationUtils {
      * 检查某个Tag的包含Location的Attribute
      * @param element 指定的Tag
      * @param locationAttr 指定的Attribute
-     * @param holder
+     * @param holder AnnotationHolder
      */
     public static void inspectLocationFromAttribute(@NotNull DomElement element, @Nullable XmlAttributeValue locationAttr, @NotNull AnnotationHolder holder) {
 
@@ -771,7 +686,7 @@ public final class LocationUtils {
                     .highlightType(ProblemHighlightType.WEAK_WARNING)
                     .create();
             return;
-        };
+        }
 
         PsiFile psiFile = location.getFile();
         if(location.type == LocationType.Unknown) {//不知道的类型，尝试直接找文件
@@ -779,8 +694,6 @@ public final class LocationUtils {
         }
 
         if (psiFile == null) {
-//                holder.createProblem(attributeValue, ProblemHighlightType.ERROR, "没有找到文件：" + locationDescriptor.getFilePath(),
-//                        TextRange.from(1, locationDescriptor.getFilePath().length()));
             holder.newAnnotation(HighlightSeverity.ERROR, "根据路径["+ location.getLocation() +"]找不到对应的文件")
                     .range(locationAttr.getValueTextRange())
                     .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)

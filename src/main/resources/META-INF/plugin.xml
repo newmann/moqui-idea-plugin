@@ -110,22 +110,9 @@
       <notificationGroup id="Custom Notification Group" displayType="BALLOON" bundle="messages.MoquiDomBundle" key="notification.group.name"/>
 
 
-<!--      <completion.contributor language="XML"-->
-<!--                              implementationClass="org.moqui.idea.plugin.contributor.EntityNameAndServiceCallNameCompletionContributor"/>-->
       <completion.contributor language="XML"
                               implementationClass="org.moqui.idea.plugin.contributor.MoquiAttributeCompletionContributor"/>
 
-<!--      <completion.contributor language="XML"-->
-<!--                                    implementationClass="org.moqui.idea.plugin.contributor.MultiFieldNameCompletionContributor"/>-->
-<!--      <completion.contributor language="XML"-->
-<!--                              implementationClass="org.moqui.idea.plugin.contributor.AliasNameCompletionContributor"/>-->
-<!--      <completion.contributor language="XML"-->
-<!--                              implementationClass="org.moqui.idea.plugin.contributor.TransitionIncludeCompletionContributor"/>-->
-
-<!--      <completion.contributor language="XML" order="first"-->
-<!--                              implementationClass="org.moqui.idea.plugin.contributor.TransitionCompletionContributor"/>-->
-<!--      <completion.contributor language="XML" order="first"-->
-<!--                              implementationClass="org.moqui.idea.plugin.contributor.SubScreensDefaultItemCompletionContributor"/>-->
       <psi.referenceContributor language="Groovy" implementation="org.moqui.idea.plugin.contributor.GroovyCodeReferenceContributor"/>
 <!--      <completion.contributor language="Groovy" implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>-->
 

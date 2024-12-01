@@ -47,16 +47,7 @@ public class ServiceInParameterReference extends PsiReferenceBase.Immediate<PsiE
         return findCompletionItem(myElement).toArray();
     }
 
-    private void addLookupElement(@NotNull List<IndexAbstractField> indexAbstractFieldList, @NotNull List<LookupElement> lookupList){
-        indexAbstractFieldList.forEach(item->{
 
-            lookupList.add(LookupElementBuilder.create(item.getName())
-                    .withCaseSensitivity(false)
-                    .withIcon(item.getInAbstractIndexEntity() instanceof IndexEntity ? MoquiIcons.EntityTag: MoquiIcons.ViewEntityTag)
-                    .withTypeText(item.getInAbstractIndexEntity() == null? "N/A": item.getInAbstractIndexEntity().getShortName()));
-        });
-
-    }
     public List<LookupElementBuilder> findCompletionItem(@NotNull PsiElement psiElement) {
         String inputString = psiElement.getText();
 

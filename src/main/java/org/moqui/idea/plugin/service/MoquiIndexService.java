@@ -366,7 +366,7 @@ public final class MoquiIndexService {
             return Optional.of(relationship);
         }else {
             String joinFromAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getJoinFromAlias());
-            MemberEntity memberEntity = EntityUtils.getMemberEntityByAlias(viewEntity, joinFromAlias);
+            MemberEntity memberEntity = EntityUtils.getMemberEntityByAlias(viewEntity, joinFromAlias).orElse(null);
             if (memberEntity == null) {
                 return Optional.empty();
             }

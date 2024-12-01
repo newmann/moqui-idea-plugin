@@ -50,24 +50,9 @@ public final class MyDomUtils {
     private MyDomUtils() {
         throw new UnsupportedOperationException();
     }
-//    /**
-//     * Find dom elements collection.
-//     *
-//     * @param <T>     the type parameter
-//     * @param project the project
-//     * @param rootClazz   the clazz
-//     * @return the collection
-//     */
-//    @NotNull
-//    @NonNls
-//    public static <T extends DomElement> Collection<T> findDomElementsByRootClass(@NotNull Project project, Class<T> rootClazz) {
-//        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-//        List<DomFileElement<T>> elements = DomService.getInstance().getFileElements(rootClazz, project, scope);
-//        return elements.stream().map(DomFileElement::getRootElement).collect(Collectors.toList());
-//    }
+
     public static <T extends DomElement> DomFileElement<T> convertPsiFileToDomFile(@NotNull PsiFile file, Class<T> rootClazz) {
-//        DumbService dumbService = DumbService.getInstance(file.getProject());
-//        return dumbService.runReadActionInSmartMode(() ->{
+
         return ApplicationManager.getApplication().runReadAction((Computable<DomFileElement<T>>) ()->{
             DomFileElement<T> result = null;
             if(file instanceof XmlFile xmlFile) {
@@ -76,7 +61,6 @@ public final class MyDomUtils {
             return  result;
         });
 
-//        });
     }
 
     @NotNull
@@ -148,46 +132,14 @@ public final class MyDomUtils {
     public static boolean isMoquiProject(@NotNull Project project){
 
         String baseDir = project.getBasePath();
+        if(baseDir == null) return false;
 
         VirtualFile specificFile = ReadAction.compute(()->LocalFileSystem.getInstance().findFileByNioFile(Path.of(baseDir,"MoquiInit.properties")));
         return specificFile != null;
 
-        //        VirtualFile[] roots = ReadAction.compute(()->ProjectRootManager.getInstance(project).getContentRoots());
-//
-//        // 检查项目中是否存在特定文件
-//        if (roots.length>0) {
-//            VirtualFile root = roots[0];
-//            LOGGER.warn("开始测试："+ root.getPath());
-//            VirtualFile specificFile = ReadAction.compute(()->root.findChild("MoquiInit.properties"));
-//            if(specificFile != null){
-//                LOGGER.warn("MoquiInit.properties文件存在");
-//                return true;
-//            }else{
-//                LOGGER.warn("MoquiInit.properties没找到");
-//                return false;
-//            }
-//            return specificFile != null;
-//        }
-
-//        return false;
-    }
-    /**
-     * 判断是不是第一个tag，即<firstTag />
-     * @param token XmlToken
-     * @return boolean
-     */
-    public static boolean isFirstTag(@NotNull XmlToken token){
-        if(!token.getTokenType().equals(XmlTokenType.XML_NAME)) return false;
-
-        if(!token.getNextSibling().getText().equals(" ")) return false;
-
-        XmlToken prevSibling = (XmlToken)token.getPrevSibling();
-        if(prevSibling == null) return false;
-        return prevSibling.getTokenType().equals(XmlTokenType.XML_START_TAG_START);
     }
 
 
-    public static boolean isXmlFile(@NotNull PsiFile file){ return file instanceof XmlFile;}
     public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName){
         return isSpecialXmlFile(file,rootTagName,null,null);
     }
@@ -284,11 +236,7 @@ public final class MyDomUtils {
      */
     public static Boolean isAttributeValue(@NotNull PsiElement psiElement){
         return psiElement instanceof XmlAttributeValue;
-//        Boolean result = false;
-//        if (psiElement instanceof XmlToken) {
-//            if(((XmlToken) psiElement).getTokenType().equals(XML_ATTRIBUTE_VALUE_TOKEN)) result = true;
-//        }
-//        return result;
+
     }
     public static boolean isNotAttributeValue(@NotNull PsiElement psiElement){
         return !isAttributeValue(psiElement);
@@ -312,13 +260,12 @@ public final class MyDomUtils {
      * @return Optional<String>
      */
     public static Optional<String> getCurrentAttributeName(@NotNull PsiElement psiElement){
-
-        XmlAttribute xmlAttribute = PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class);
-        if (xmlAttribute == null ) {
-            return Optional.empty();
+        if(psiElement instanceof XmlAttribute xmlAttribute) {
+            return Optional.of(xmlAttribute.getName());
+        }else {
+            XmlAttribute xmlAttribute = PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class);
+            return Optional.ofNullable(xmlAttribute == null? null : xmlAttribute.getName());
         }
-        return Optional.of( xmlAttribute.getName());
-
     }
     public static Optional<XmlAttribute> getCurrentAttribute(@NotNull PsiElement psiElement){
         return Optional.ofNullable(PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class));
@@ -360,13 +307,7 @@ public final class MyDomUtils {
         Optional<XmlAttribute> opCurAttribute = getCurrentAttribute(context);
         return opCurAttribute.map(XmlAttribute::getName);
     }
-    public static Optional<XmlTag> getRootTag(ConvertContext context) {
-        return Optional.ofNullable(context.getFile().getRootTag());
-    }
-    public static Optional<String> getRootTagName(ConvertContext context) {
-        Optional<XmlTag> opTag = getRootTag(context);
-        return opTag.map(XmlTag::getName);
-    }
+
 
     public static Optional<XmlTag> getFirstParentTag(ConvertContext context) {
         return Optional.ofNullable(context.getTag());
@@ -385,32 +326,7 @@ public final class MyDomUtils {
         return opTag.map(XmlTag::getName);
     }
 
-    public static Optional<XmlTag> getThirdParentTag(ConvertContext context) {
-        Optional<XmlTag> tag = getSecondParentTag(context);
-        return tag.map(XmlTagChild::getParentTag);
-    }
-    public static Optional<String> getThirdParentTagName(ConvertContext context) {
-        Optional<XmlTag> opTag = getThirdParentTag(context);
-        return opTag.map(XmlTag::getName);
-    }
 
-    public static Optional<XmlTag> getFourthParentTag(ConvertContext context) {
-        Optional<XmlTag> tag = getThirdParentTag(context);
-        return tag.map(XmlTagChild::getParentTag);
-    }
-    public static Optional<String> getFourthParentTagName(ConvertContext context) {
-        Optional<XmlTag> opTag = getFourthParentTag(context);
-        return opTag.map(XmlTag::getName);
-    }
-
-    public static Optional<XmlTag> getFifthParentTag(ConvertContext context) {
-        Optional<XmlTag> tag = getFourthParentTag(context);
-        return tag.map(XmlTagChild::getParentTag);
-    }
-    public static Optional<String> getFifthParentTagName(ConvertContext context) {
-        Optional<XmlTag> opTag = getFifthParentTag(context);
-        return opTag.map(XmlTag::getName);
-    }
     /**
      * 获取最近的一个指定的DomElement
      * @param context ConvertContext
@@ -482,7 +398,7 @@ public final class MyDomUtils {
         return value == null ? MyStringUtils.EMPTY_STRING : value;
     }
 
-    public static @NotNull boolean getValueOrFalseBoolean(GenericAttributeValue<Boolean> value){
+    public static boolean getValueOrFalseBoolean(GenericAttributeValue<Boolean> value){
         return getXmlAttributeValueBoolean(value).orElse(false);
     }
 
@@ -625,14 +541,6 @@ public final class MyDomUtils {
         return finalPath.split("/");
     }
 
-    public static Optional<XmlText> getXmlTagFirstChildXmlText(@NotNull XmlTag xmlTag) {
-        for(PsiElement psiElement : xmlTag.getChildren()) {
-            if(psiElement instanceof XmlText xmlText) {
-                return Optional.of(xmlText);
-            }
-        }
-        return Optional.empty();
-    }
 
 
     /**
@@ -684,18 +592,6 @@ public final class MyDomUtils {
         XmlElement  xmlElement = element.getXmlElement();
         if (xmlElement == null) return;
         openFileForPsiElement(xmlElement);
-//        Project project = element.getXmlElement().getProject();
-//
-//        FileEditorManager editorManager = FileEditorManager.getInstance(project);
-//
-//
-//        OpenFileDescriptor descriptor = new OpenFileDescriptor(project,
-//            element.getXmlElement().getContainingFile().getVirtualFile(),
-//            element.getXmlElement().getTextOffset());
-//
-//        editorManager.openTextEditor(descriptor,true);
-
-
     }
     public static void openFileForPsiElement(@NotNull PsiElement element){
         Project project = element.getProject();
