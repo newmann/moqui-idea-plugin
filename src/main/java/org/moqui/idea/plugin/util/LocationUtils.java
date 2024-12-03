@@ -470,7 +470,19 @@ public final class LocationUtils {
         if(project ==null) return PsiReference.EMPTY_ARRAY;
         String url = value.getStringValue();
         if (url == null) return PsiReference.EMPTY_ARRAY;
+
+
         LocationUtils.Location location = new LocationUtils.Location(project,url);
+        //由于FormSingle和FormList的extends格式和RelativeScreenFile类似，所以不能通过url的格式来判断
+        //需要根据context进一步判断
+        String attributeName = MyDomUtils.getCurrentAttributeName(context).orElse(MyStringUtils.EMPTY_STRING);
+        String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
+        if(attributeName.equals(FormSingle.ATTR_EXTENDS)  &&
+                (firstTagName.equals(FormSingle.TAG_NAME) || firstTagName.equals(FormList.TAG_NAME))
+        ) {
+            //为扩展所在文件的form名称
+            return location.createLocalFormExtendPsiReference(element,context);
+        }
 
         switch(location.type) {
             case TransitionName -> {
@@ -521,15 +533,15 @@ public final class LocationUtils {
                 return PsiReference.EMPTY_ARRAY;
             }
             default -> {
-                //需要根据context进一步判断
-                String attributeName = MyDomUtils.getCurrentAttributeName(context).orElse(MyStringUtils.EMPTY_STRING);
-                String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
-                if(attributeName.equals(FormSingle.ATTR_EXTENDS)  &&
-                        (firstTagName.equals(FormSingle.TAG_NAME) || firstTagName.equals(FormList.TAG_NAME))
-                ) {
-                    //为扩展所在文件的form名称
-                    return location.createLocalFormExtendPsiReference(element,context);
-                }
+//                //需要根据context进一步判断
+//                String attributeName = MyDomUtils.getCurrentAttributeName(context).orElse(MyStringUtils.EMPTY_STRING);
+//                String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
+//                if(attributeName.equals(FormSingle.ATTR_EXTENDS)  &&
+//                        (firstTagName.equals(FormSingle.TAG_NAME) || firstTagName.equals(FormList.TAG_NAME))
+//                ) {
+//                    //为扩展所在文件的form名称
+//                    return location.createLocalFormExtendPsiReference(element,context);
+//                }
 
                 if(attributeName.equals(AttListResponse.ATTR_URL)
                 ) {

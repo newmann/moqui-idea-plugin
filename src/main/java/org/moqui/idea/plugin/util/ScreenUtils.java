@@ -15,10 +15,7 @@ import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.xml.ConvertContext;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomFileElement;
-import com.intellij.util.xml.DomUtil;
+import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 
 import javax.swing.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.*;
 
@@ -234,6 +234,24 @@ public final class ScreenUtils {
         return sectionList.stream()
                 .filter(section -> MyDomUtils.getValueOrEmptyString(section.getName()).equals(sectionName))
                 .findFirst();
+    }
+
+    /**
+     * 用于LocationConverter
+     * @param context ConvertContext
+     * @return List<String>
+     */
+    public static List<String> getFormSingleNameListByConvertContext(@NotNull ConvertContext context) {
+        List<FormSingle> formSingleList = getFormSingleListFromScreenFile(context.getFile().getContainingFile());
+        return formSingleList.stream().map(FormSingle::getName)
+                .map(GenericValue::getValue)
+                .toList();
+    }
+    public static List<String> getFormListNameListByConvertContext(@NotNull ConvertContext context) {
+        List<FormList> formListList = getFormListListFromScreenFile(context.getFile().getContainingFile());
+        return formListList.stream().map(FormList::getName)
+                .map(GenericValue::getValue)
+                .toList();
     }
 
     public static List<FormSingle> getFormSingleListFromScreenFile(PsiFile file){
@@ -478,12 +496,8 @@ public final class ScreenUtils {
             }
 
             if(psiFile != null) {
-                AbstractForm extendForm = getAbstractFormFromScreenFileByName(psiFile,extendFormName).orElse(null);
-
-                if(extendForm != null) {
-                    //嵌套调用
-                    result.addAll(getFieldListFromForm(extendForm));
-                }
+                getAbstractFormFromScreenFileByName(psiFile, extendFormName)
+                        .ifPresent(extendForm -> result.addAll(getFieldListFromForm(extendForm)));
 
             }
 

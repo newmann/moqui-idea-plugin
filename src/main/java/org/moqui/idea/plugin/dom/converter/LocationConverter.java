@@ -7,9 +7,12 @@ import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.model.FormList;
+import org.moqui.idea.plugin.dom.model.FormSingle;
 import org.moqui.idea.plugin.dom.model.WidgetTemplateInclude;
 import org.moqui.idea.plugin.util.LocationUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.ScreenUtils;
 import org.moqui.idea.plugin.util.WidgetTemplateUtils;
 
 import java.util.ArrayList;
@@ -34,6 +37,16 @@ public class LocationConverter extends ResolvingConverter.StringConverter implem
         if(widgetTemplateOptional.isPresent()) {
             return WidgetTemplateUtils.getWidgetTemplateIncludeLocations(context.getProject());
         }
+        //针对FormSingle和formList的extends属性
+        Optional<FormSingle> formSingleOptional = MyDomUtils.getLocalDomElementByConvertContext(context,FormSingle.class);
+        if(formSingleOptional.isPresent()) {
+            return ScreenUtils.getFormSingleNameListByConvertContext(context);
+        }
+        Optional<FormList> formListOptional = MyDomUtils.getLocalDomElementByConvertContext(context,FormList.class);
+        if(formListOptional.isPresent()) {
+            return ScreenUtils.getFormListNameListByConvertContext(context);
+        }
+
         return new ArrayList<>();
     }
 
