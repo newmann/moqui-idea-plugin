@@ -2,8 +2,10 @@ package org.moqui.idea.plugin.reference;
 
 
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
+import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
 public class PsiRef extends PsiReferenceBase.Immediate<PsiElement> {
@@ -28,8 +30,8 @@ public class PsiRef extends PsiReferenceBase.Immediate<PsiElement> {
 //    }
 //
 //
-//    @Override
-//    public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
-//        return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
-//    }
+    @Override
+    public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
+        return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
+    }
 }
