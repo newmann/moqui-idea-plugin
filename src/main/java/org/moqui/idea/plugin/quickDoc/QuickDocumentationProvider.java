@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.quickDoc;
 
 import com.intellij.lang.documentation.AbstractDocumentationProvider;
 import com.intellij.openapi.util.text.HtmlBuilder;
+import com.intellij.openapi.util.text.HtmlChunk;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nls;
@@ -12,10 +13,12 @@ import org.moqui.idea.plugin.dom.model.ExtendEntity;
 import org.moqui.idea.plugin.dom.model.Service;
 import org.moqui.idea.plugin.dom.model.ViewEntity;
 import org.moqui.idea.plugin.service.IndexAbstractField;
+import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.IndexViewEntity;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
+import org.moqui.idea.plugin.util.ServiceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,9 +110,30 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
         HtmlBuilder docBuilder = new HtmlBuilder()
                 .append(formatServiceDefinition(service));
 
-        docBuilder.append(formatTagValue(service.getInParameters().getXmlTag(),"In Parameters:","Not define in parameters"));
-        docBuilder.append(formatTagValue(service.getOutParameters().getXmlTag(),"Out Parameters:","Not define out parameters"));
-
+        //通过IndexService来获取parameters
+        IndexService indexService = ServiceUtils.getIndexService(element.getProject(),ServiceUtils.getFullNameFromService(service))
+                .orElse(null);
+        docBuilder.append(formatIndexServiceInOutParameter(indexService));
+//        if(indexService == null) {
+//            docBuilder.append(HtmlChunk.text("Can't find IndexService"));
+//        }else {
+//            docBuilder.br().append(HtmlChunk.text("In Parameter:"));
+//            if(indexService.getInParametersAbstractFieldList().isEmpty()) {
+//                docBuilder.br().append(HtmlChunk.text("Not define in parameters"));
+//            }else {
+//                docBuilder.append(formatIndexServiceParameterList(indexService.getInParametersAbstractFieldList()));
+//            }
+//            docBuilder.br().append(HtmlChunk.text("Out Parameter:"));
+//            if(indexService.getOutParametersAbstractFieldList().isEmpty()) {
+//                docBuilder.br().append(HtmlChunk.text("Not define out parameters"));
+//            }else {
+//                docBuilder.append(formatIndexServiceParameterList(indexService.getOutParametersAbstractFieldList()));
+//            }
+//
+//
+////            docBuilder.append(formatTagValue(service.getInParameters().getXmlTag(), "In Parameters:", "Not define in parameters"));
+////            docBuilder.append(formatTagValue(service.getOutParameters().getXmlTag(), "Out Parameters:", "Not define out parameters"));
+//        }
 
         return docBuilder.toString();
     }

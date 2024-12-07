@@ -7,6 +7,8 @@ import com.intellij.util.xml.DomElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.service.IndexAbstractField;
+import org.moqui.idea.plugin.service.IndexService;
+import org.moqui.idea.plugin.service.IndexServiceParameter;
 import org.moqui.idea.plugin.util.ComponentUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
@@ -18,6 +20,7 @@ import java.util.List;
 import static com.intellij.lang.documentation.DocumentationMarkup.*;
 import static com.intellij.openapi.util.text.HtmlChunk.nbsp;
 import static com.intellij.openapi.util.text.HtmlChunk.text;
+import static org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes.SPAN;
 
 public class CommonDocumentationFormatter {
     public static String formatNavigateDocWithDomElement(DomElement element, String elementName) {
@@ -60,6 +63,11 @@ public class CommonDocumentationFormatter {
         builder.append(text(ServiceUtils.getFullNameFromService(service)).bold())
                 .br()
                 .append(text("Defined in " + fileName + ", [Component: " + componentName + " ]").wrapWith(GRAYED_ELEMENT));
+        service.getImplementsList().forEach(anImplements -> {
+            builder.br()
+                    .append(text("Implements: " + MyDomUtils.getValueOrEmptyString(anImplements.getService())).wrapWith(GRAYED_ELEMENT));
+        });
+
         if (service.getDescription().getValue() != null) {
             builder.br()
                    .append(text("Description: " + service.getDescription().getValue()));
@@ -237,6 +245,63 @@ public class CommonDocumentationFormatter {
         );
 
         return fieldListBuilder.wrapWith(SECTIONS_TABLE);
+    }
+    public static HtmlChunk.Element formatIndexServiceInOutParameter(IndexService indexService) {
+        HtmlBuilder serviceParameter = new HtmlBuilder();
+        if(indexService == null) {
+            serviceParameter.append(HtmlChunk.text("Can't find IndexService"));
+        }else {
+            serviceParameter.append(HtmlChunk.text("In Parameter:").italic().bold());
+            if(indexService.getInParametersAbstractFieldList().isEmpty()) {
+                serviceParameter.br().append(HtmlChunk.text("Not define in parameters"));
+            }else {
+                serviceParameter.append(formatIndexServiceParameterList(indexService.getInParametersAbstractFieldList()));
+            }
+            serviceParameter.append(HtmlChunk.text("Out Parameter:").italic().bold());
+            if(indexService.getOutParametersAbstractFieldList().isEmpty()) {
+                serviceParameter.br().append(HtmlChunk.text("Not define out parameters"));
+            }else {
+                serviceParameter.append(formatIndexServiceParameterList(indexService.getOutParametersAbstractFieldList()));
+            }
+
+
+//            docBuilder.append(formatTagValue(service.getInParameters().getXmlTag(), "In Parameters:", "Not define in parameters"));
+//            docBuilder.append(formatTagValue(service.getOutParameters().getXmlTag(), "Out Parameters:", "Not define out parameters"));
+        }
+        return serviceParameter.wrapWith(CONTENT_ELEMENT);
+    }
+
+    public static HtmlChunk.Element formatIndexServiceParameterList(List<IndexServiceParameter> parameterList) {
+        List<IndexServiceParameter> sortedList = parameterList.stream()
+                .sorted(Comparator.comparing(IndexServiceParameter::getParameterName))
+                .toList();
+
+        HtmlBuilder parameterListBuilder = new HtmlBuilder();
+
+        sortedList.forEach(parameter -> {
+                    boolean isRequired = false;
+                    if(parameter.getAbstractField() instanceof Parameter parameterInstance) {
+                        isRequired = MyDomUtils.getValueOrFalseBoolean(parameterInstance.getRequired());
+                    }
+
+                    HtmlBuilder parameterBuilder = new HtmlBuilder();
+                    parameterBuilder.append(text(parameter.getParameterName()));
+                    parameterBuilder.append(text((parameter.getType().isEmpty() ? "" : " [ "+ parameter.getType()+" ]")).wrapWith(GRAYED_ELEMENT));
+                    parameterBuilder.append(text(isRequired ? " - required" : "").bold());
+//                    parameterBuilder.append(text(
+//                            parameter.getParameterName()
+//                            + (parameter.getType().isEmpty() ? "" : " [ "+ parameter.getType()+" ]")
+//                            + (isRequired ? " - required" : "")
+//                        ).wrapWith("span"));
+                    if(!parameter.getChildParameterList().isEmpty()) {
+                        parameterBuilder.append(formatIndexServiceParameterList(parameter.getChildParameterList()));
+                    }
+
+                    parameterListBuilder.append(parameterBuilder.wrapWith("li"));
+                }
+        );
+
+        return parameterListBuilder.wrapWith("ul");
     }
 
     public static HtmlChunk.Element formatTagValue(XmlTag xmlTag,String title, @NotNull String noContentMessage) {
