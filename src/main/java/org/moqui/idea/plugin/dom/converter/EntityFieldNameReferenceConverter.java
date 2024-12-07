@@ -2,19 +2,17 @@ package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.util.xml.*;
-import org.jetbrains.annotations.NonNls;
+import com.intellij.util.xml.ConvertContext;
+import com.intellij.util.xml.CustomReferenceConverter;
+import com.intellij.util.xml.DomUtil;
+import com.intellij.util.xml.GenericDomValue;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.FilterMapList;
 import org.moqui.idea.plugin.dom.model.ServiceCall;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.IndexServiceParameter;
 import org.moqui.idea.plugin.util.*;
-
-import java.util.Collection;
-import java.util.Collections;
 
 public class EntityFieldNameReferenceConverter implements CustomReferenceConverter<String> {
     @Override

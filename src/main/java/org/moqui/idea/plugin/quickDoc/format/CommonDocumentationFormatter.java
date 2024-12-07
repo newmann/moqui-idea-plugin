@@ -20,7 +20,6 @@ import java.util.List;
 import static com.intellij.lang.documentation.DocumentationMarkup.*;
 import static com.intellij.openapi.util.text.HtmlChunk.nbsp;
 import static com.intellij.openapi.util.text.HtmlChunk.text;
-import static org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes.SPAN;
 
 public class CommonDocumentationFormatter {
     public static String formatNavigateDocWithDomElement(DomElement element, String elementName) {
@@ -63,10 +62,8 @@ public class CommonDocumentationFormatter {
         builder.append(text(ServiceUtils.getFullNameFromService(service)).bold())
                 .br()
                 .append(text("Defined in " + fileName + ", [Component: " + componentName + " ]").wrapWith(GRAYED_ELEMENT));
-        service.getImplementsList().forEach(anImplements -> {
-            builder.br()
-                    .append(text("Implements: " + MyDomUtils.getValueOrEmptyString(anImplements.getService())).wrapWith(GRAYED_ELEMENT));
-        });
+        service.getImplementsList().forEach(anImplements -> builder.br()
+                .append(text("Implements: " + MyDomUtils.getValueOrEmptyString(anImplements.getService())).wrapWith(GRAYED_ELEMENT)));
 
         if (service.getDescription().getValue() != null) {
             builder.br()
