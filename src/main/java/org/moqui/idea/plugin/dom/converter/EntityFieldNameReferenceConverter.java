@@ -15,7 +15,7 @@ import org.moqui.idea.plugin.util.MyDomUtils;
 import java.util.Collection;
 import java.util.Collections;
 
-public class EntityFieldNameConverter extends ResolvingConverter<String>  implements CustomReferenceConverter<String> {
+public class EntityFieldNameReferenceConverter implements CustomReferenceConverter<String> {
     @Override
     public @NotNull PsiReference[] createReferences(GenericDomValue<String> genericDomValue, PsiElement psiElement, ConvertContext convertContext) {
         final String valueStr = MyDomUtils.getValueOrEmptyString(genericDomValue.getStringValue());
@@ -39,29 +39,4 @@ public class EntityFieldNameConverter extends ResolvingConverter<String>  implem
 
     }
 
-    @NotNull
-    @Override
-    public Collection<String> getVariants(ConvertContext convertContext) {
-        //采用自定义的PsiReference之后，这个过程无效了
-        //转移到EntityFieldNameReference中进行处理
-        return Collections.emptyList();
-//        XmlElement xmlElement = convertContext.getXmlElement();
-//        if(xmlElement== null) return Collections.emptyList();
-//        if(needNotCreatePsiReference(xmlElement)) return Collections.emptyList();
-//
-//
-//        return EntityUtils.getIndexAbstractFieldListByConvertContext(convertContext).stream().map(IndexAbstractField::getName).toList();
-    }
-
-    @Nullable
-    @Override
-    public String fromString(@Nullable @NonNls String s, ConvertContext convertContext) {
-        return s;
-    }
-
-    @Nullable
-    @Override
-    public String toString(@Nullable String s, ConvertContext convertContext) {
-        return s;
-    }
 }

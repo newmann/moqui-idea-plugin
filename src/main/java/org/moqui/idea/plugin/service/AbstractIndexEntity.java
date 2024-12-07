@@ -62,4 +62,8 @@ public abstract class AbstractIndexEntity extends AbstractIndex {
     public Optional<AbstractEntity> getAbstractEntity() {
         return Optional.ofNullable(abstractEntity);
     }
+
+    public Optional<IndexAbstractField> getIndexAbstractField(@NotNull String fieldName) {
+        return Optional.ofNullable(this.indexAbstractFieldMap.get(fieldName));
+    }
 }

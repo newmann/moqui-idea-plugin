@@ -1,12 +1,9 @@
 package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTag;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFieldNameConverter;
+import org.moqui.idea.plugin.dom.converter.EntityFieldNameReferenceConverter;
 import org.moqui.idea.plugin.dom.converter.ViewEntityAliasConverter;
 import org.moqui.idea.plugin.dom.presentation.AliasPresentationProvider;
 
@@ -29,7 +26,7 @@ public interface Alias extends AbstractField {
 
     @NotNull
     @Attribute(ATTR_FIELD)
-    @Convert(EntityFieldNameConverter.class)
+    @Referencing(EntityFieldNameReferenceConverter.class)
     GenericAttributeValue<String> getField();
 //    @NotNull
 //    @Attribute(ATTR_NAME)

@@ -1,11 +1,8 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFieldNameConverter;
+import org.moqui.idea.plugin.dom.converter.EntityFieldNameReferenceConverter;
 
 public interface Exclude extends DomElement {
     public static final String TAG_NAME = "exclude";
@@ -15,7 +12,7 @@ public interface Exclude extends DomElement {
 
     @NotNull
     @Attribute(ATTR_FIELD)
-    @Convert(EntityFieldNameConverter.class)
+    @Referencing(EntityFieldNameReferenceConverter.class)
     GenericAttributeValue<String> getField();
 
     /**
@@ -30,7 +27,7 @@ public interface Exclude extends DomElement {
      */
     @NotNull
     @Attribute(ATTR_FIELD_NAME)
-    @Convert(EntityFieldNameConverter.class)
+    @Referencing(EntityFieldNameReferenceConverter.class)
     GenericAttributeValue<String> getFieldName();
 
 }

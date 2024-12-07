@@ -75,7 +75,8 @@ along with this software (see the LICENSE.md file). If not, see
                     put a hash (#) between them, like: "${path}.${verb}#${noun}".
                 </xs:documentation></xs:annotation>
             </xs:attribute>
-            <xs:attribute name="in-map" type="xs:string" default="false">
+<!--            <xs:attribute name="in-map" type="xs:string" default="false">     modified by hxs 20241207       -->
+            <xs:attribute name="in-map" type="xs:string">
                 <xs:annotation><xs:documentation>
                     Creates an in parameters with variables matching the names of service in-parameters elements, doing
                     type conversions as needed.

@@ -4,6 +4,8 @@ import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.AllPackageConverter;
 
+import java.util.List;
+
 public interface AbstractEntity extends DomElement {
     public static final String ATTR_ENTITY_NAME = "entity-name";
     public static final String ATTR_PACKAGE = "package";
@@ -19,4 +21,7 @@ public interface AbstractEntity extends DomElement {
     @Convert(AllPackageConverter.class)
     GenericAttributeValue<String> getPackage();
 
+    @NotNull
+    @SubTagList(Relationship.TAG_NAME)
+    List<Relationship> getRelationshipList();
 }

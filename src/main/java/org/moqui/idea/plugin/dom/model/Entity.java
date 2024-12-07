@@ -115,9 +115,7 @@ public interface Entity extends AbstractEntity {
     @SubTagList(Field.TAG_NAME)
     List<Field> getFieldList();
 
-    @NotNull
-    @SubTagList(Relationship.TAG_NAME)
-    List<Relationship> getRelationshipList();
+
 
     @NotNull
     @SubTagList(Index.TAG_NAME)

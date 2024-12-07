@@ -1,11 +1,8 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.EntityFieldNameConverter;
+import org.moqui.idea.plugin.dom.converter.EntityFieldNameReferenceConverter;
 import org.moqui.idea.plugin.dom.converter.ViewEntityAliasConverter;
 
 public interface ECondition extends DomElement {
@@ -20,7 +17,7 @@ public interface ECondition extends DomElement {
     public static final String ATTR_OR_NULL = "or-null";
     @NotNull
     @Attribute(ATTR_FIELD_NAME)
-    @Convert(EntityFieldNameConverter.class)
+    @Referencing(EntityFieldNameReferenceConverter.class)
     GenericAttributeValue<String> getFieldName();
 
     @NotNull
@@ -39,7 +36,7 @@ public interface ECondition extends DomElement {
 
     @NotNull
     @Attribute(ATTR_TO_FIELD_NAME)
-    @Convert(EntityFieldNameConverter.class)
+    @Referencing(EntityFieldNameReferenceConverter.class)
     GenericAttributeValue<String> getToFieldName();
 
     @NotNull

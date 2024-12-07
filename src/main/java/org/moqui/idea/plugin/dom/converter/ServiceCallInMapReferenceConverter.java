@@ -7,6 +7,7 @@ import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.service.AbstractIndexEntity;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.IndexServiceParameter;
@@ -39,18 +40,31 @@ public class ServiceCallInMapReferenceConverter implements CustomReferenceConver
         List<PsiReference> result = new ArrayList<>();
         ServiceCallDescriptor serviceCallDescriptor = ServiceCallDescriptor.of(serviceCallName);
         //如果是直接处理entity，则需要匹配到entity的Field上
+        if(serviceCallDescriptor.isCRUD()) {
+            AbstractIndexEntity abstractIndexEntity = EntityUtils.getAbstractIndexEntityByName(context.getProject(),serviceCallDescriptor.getNoun())
+                    .orElse(null);
+            if(abstractIndexEntity == null) return PsiReference.EMPTY_ARRAY;
+            for (FieldDescriptor fieldName : fieldNameList) {
 
-        IndexService indexService = ServiceUtils.getIndexService(context.getProject(), serviceCallName).orElse(null);
-        if(indexService == null) return PsiReference.EMPTY_ARRAY;
+                IndexAbstractField indexField = abstractIndexEntity.getIndexAbstractField(fieldName.getFieldName()).orElse(null);
 
-        for(FieldDescriptor fieldName : fieldNameList) {
+                result.addAll(Arrays.stream(EntityUtils.createFieldNameReference(element, fieldName, indexField)).toList());
 
-            IndexServiceParameter parameter = indexService.getInParametersByName(fieldName.getFieldName()).orElse(null);
+            }
 
-            result.addAll(Arrays.stream(ServiceUtils.createMapNameReference(element, fieldName, parameter)).toList());
+        }else {
 
+            IndexService indexService = ServiceUtils.getIndexService(context.getProject(), serviceCallName).orElse(null);
+            if (indexService == null) return PsiReference.EMPTY_ARRAY;
+
+            for (FieldDescriptor fieldName : fieldNameList) {
+
+                IndexServiceParameter parameter = indexService.getInParametersByName(fieldName.getFieldName()).orElse(null);
+
+                result.addAll(Arrays.stream(ServiceUtils.createMapNameReference(element, fieldName, parameter)).toList());
+
+            }
         }
-
 
         return result.toArray(new PsiReference[0]);
     }
