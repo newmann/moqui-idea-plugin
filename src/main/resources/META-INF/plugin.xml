@@ -74,6 +74,9 @@
       <dom.fileMetaData id="myPlugin.WidgetTemplatesDescription"
                         rootTagName="widget-templates"
                         implementation="org.moqui.idea.plugin.dom.description.WidgetTemplatesDescription"/>
+      <dom.fileMetaData id="myPlugin.EntityFacadeXmlDescription"
+                        rootTagName="entity-facade-xml"
+                        implementation="org.moqui.idea.plugin.dom.description.EntityFacadeXmlDescription"/>
 
     <lang.documentationProvider language="XML" implementationClass="org.moqui.idea.plugin.quickDoc.QuickDocumentationProvider"/>
     <lang.documentationProvider language="Groovy" implementationClass="org.moqui.idea.plugin.quickDoc.QuickDocumentationProvider"/>
@@ -112,6 +115,9 @@
 
       <completion.contributor language="XML"
                               implementationClass="org.moqui.idea.plugin.contributor.MoquiAttributeCompletionContributor"/>
+<!--      <psi.referenceContributor language="XML"-->
+<!--                              implementation="org.moqui.idea.plugin.contributor.EntityFacadeXmlReferenceContributor"-->
+<!--                                order="first"/>-->
 
       <psi.referenceContributor language="Groovy" implementation="org.moqui.idea.plugin.contributor.GroovyCodeReferenceContributor"/>
       <completion.contributor language="Groovy" implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>

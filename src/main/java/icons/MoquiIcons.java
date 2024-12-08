@@ -9,6 +9,7 @@ public interface MoquiIcons {
     Icon EntityTag = IconLoader.getIcon("/icons/file-icon-entities.svg", MoquiIcons.class);
     Icon ServiceTag = IconLoader.getIcon("/icons/file-icon-services.svg", MoquiIcons.class);
     Icon ServiceCallTag = IconLoader.getIcon("/icons/file-icon-services.svg", MoquiIcons.class);
+    Icon EntityFacadeXmlTag = IconLoader.getIcon("/icons/file-icon-entity-facade-xml.svg", MoquiIcons.class);
     Icon EecaTag = IconLoader.getIcon("/icons/file-icon-eecas.svg", MoquiIcons.class);
     Icon MoquiConfTag = IconLoader.getIcon("/icons/file-icon-conf.svg", MoquiIcons.class);
     Icon ScreenTag = IconLoader.getIcon("/icons/file-icon-screen.svg", MoquiIcons.class);

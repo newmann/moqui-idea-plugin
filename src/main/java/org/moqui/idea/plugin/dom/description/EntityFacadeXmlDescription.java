@@ -20,13 +20,11 @@ public class EntityFacadeXmlDescription extends DomFileDescription<EntityFacadeX
     @Override
     public boolean isMyFile(@NotNull XmlFile file, @Nullable Module module) {
 
-//        return EntityFacadeXmlUtils.isEntityFacadeXmlFile(file) && super.isMyFile(file, module);
         return EntityFacadeXmlUtils.isEntityFacadeXmlFile(file);
     }
 
     @Override
     public @Nullable Icon getFileIcon(int flags) {
-//        return super.getFileIcon(flags);
-        return MoquiIcons.EntityTag; //MyIcons.FILE_ICON_ENTITIES;
+        return MoquiIcons.EntityFacadeXmlTag;
     }
 }

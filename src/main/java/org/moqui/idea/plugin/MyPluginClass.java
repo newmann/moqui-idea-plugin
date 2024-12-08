@@ -2,10 +2,16 @@ package org.moqui.idea.plugin;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.contributor.EntityFacadeXmlReferenceContributor;
+import org.moqui.idea.plugin.provider.EntityFacadeXmlReferenceProvider;
 
 
 public class MyPluginClass extends AnAction {
@@ -92,6 +98,21 @@ public class MyPluginClass extends AnAction {
 //                "Is in library classes: " + fileIndex.isInLibraryClasses(file) +
 //                ", Is in library source: " + fileIndex.isInLibrarySource(file)
 //                ;
+
+        Editor editor = e.getData(PlatformDataKeys.EDITOR);
+        if(editor==null) return;
+        PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
+        if(psiFile == null) return;
+
+        int caretOffset = editor.getCaretModel().getOffset();
+        PsiElement psiElement = psiFile.findElementAt(caretOffset);
+
+        if(EntityFacadeXmlReferenceContributor.ENTITY_FACADE_TAG_PATTERN.accepts(psiElement)) {
+            sb.append("符合ENTITY_FACADE_TAG_PATTERN");
+        }else {
+            sb.append("不符合ENTITY_FACADE_TAG_PATTERN");
+        }
+
         String messageStr ="插件已安装，可以正常使用。";
 
         String title = "验证Moqui Idea Plugin";

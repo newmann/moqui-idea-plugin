@@ -4,6 +4,8 @@ import com.intellij.lang.documentation.AbstractDocumentationProvider;
 import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.xml.XmlTag;
+import com.intellij.psi.xml.XmlToken;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,9 +42,27 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
     @Override
     public @Nullable
     @Nls String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
-        PsiFile psiFile = element.getContainingFile();
+        PsiFile psiFile ;
 
-        if(psiFile == null) return null;
+        if(originalElement != null) {
+            psiFile = originalElement.getContainingFile();
+            if(psiFile == null) return null;
+            Optional<String> rootTag = MyDomUtils.getRootTagName(psiFile);
+            if(rootTag.isPresent()) {
+                //对entity-facade-xml 进行处理，只有Entity才会出现在这里
+                if(rootTag.get().equals("entity-facade-xml")) {
+                    if(originalElement instanceof XmlToken xmlToken) {
+                        if(xmlToken.getParent() instanceof XmlTag xmlTag) {
+                            return generateEntityDoc(xmlTag);
+                        }
+                    }
+                }
+            }
+
+        }else {
+            psiFile = element.getContainingFile();
+        }
+
 
         if(MyDomUtils.isNotMoquiXmlFile(psiFile)) return null;
 
@@ -61,7 +81,14 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
         };
     }
     public static String generateEntityDoc(PsiElement element) {
-        Entity entity = MyDomUtils.getLocalDomElementByPsiElement(element,Entity.class).orElse(null);
+        Entity entity;
+        if(element instanceof XmlTag xmlTag) {
+            entity = EntityUtils.getEntityByName(element.getProject(),
+                    MyDomUtils.getEntityNameInEntityFacadeXml(element).orElse(MyStringUtils.EMPTY_STRING)).orElse(null);
+        }else {
+            entity = MyDomUtils.getLocalDomElementByPsiElement(element, Entity.class).orElse(null);
+        }
+
         if (entity == null){return "Not found target Entity.";}
 
         List<ExtendEntity> extendEntityCollection = EntityUtils.getExtendEntityListByName(element.getProject(),

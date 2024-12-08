@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.service.IndexEntity;
 
 import java.nio.file.Path;
 import java.util.Set;
@@ -44,6 +45,7 @@ public final class MyDomUtils {
             Resource.TAG_NAME, Resource.VALUE_NoNamespaceSchemaLocation,
             EntityFacadeXml.TAG_NAME, MyStringUtils.EMPTY_STRING
     ));
+
 
     private static Logger LOGGER = Logger.getInstance(MyDomUtils.class);
 
@@ -275,6 +277,45 @@ public final class MyDomUtils {
 
     }
 
+    /**
+     * 在文件entity-facade-xml中，根据当前的PsiElement查找所在的entityName
+     * 查找逻辑：
+     * 1、在entity-facade-xml下的第一级Tag，tagName就是EntityName（可能是缩写）
+     * 2、第二级Tag，如果是全名或第一个字母是大写的，tagName就是EntityName。如果第一个字母是小写，有可能是第一级Tag的relationship的shortAlias，如果不是，就直接找Entity，是Entity的shortAlias
+     * 3、不会跨级查找，即下一级Tag名要么是上一级Tag的relationship的shortAlias，要么直接就是EntityName或Entity的shortAlias
+     * @param psiElement PsiElement
+     * @return Optional<String>
+     */
+    public static Optional<String> getEntityNameInEntityFacadeXml(@NotNull PsiElement psiElement){
+        XmlTag curTag = getParentTag(psiElement).orElse(null);
+        if(curTag == null) return Optional.empty();
+        XmlTag parentTag = curTag.getParentTag();
+        if(parentTag == null) return Optional.empty();
+
+        if(parentTag.getName().equals(EntityFacadeXml.TAG_NAME)) {
+            return Optional.of(curTag.getName());
+        }else {
+            String curTagName = curTag.getName();
+            EntityNameDescriptor entityNameDescriptor = EntityNameDescriptor.of(curTagName);
+            if(entityNameDescriptor.getIsShortAlias()) {
+                //进一步判断是否为ParentTag的relationship
+
+                IndexEntity indexEntity = EntityUtils.getIndexEntityByName(psiElement.getProject(),parentTag.getName()).orElse(null);
+                if(indexEntity != null) {
+                    Relationship relationship = indexEntity.getRelationshipByName(curTagName).orElse(null);
+                    if(relationship != null) {
+                        return Optional.of(MyDomUtils.getValueOrEmptyString(relationship.getRelated()));
+                    }
+                }
+                return Optional.of(curTagName);
+            }else {
+                return Optional.of(curTagName);
+            }
+
+
+        }
+
+    }
     /**
      * 获取当前psiElement的父tag
      * @param psiElement PsiElement

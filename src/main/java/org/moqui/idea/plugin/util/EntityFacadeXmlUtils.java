@@ -1,5 +1,6 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.codeInsight.completion.TagNameReferenceCompletionProvider;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
@@ -15,6 +16,5 @@ public final class EntityFacadeXmlUtils {
         if(file == null) return false;
         return MyDomUtils.isSpecialXmlFile(file, EntityFacadeXml.TAG_NAME);
     }
-
 
 }

@@ -276,4 +276,7 @@ public final class MyStringUtils {
         return isEmpty(trailText)? trailText : "[" + trailText + "]";
     }
 
+    public static  boolean firstCharIsUpperCase(@NotNull String str){
+        return !str.isEmpty() && Character.isUpperCase(str.charAt(0));
+    }
 }
