@@ -1,5 +1,6 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
@@ -145,7 +146,7 @@ public final class MyDomUtils {
     public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName){
         return isSpecialXmlFile(file,rootTagName,null,null);
     }
-    public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName,@Nullable String attributeName,@Nullable String atrributeValue){
+    public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName,@Nullable String attributeName,@Nullable String attributeValue){
 
         if(file instanceof XmlFile xmlFile) {
             VirtualFile virtualFile = xmlFile.getVirtualFile();
@@ -157,7 +158,7 @@ public final class MyDomUtils {
                 }else {
                     if (!rootTagName.equals(rootTag.getName())) return false;
                     String value = rootTag.getAttributeValue(attributeName);
-                    return (value != null) && value.equals(atrributeValue);
+                    return (value != null) && value.equals(attributeValue);
                 }
             }
         }
@@ -179,6 +180,24 @@ public final class MyDomUtils {
         }
         return false;
     }
+
+    /**
+     * 判断当前的Tag是否为数据定义的Tag，用于EntityFacadeTagNameProvider
+     * 1、在entity-facade-xml下都是定义数据的
+     * 2、在Entity下面的seed部分也是定义数据的
+     * @param xmlTag
+     * @return
+     */
+    public static boolean isMoquiDataDefineTag(@NotNull XmlTag xmlTag) {
+        if (MyDomUtils.isMoquiProject(xmlTag.getProject())) {
+            Optional<String> rootNameOptional = getRootTagName(xmlTag.getContainingFile());
+            if (rootNameOptional.isPresent() && rootNameOptional.get().equals(EntityFacadeXml.TAG_NAME)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static Optional<String> getRootTagName(@NotNull PsiFile file){
         if(file instanceof XmlFile xmlFile) {
             try {
@@ -287,7 +306,14 @@ public final class MyDomUtils {
      * @return Optional<String>
      */
     public static Optional<String> getEntityNameInEntityFacadeXml(@NotNull PsiElement psiElement){
-        XmlTag curTag = getParentTag(psiElement).orElse(null);
+
+        XmlTag curTag;
+        if(psiElement instanceof XmlTag){
+            curTag = (XmlTag) psiElement;
+        }else {
+            curTag = getParentTag(psiElement).orElse(null);
+        }
+
         if(curTag == null) return Optional.empty();
         XmlTag parentTag = curTag.getParentTag();
         if(parentTag == null) return Optional.empty();

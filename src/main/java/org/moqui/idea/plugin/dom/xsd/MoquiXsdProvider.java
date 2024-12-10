@@ -17,5 +17,6 @@ public class MoquiXsdProvider implements StandardResourceProvider {
         registrar.addStdResource("http://moqui.org/xsd/xml-actions-3.xsd","/xsd/xml-actions-3.xsd",getClass());
         registrar.addStdResource("http://moqui.org/xsd/xml-form-3.xsd","/xsd/xml-form-3.xsd",getClass());
         registrar.addStdResource("http://moqui.org/xsd/xml-screen-3.xsd","/xsd/xml-screen-3.xsd",getClass());
+        registrar.addStdResource("http://moqui.org/xsd/entity-facade-xml-3.xsd","/xsd/entity-facade-xml-3.xsd",getClass());
     }
 }
