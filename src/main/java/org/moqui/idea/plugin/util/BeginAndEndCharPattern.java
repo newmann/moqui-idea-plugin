@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +12,15 @@ public class BeginAndEndCharPattern {
         return new BeginAndEndCharPattern(checkString);
     }
     public static BeginAndEndCharPattern of(@NotNull PsiElement psiElement){
-        return new BeginAndEndCharPattern(psiElement.getText());
+        //处理XmlTag的name问题
+        if(psiElement instanceof XmlTag xmlTag) {
+            int index = psiElement.getText().indexOf(xmlTag.getName());
+            if(index<0) return new BeginAndEndCharPattern(EMPTY_STRING);
+
+            return new BeginAndEndCharPattern(psiElement.getText().substring(0,index+xmlTag.getName().length()));
+        }else {
+            return new BeginAndEndCharPattern(psiElement.getText());
+        }
     }
 
     private String content = EMPTY_STRING;
@@ -20,8 +29,7 @@ public class BeginAndEndCharPattern {
 
     public BeginAndEndCharPattern(@Nullable String checkString){
         if(checkString == null) return;
-
-        if(checkString.charAt(0) == '"' || checkString.charAt(0)=='\'') {
+        if (checkString.charAt(0) == '"' || checkString.charAt(0) == '\'' || checkString.charAt(0) == '<') {
             beginChar = checkString.substring(0, 1);
             checkString = checkString.substring(1);
         }

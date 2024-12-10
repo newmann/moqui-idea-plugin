@@ -7,6 +7,7 @@ import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
 import org.moqui.idea.plugin.util.EntityScope;
 import org.moqui.idea.plugin.util.EntityUtils;
 
@@ -19,7 +20,9 @@ public class EntityFacadeXmlReferenceProvider extends PsiReferenceProvider {
     @Override
     public @NotNull  PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
         if(psiElement.getParent() instanceof XmlTag xmlTag) {
-            return EntityUtils.createEntityOrViewNameReferences(psiElement.getProject(),psiElement,EntityScope.ENTITY_ONLY);
+            if(!xmlTag.getName().equals(EntityFacadeXml.TAG_NAME)) {
+                return EntityUtils.createEntityOrViewNameReferences(psiElement.getProject(), xmlTag, EntityScope.ENTITY_ONLY);
+            }
         }
         return PsiReference.EMPTY_ARRAY;
     }
