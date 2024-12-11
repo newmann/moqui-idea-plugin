@@ -29,7 +29,7 @@ public final class MyStringUtils {
     public static Pattern FIELD_NAME_PATTERN = Pattern.compile(FIELD_NAME_REGEXP);
     public static final String IN_OUT_MAP_NAME_REGEXP =  "\\[(.*?)]";
     public static Pattern IN_OUT_MAP_NAME_PATTERN = Pattern.compile(IN_OUT_MAP_NAME_REGEXP,Pattern.DOTALL); //包含换行符
-
+    public static String ENTITY_FACADE_DELETE_TAG = "delete-";//在entity_facade_xml中，删除Entity的前缀
     public static final String EMPTY_STRING = "";
 
     public static final String COMPONENT_PATH_TAG = "/runtime/component/";

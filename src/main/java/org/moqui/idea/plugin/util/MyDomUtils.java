@@ -302,6 +302,7 @@ public final class MyDomUtils {
      * 1、在entity-facade-xml下的第一级Tag，tagName就是EntityName（可能是缩写）
      * 2、第二级Tag，如果是全名或第一个字母是大写的，tagName就是EntityName。如果第一个字母是小写，有可能是第一级Tag的relationship的shortAlias，如果不是，就直接找Entity，是Entity的shortAlias
      * 3、不会跨级查找，即下一级Tag名要么是上一级Tag的relationship的shortAlias，要么直接就是EntityName或Entity的shortAlias
+     * 4、delete-开头的，是指删除对应entity的数据
      * @param psiElement PsiElement
      * @return Optional<String>
      */
@@ -322,6 +323,9 @@ public final class MyDomUtils {
             return Optional.of(curTag.getName());
         }else {
             String curTagName = curTag.getName();
+            if(curTagName.startsWith(MyStringUtils.ENTITY_FACADE_DELETE_TAG))
+                curTagName = curTagName.substring(MyStringUtils.ENTITY_FACADE_DELETE_TAG.length());
+
             EntityNameDescriptor entityNameDescriptor = EntityNameDescriptor.of(curTagName);
             if(entityNameDescriptor.getIsShortAlias()) {
                 //进一步判断是否为ParentTag的relationship

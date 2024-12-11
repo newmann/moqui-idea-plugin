@@ -107,11 +107,11 @@ public class MyPluginClass extends AnAction {
         int caretOffset = editor.getCaretModel().getOffset();
         PsiElement psiElement = psiFile.findElementAt(caretOffset);
 
-//        if(EntityFacadeXmlReferenceContributor.ENTITY_FACADE_TAG_PATTERN.accepts(psiElement)) {
-//            sb.append("符合ENTITY_FACADE_TAG_PATTERN");
-//        }else {
-//            sb.append("不符合ENTITY_FACADE_TAG_PATTERN");
-//        }
+        if(EntityFacadeXmlReferenceContributor.ENTITY_FACADE_XML_TAG_PATTERN.accepts(psiElement)) {
+            sb.append("符合ENTITY_FACADE_TAG_PATTERN");
+        }else {
+            sb.append("不符合ENTITY_FACADE_TAG_PATTERN");
+        }
 
         String messageStr ="插件已安装，可以正常使用。";
 
