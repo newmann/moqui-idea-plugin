@@ -39,17 +39,14 @@ public class EntityFacadeXmlTagDescriptor {
             myIsValid = false;
             return;
         }
+        String curTagName = myCurTag.getName();
+        if (curTagName.startsWith(MyStringUtils.ENTITY_FACADE_DELETE_TAG))
+            curTagName = curTagName.substring(MyStringUtils.ENTITY_FACADE_DELETE_TAG.length());
 
-        if(myParentTag.getName().equals(EntityFacadeXml.TAG_NAME)) {
-            myEntityName = myCurTag.getName();
-        }else {
-            String curTagName = myCurTag.getName();
-            if (curTagName.startsWith(MyStringUtils.ENTITY_FACADE_DELETE_TAG))
-                curTagName = curTagName.substring(MyStringUtils.ENTITY_FACADE_DELETE_TAG.length());
+        myEntityName = curTagName;
 
-            myEntityName = curTagName;
-            EntityNameDescriptor myEntityNameDescriptor = EntityNameDescriptor.of(curTagName);
-            if (myEntityNameDescriptor.getIsShortAlias()) {
+        if(!myParentTag.getName().equals(EntityFacadeXml.TAG_NAME)) {
+            if (getIsShortAlias()) {
                 //进一步判断是否为ParentTag的relationship
                 IndexEntity indexEntity = EntityUtils.getIndexEntityByName(psiElement.getProject(), myParentTag.getName()).orElse(null);
                 if (indexEntity != null) {
@@ -68,7 +65,7 @@ public class EntityFacadeXmlTagDescriptor {
     private Relationship myRelationship;
     private boolean myIsValid = true;
     private boolean myIsRelationship = false;
-    private String myEntityName;
+    private String myEntityName = MyStringUtils.EMPTY_STRING;
 
     public String getEntityName() {
         return myEntityName;

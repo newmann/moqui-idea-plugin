@@ -411,6 +411,62 @@ public final class EntityUtils {
         }
 
     }
+
+    /**
+     * 核查Entity和View的名称是否存在重复
+     * @param abstractEntity
+     * @param holder
+     */
+    public static void inspectAbstractEntity(@NotNull AbstractEntity abstractEntity, @NotNull AnnotationHolder holder) {
+        String entityName = MyDomUtils.getValueOrEmptyString(abstractEntity.getEntityName());
+        List<AbstractEntity> existEntityList = new ArrayList<>();
+        if(abstractEntity.getXmlTag() == null) return;
+        if(abstractEntity.getEntityName().getXmlAttributeValue() == null) return;
+
+        Project project = abstractEntity.getXmlTag().getProject();
+
+        List<Entities> entitiesList = MyDomUtils.findDomFileElementsByRootClass(project,Entities.class).stream()
+                .map(DomFileElement::getRootElement)
+                .toList();
+
+        existEntityList.addAll( entitiesList.stream()
+                .map(Entities::getEntities)
+                .flatMap(List::stream)
+                .filter(entity -> MyDomUtils.getValueOrEmptyString(entity.getEntityName()).equals(entityName))
+                .toList());
+        existEntityList.addAll(entitiesList.stream()
+                .map(Entities::getViewEntities)
+                .flatMap(List::stream)
+                .filter(entity -> MyDomUtils.getValueOrEmptyString(entity.getEntityName()).equals(entityName))
+                .toList());
+
+
+        existEntityList.forEach(entity -> {
+            if(entity != abstractEntity){
+                if(entity.getXmlTag()!= null ) {
+                    holder.newAnnotation(HighlightSeverity.ERROR, "'" + entityName + "' is used by another entity in file " + entity.getXmlTag().getContainingFile().getVirtualFile().getPath())
+                            .range(abstractEntity.getEntityName().getXmlAttributeValue().getValueTextRange())
+                            .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                            .create();
+                }
+            }
+        });
+
+//        XmlTag xmlTag = abstractEntity.getXmlTag();
+//        if(xmlTag == null) {return;}
+//
+//        Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(
+//                xmlTag.getProject(), entityName);
+//
+//        if (optionalXmlElement.isEmpty()) {
+////            int start = xmlTag.getTextOffset();
+//            int length = xmlTag.getLocalName().length();
+//
+//            holder.createProblem(abstractEntity, ProblemHighlightType.ERROR,"Entity is not found",
+//                    TextRange.from(1, length));
+//        }
+    }
+
     public static void inspectExtendEntity(@NotNull ExtendEntity extendEntity, @NotNull DomElementAnnotationHolder holder) {
         String entityName = MyDomUtils.getValueOrEmptyString(extendEntity.getEntityName());
         XmlTag xmlTag = extendEntity.getXmlTag();

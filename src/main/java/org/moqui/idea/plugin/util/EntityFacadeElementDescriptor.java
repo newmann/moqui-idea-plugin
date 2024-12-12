@@ -1,5 +1,6 @@
-package org.moqui.idea.plugin.provider;
+package org.moqui.idea.plugin.util;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsSafe;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlAttribute;
@@ -9,12 +10,10 @@ import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.XmlElementsGroup;
 import com.intellij.xml.XmlNSDescriptor;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
 import org.moqui.idea.plugin.dom.model.Field;
-import org.moqui.idea.plugin.service.IndexEntity;
-import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.MyStringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,16 +61,51 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
 
         List<XmlAttributeDescriptor> resultList = new ArrayList<>();
         if(MyDomUtils.isMoquiDataDefineTag(xmlTag)){
-            String entityName = MyDomUtils.getEntityNameInEntityFacadeXml(xmlTag).orElse(MyStringUtils.EMPTY_STRING);
-            if(MyStringUtils.isNotEmpty(entityName)) {
-                EntityUtils.getIndexEntityByName(xmlTag.getProject(), entityName)
-                        .ifPresent(indexEntity -> indexEntity.getFieldList().forEach(
-                                field -> resultList.add(MoquiEntityFieldAttributeDescriptor.of(field)))
+            if(xmlTag.getName().equals(EntityFacadeXml.TAG_NAME)){
+                resultList.add(EntityFacadeXmlTypeAttributeDescriptor.of());
+            }else {
+                //对主键字段进行控制，如果主键在父级实体中存在，则不显示。注意，父级实体可能有多个
+                List<String> parentEntityPKList = getTagParentsEntityPKList(xmlTag);
+                EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(xmlTag);
+                EntityUtils.getIndexEntityByName(xmlTag.getProject(), descriptor.getEntityName())
+                        .ifPresent(indexEntity -> indexEntity.getFieldList()
+                                .stream()
+                                .filter(field -> !parentEntityPKList.contains(MyDomUtils.getValueOrEmptyString(field.getName())))
+                                .forEach(
+                                field -> resultList.add(EntityFacadeFieldAttributeDescriptor.of(field)))
                         );
+
+                //            String entityName = MyDomUtils.getEntityNameInEntityFacadeXml(xmlTag).orElse(MyStringUtils.EMPTY_STRING);
+//            if(MyStringUtils.isNotEmpty(entityName)) {
+//                EntityUtils.getIndexEntityByName(xmlTag.getProject(), entityName)
+//                        .ifPresent(indexEntity -> indexEntity.getFieldList().forEach(
+//                                field -> resultList.add(MoquiEntityFieldAttributeDescriptor.of(field)))
+//                        );
+//            }
             }
         }
 
         return resultList.toArray(XmlAttributeDescriptor.EMPTY);
+    }
+
+    private List<String> getTagParentsEntityPKList(@NotNull XmlTag xmlTag){
+        List<String> resultList = new ArrayList<>();
+        Project project = xmlTag.getProject();
+        XmlTag parentTag = xmlTag.getParentTag();
+
+        while(parentTag!= null && !parentTag.getName().equals(EntityFacadeXml.TAG_NAME)){
+            EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(parentTag);
+            EntityUtils.getIndexEntityByName(project, descriptor.getEntityName())
+                    .ifPresent(indexEntity -> indexEntity.getFieldList()
+                            .stream()
+                            .filter(field->MyDomUtils.getValueOrFalseBoolean(field.getIsPk()))
+                            .forEach(
+                            field -> resultList.add(MyDomUtils.getValueOrEmptyString(field.getName())))
+                    );
+
+            parentTag = parentTag.getParentTag();
+        }
+        return resultList;
     }
 
     @Nullable

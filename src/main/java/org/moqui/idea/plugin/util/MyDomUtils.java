@@ -184,7 +184,7 @@ public final class MyDomUtils {
     /**
      * 判断当前的Tag是否为数据定义的Tag，用于EntityFacadeTagNameProvider
      * 1、在entity-facade-xml下都是定义数据的
-     * 2、在Entity下面的seed部分也是定义数据的
+     * 2、在Entity下面的seed-data部分也是定义数据的
      * @param xmlTag
      * @return
      */
@@ -193,9 +193,29 @@ public final class MyDomUtils {
             Optional<String> rootNameOptional = getRootTagName(xmlTag.getContainingFile());
             if (rootNameOptional.isPresent() && rootNameOptional.get().equals(EntityFacadeXml.TAG_NAME)) {
                 return true;
+            }else{
+                return getParentXmlTagByTagName(xmlTag,SeedData.TAG_NAME).isPresent();
             }
         }
         return false;
+    }
+
+    /**
+     * 按指定名称找到找到当前XmlTag的父级XmlTag
+     * @param xmlTag 当前XmlTag
+     * @param tagName 父级XmlTag的名称
+     * @return   Optional<XmlTag>
+     */
+    public static Optional<XmlTag> getParentXmlTagByTagName(@NotNull XmlTag xmlTag,@NotNull String tagName){
+        XmlTag parentXmlTag = xmlTag.getParentTag();
+        while(parentXmlTag != null){
+            if(parentXmlTag.getName().equals(tagName)){
+                return Optional.of(parentXmlTag);
+            }else{
+                parentXmlTag = parentXmlTag.getParentTag();
+            }
+        }
+        return Optional.empty();
     }
 
     public static Optional<String> getRootTagName(@NotNull PsiFile file){
@@ -296,56 +316,6 @@ public final class MyDomUtils {
 
     }
 
-    /**
-     * 在文件entity-facade-xml中，根据当前的PsiElement查找所在的entityName
-     * 查找逻辑：
-     * 1、在entity-facade-xml下的第一级Tag，tagName就是EntityName（可能是缩写）
-     * 2、第二级Tag，如果是全名或第一个字母是大写的，tagName就是EntityName。如果第一个字母是小写，有可能是第一级Tag的relationship的shortAlias，如果不是，就直接找Entity，是Entity的shortAlias
-     * 3、不会跨级查找，即下一级Tag名要么是上一级Tag的relationship的shortAlias，要么直接就是EntityName或Entity的shortAlias
-     * 4、delete-开头的，是指删除对应entity的数据
-     * @param psiElement PsiElement
-     * @return Optional<String>
-     */
-    public static Optional<String> getEntityNameInEntityFacadeXml(@NotNull PsiElement psiElement){
-
-        XmlTag curTag;
-        if(psiElement instanceof XmlTag){
-            curTag = (XmlTag) psiElement;
-        }else {
-            curTag = getParentTag(psiElement).orElse(null);
-        }
-
-        if(curTag == null) return Optional.empty();
-        XmlTag parentTag = curTag.getParentTag();
-        if(parentTag == null) return Optional.empty();
-
-        if(parentTag.getName().equals(EntityFacadeXml.TAG_NAME)) {
-            return Optional.of(curTag.getName());
-        }else {
-            String curTagName = curTag.getName();
-            if(curTagName.startsWith(MyStringUtils.ENTITY_FACADE_DELETE_TAG))
-                curTagName = curTagName.substring(MyStringUtils.ENTITY_FACADE_DELETE_TAG.length());
-
-            EntityNameDescriptor entityNameDescriptor = EntityNameDescriptor.of(curTagName);
-            if(entityNameDescriptor.getIsShortAlias()) {
-                //进一步判断是否为ParentTag的relationship
-
-                IndexEntity indexEntity = EntityUtils.getIndexEntityByName(psiElement.getProject(),parentTag.getName()).orElse(null);
-                if(indexEntity != null) {
-                    Relationship relationship = indexEntity.getRelationshipByName(curTagName).orElse(null);
-                    if(relationship != null) {
-                        return Optional.of(MyDomUtils.getValueOrEmptyString(relationship.getRelated()));
-                    }
-                }
-                return Optional.of(curTagName);
-            }else {
-                return Optional.of(curTagName);
-            }
-
-
-        }
-
-    }
     /**
      * 获取当前psiElement的父tag
      * @param psiElement PsiElement

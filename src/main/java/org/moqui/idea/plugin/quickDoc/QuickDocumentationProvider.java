@@ -9,17 +9,11 @@ import com.intellij.psi.xml.XmlToken;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.Entity;
-import org.moqui.idea.plugin.dom.model.ExtendEntity;
-import org.moqui.idea.plugin.dom.model.Service;
-import org.moqui.idea.plugin.dom.model.ViewEntity;
+import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.IndexViewEntity;
-import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.MyStringUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
+import org.moqui.idea.plugin.util.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,22 +37,16 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
     public @Nullable
     @Nls String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
         PsiFile psiFile ;
-
+//如果是EntityFacadeXml和SeedData下的内容， 需要单独处理
         if(originalElement != null) {
-            psiFile = originalElement.getContainingFile();
-            if(psiFile == null) return null;
-            Optional<String> rootTag = MyDomUtils.getRootTagName(psiFile);
-            if(rootTag.isPresent()) {
-                //对entity-facade-xml 进行处理，只有Entity才会出现在这里
-                if(rootTag.get().equals("entity-facade-xml")) {
-                    if(originalElement instanceof XmlToken xmlToken) {
-                        if(xmlToken.getParent() instanceof XmlTag xmlTag) {
-                            return generateEntityDoc(xmlTag);
-                        }
-                    }
-                }
+            XmlTag curTag = MyDomUtils.getParentTag(originalElement).orElse(null);
+            if ((curTag != null) && MyDomUtils.isMoquiDataDefineTag(curTag)) {
+                return generateEntityDoc(curTag);
             }
+        }
 
+        if(element == null){
+            return null;
         }else {
             psiFile = element.getContainingFile();
         }
@@ -82,9 +70,12 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
     }
     public static String generateEntityDoc(PsiElement element) {
         Entity entity;
-        if(element instanceof XmlTag xmlTag) {
-            entity = EntityUtils.getEntityByName(element.getProject(),
-                    MyDomUtils.getEntityNameInEntityFacadeXml(element).orElse(MyStringUtils.EMPTY_STRING)).orElse(null);
+        if(element instanceof XmlTag) {
+            EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(element);
+            entity = EntityUtils.getEntityByName(element.getProject(),descriptor.getEntityName()).orElse(null);
+
+//            entity = EntityUtils.getEntityByName(element.getProject(),
+//                    MyDomUtils.getEntityNameInEntityFacadeXml(element).orElse(MyStringUtils.EMPTY_STRING)).orElse(null);
         }else {
             entity = MyDomUtils.getLocalDomElementByPsiElement(element, Entity.class).orElse(null);
         }

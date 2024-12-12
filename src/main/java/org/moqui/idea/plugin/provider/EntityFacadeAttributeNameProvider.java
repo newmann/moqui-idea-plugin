@@ -5,6 +5,7 @@ import com.intellij.xml.XmlAttributeDescriptor;
 import com.intellij.xml.XmlAttributeDescriptorsProvider;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.service.IndexEntity;
+import org.moqui.idea.plugin.util.EntityFacadeFieldAttributeDescriptor;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 
@@ -23,7 +24,7 @@ public class EntityFacadeAttributeNameProvider implements XmlAttributeDescriptor
         if(MyDomUtils.isMoquiDataDefineTag(xmlTag)){
             IndexEntity indexEntity = EntityUtils.getIndexEntityByName(xmlTag.getProject(),xmlTag.getName()).orElse(null);
             if(indexEntity != null){
-                indexEntity.getFieldList().forEach(field -> {resultList.add(MoquiEntityFieldAttributeDescriptor.of(field));});
+                indexEntity.getFieldList().forEach(field -> {resultList.add(EntityFacadeFieldAttributeDescriptor.of(field));});
             }
         }
 

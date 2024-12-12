@@ -53,6 +53,10 @@ public class MoquiDomAnnotator implements Annotator {
             EntityUtils.inspectEntityFromAttribute(relationship.getRelated(),holder);
             return;
         }
+        if ((element instanceof AbstractEntity abstractEntity)) {
+            EntityUtils.inspectAbstractEntity(abstractEntity,holder);
+            return;
+        }
 
         if ((element instanceof MemberEntity memberEntity)) {
             EntityUtils.inspectEntityFromAttribute(memberEntity.getEntityName(),holder);

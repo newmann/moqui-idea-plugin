@@ -16,13 +16,13 @@ import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class EntityFacadeXmlTagNameReference extends TagNameReference {
-    private final String myTagName;
+//    private final String myTagName;
 //    private final String myEntityName;
 
     private final ASTNode myASTNode;
     public EntityFacadeXmlTagNameReference(ASTNode nameElement, boolean startTagFlag) {
         super(nameElement, startTagFlag);
-        myTagName = nameElement.getPsi().getText();
+//        myTagName = nameElement.getPsi().getText();
 
 //        myEntityName = MyDomUtils.getEntityNameInEntityFacadeXml(nameElement.getPsi()).orElse(null);
 

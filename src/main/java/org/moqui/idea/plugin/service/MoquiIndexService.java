@@ -78,138 +78,13 @@ public final class MoquiIndexService {
 
     }
 
-//    private void refreshAllEntityMap(){
-//        //这里初始化，需要注意先后次序：Entity->ExtendEntity->ViewEntity，最后才是Service
-//        this.indexEntityMap = new ConcurrentHashMap<>();
-//        this.indexViewEntityMap = new ConcurrentHashMap<>();
-//        List<DomFileElement<Entities>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(this.project,Entities.class);
-//        fileElementList.forEach(this::updateEntityFromFile);
-//        fileElementList.forEach(this::updateExtendEntityFromFile);
-//        updateViewEntity(fileElementList);
-//
-//
-//    }
-//    private void refreshAllServiceMap(){
-//        //先处理interface，再处理service
-//        this.indexServiceMap = new HashMap<>();
-//        this.indexInterfaceMap = new HashMap<>();
-//
-//        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(this.project, Services.class);
-//
-//        fileElementList.forEach(this::updateInterfaceFromFile);
-//        fileElementList.forEach(this::updateServiceFromFile);
-//
-//    }
+
 
     public void unRegisterListener(){
         VirtualFileManager.getInstance().removeVirtualFileListener(this.moquiXmlVirtualFileManager);
     }
-    /**
-     * 更新某个entities.xml定义文件的内容，
-     * @param fileElement
-     */
-//    private void updateEntityFromFile(DomFileElement<Entities> fileElement){
-////        final String filePath = fileElement.getOriginalFile().getVirtualFile().getPath();
-//        for(Entity entity: fileElement.getRootElement().getEntities()) {
-//            IndexEntity indexEntity = new IndexEntity(entity);
-//            indexEntityMap.put(indexEntity.getFullName(),indexEntity);
-//        };
-//    }
-//    private void updateExtendEntityFromFile(DomFileElement<Entities> fileElement){
-////        final String filePath = fileElement.getOriginalFile().getVirtualFile().getPath();
-//        for(ExtendEntity extendEntity : fileElement.getRootElement().getExtendEntities()) {
-//            accessIndexEntityByName(MyDomUtils.getValueOrEmptyString(extendEntity.getEntityName()))
-//                    .ifPresent(indexEntity -> indexEntity.AddExtendEntity(extendEntity));
-//        };
-//    }
-//
-//    private void updateViewEntityFromFile(DomFileElement<Entities> fileElement){
-////        final String filePath = fileElement.getOriginalFile().getVirtualFile().getPath();
-//        for(ViewEntity viewEntity : fileElement.getRootElement().getViewEntities()) {
-//            IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
-//            viewEntityMap.put(indexViewEntity.getViewName(), indexViewEntity);
-//        };
-//    }
 
-    /**
-     * viewEntity的字段比较复杂，因为viewEntity可能会嵌套另外的viewEntity
-     * 所以采用多次扫描的算法
-     * 第一遍，将所有viewEntity从file中识别出来，并判断memberEntity是不是viewEntity，如果有，则先不处理，放在缓存列表中，如果没有，就将字段识别出来
-     * 第二遍，对缓存列表进行扫描，判断memberEntity中的viewEntity已经识别出Field的都处理完。
-     * 如此循环，直到缓存中没有待处理的viewEntity
-     * 有可能存在死循环的情况，所以处理10变后，还有未处理的viewEntity，就直接将能识别的memberEntity识别，不能识别就不处理。
-     * 同时将未处理的memberEntity存放到IndexViewEntity对应属性中
-     * @param fileElementList
-     */
-//    private void updateViewEntity(List<DomFileElement<Entities>> fileElementList){
-//        List<ViewEntity> pendingViewEntities = new ArrayList<>();
-//
-//        for(DomFileElement<Entities> fileElement : fileElementList) {
-//            for(ViewEntity viewEntity : fileElement.getRootElement().getViewEntities()) {
-//                if(!addViewEntityToMap(viewEntity)) {
-//                    pendingViewEntities.add(viewEntity);
-//                }
-//            }
-//        }
-//        for(int i=0; i<10; i++) {
-//            pendingViewEntities.removeIf(this::addViewEntityToMap);
-//        }
-//        //将未处理的ViewEntity保存下来，在ToolWindows中进行后续的显示
-//        this.pendingViewEntityList = pendingViewEntities;
-//
-//    }
-    /**
-     * 判断当前的ViewEntity是否能获取到字段定义，即对应的MemberEntity或MemberRelationship都已经获得了Field
-     * @param viewEntity
-     * @return
-     */
-//    private boolean addViewEntityToMap(@NotNull ViewEntity viewEntity){
-//        Map<String,AbstractIndexEntity> entityMap = new HashMap<>();
-//
-//        for(MemberEntity memberEntity: viewEntity.getMemberEntityList()){
-//            Optional<AbstractIndexEntity> optionalAbstractEntity =accessIndexEntityOrIndexViewEntity(MyDomUtils.getValueOrEmptyString(memberEntity.getEntityName()));
-//            if (optionalAbstractEntity.isEmpty()) {
-//                return false;
-//            }else {
-//                entityMap.put(MyDomUtils.getValueOrEmptyString(memberEntity.getEntityAlias()),optionalAbstractEntity.get());
-//            }
-//        };
-//        List<MemberRelationship> pending = new ArrayList<>(viewEntity.getMemberRelationshipList());
-//
-//
-//        //MemberRelationship可能是指向另外一个MemberRelationship，这时候需要先处理指向MemberEntity的，然后再一层一层找
-//        for(int i=0; i<10; i++) {
-//            Iterator<MemberRelationship> iterator = pending.iterator();
-//            while (iterator.hasNext()) {
-//                MemberRelationship memberRelationship = iterator.next();
-//                String joinAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getJoinFromAlias());
-//                AbstractIndexEntity foundAbstractIndexEntity = entityMap.get(joinAlias);
-//                String relationshipName = MyDomUtils.getValueOrEmptyString(memberRelationship.getRelationship());
-//                String entityAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getEntityAlias());
-//
-//                if (foundAbstractIndexEntity instanceof IndexEntity foundIndexEntity) {
-//                    Relationship currentRelationship = foundIndexEntity.getRelationshipByName(relationshipName).orElse(null);
-//                    if (currentRelationship != null) {
-//                        Optional<AbstractIndexEntity> optRelatedIndexEntity = accessIndexEntityOrIndexViewEntity(MyDomUtils.getValueOrEmptyString(currentRelationship.getRelated()));
-//                        if (optRelatedIndexEntity.isPresent()) {
-//                            entityMap.put(entityAlias, optRelatedIndexEntity.get());
-//                            iterator.remove();
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        if(!pending.isEmpty()) return false;
-//
-//        Map<String, IndexAbstractField> fieldMap = extractViewEntityFieldMap(viewEntity,entityMap);
-//
-//        IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
-//        indexViewEntity.setAbstractFieldMap(fieldMap);
-//        indexViewEntity.setAbstractIndexEntityMap(entityMap);
-//        this.indexViewEntityMap.put(indexViewEntity.getFullName(), indexViewEntity);
-//        return true;
-//
-//    }
+
 
     private boolean addViewEntityToIndexViewEntityMap(@NotNull ViewEntity viewEntity){
         Map<String,AbstractIndexEntity> aliasEntityMap = new HashMap<>();
@@ -563,7 +438,7 @@ public final class MoquiIndexService {
     private void checkAndUpdateEntity(@NotNull String entityName){
         synchronized (MUTEX_ENTITY) {
             IndexEntity indexEntity = accessIndexEntityByName(entityName).orElse(null);
-            if(indexEntity != null && indexEntity.getLastRefreshStamp()>= this.entityXmlFileLastUpdatedStamp ) return;
+//            if(indexEntity != null && indexEntity.getLastRefreshStamp()>= this.entityXmlFileLastUpdatedStamp ) return;
 
             Entity entity = EntityUtils.getEntityByNameFromFile(this.project, entityName).orElse(null);
             if(entity==null) {
@@ -571,7 +446,8 @@ public final class MoquiIndexService {
                 return;
             }
 
-            List<ExtendEntity> extendEntityList =EntityUtils.getExtendEntityListByNameFromFile(this.project,entityName);
+            //传入的entityName有可能是shortAlias,而ExtendEntity定义中不一定有shortAlias
+            List<ExtendEntity> extendEntityList =EntityUtils.getExtendEntityListByNameFromFile(this.project,MyDomUtils.getValueOrEmptyString(entity.getEntityName()));
             //添加
             if (indexEntity == null) {
                 indexEntity = new IndexEntity(entity,extendEntityList);
@@ -593,7 +469,7 @@ public final class MoquiIndexService {
     private void checkAndUpdateView(@NotNull String viewName){
         synchronized (MUTEX_VIEW) {
             IndexViewEntity indexViewEntity = (IndexViewEntity)accessIndexViewEntityByName(viewName).orElse(null);
-            if(indexViewEntity != null && indexViewEntity.getLastRefreshStamp()>= this.entityXmlFileLastUpdatedStamp ) return;
+//            if(indexViewEntity != null && indexViewEntity.getLastRefreshStamp()>= this.entityXmlFileLastUpdatedStamp ) return;
 
             ViewEntity viewEntity = EntityUtils.getViewEntityByNameFromFile(this.project, viewName).orElse(null);
             if(viewEntity==null) {
@@ -615,7 +491,7 @@ public final class MoquiIndexService {
     private void checkAndUpdateService(@NotNull String fullName){
         synchronized (MUTEX_SERVICE) {
             IndexService indexService = accessIndexServiceByFullName(fullName).orElse(null);
-            if(indexService != null && indexService.getLastRefreshStamp()>= this.serviceXmlFileLastUpdatedStamp ) return;
+//            if(indexService != null && indexService.getLastRefreshStamp()>= this.serviceXmlFileLastUpdatedStamp ) return;
 
             org.moqui.idea.plugin.dom.model.Service service = ServiceUtils.getServiceByFullNameFromFile(this.project, fullName).orElse(null);
             if(service==null) {
@@ -637,7 +513,7 @@ public final class MoquiIndexService {
     private void checkAndUpdateInterface(@NotNull String fullName){
         synchronized (MUTEX_INTERFACE) {
             IndexService indexInterface = accessIndexInterfaceByFullName(fullName).orElse(null);
-            if(indexInterface != null && indexInterface.getLastRefreshStamp()>= this.serviceXmlFileLastUpdatedStamp ) return;
+//            if(indexInterface != null && indexInterface.getLastRefreshStamp()>= this.serviceXmlFileLastUpdatedStamp ) return;
 
             org.moqui.idea.plugin.dom.model.Service service = ServiceUtils.getServiceByFullNameFromFile(this.project, fullName).orElse(null);
             if(service==null) {
@@ -705,6 +581,7 @@ public final class MoquiIndexService {
 //        this.serviceXmlFileUpdated = serviceXmlFileUpdated;
 //    }
     private Optional<Entity> accessEntityByName(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         return accessIndexEntityByName(name).map(IndexEntity::getEntity);
     }
 
@@ -715,12 +592,14 @@ public final class MoquiIndexService {
      * @return
      */
     public Optional<Entity> getEntityByName(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         return getIndexEntityByName(name).map(IndexEntity::getEntity);
 //        checkAndUpdateEntity(name);
 //        return accessEntityByName(name);
 
     }
     private Optional<IndexEntity> accessIndexEntityByName(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         for(String key: this.indexEntityMap.keySet()) {
             IndexEntity indexEntity = this.indexEntityMap.get(key);
             if(indexEntity.isThisEntity(name)) return Optional.of(indexEntity);
@@ -730,12 +609,14 @@ public final class MoquiIndexService {
     }
 
     public Optional<IndexEntity> getIndexEntityByName(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         checkAndUpdateEntity(name);
         return  accessIndexEntityByName(name);
 
 
     }
     public Optional<AbstractIndexEntity> getIndexEntityOrIndexViewEntity(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         IndexEntity indexEntity  = getIndexEntityByName(name).orElse(null);
         if(indexEntity != null){
             return Optional.of(indexEntity);
@@ -746,6 +627,7 @@ public final class MoquiIndexService {
 
     }
     private Optional<ViewEntity> accessViewEntityByName(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         return accessIndexViewEntityByName(name).map(IndexViewEntity::getViewEntity);
 
     }
@@ -755,12 +637,14 @@ public final class MoquiIndexService {
 //        return accessViewEntityByName(name);
 //    }
     private Optional<IndexViewEntity> accessIndexViewEntityByName(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         for(String key: this.indexViewEntityMap.keySet()) {
             if(this.indexViewEntityMap.get(key).isThisEntity(name)) return Optional.of(this.indexViewEntityMap.get(key));
         }
         return Optional.empty();
     }
     public Optional<IndexViewEntity> getIndexViewEntityByName(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         checkAndUpdateView(name);
         return accessIndexViewEntityByName(name);
 
@@ -769,7 +653,7 @@ public final class MoquiIndexService {
 
 
     private Optional<AbstractIndexEntity> accessIndexEntityOrIndexViewEntity(@NotNull String name) {
-
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         Optional<IndexEntity> indexEntity = accessIndexEntityByName(name);
         if(indexEntity.isPresent()){
             return Optional.of(indexEntity.get());
@@ -780,7 +664,7 @@ public final class MoquiIndexService {
 
     }
     private Optional<IndexService> accessIndexServiceOrIndexInterface(@NotNull String name) {
-
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         Optional<IndexService> optIndexService = accessIndexServiceByName(name);
         //            Optional<IndexService> optIndexInterface = accessIndexInterfaceByName(name);
         //            if(optIndexInterface.isPresent()){
@@ -792,20 +676,11 @@ public final class MoquiIndexService {
 
     }
     public Optional<AbstractEntity> getEntityOrViewEntity(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
         return getIndexEntityOrIndexViewEntity(name).flatMap(AbstractIndexEntity::getAbstractEntity);
     }
 
-//    private Optional<AbstractEntity> accessEntityOrViewEntity(@NotNull String name) {
-//        Optional<Entity> entity;
-//        entity = accessEntityByName(name);
-//        if(entity.isPresent()){
-//            return Optional.of(entity.get());
-//        }else {
-////            Optional<ViewEntity> viewEntity = accessViewEntityByName(name);
-//            return Optional.ofNullable(accessViewEntityByName(name).orElse(null));
-//        }
-//
-//    }
+
 
     public @NotNull List<IndexAbstractField> getEntityOrViewEntityFieldList(@NotNull String name){
         Optional<AbstractIndexEntity> optionalAbstractIndexEntity = getIndexEntityOrIndexViewEntity(name);
