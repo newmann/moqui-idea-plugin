@@ -38,10 +38,10 @@ class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
     }
 
 
-    override fun acceptsFile(file: PsiFile): Boolean = MyDomUtils.isMoquiXmFile(file) && !RestApiUtils.isRestApiFile(file); //将Rest接口定义排除在外
+    override fun acceptsFile(file: PsiFile): Boolean = MyDomUtils.isMoquiXmFile(file) && !RestApiUtils.isRestApiFile(file) //将Rest接口定义排除在外
 
     override fun getHint(element: PsiElement, file: PsiFile): String? {
-        return getVisionInfo(element)?.text;
+        return getVisionInfo(element)?.text
     }
 
 
@@ -50,7 +50,7 @@ class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
             val totalUsageCount = findReferences(getXmlAttributeValue(element))
             return CodeVisionInfo(JavaBundle.message("usages.telescope", totalUsageCount), totalUsageCount) //todo 如何合并JavaBundle
         }
-        return null;
+        return null
 
     }
     private fun getXmlAttributeValue(xmlTag: XmlTag): XmlAttributeValue?{
@@ -68,12 +68,14 @@ class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
         if(element == null) {
             return 0
         }else {
-            val searchScope = GlobalSearchScope.allScope(element.project)
+//            val searchScope = GlobalSearchScope.allScope(element.project)
+            val searchScope = GlobalSearchScope.projectScope(element.project) //仅限项目源代码：不包括库和外部依赖
+
             val searchParameters = ReferencesSearch.SearchParameters(element, searchScope, false)
 
             val referencesQuery: Query<PsiReference> = ReferencesSearch.search(searchParameters)
             val usages: MutableCollection<PsiReference> = referencesQuery.findAll()
-            return usages.size;
+            return usages.size
         }
     }
     override fun handleClick(editor: Editor, element: PsiElement, event: MouseEvent?) {

@@ -5,11 +5,13 @@ import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlTag;
-import com.intellij.psi.xml.XmlToken;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.dom.model.Entity;
+import org.moqui.idea.plugin.dom.model.ExtendEntity;
+import org.moqui.idea.plugin.dom.model.Service;
+import org.moqui.idea.plugin.dom.model.ViewEntity;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.IndexViewEntity;
@@ -51,6 +53,7 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
             psiFile = element.getContainingFile();
         }
 
+        if(psiFile == null) return null;
 
         if(MyDomUtils.isNotMoquiXmlFile(psiFile)) return null;
 
