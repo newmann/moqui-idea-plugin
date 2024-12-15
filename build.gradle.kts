@@ -36,7 +36,7 @@ dependencies {
 //    create("IC", "2023.3.2")
   }
   // 使用 Maven Central 仓库中的依赖
-//  implementation("org.apache.groovy:groovy:4.0.22")
+  implementation("org.freemarker:freemarker:2.3.32")
 //  implementation("org.jgrapht:jgrapht-core:1.5.2")
 //  implementation("com.github.tomnelson:jungrapht-visualization:1.4")
 }
