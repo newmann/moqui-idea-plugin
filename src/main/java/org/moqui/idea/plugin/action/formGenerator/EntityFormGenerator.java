@@ -1,23 +1,27 @@
 package org.moqui.idea.plugin.action.formGenerator;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.util.xml.DomElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.FormSingle;
+import org.moqui.idea.plugin.dom.model.KeyMap;
 import org.moqui.idea.plugin.dom.model.Relationship;
 import org.moqui.idea.plugin.service.AbstractIndex;
 import org.moqui.idea.plugin.service.AbstractIndexEntity;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexEntity;
+import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.util.MNode;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class EntityFormGenerator implements FormGenerator{
     @Override
-    public <T extends AbstractIndex> Optional<String> generatorFormSingle(@NotNull T indexItem, @NotNull FormSingleGenerateType generateType) {
+    public <T extends AbstractIndex> Optional<String> generatorFormSingle(@NotNull Project project, @NotNull T indexItem, @NotNull FormSingleGenerateType generateType) {
         if(indexItem instanceof AbstractIndexEntity abstractIndexEntity) {
             StringBuilder xmlBuilder = new StringBuilder();
             String formName = generateType.name() + abstractIndexEntity.getShortName();
@@ -25,11 +29,11 @@ public class EntityFormGenerator implements FormGenerator{
 
             MNode formNode = new MNode(FormSingle.TAG_NAME, Map.of(FormSingle.ATTR_NAME,formName,FormSingle.ATTR_TRANSITION,transitionName));
 
-            abstractIndexEntity.getIndexAbstractFieldList().stream().forEach(indexAbstractField ->{
+            abstractIndexEntity.getIndexAbstractFieldList().forEach(indexAbstractField ->{
                 String fieldName = indexAbstractField.getName();
                 MNode newFieldNode = new MNode("field", Map.of("name",fieldName));
                 MNode subFieldNode = newFieldNode.append("default-field", Map.of("validate-entity",abstractIndexEntity.getFullName(), "validate-field",fieldName));
-                addAutoEntityField(indexAbstractField,fieldName, newFieldNode, subFieldNode, formNode);
+                addAutoEntityField(project,indexAbstractField,fieldName, newFieldNode, subFieldNode, formNode);
             } );
             return Optional.empty();
         }else {
@@ -41,7 +45,7 @@ public class EntityFormGenerator implements FormGenerator{
     public <T extends AbstractIndex> Optional<String> generatorFormList(@NotNull T indexItem) {
         return Optional.empty();
     }
-    void addAutoEntityField(IndexAbstractField abstractField ,String fieldName, MNode newFieldNode, MNode subFieldNode, MNode baseFormNode) {
+    void addAutoEntityField(Project project, IndexAbstractField abstractField ,String fieldName, MNode newFieldNode, MNode subFieldNode, MNode baseFormNode) {
         // NOTE: in some cases this may be null
 
         if(abstractField == null) return;
@@ -51,26 +55,20 @@ public class EntityFormGenerator implements FormGenerator{
 
         // to see if this should be a drop-down with data from another entity,
         // find first relationship that has this field as the only key map and is not a many relationship
-        MNode oneRelNode = null;
-        Map oneRelKeyMap = null;
-        String relatedEntityName = null;
+
         Relationship relationship = null;
         if(abstractField.getInAbstractIndexEntity() instanceof IndexEntity indexEntity) {
-//            for (Relationship relationship : indexEntity.getRelationshipList()) {
-//                String relEntityName = MyDomUtils.getValueOrEmptyString(relationship.getRelated());
-//                EntityDefinition relEd = relInfo.relatedEd
-//                Map km = relInfo.keyMap
-//                if (km.size() == 1 && km.containsKey(fieldName) && relInfo.type == "one" && relInfo.relNode.attribute("is-auto-reverse") != "true") {
-//                    oneRelNode = relInfo.relNode
-//                    oneRelKeyMap = km
-//                    relatedEntityName = relEntityName
-//                    relatedEd = relEd
-//                    break
-//                }
-//            }
-//            String keyField = (String) oneRelKeyMap ?.keySet() ?.iterator() ?.next()
-//            String relKeyField = (String) oneRelKeyMap ?.values() ?.iterator() ?.next()
-//            String relDefaultDescriptionField = relatedEd ?.getDefaultDescriptionField()
+            for (Relationship relationshipItem : indexEntity.getRelationshipList()) {
+                String relEntityName = MyDomUtils.getValueOrEmptyString(relationshipItem.getRelated());
+                IndexEntity relEd = EntityUtils.getIndexEntityByName(project,relEntityName).orElse(null);
+                List<KeyMap> km = relationshipItem.getKeyMapList();
+                if (km.size() == 1 && MyDomUtils.getValueOrEmptyString(relationshipItem.getType()).equals("one")){
+                    if(MyDomUtils.getValueOrEmptyString(km.get(0).getFieldName()).equals(fieldName) ) {
+                        relationship = relationshipItem;
+                        break;
+                    }
+                }
+            }
         }
 //
             // lastUpdatedStamp is always hidden for edit (needed for optimistic lock)
@@ -106,8 +104,8 @@ public class EntityFormGenerator implements FormGenerator{
                 // would be nice to have something better for this, like a download somehow
                 subFieldNode.append("display", null);
             } else {
-                if (oneRelNode != null) {
-                    addEntityFieldDropDown(oneRelNode, subFieldNode, relationship,  "");
+                if (relationship != null) {
+                    addEntityFieldDropDown(subFieldNode, relationship,  "");
                 } else {
                     if (efType.startsWith("number-") || efType.startsWith("currency-")) {
                         subFieldNode.append("text-line", Map.of("size","10"));
@@ -128,9 +126,9 @@ public class EntityFormGenerator implements FormGenerator{
 //            }
 //        }
     }
-    protected void addEntityFieldDropDown(MNode oneRelNode, MNode subFieldNode, Relationship relationship,
+    protected void addEntityFieldDropDown(MNode subFieldNode, Relationship relationship,
                                            String dropDownStyle) {
-        String title = oneRelNode.attribute("title");
+        String title = MyDomUtils.getValueOrEmptyString(relationship.getTitle());
 
         if (relationship == null) {
             subFieldNode.append("text-line", null);
@@ -156,10 +154,10 @@ public class EntityFormGenerator implements FormGenerator{
             MNode entityFindNode = entityOptionsNode.append("entity-find",
                     Map.of("entity-name",relatedEntityName, "offset","0", "limit","200"));
 
-            if (relatedEntityName == "moqui.basic.Enumeration") {
+            if (relatedEntityName.equals("moqui.basic.Enumeration")) {
                 // recordCount will be > 0 so we know there are records with this type
                 entityFindNode.append("econdition", Map.of("field-name","enumTypeId", "value",title));
-            } else if (relatedEntityName == "moqui.basic.StatusItem") {
+            } else if (relatedEntityName.equals("moqui.basic.StatusItem")) {
                 // recordCount will be > 0 so we know there are records with this type
                 entityFindNode.append("econdition", Map.of("field-name","statusTypeId", "value",title));
             }
