@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class EntityFormGenerator implements FormGenerator{
+    public static EntityFormGenerator INSTANCE = new EntityFormGenerator();
+
     @Override
     public <T extends AbstractIndex> Optional<String> generatorFormSingle(@NotNull Project project, @NotNull T indexItem, @NotNull FormSingleGenerateType generateType) {
         if(indexItem instanceof AbstractIndexEntity abstractIndexEntity) {
@@ -32,10 +34,13 @@ public class EntityFormGenerator implements FormGenerator{
             abstractIndexEntity.getIndexAbstractFieldList().forEach(indexAbstractField ->{
                 String fieldName = indexAbstractField.getName();
                 MNode newFieldNode = new MNode("field", Map.of("name",fieldName));
-                MNode subFieldNode = newFieldNode.append("default-field", Map.of("validate-entity",abstractIndexEntity.getFullName(), "validate-field",fieldName));
+                MNode subFieldNode = newFieldNode.append("default-field", null);
                 addAutoEntityField(project,indexAbstractField,fieldName, newFieldNode, subFieldNode, formNode);
+
+                formNode.append(newFieldNode);
+
             } );
-            return Optional.empty();
+            return Optional.of(formNode.toString());
         }else {
             return Optional.empty();
         }
@@ -152,7 +157,7 @@ public class EntityFormGenerator implements FormGenerator{
                     (MyStringUtils.isEmpty(dropDownStyle) ? MyStringUtils.EMPTY_STRING: dropDownStyle)));
             MNode entityOptionsNode = dropDownNode.append("entity-options", null);
             MNode entityFindNode = entityOptionsNode.append("entity-find",
-                    Map.of("entity-name",relatedEntityName, "offset","0", "limit","200"));
+                    Map.of("entity-name",relatedEntityName)); //, "offset","0", "limit","200"
 
             if (relatedEntityName.equals("moqui.basic.Enumeration")) {
                 // recordCount will be > 0 so we know there are records with this type

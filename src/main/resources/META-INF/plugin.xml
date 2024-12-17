@@ -239,6 +239,10 @@
             description="Show action flow diagram">
         <add-to-group group-id="EditorPopupMenu" anchor="first"/>
     </action>
+      <action id="ShowMoquiActionFormGenerator" class="org.moqui.idea.plugin.action.formGenerator.ShowFormGeneratorAnAction" text="Show Form Generator"
+              description="Show form generator">
+          <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+      </action>
 
 <!--      <action id="ReplaceText" class="org.moqui.idea.plugin.ReplaceText" text="MyReplaceTextPlugin"-->
 <!--              description="My ReplaceText Plugin">-->
