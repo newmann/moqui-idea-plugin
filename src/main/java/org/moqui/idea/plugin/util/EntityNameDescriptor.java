@@ -62,7 +62,7 @@ public class EntityNameDescriptor {
         if(MyStringUtils.isEmpty(myPackageName)) {
             return myEntityName;
         }else {
-            return myPackageName + EntityUtils.ENTITY_NAME_DOT + myPackageName;
+            return myPackageName + EntityUtils.ENTITY_NAME_DOT + myEntityName;
         }
 
     }

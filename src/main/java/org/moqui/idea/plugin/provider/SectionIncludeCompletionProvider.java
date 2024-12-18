@@ -11,6 +11,7 @@ import org.moqui.idea.plugin.dom.converter.insertHandler.ScreenIncludeInsertObje
 import org.moqui.idea.plugin.dom.converter.insertHandler.ScreenIncludeInsertionHandler;
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.Section;
+import org.moqui.idea.plugin.dom.model.SectionInclude;
 import org.moqui.idea.plugin.util.LocationUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
@@ -32,8 +33,8 @@ public class SectionIncludeCompletionProvider extends AbstractSimpleCompletionPr
 
     public static final PsiElementPattern<PsiElement, PsiElementPattern.Capture<PsiElement>> SECTION_INCLUDE_PATTERN =
             PlatformPatterns.psiElement().inside(
-                    XmlPatterns.xmlAttributeValue(Section.ATTR_NAME).inside(
-                            XmlPatterns.xmlTag().withLocalName(Section.TAG_NAME).inside(
+                    XmlPatterns.xmlAttributeValue(SectionInclude.ATTR_NAME).inside(
+                            XmlPatterns.xmlTag().withLocalName(SectionInclude.TAG_NAME).inside(
                                     XmlPatterns.xmlTag().withLocalName(Screen.TAG_NAME)
                             )
                     )

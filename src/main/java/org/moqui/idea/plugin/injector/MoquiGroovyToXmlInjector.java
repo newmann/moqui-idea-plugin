@@ -9,6 +9,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlTagValue;
+import com.intellij.psi.xml.XmlText;
 import org.intellij.plugins.intelliLang.inject.InjectorUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.groovy.GroovyLanguage;
@@ -211,6 +212,8 @@ public class MoquiGroovyToXmlInjector implements MultiHostInjector {
         Script script = MyDomUtils.getLocalDomElementByXmlTag((XmlTag) context,Script.class).orElse(null);
         if(script == null) return;
         if(script.getXmlTag() == null) return;
+        XmlText[] textElementArray = script.getXmlTag().getValue().getTextElements();
+        if(textElementArray.length == 0) return;
 
         PsiLanguageInjectionHost host = (PsiLanguageInjectionHost) script.getXmlTag().getValue().getTextElements()[0];
 
