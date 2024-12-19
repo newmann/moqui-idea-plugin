@@ -8,6 +8,7 @@ import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.util.EntityScope;
 import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
 
 public class EntityOrViewNameReferenceProvider extends PsiReferenceProvider {
     private static Logger logger = Logger.getInstance(EntityOrViewNameReferenceProvider.class);
@@ -22,7 +23,11 @@ public class EntityOrViewNameReferenceProvider extends PsiReferenceProvider {
 
     @Override
     public @NotNull  PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
-        return EntityUtils.createEntityOrViewNameReferences(psiElement.getProject(),psiElement,myEntityScope);
+        if(MyDomUtils.isMoquiProject(psiElement.getProject())) {
+            return EntityUtils.createEntityOrViewNameReferences(psiElement.getProject(), psiElement, myEntityScope);
+        }else{
+            return PsiReference.EMPTY_ARRAY;
+        }
 
 
     }

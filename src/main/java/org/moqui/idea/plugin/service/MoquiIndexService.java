@@ -1,5 +1,8 @@
 package org.moqui.idea.plugin.service;
 
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.listener.MoquiXmlVirtualFileManager;
@@ -11,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -56,7 +60,9 @@ public final class MoquiIndexService {
     private static final Object MUTEX_INTERFACE = new Object();
 
     private List<ViewEntity> pendingViewEntityList;
-    private final MoquiXmlVirtualFileManager moquiXmlVirtualFileManager;
+    private MoquiXmlVirtualFileManager moquiXmlVirtualFileManager = null;
+
+    private final boolean isMoquiProject;
     public MoquiIndexService(Project project) {
         this.project = project;
 //        this.entityXmlFileUpdated = false;
@@ -71,20 +77,38 @@ public final class MoquiIndexService {
 
 //        refreshAllEntityMap();
 //        refreshAllServiceMap();
+        //判断是否为Moqui项目，
 
+        this.isMoquiProject = checkMoquiProject(project);
 
-        this.moquiXmlVirtualFileManager = new MoquiXmlVirtualFileManager(project);
-        VirtualFileManager.getInstance().addVirtualFileListener(this.moquiXmlVirtualFileManager);
+        //如果不是Moqui项目，则不进行监听
+        if(this.isMoquiProject) {
+            this.moquiXmlVirtualFileManager = new MoquiXmlVirtualFileManager(project);
+            VirtualFileManager.getInstance().addVirtualFileListener(this.moquiXmlVirtualFileManager);
+        }
 
     }
 
+    private boolean checkMoquiProject(@NotNull Project project){
+
+        String baseDir = project.getBasePath();
+        if(baseDir == null) return false;
+
+        VirtualFile specificFile = ReadAction.compute(()-> LocalFileSystem.getInstance().findFileByNioFile(Path.of(baseDir,"MoquiInit.properties")));
+        return specificFile != null;
+
+    }
 
 
     public void unRegisterListener(){
-        VirtualFileManager.getInstance().removeVirtualFileListener(this.moquiXmlVirtualFileManager);
+        if(isMoquiProject) {
+            VirtualFileManager.getInstance().removeVirtualFileListener(this.moquiXmlVirtualFileManager);
+        }
     }
 
-
+    public boolean isMoquiProject() {
+        return isMoquiProject;
+    }
 
     private boolean addViewEntityToIndexViewEntityMap(@NotNull ViewEntity viewEntity){
         Map<String,AbstractIndexEntity> aliasEntityMap = new HashMap<>();

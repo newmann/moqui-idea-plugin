@@ -13,6 +13,7 @@ import java.util.List;
  * 为Inspection提供服务
  *
  */
+@Deprecated
 public interface InspectDomElementService {
 
   /**

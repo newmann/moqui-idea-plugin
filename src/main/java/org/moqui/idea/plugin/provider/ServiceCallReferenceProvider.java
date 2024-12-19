@@ -5,6 +5,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
 public class ServiceCallReferenceProvider extends PsiReferenceProvider {
@@ -18,7 +19,10 @@ public class ServiceCallReferenceProvider extends PsiReferenceProvider {
 
     @Override
     public @NotNull  PsiReference[] getReferencesByElement(@NotNull PsiElement psiElement, @NotNull ProcessingContext processingContext) {
-        return ServiceUtils.createServiceCallReferences(psiElement);
-
+        if(MyDomUtils.isMoquiProject(psiElement.getProject())) {
+            return ServiceUtils.createServiceCallReferences(psiElement);
+        }else{
+            return PsiReference.EMPTY_ARRAY;
+        }
     }
 }

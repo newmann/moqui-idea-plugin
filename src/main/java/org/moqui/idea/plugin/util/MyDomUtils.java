@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.service.IndexEntity;
+import org.moqui.idea.plugin.service.MoquiIndexService;
 
 import java.nio.file.Path;
 import java.util.Set;
@@ -129,16 +130,18 @@ public final class MyDomUtils {
 
     /**
      * 判断当前的项目是否为Moqui项目，判断跟就是项目的根目录下个是否存在MoquiInit.properties这个文件
+     * 通过MoquiIndexService在项目启动时中一次性判断，不用每次判断，以便提高性能
      * @param project 当前project
      * @return 是否为Moqui项目
      */
     public static boolean isMoquiProject(@NotNull Project project){
+        return project.getService(MoquiIndexService.class).isMoquiProject();
 
-        String baseDir = project.getBasePath();
-        if(baseDir == null) return false;
-
-        VirtualFile specificFile = ReadAction.compute(()->LocalFileSystem.getInstance().findFileByNioFile(Path.of(baseDir,"MoquiInit.properties")));
-        return specificFile != null;
+//        String baseDir = project.getBasePath();
+//        if(baseDir == null) return false;
+//
+//        VirtualFile specificFile = ReadAction.compute(()->LocalFileSystem.getInstance().findFileByNioFile(Path.of(baseDir,"MoquiInit.properties")));
+//        return specificFile != null;
 
     }
 

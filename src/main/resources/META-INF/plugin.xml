@@ -125,7 +125,7 @@
 <!--                                order="first"/>-->
 
       <psi.referenceContributor language="Groovy" implementation="org.moqui.idea.plugin.contributor.GroovyCodeReferenceContributor"/>
-      <completion.contributor language="Groovy" implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>
+<!--      <completion.contributor language="Groovy" implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>-->
 
 <!--      <completion.contributor order="first" language="JAVA" implementationClass="org.moqui.idea.plugin.completion.contributor.JavaCompletionContributor"/>-->
 

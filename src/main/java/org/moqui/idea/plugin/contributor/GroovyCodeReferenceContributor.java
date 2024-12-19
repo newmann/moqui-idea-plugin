@@ -41,6 +41,7 @@ public class GroovyCodeReferenceContributor extends PsiReferenceContributor {
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
+
         registrar.registerReferenceProvider(SERVICE_CALL_PATTERN, ServiceCallReferenceProvider.of());
         registrar.registerReferenceProvider(ENTITY_FIND_PATTERN, EntityOrViewNameReferenceProvider.of(EntityScope.ENTITY_AND_VIEW));
         registrar.registerReferenceProvider(ENTITY_UPDATE_PATTERN, EntityOrViewNameReferenceProvider.of(EntityScope.ENTITY_ONLY));

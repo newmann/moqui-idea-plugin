@@ -7,6 +7,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.util.MyDomUtils;
 
 import java.util.List;
 
@@ -15,7 +16,10 @@ public abstract class AbstractSimpleCompletionProvider extends CompletionProvide
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet result) {
         PsiElement psiElement = parameters.getPosition();
-        result.addAllElements(findCompletionItem(psiElement));
+
+        if(MyDomUtils.isMoquiProject(psiElement.getProject())) {
+            result.addAllElements(findCompletionItem(psiElement));
+        }
 
     }
 
