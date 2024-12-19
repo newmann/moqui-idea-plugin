@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.psi.xml.XmlTag;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.listener.MoquiXmlVirtualFileManager;
 import org.moqui.idea.plugin.util.EntityUtils;
@@ -42,6 +43,9 @@ public final class MoquiIndexService {
 //    private boolean serviceXmlFileUpdated;
     //最近service文件改动时间戳
     private long serviceXmlFileLastUpdatedStamp;
+
+    private long entityFacadeXmlFileLastUpdatedStamp;
+
     //最近一次全局service扫描的时间戳
 //    private long allServiceLastRefreshStamp;
 
@@ -54,10 +58,16 @@ public final class MoquiIndexService {
     //处理service的interface定义
     private final ConcurrentHashMap<String,IndexService> indexInterfaceMap = new ConcurrentHashMap<>();
 
+    //处理EntityFacadeXml中的Template
+    private final ConcurrentHashMap<String, XmlTag> indexTextTemplateMap = new ConcurrentHashMap<>();
+
     private static final Object MUTEX_ENTITY = new Object();
     private static final Object MUTEX_VIEW = new Object();
     private static final Object MUTEX_SERVICE = new Object();
     private static final Object MUTEX_INTERFACE = new Object();
+
+    private static final Object MUTEX_TEXT_TEMPLATE = new Object();
+
 
     private List<ViewEntity> pendingViewEntityList;
     private MoquiXmlVirtualFileManager moquiXmlVirtualFileManager = null;
@@ -70,6 +80,7 @@ public final class MoquiIndexService {
 
         this.entityXmlFileLastUpdatedStamp = System.currentTimeMillis();
         this.serviceXmlFileLastUpdatedStamp = System.currentTimeMillis();
+        this.entityFacadeXmlFileLastUpdatedStamp = System.currentTimeMillis();
 
 //        this.allEntityLastRefreshStamp = 0;
 //        this.allServiceLastRefreshStamp = 0;
@@ -736,10 +747,24 @@ public final class MoquiIndexService {
         return indexEntity.map(IndexEntity::getRelationshipList).orElse(new ArrayList<>());
     }
 
-    public Map<String,IndexEntity> getIndexEntityMap(){return this.indexEntityMap;}
-    public Map<String,IndexViewEntity> getIndexViewEntityMap(){return this.indexViewEntityMap;}
+    /**
+     * 如果当前的indexTextTemplateMap为空，则重新刷新数据
+     *
+     */
+    public Map<String,XmlTag> getTextTemplateMap(){
+        if(this.indexTextTemplateMap.isEmpty()){
 
-    public Map<String,IndexService> getIndexServiceMap(){return this.indexServiceMap;}
+        }
+        return new HashMap<>(this.indexTextTemplateMap);
+    }
+    private void refreshTextTemplate(){
+        this.indexTextTemplateMap.clear();
+
+    }
+    public Map<String,IndexEntity> getIndexEntityMap(){return new HashMap<>(this.indexEntityMap);}
+    public Map<String,IndexViewEntity> getIndexViewEntityMap(){return new HashMap<>(this.indexViewEntityMap);}
+
+    public Map<String,IndexService> getIndexServiceMap(){return new HashMap<>(this.indexServiceMap);}
 
     public Optional<org.moqui.idea.plugin.dom.model.Service> getServiceByFullName(@NotNull String fullName) {
         Optional<IndexService> service = getIndexServiceByFullName(fullName);
@@ -891,4 +916,12 @@ public final class MoquiIndexService {
         this.serviceXmlFileLastUpdatedStamp = serviceXmlFileLastUpdatedStamp;
     }
 
+    public void setEntityFacadeXmlFileLastUpdatedStamp(long serviceXmlFileLastUpdatedStamp) {
+        //将所有的缓存删除，简单控制保障内存泄漏
+        synchronized (MUTEX_TEXT_TEMPLATE) {
+            this.indexTextTemplateMap.clear();
+        }
+
+        this.entityFacadeXmlFileLastUpdatedStamp = serviceXmlFileLastUpdatedStamp;
+    }
 }

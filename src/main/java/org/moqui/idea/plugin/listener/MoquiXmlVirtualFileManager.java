@@ -8,8 +8,10 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.service.MoquiIndexService;
-import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
+import org.moqui.idea.plugin.util.*;
+import org.moqui.idea.plugin.dom.model.Services;
+import org.moqui.idea.plugin.dom.model.Entities;
+import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
 
 public class MoquiXmlVirtualFileManager implements VirtualFileListener {
     private Project project;
@@ -43,15 +45,30 @@ public class MoquiXmlVirtualFileManager implements VirtualFileListener {
         PsiFile psiFile = psiManager.findFile(file);
 
         if(psiFile != null) {
-            MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
-            if(ServiceUtils.isServicesFile(psiFile)) {
-                moquiIndexService.setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());
-            }else {
-                if(EntityUtils.isEntitiesFile(psiFile)) {
+//            MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+            switch (MyDomUtils.getRootTagName(psiFile).orElse(MyStringUtils.EMPTY_STRING)){
+                case Services.TAG_NAME -> project.getService(MoquiIndexService.class).setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());
+                case Entities.TAG_NAME -> {
+                    MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
                     moquiIndexService.setEntityXmlFileLastUpdatedStamp(System.currentTimeMillis());
                     moquiIndexService.setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());//修改entity的xml，则service也需要更新
                 }
+                case EntityFacadeXml.TAG_NAME -> {
+
+                }
             }
+
+//            if(EntityFacadeXmlUtils.isEntityFacadeXmlFile(psiFile)){
+//
+//            }
+//            if(ServiceUtils.isServicesFile(psiFile)) {
+//                moquiIndexService.setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());
+//            }else {
+//                if(EntityUtils.isEntitiesFile(psiFile)) {
+//                    moquiIndexService.setEntityXmlFileLastUpdatedStamp(System.currentTimeMillis());
+//                    moquiIndexService.setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());//修改entity的xml，则service也需要更新
+//                }
+//            }
         }
     }
 }
