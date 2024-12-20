@@ -4,21 +4,21 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlTag;
+import com.intellij.util.xml.DomFileElement;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.listener.MoquiXmlVirtualFileManager;
-import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.*;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.util.MyStringUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
 
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * 建立Entity，ViewEntity和Service的缓存
@@ -753,13 +753,28 @@ public final class MoquiIndexService {
      */
     public Map<String,XmlTag> getTextTemplateMap(){
         if(this.indexTextTemplateMap.isEmpty()){
-
+            refreshTextTemplate();
         }
         return new HashMap<>(this.indexTextTemplateMap);
     }
     private void refreshTextTemplate(){
-        this.indexTextTemplateMap.clear();
-
+        synchronized (MUTEX_TEXT_TEMPLATE) {
+            this.indexTextTemplateMap.clear();
+//            List<DomFileElement<EntityFacadeXml>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,EntityFacadeXml.class);
+            List<PsiFile> fileList= EntityFacadeXmlUtils.getAllEntityFacadeXmlFileList(project);
+            if(fileList.size()> 0 ) {
+                this.indexTextTemplateMap.putAll(
+                        fileList.stream()
+                                .map(EntityFacadeXmlUtils::getTextTemplateFromFile)
+                                .flatMap(map -> map.entrySet().stream())
+                                .collect(Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        Map.Entry::getValue,
+                                        (existingValue, newValue) -> existingValue
+                                ))
+                );
+            }
+        }
     }
     public Map<String,IndexEntity> getIndexEntityMap(){return new HashMap<>(this.indexEntityMap);}
     public Map<String,IndexViewEntity> getIndexViewEntityMap(){return new HashMap<>(this.indexViewEntityMap);}

@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
@@ -24,6 +25,7 @@ import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.*;
@@ -438,6 +440,11 @@ public final class MyDomUtils {
     public static @NotNull String getValueOrEmptyString(GenericAttributeValue<String> value){
         return getXmlAttributeValueString(value).orElse(MyStringUtils.EMPTY_STRING);
     }
+    public static @NotNull String getValueOrEmptyString(XmlAttribute value){
+        if(value == null) return MyStringUtils.EMPTY_STRING;
+        return getValueOrEmptyString(value.getValue());
+    }
+
     public static @NotNull String getValueOrEmptyString(String value){
         return value == null ? MyStringUtils.EMPTY_STRING : value;
     }
@@ -564,7 +571,15 @@ public final class MyDomUtils {
         });
 
     }
+    public static Optional<VirtualFile> getVirtualFileByPathName(@NotNull Project project, @NotNull String pathName)
+    {
+        return ApplicationManager.getApplication().runReadAction((Computable<Optional<VirtualFile>>) ()->{
+            return Optional.ofNullable(VfsUtil.findFileByIoFile(new File(pathName),true));
+//            GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//            return FilenameIndex.getVirtualFilesByName( pathName, true, scope).stream().findFirst();
+        });
 
+    }
     /**
      * 根据location，获取在location中定义的path和fileName，并按先后次序添加到Array中
      * @param location String

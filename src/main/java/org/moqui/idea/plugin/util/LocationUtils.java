@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.io.File;
 
 /**
  * 处理moqui中文件路径和文件的专用类
@@ -745,5 +746,51 @@ public final class LocationUtils {
             }
         }
 
+    }
+
+    public static @NotNull List<VirtualFile> getFrameworkDataDirectoryList(@NotNull Project project){
+        String basePath = project.getBasePath();
+        if(basePath== null) return new ArrayList<>();
+        VirtualFile baseFile = MyDomUtils.getVirtualFileByPathName(project,basePath).orElse(null);
+        if(baseFile == null) return new ArrayList<>();
+        return  Arrays.stream(baseFile.getChildren())
+                .filter(VirtualFile::isDirectory)
+                .filter(virtualFile -> virtualFile.getName().equals("framework"))
+                .flatMap(virtualFile -> Arrays.stream(virtualFile.getChildren()))
+                .filter(VirtualFile::isDirectory)
+                .filter(virtualFile -> virtualFile.getName().equals("data"))
+                .toList();
+    }
+    public static @NotNull List<VirtualFile> getComponentDataDirectoryList(@NotNull Project project){
+        String basePath = project.getBasePath();
+        if(basePath== null) return new ArrayList<>();
+        VirtualFile baseFile = MyDomUtils.getVirtualFileByPathName(project,basePath).orElse(null);
+        if(baseFile == null) return new ArrayList<>();
+        return  Arrays.stream(baseFile.getChildren())
+                .filter(VirtualFile::isDirectory)
+                .filter(virtualFile -> virtualFile.getName().equals("runtime"))
+                .flatMap(virtualFile -> Arrays.stream(virtualFile.getChildren()))
+                .filter(VirtualFile::isDirectory)
+                .filter(virtualFile -> virtualFile.getName().equals("base-component") || virtualFile.getName().equals("component"))
+                .flatMap(virtualFile -> Arrays.stream(virtualFile.getChildren()))
+                .filter(VirtualFile::isDirectory)
+                .flatMap(virtualFile -> Arrays.stream(virtualFile.getChildren()))
+                .filter(VirtualFile::isDirectory)
+                .filter(virtualFile -> virtualFile.getName().equals("data"))
+                .toList();
+    }
+
+    public static @NotNull List<VirtualFile> getAllDataDirectoryList(@NotNull Project project){
+        List<VirtualFile> result = new ArrayList<>();
+        result.addAll(getFrameworkDataDirectoryList(project));
+        result.addAll(getComponentDataDirectoryList(project));
+        return result;
+    }
+
+    public static @NotNull List<VirtualFile> getAllDataFileList(@NotNull Project project){
+        return getAllDataDirectoryList(project).stream()
+                .flatMap(virtualFile -> Arrays.stream(virtualFile.getChildren()))
+                .filter(virtualFile -> virtualFile.isValid() && (!virtualFile.isDirectory()))
+                .toList();
     }
 }
