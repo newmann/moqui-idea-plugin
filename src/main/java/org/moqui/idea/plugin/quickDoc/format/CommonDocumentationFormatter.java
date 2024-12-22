@@ -71,6 +71,21 @@ public class CommonDocumentationFormatter {
         }
         return builder.wrapWith("pre").wrapWith(DEFINITION_ELEMENT);
     }
+    public static HtmlChunk.Element formatSectionDefinition(Section section) {
+        HtmlBuilder builder = new HtmlBuilder();
+
+        String fileName = MyDomUtils.getContainingFileNameFromPsiElement(section.getXmlTag()).orElse("N/A");
+        String componentName = MyDomUtils.getContainingPathFromPsiElement(section.getXmlTag())
+                .flatMap(ComponentUtils::getComponentNameFromPath)
+                .orElse(MyStringUtils.EMPTY_STRING);
+
+        builder.append(text(MyDomUtils.getValueOrEmptyString(section.getName())).bold())
+                .br()
+                .append(text("Defined in " + fileName + ", [Component: " + componentName + " ]").wrapWith(GRAYED_ELEMENT));
+
+        return builder.wrapWith("pre").wrapWith(DEFINITION_ELEMENT);
+    }
+
     public static HtmlChunk.Element formatEntityDefinition(Entity entity) {
         return formatEntityOrViewDefinition(entity);
     }
@@ -303,7 +318,7 @@ public class CommonDocumentationFormatter {
 
     public static HtmlChunk.Element formatTagValue(XmlTag xmlTag,String title, @NotNull String noContentMessage) {
         HtmlBuilder builder = new HtmlBuilder();
-        String content =xmlTag == null? null : xmlTag.getValue().getText();
+        String content =xmlTag == null? null : xmlTag.getText();
 
         if(content == null) {
             content = noContentMessage;

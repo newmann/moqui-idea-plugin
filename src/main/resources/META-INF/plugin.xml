@@ -205,17 +205,17 @@
               id="MoquiSrcProjectView"
               implementation="org.moqui.idea.plugin.projectViewPane.MoquiSrcViewPane"
       />
-<!--      再进一步优化-->
-<!--      <codeInsight.declarativeInlayProvider-->
-<!--              language="XML"-->
-<!--              implementationClass="org.moqui.idea.plugin.provider.ServiceInlayHintsProvider"-->
-<!--              isEnabledByDefault="true"-->
-<!--              group="VALUES_GROUP"-->
-<!--              providerId="xml.moqui.service"-->
-<!--              bundle="messages.MoquiDomBundle"-->
-<!--              nameKey="xml.inlay.hints.service.provider.name"-->
-<!--              descriptionKey="xml.inlay.hints.service.provider.description"/>-->
-      <codeInsight.daemonBoundCodeVisionProvider implementation="org.moqui.idea.plugin.provider.MoquiUsagesInlayHintsProvider"/>
+
+      <codeInsight.declarativeInlayProvider
+              language="XML"
+              implementationClass="org.moqui.idea.plugin.provider.TextTemplateInlayHintsProvider"
+              isEnabledByDefault="true"
+              group="VALUES_GROUP"
+              providerId="xml.moqui.hints"
+              bundle="messages.MoquiDomBundle"
+              nameKey="xml.inlay.hints.textTemplate.provider.name"
+              descriptionKey="xml.inlay.hints.textTemplate.provider.description"/>
+      <codeInsight.daemonBoundCodeVisionProvider implementation="org.moqui.idea.plugin.provider.MoquiUsagesCodeVisionProvider"/>
 
   </extensions>
   <actions>

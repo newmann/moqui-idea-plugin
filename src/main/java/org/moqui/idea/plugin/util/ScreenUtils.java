@@ -224,7 +224,17 @@ public final class ScreenUtils {
      */
     public static List<Section> getSectionListFromScreenFile(@NotNull DomFileElement<Screen> fileElement){
         Widgets widgets = fileElement.getRootElement().getWidgets();
-        return DomUtil.getChildrenOf(widgets,Section.class);
+        List<Section> sectionList = new ArrayList<>();
+        widgets.accept(new DomElementVisitor() {
+            @Override
+            public void visitDomElement(DomElement domElement) {
+                domElement.acceptChildren(this); //循环检查下级的DomElement
+            }
+            public void visitSection(Section section){
+                sectionList.add(section);
+            }
+        });
+        return sectionList;
     }
     public static Optional<Section> getSectionFromScreenFileByName(@NotNull DomFileElement<Screen> fileElement,@NotNull String sectionName){
 

@@ -4,6 +4,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.util.MNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -245,27 +246,30 @@ public final class MyStringUtils {
     }
 
     public static String cleanStringForQuickDocumentation(@NotNull String content){
-        Pattern pattern = Pattern.compile("^\\s*");
-        char separator = '\n';
+        MNode contentNode = MNode.parseText("section",content);
+        return contentNode.toString();
 
-        String[] lines = content.replace("\t","  ").split("\\r?\\n");
-        //计算最小的前置空白字符
-        int minCount = Integer.MAX_VALUE;
-        for(String line:lines) {
-            if(!line.trim().isEmpty()) {
-                Matcher matcher = pattern.matcher(line);
-                if (matcher.find()) {
-                    if (matcher.end() < minCount) minCount = matcher.end();
-                }
-            }
-        }
-        StringBuilder builder = new StringBuilder();
-        for(String line:lines) {
-            if(!line.trim().isEmpty()) {
-                builder.append(line.substring(minCount)).append(separator);
-            }
-        }
-        return builder.toString();
+//        Pattern pattern = Pattern.compile("^\\s*");
+//        char separator = '\n';
+//
+//        String[] lines = content.replace("\t","  ").split("\\r?\\n");
+//        //计算最小的前置空白字符
+//        int minCount = Integer.MAX_VALUE;
+//        for(String line:lines) {
+//            if(!line.trim().isEmpty()) {
+//                Matcher matcher = pattern.matcher(line);
+//                if (matcher.find()) {
+//                    if (matcher.end() < minCount) minCount = matcher.end();
+//                }
+//            }
+//        }
+//        StringBuilder builder = new StringBuilder();
+//        for(String line:lines) {
+//            if(!line.trim().isEmpty()) {
+//                builder.append(line.substring(minCount)).append(separator);
+//            }
+//        }
+//        return builder.toString();
     }
 
     public static boolean containGroovyVariables(@NotNull String content){

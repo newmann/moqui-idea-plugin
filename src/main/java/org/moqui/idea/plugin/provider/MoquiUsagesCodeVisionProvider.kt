@@ -20,7 +20,7 @@ import org.moqui.idea.plugin.util.MyDomUtils
 import org.moqui.idea.plugin.util.RestApiUtils
 import java.awt.event.MouseEvent
 
-class MoquiUsagesInlayHintsProvider: CodeVisionProviderBase() {
+class MoquiUsagesCodeVisionProvider: CodeVisionProviderBase() {
     val CHECK_TAG: Set<String> = setOf(Entity.TAG_NAME,ViewEntity.TAG_NAME, Service.TAG_NAME,
         Transition.TAG_NAME,TransitionInclude.TAG_NAME, WidgetTemplate.TAG_NAME)
     override val id: String

@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -64,15 +65,31 @@ public final class EntityFacadeXmlUtils {
      * 获取定义在moqui.basic.LocalizedMessage值，还要包括LocalizedMessage，没有别名
      */
     public static Map<String, XmlTag> getTextTemplateFromFile(@NotNull PsiFile file){
+        Map<String,XmlTag> result;
         if(isEntityFacadeXmlFile(file)) {
-            return PsiTreeUtil.getChildrenOfTypeAsList(file, XmlTag.class).stream()
-                    .filter(it -> it.getName().equals("moqui.basic.LocalizedMessage") || it.getName().equals("LocalizedMessage"))
+            XmlFile xmlFile = (XmlFile) file;
+            List<XmlTag> xmlTagList = PsiTreeUtil.getChildrenOfTypeAsList(xmlFile.getRootTag(), XmlTag.class);
+            xmlTagList = xmlTagList.stream()
+                    .filter(it -> isLocalizedMessageTag(it.getName()))
+                    .toList();
+            xmlTagList = xmlTagList.stream()
                     .filter(it -> MyDomUtils.getValueOrEmptyString(it.getAttribute(LocalizedMessage_Field_Local)).equals("default"))
+                    .toList();
+
+            result =  xmlTagList.stream()
+//                    .filter(it -> it.getName().equals("moqui.basic.LocalizedMessage") || it.getName().equals("LocalizedMessage"))
+//                    .filter(it -> MyDomUtils.getValueOrEmptyString(it.getAttribute(LocalizedMessage_Field_Local)).equals("default"))
                     .collect(Collectors.toMap((xmlTag -> MyDomUtils.getValueOrEmptyString(xmlTag.getAttribute(LocalizedMessage_Field_Original))), Function.identity(), (n1, n2) -> n1));
 
         }else {
-            return new HashMap<>();
+            result = new HashMap<>();
         }
+        return result;
+    }
+
+    public static boolean isLocalizedMessageTag(String tagName){
+        if(MyStringUtils.isEmpty(tagName)) return false;
+        return tagName.equals("moqui.basic.LocalizedMessage") || tagName.equals("LocalizedMessage");
     }
 
     public static  Map<String, XmlTag> getAllTextTemplateMap(@NotNull Project project){
@@ -99,12 +116,12 @@ public final class EntityFacadeXmlUtils {
         XmlTag xmlTag = getAllTextTemplateMap(element.getProject()).get(textContent);
 
         if((xmlTag != null) ){
-            XmlAttribute attribute = xmlTag.getAttribute(LocalizedMessage_Field_Original);
-            if(attribute != null) {
-                XmlAttributeValue attributeValue = attribute.getValueElement();
-                if(attributeValue!= null) {
+            XmlAttribute targetAttribute = xmlTag.getAttribute(LocalizedMessage_Field_Original);
+            if(targetAttribute != null) {
+                XmlAttributeValue targetAttributeValue = targetAttribute.getValueElement();
+                if(targetAttributeValue != null) {
                     psiReferences.add(TextTemplateReference.of(element,
-                            xmlAttributeValue.getValueTextRange(), attributeValue));//提供 code completion
+                            new TextRange(1,1+textContent.length()), targetAttributeValue));
                 }
             }
         }

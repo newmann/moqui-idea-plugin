@@ -43,25 +43,6 @@ public class TextTemplateReference extends PsiReferenceBase.Immediate<PsiElement
 //        this.myResolve = myResolve;
     }
 
-    @Override
-    public @NotNull Object[] getVariants() {
-        List<LookupElement> variants = new ArrayList<>();
-
-
-        EntityFacadeXmlUtils.getAllTextTemplateMap(this.myElement.getProject()).forEach(
-                (key, value) -> variants.add(
-                    LookupElementBuilder.create(key)
-                            .withCaseSensitivity(false)
-    //                                        .withTailText(MyStringUtils.formatFieldNameTrailText(MyDomUtils.getValueOrEmptyString(item.getType())))
-                            .withTypeText(MyDomUtils.getValueOrEmptyString(value.getAttributeValue(LocalizedMessage_Field_Localized)))
-    //                                        .withIcon(item.getInAbstractIndexEntity() instanceof IndexEntity ? MoquiIcons.EntityTag: MoquiIcons.ViewEntityTag)
-        ));
-
-
-        return variants.toArray();
-    }
-
-
 
     @Override
     public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {

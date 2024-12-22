@@ -763,16 +763,21 @@ public final class MoquiIndexService {
 //            List<DomFileElement<EntityFacadeXml>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,EntityFacadeXml.class);
             List<PsiFile> fileList= EntityFacadeXmlUtils.getAllEntityFacadeXmlFileList(project);
             if(fileList.size()> 0 ) {
-                this.indexTextTemplateMap.putAll(
-                        fileList.stream()
-                                .map(EntityFacadeXmlUtils::getTextTemplateFromFile)
-                                .flatMap(map -> map.entrySet().stream())
-                                .collect(Collectors.toMap(
-                                        Map.Entry::getKey,
-                                        Map.Entry::getValue,
-                                        (existingValue, newValue) -> existingValue
-                                ))
-                );
+
+                fileList.forEach(file->{
+                    Map<String,XmlTag> fileTemplate =  EntityFacadeXmlUtils.getTextTemplateFromFile(file);
+                    this.indexTextTemplateMap.putAll(fileTemplate);
+                });
+//                this.indexTextTemplateMap.putAll(
+//                        fileList.stream()
+//                                .map(EntityFacadeXmlUtils::getTextTemplateFromFile)
+//                                .flatMap(map -> map.entrySet().stream())
+//                                .collect(Collectors.toMap(
+//                                        Map.Entry::getKey,
+//                                        Map.Entry::getValue,
+//                                        (existingValue, newValue) -> existingValue
+//                                ))
+//                );
             }
         }
     }

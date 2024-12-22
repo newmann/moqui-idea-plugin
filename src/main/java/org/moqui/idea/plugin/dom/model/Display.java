@@ -1,9 +1,11 @@
 package org.moqui.idea.plugin.dom.model;
 
+import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.SubTagList;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
 
 import java.util.List;
 
@@ -15,7 +17,9 @@ public interface Display extends DomElement {
     List<DependsOn> getDependsOnList();
 
     @NotNull GenericAttributeValue<Boolean> getAlsoHidden();
-    @NotNull GenericAttributeValue<String> getText();
+    @NotNull
+    @Convert(TextTemplateConverter.class)
+    GenericAttributeValue<String> getText();
     @NotNull GenericAttributeValue<String> getTextMap();
     @NotNull GenericAttributeValue<String> getStyle();
     @NotNull GenericAttributeValue<String> getCurrencyUnitField();

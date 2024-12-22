@@ -5,14 +5,16 @@ import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
+import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.util.EntityFacadeXmlUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
+
+import java.util.Collection;
 
 /**
  *
  */
-public class TextTemplateReferenceConverter implements CustomReferenceConverter<String> {
+public class TextTemplateConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
 
 
     @Override
@@ -21,4 +23,8 @@ public class TextTemplateReferenceConverter implements CustomReferenceConverter<
 
     }
 
+    @Override
+    public @NotNull Collection<? extends String> getVariants(ConvertContext convertContext) {
+        return EntityFacadeXmlUtils.getAllTextTemplateMap(convertContext.getProject()).keySet();
+    }
 }

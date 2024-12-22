@@ -1,10 +1,10 @@
 package org.moqui.idea.plugin.dom.model;
 
+import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.Referencing;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.TextTemplateReferenceConverter;
+import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
 
 public interface Label extends DomElement {
     public static final String TAG_NAME = "label";
@@ -14,7 +14,7 @@ public interface Label extends DomElement {
 //    List<Parameter> getParameterList();
 
     @NotNull
-    @Referencing(TextTemplateReferenceConverter.class)
+    @Convert(TextTemplateConverter.class)
     GenericAttributeValue<String> getText();
 
 

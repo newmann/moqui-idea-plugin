@@ -4,6 +4,7 @@ import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityAndViewNameReferenceConverter;
+import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
 import org.moqui.idea.plugin.dom.converter.UrlConverter;
 import org.moqui.idea.plugin.dom.presentation.LinkPresentationProvider;
 
@@ -31,7 +32,9 @@ public interface Link extends DomElement {
 
     @NotNull GenericAttributeValue<String> getUrlType();
     @NotNull GenericAttributeValue<String> getUrlNoparam();
-    @NotNull GenericAttributeValue<String> getText();
+    @NotNull
+    @Convert(TextTemplateConverter.class)
+    GenericAttributeValue<String> getText();
     @NotNull GenericAttributeValue<String> getTextMap();
     @NotNull GenericAttributeValue<String> getEncode();
     @NotNull GenericAttributeValue<String> getIcon();

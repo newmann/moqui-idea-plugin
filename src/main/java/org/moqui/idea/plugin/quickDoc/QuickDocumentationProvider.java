@@ -8,10 +8,7 @@ import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.Entity;
-import org.moqui.idea.plugin.dom.model.ExtendEntity;
-import org.moqui.idea.plugin.dom.model.Service;
-import org.moqui.idea.plugin.dom.model.ViewEntity;
+import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.IndexViewEntity;
@@ -65,6 +62,7 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
             case Entity.TAG_NAME -> generateEntityDoc(element);
             case ViewEntity.TAG_NAME -> generateViewEntityDoc(element);
             case Service.TAG_NAME -> generateServiceDoc(element);
+            case Section.TAG_NAME -> generateSectionDoc(element);
 //            case Field.TAG_NAME -> new FieldDocumentTarget(element).toString();
 //            case Relationship.TAG_NAME -> new RelationshipDocumentTarget(element).toString();
 
@@ -156,4 +154,17 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
 
         return docBuilder.toString();
     }
+    public static String generateSectionDoc(PsiElement element) {
+        Section section = MyDomUtils.getLocalDomElementByPsiElement(element,Section.class).orElse(null);
+        if (section == null){return "Not found target Section.";}
+
+        HtmlBuilder docBuilder = new HtmlBuilder()
+                .append(formatSectionDefinition(section));
+
+        docBuilder.append(formatTagValue(section.getXmlTag(), null, "Not found target Section."));
+
+
+        return docBuilder.toString();
+    }
 }
+
