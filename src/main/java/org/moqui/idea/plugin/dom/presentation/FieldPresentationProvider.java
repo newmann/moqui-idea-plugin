@@ -2,7 +2,7 @@ package org.moqui.idea.plugin.dom.presentation;
 
 import com.intellij.ide.presentation.PresentationProvider;
 import com.intellij.openapi.util.text.StringUtil;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Field;
 import org.moqui.idea.plugin.util.MyStringUtils;
@@ -10,13 +10,10 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 import javax.swing.*;
 
 public class FieldPresentationProvider extends PresentationProvider<Field> {
-
-  private static final String UNKNOWN = "<N/A>";
-
   @Override
   public @Nullable Icon getIcon(Field field) {
     if(field.getIsPk().exists()) {
-      return MoquiIcons.PrimaryKeyField;
+      return MyIcons.PrimaryKeyField;
     }else {
       return super.getIcon(field);
     }
@@ -28,9 +25,9 @@ public class FieldPresentationProvider extends PresentationProvider<Field> {
   public String getName(Field coordinates) {
     String fieldName;
     if(coordinates.getColumnName().exists()){
-      fieldName = StringUtil.notNullize(coordinates.getColumnName().getStringValue(), UNKNOWN);
+      fieldName = StringUtil.notNullize(coordinates.getColumnName().getStringValue(), MyStringUtils.UNKNOWN);
     }else {
-      fieldName = StringUtil.notNullize(coordinates.getName().getStringValue(), UNKNOWN);
+      fieldName = StringUtil.notNullize(coordinates.getName().getStringValue(), MyStringUtils.UNKNOWN);
     }
 //    fieldName = fieldName
 //            + '-'

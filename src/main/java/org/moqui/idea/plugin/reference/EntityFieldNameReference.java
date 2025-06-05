@@ -5,12 +5,9 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.xml.XmlAttribute;
-import com.intellij.util.IncorrectOperationException;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexEntity;
@@ -23,19 +20,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class EntityFieldNameReference extends PsiReferenceBase.Immediate<PsiElement> {
+public class EntityFieldNameReference extends MoquiBaseReference{
 
     public static EntityFieldNameReference of(@NotNull PsiElement psiElement, TextRange textRange, PsiElement myResolve){
         return new EntityFieldNameReference(psiElement,textRange,myResolve);
     }
     private final Logger LOG = Logger.getInstance(EntityFieldNameReference.class);
 
-    private final TextRange myTextRange;
+//    private final TextRange myTextRange;
 //    private final PsiElement myResolve;
     public EntityFieldNameReference(@NotNull PsiElement psiElement, TextRange textRange, PsiElement myResolve) {
         super(psiElement, textRange,myResolve);
 
-        this.myTextRange = textRange;
+//        this.myTextRange = textRange;
 //        this.myResolve = myResolve;
     }
 
@@ -54,7 +51,7 @@ public class EntityFieldNameReference extends PsiReferenceBase.Immediate<PsiElem
                                 .withCaseSensitivity(false)
                                 .withTailText(MyStringUtils.formatFieldNameTrailText(MyDomUtils.getValueOrEmptyString(item.getType())))
                                 .withTypeText(item.getInAbstractIndexEntity() == null? "N/A": item.getInAbstractIndexEntity().getShortName())
-                                .withIcon(item.getInAbstractIndexEntity() instanceof IndexEntity ? MoquiIcons.EntityTag: MoquiIcons.ViewEntityTag)
+                                .withIcon(item.getInAbstractIndexEntity() instanceof IndexEntity ? MyIcons.EntityTag: MyIcons.ViewEntityTag)
                 );
             }
         });
@@ -85,8 +82,4 @@ public class EntityFieldNameReference extends PsiReferenceBase.Immediate<PsiElem
         return fieldDescriptorList.stream().map(FieldDescriptor::getFieldName).toList();
     }
 
-    @Override
-    public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
-        return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
-    }
 }

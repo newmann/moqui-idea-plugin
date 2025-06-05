@@ -12,14 +12,14 @@ import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.converter.insertHandler.ExtendEntityNameAndPackageInsertionHandler;
 import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.dom.model.ExtendEntity;
-import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
@@ -56,7 +56,7 @@ public abstract class AbstractExtendEntityAttributeConverter extends ResolvingCo
             String s = EntityUtils.getFullNameFromEntity(entity);
 //            Icon icon = AllIcons.Ide.Gift;//todo 配置一个更合适的icon
 //            if(entity instanceof Entity) {
-            Icon icon = MoquiIcons.EntityTag;
+            Icon icon = MyIcons.EntityTag;
 //            }
             return LookupElementBuilder.create(entity,s)
                     .withInsertHandler(ExtendEntityNameAndPackageInsertionHandler.INSTANCE)
@@ -72,7 +72,7 @@ public abstract class AbstractExtendEntityAttributeConverter extends ResolvingCo
         return getEntity(context).map(entity ->{
             PsiReference[] psiReferences = new PsiReference[1];
             //entityName reference
-            psiReferences[0] = new PsiRef(element,
+            psiReferences[0] = new MoquiBaseReference(element,
                     new TextRange(1,
                             value.getStringValue().length()+1),
                     getCreateReferenceElement(entity));

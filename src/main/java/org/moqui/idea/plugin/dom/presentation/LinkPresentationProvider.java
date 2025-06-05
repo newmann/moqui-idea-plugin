@@ -7,9 +7,6 @@ import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class LinkPresentationProvider extends PresentationProvider<Link> {
-
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(Link coordinates) {
@@ -17,7 +14,7 @@ public class LinkPresentationProvider extends PresentationProvider<Link> {
             .orElse(MyStringUtils.EMPTY_STRING);
 
     String url = MyDomUtils.getXmlAttributeValueString(coordinates.getUrl().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     String str;
     if(text.equals(MyStringUtils.EMPTY_STRING)) {
       str = url;

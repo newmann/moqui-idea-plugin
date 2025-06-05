@@ -2,35 +2,54 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.ServiceCallReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.ServicePresentationProvider;
 
 import java.util.List;
-@Presentation(icon="MoquiIcons.ServiceTag", provider = ServicePresentationProvider.class)
+@Presentation(icon="org.moqui.idea.plugin.MyIcons.ServiceTag", provider = ServicePresentationProvider.class)
 public interface Service extends AbstractLocation {
+
     public static final String TAG_NAME = "service";
+
     public static final String ATTR_VERB = "verb";
+
     public static final String ATTR_NOUN = "noun";
 
     public static final String ATTR_DISPLAY_NAME = "displayName";
 
     public static final String ATTR_TYPE = "type";
 //    public static final String ATTR_LOCATION = "location";
+
     public static final String ATTR_METHOD = "method";
+
     public static final String ATTR_AUTHENTICATE = "authenticate";
+
     public static final String ATTR_AUTHZ_ACTION = "authz-action";
+
     public static final String ATTR_ALLOW_REMOTE = "allow-remote";
+
     public static final String ATTR_VALIDATE = "validate";
+
     public static final String ATTR_NO_REMEMBER_PARAMENTERS = "no-remember-parameters";
+
     public static final String ATTR_TRANSACTION = "transaction";
+
     public static final String ATTR_TRANSACTION_TIMEOUT = "authenticate-timeout";
+
     public static final String ATTR_NO_TX_CACHE = "no-tx-cache";
+
     public static final String ATTR_SEMAPHORE = "semaphore";
+
     public static final String ATTR_SEMAPHORE_NAME = "semaphore-name";
+
     public static final String ATTR_SEMAPHORE_TIMEOUT = "semaphore-timeout";
+
     public static final String ATTR_SEMAPHORE_SLEEP = "semaphore-sleep";
+
     public static final String ATTR_SEMAPHORE_IGNORE = "semaphore-ignore";
+
     public static final String ATTR_SEMAPHORE_PARAMETER = "semaphore-parameter";
 
     //for rest api

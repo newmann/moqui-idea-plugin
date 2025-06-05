@@ -8,8 +8,6 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class DefaultFieldPresentationProvider extends PresentationProvider<DefaultField> {
 
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(DefaultField coordinates) {

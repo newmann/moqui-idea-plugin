@@ -2,11 +2,13 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.SubTag;
 import com.intellij.util.xml.SubTagList;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public interface ScreenExtend extends ScreenBase {
+    
     public static final String TAG_NAME = "screen-extend";
 
 

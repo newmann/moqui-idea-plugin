@@ -8,8 +8,9 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.MyBundle;
 import org.moqui.idea.plugin.action.componentManagement.ComponentDepends;
 import org.moqui.idea.plugin.action.entityManagement.PendingViewEntityManagementGUI;
 import org.moqui.idea.plugin.action.menuManagement.MenuManagementGUI;
@@ -57,7 +58,8 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
         mainActionGroup = new DefaultActionGroup();
 
         ComponentDepends componentDepends = new ComponentDepends(this.project);
-        addToolBar(componentDepends,"Component","Loading all components and dependencies", MoquiIcons.ComponentTag);
+        addToolBar(componentDepends, MyBundle.message("action.AdminToolWindowFactory.loading.components.title"),
+                MyBundle.message("action.AdminToolWindowFactory.loading.components.description"), MyIcons.ComponentTag);
 
 //        EntityManagementGUI entityManagementGUI = new EntityManagementGUI(this.project);
 //        addToolBar(entityManagementGUI,"Entity","Loading all entities", MoquiIcons.EntityTag);
@@ -69,7 +71,8 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
 //        addToolBar(serviceManagementGUI,"Service","Loading all services", MoquiIcons.ServiceTag);
 
         MenuManagementGUI menuManagementGUI = new MenuManagementGUI(this.project); //
-        addToolBar(menuManagementGUI,"Menu","Loading all menus", AllIcons.Ide.Gift);//TODO update icon
+        addToolBar(menuManagementGUI, MyBundle.message("action.AdminToolWindowFactory.loading.menus.title"),
+                MyBundle.message("action.AdminToolWindowFactory.loading.menus.description"), AllIcons.Ide.Gift);//TODO update icon
 
         ActionToolbar toolBar = ActionManager.getInstance().createActionToolbar("Moqui Admin", mainActionGroup, true);
         toolBar.setTargetComponent(componentDepends);
@@ -79,7 +82,7 @@ public class AdminToolWindowFactory implements ToolWindowFactory {
 
     }
 
-    private void addToolBar(Component component,String title,String description,Icon icon){
+    private void addToolBar(Component component, String title, String description, Icon icon){
         contentPanel.add(component,title);
 
         mainActionGroup.add(new AnAction(title,description,icon){

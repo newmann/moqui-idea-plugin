@@ -5,7 +5,7 @@ import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlPatterns;
 import com.intellij.psi.PsiElement;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.insertHandler.AliasInsertObject;
 import org.moqui.idea.plugin.dom.converter.insertHandler.AliasNameInsertionHandler;
@@ -73,9 +73,9 @@ public class AliasNameCompletionProvider extends AbstractSimpleCompletionProvide
                     String fieldName = MyDomUtils.getValueOrEmptyString(indexAbstractField.getName());
                     if (!enteredAliasNameCollection.contains(fieldName)) { //跳过已经输入的alias
                         if (abstractIndexEntity instanceof IndexEntity) {
-                            icon = MoquiIcons.EntityTag;
+                            icon = MyIcons.EntityTag;
                         } else {
-                            icon = MoquiIcons.ViewEntityTag;
+                            icon = MyIcons.ViewEntityTag;
                         }
                         AliasInsertObject aliasInsertObject = AliasInsertObject.of(alias);
                         lookupElementBuilders.add(

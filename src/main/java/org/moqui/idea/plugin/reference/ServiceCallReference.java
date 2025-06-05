@@ -10,9 +10,8 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.util.BeginAndEndCharPattern;
 import org.moqui.idea.plugin.util.EntityUtils;
@@ -24,22 +23,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ServiceCallReference extends PsiReferenceBase.Immediate<PsiElement> {
+public class ServiceCallReference extends MoquiBaseReference {
   public static ServiceCallReference of(@NotNull PsiElement element, TextRange textRange, PsiElement resolveElement){
     return new ServiceCallReference(element, textRange,resolveElement);
   }
 
   private final Logger logger = Logger.getInstance(ServiceCallReference.class);
 
-  private TextRange myTextRange;
+//  private TextRange myTextRange;
 
     private PsiElement myResolveElement;
 
   public ServiceCallReference(@NotNull PsiElement element, TextRange textRange,PsiElement resolveElement) {
     super(element, textRange,resolveElement);
-    this.myTextRange = textRange;
+//    this.myTextRange = textRange;
 
-    myResolveElement = resolveElement;
+//    myResolveElement = resolveElement;
   }
 
 //
@@ -113,7 +112,7 @@ public class ServiceCallReference extends PsiReferenceBase.Immediate<PsiElement>
             .forEach(item->{
               lookupList.add(LookupElementBuilder.create(item)
                       .withCaseSensitivity(true)
-                      .withIcon(MoquiIcons.EntityTag)
+                      .withIcon(MyIcons.EntityTag)
               );
 
             });
@@ -135,7 +134,7 @@ public class ServiceCallReference extends PsiReferenceBase.Immediate<PsiElement>
                 lookupList.add(
                         LookupElementBuilder.create(item)
                         .withCaseSensitivity(true)
-                        .withIcon(MoquiIcons.ServiceTag)
+                        .withIcon(MyIcons.ServiceTag)
                 );
               });
 
@@ -146,7 +145,7 @@ public class ServiceCallReference extends PsiReferenceBase.Immediate<PsiElement>
                 lookupList.add(
                         LookupElementBuilder.create(item)
                                 .withCaseSensitivity(true)
-                                .withIcon(MoquiIcons.ServiceTag)
+                                .withIcon(MyIcons.ServiceTag)
                 );
               });
 
@@ -157,7 +156,7 @@ public class ServiceCallReference extends PsiReferenceBase.Immediate<PsiElement>
   public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
     String newName = newElementName;
     //如果指向了PsiFile，则需要将.xml后缀去掉
-    if(myResolveElement instanceof PsiFile) {
+    if(myResolve instanceof PsiFile) {
       int index = newElementName.lastIndexOf(".xml");
       if(index>0){
         newName = newElementName.substring(0,index);

@@ -4,15 +4,10 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
+import org.moqui.idea.plugin.MyBundle;
 
 import java.util.Objects;
 
-/**
- * @author Aaron
- * @since 2021/1/18 14:30
- * <p>描述：</p>
- * from:https://gitee.com/-/ide/project/luyaoCode/go-to-implementation/edit/master/-/src/com/example/util/CustomNotifier.java
- */
 public final class CustomNotifier {
     private CustomNotifier() {
         throw new UnsupportedOperationException();
@@ -23,7 +18,7 @@ public final class CustomNotifier {
      */
     private static final NotificationGroup NOTIFICATION_GROUP;
     static {
-        NOTIFICATION_GROUP = NotificationGroupManager.getInstance().getNotificationGroup("Custom Notification Group");
+        NOTIFICATION_GROUP = NotificationGroupManager.getInstance().getNotificationGroup(MyBundle.message("util.CustomNotifier.notificationGroup"));
     }
 
     /**
@@ -36,7 +31,7 @@ public final class CustomNotifier {
      */
     public static void info(Project project, String content) {
         if (Objects.isNull(project)) {
-            System.out.println("Current project must be null!");
+            System.out.println(MyBundle.message("util.CustomNotifier.currentProjectIsNull"));
             return;
         }
 
@@ -53,7 +48,7 @@ public final class CustomNotifier {
      */
     public static void warn(Project project, String content) {
         if (Objects.isNull(project)) {
-            System.out.println("Current project must be null!");
+            System.out.println(MyBundle.message("util.CustomNotifier.currentProjectIsNull"));
             return;
         }
 
@@ -70,7 +65,7 @@ public final class CustomNotifier {
      */
     public static void error(Project project, String content) {
         if (Objects.isNull(project)) {
-            System.out.println("Current project must be null!");
+            System.out.println(MyBundle.message("util.CustomNotifier.currentProjectIsNull"));
             return;
         }
 

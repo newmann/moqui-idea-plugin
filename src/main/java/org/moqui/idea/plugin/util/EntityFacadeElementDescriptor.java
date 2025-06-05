@@ -64,17 +64,19 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
             if(xmlTag.getName().equals(EntityFacadeXml.TAG_NAME)){
                 resultList.add(EntityFacadeXmlTypeAttributeDescriptor.of());
             }else {
-                //对主键字段进行控制，如果主键在父级实体中存在，则不显示。注意，父级实体可能有多个
-                List<String> parentEntityPKList = getTagParentsEntityPKList(xmlTag);
                 EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(xmlTag);
-                EntityUtils.getIndexEntityByName(xmlTag.getProject(), descriptor.getEntityName())
-                        .ifPresent(indexEntity -> indexEntity.getFieldList()
-                                .stream()
-                                .filter(field -> !parentEntityPKList.contains(MyDomUtils.getValueOrEmptyString(field.getName())))
-                                .forEach(
-                                field -> resultList.add(EntityFacadeFieldAttributeDescriptor.of(field)))
-                        );
-
+                //只有当前tag不是field时，才添加
+                if(!descriptor.getIsField()) {
+                    //对主键字段进行控制，如果主键在父级实体中存在，则不显示。注意，父级实体可能有多个
+                    List<String> parentEntityPKList = getTagParentsEntityPKList(xmlTag);
+                    EntityUtils.getIndexEntityByName(xmlTag.getProject(), descriptor.getEntityName())
+                            .ifPresent(indexEntity -> indexEntity.getFieldList()
+                                    .stream()
+                                    .filter(field -> !parentEntityPKList.contains(MyDomUtils.getValueOrEmptyString(field.getName())))
+                                    .forEach(
+                                            field -> resultList.add(EntityFacadeFieldAttributeDescriptor.of(field)))
+                            );
+                }
                 //            String entityName = MyDomUtils.getEntityNameInEntityFacadeXml(xmlTag).orElse(MyStringUtils.EMPTY_STRING);
 //            if(MyStringUtils.isNotEmpty(entityName)) {
 //                EntityUtils.getIndexEntityByName(xmlTag.getProject(), entityName)

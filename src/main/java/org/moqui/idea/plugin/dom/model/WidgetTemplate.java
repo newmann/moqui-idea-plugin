@@ -4,10 +4,12 @@ import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.NameValue;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.WidgetTemplatePresentationProvider;
-@Presentation(icon = "MoquiIcons.WidgetTemplate",provider = WidgetTemplatePresentationProvider.class)
+@Presentation(icon = "org.moqui.idea.plugin.MyIcons.WidgetTemplate",provider = WidgetTemplatePresentationProvider.class)
 public interface WidgetTemplate extends AllWidgets,SubFields,StandaloneFieldsList {
+    
     public static final String TAG_NAME = "widget-template";
 
     public static final String ATTR_NAME="name";

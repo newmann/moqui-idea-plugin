@@ -8,13 +8,11 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class EecaPresentationProvider extends PresentationProvider<Eeca> {
 
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(Eeca coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getId().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     return MyStringUtils.formatPresentationName(Eeca.TAG_NAME,str);
   }
 }

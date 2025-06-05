@@ -6,7 +6,7 @@ import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.SubScreens;
@@ -47,7 +47,7 @@ public class SubScreensDefaultItemCompletionProvider extends AbstractSimpleCompl
             lookupElementBuilders.add(
                     LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
                             .withCaseSensitivity(false)
-                            .withIcon(MoquiIcons.ScreenTag)
+                            .withIcon(MyIcons.ScreenTag)
                             .withTypeText(MyDomUtils.getValueOrEmptyString(item.getLocation()))
             );
 
@@ -59,7 +59,7 @@ public class SubScreensDefaultItemCompletionProvider extends AbstractSimpleCompl
                 lookupElementBuilders.add(
                         LookupElementBuilder.create(MyStringUtils.removeLastDotString(item.getName()))
                                 .withCaseSensitivity(false)
-                                .withIcon(MoquiIcons.ScreenTag)
+                                .withIcon(MyIcons.ScreenTag)
                                 .withTypeText(
                                         LocationUtils.simplifyComponentRelativePath(
                                             LocationUtils.extractComponentRelativePath(item.getParent().getVirtualFile().getPath()).orElse(MyStringUtils.EMPTY_STRING)

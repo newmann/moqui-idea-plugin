@@ -9,8 +9,6 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class EntityPresentationProvider extends PresentationProvider<Entity> {
 
-  private static final String UNKNOWN = "<N/A>";
-
 //  @Override
 //  public @Nullable @Nls(capitalization = Nls.Capitalization.Title) String getTypeName(Entity entity) {
 //    return entity.getEntityName().getStringValue();
@@ -22,9 +20,9 @@ public class EntityPresentationProvider extends PresentationProvider<Entity> {
     String name = MyDomUtils.getXmlAttributeValueString(coordinates.getName().getXmlAttributeValue())
             .orElse(MyStringUtils.EMPTY_STRING);
     if(name.equals(MyStringUtils.EMPTY_STRING)) {
-      String entityName = StringUtil.notNullize(coordinates.getPackage().getStringValue(), UNKNOWN)
+      String entityName = StringUtil.notNullize(coordinates.getPackage().getStringValue(), MyStringUtils.UNKNOWN)
               + '.'
-              + StringUtil.notNullize(coordinates.getEntityName().getStringValue(), UNKNOWN);
+              + StringUtil.notNullize(coordinates.getEntityName().getStringValue(), MyStringUtils.UNKNOWN);
       if (coordinates.getShortAlias().exists()) {
         entityName = entityName + "(" + coordinates.getShortAlias().getStringValue() + ")";
       }

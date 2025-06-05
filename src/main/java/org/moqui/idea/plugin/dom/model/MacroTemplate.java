@@ -3,13 +3,16 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 public interface MacroTemplate extends DomElement {
+    
     public static final String TAG_NAME = "macro-template";
 
     public static final String ATTR_TYPE ="type";
 
+    
     public static final String ATTR_LOCATION ="location";
 
 //    public static final String ATTR_JOIN_FROM_ALIAS ="join-from-alias";

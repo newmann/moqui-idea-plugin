@@ -19,7 +19,7 @@ import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.reference.ServiceCallReference;
 import org.moqui.idea.plugin.reference.ServiceInParameterReference;
 import org.moqui.idea.plugin.service.IndexService;
@@ -463,14 +463,14 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         final int verbIndex = serviceCallStr.indexOf(serviceDescriptor.getVerb()+"#");
         final int verbStartOffset = startOffset+verbIndex;
 
-        resultList.add(new PsiRef(element,
+        resultList.add(new MoquiBaseReference(element,
                 new TextRange(verbStartOffset, verbStartOffset+ serviceDescriptor.getVerb().length()),
                 service.getVerb().getXmlAttributeValue()));
 
         //创建侬noun的reference
         final int nounIndex = serviceCallStr.indexOf("#" + serviceDescriptor.getNoun());
         final int nounStartOffset = startOffset + nounIndex+1;
-        resultList.add(new PsiRef(element,
+        resultList.add(new MoquiBaseReference(element,
                 new TextRange(nounStartOffset, nounStartOffset+ serviceDescriptor.getNoun().length()),
                 service.getNoun().getXmlAttributeValue()));
 
@@ -483,7 +483,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
             fileName = serviceDescriptor.getClassName().substring(fileNameIndex + 1);
         }
         final int fileNameStartOffset = startOffset + fileNameIndex+1;
-        resultList.add(new PsiRef(element,
+        resultList.add(new MoquiBaseReference(element,
                 new TextRange(fileNameStartOffset, fileNameStartOffset+ fileName.length()),
                 service.getXmlTag().getContainingFile()));
 
@@ -504,7 +504,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                     tmpPath = path.substring(pathDotIndex+1);
                     path = path.substring(0,pathDotIndex);
                 }
-                resultList.add(new PsiRef(element,
+                resultList.add(new MoquiBaseReference(element,
                         new TextRange(pathStartOffset,pathStartOffset+tmpPath.length()),
                         psiPath));
                 psiPath = psiPath.getParent();
@@ -792,6 +792,11 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         return moquiIndexService.getIndexServiceByFullName(serviceName);
     }
+    public static @NotNull Optional<IndexService> getIndexServiceOrInterface(@NotNull Project project, @NotNull String serviceName){
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        return moquiIndexService.getIndexServiceOrInterfaceByFullName(serviceName);
+    }
+
     /**
      * 获取Service的InParameter
      * @param project 当前Project

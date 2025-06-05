@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.ViewEntityAliasConverter;
 import org.moqui.idea.plugin.dom.presentation.AliasAllPresentationProvider;
@@ -9,8 +10,10 @@ import org.moqui.idea.plugin.dom.presentation.AliasAllPresentationProvider;
 import java.util.List;
 @Presentation(provider = AliasAllPresentationProvider.class)
 public interface AliasAll extends DomElement {
+    
     public static final String TAG_NAME = "alias-all";
 
+    
     public static final String ATTR_ENTITY_ALIAS ="entity-alias";
     public static final String ATTR_PREFIX ="prefix";
 

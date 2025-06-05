@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.dom.converter;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.codeInspection.util.InspectionMessage;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -13,7 +14,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.service.AbstractIndexEntity;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.service.IndexViewEntity;
@@ -29,9 +30,10 @@ import java.util.Optional;
 /**
  * （Entity/ExtendEntity）-》master-》detail
  * relationship
+ *
  */
 
-public class RelationshipConverter extends ResolvingConverter<Relationship> implements CustomReferenceConverter<Relationship> {
+public class RelationshipConverter extends ResolvingConverter<Relationship>  implements CustomReferenceConverter<Relationship> {
     @Override
     public @Nullable Relationship fromString(@Nullable @NonNls String s, ConvertContext context) {
         if(s == null) return null;
@@ -58,15 +60,17 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
         }else {
             String s = EntityUtils.getRelatedNameFromRelationship(relationship).orElse(MyStringUtils.EMPTY_STRING);
             return LookupElementBuilder.create(s)
-                    .withCaseSensitivity(false);
+//                    .withTailText(MyDomUtils.getValueOrEmptyString(relationship.getTitle()),true)
+                    .withCaseSensitivity(true)
+                    .withTypeText(MyDomUtils.getValueOrEmptyString(relationship.getRelated()));
 
         }
     }
 
-    @Override
-    public @Nullable PsiElement getPsiElement(@Nullable Relationship resolvedValue) {
-        return super.getPsiElement(resolvedValue);
-    }
+//    @Override
+//    public @Nullable PsiElement getPsiElement(@Nullable Relationship resolvedValue) {
+//        return super.getPsiElement(resolvedValue);
+//    }
 
     @Override
     public void handleElementRename(GenericDomValue<Relationship> genericValue, ConvertContext context, String newElementName) {
@@ -87,45 +91,49 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
 
         Optional<Relationship> opRelationship = getRelationship(related,context);
 
-        if (opRelationship.isEmpty()) return PsiReference.EMPTY_ARRAY;
+        if (opRelationship.isEmpty()) {
+            //报错
+            return MoquiBaseReference.createNullRefArray(element,new TextRange(1,related.length()+1));
+        };
 
         final Relationship relationship = opRelationship.get();
 
         int charIndex = related.indexOf("#");
         if(charIndex< 0) {
-            PsiReference[] psiReferences = new PsiReference[1];
+//            PsiReference[] psiReferences = new PsiReference[1];
             if(MyDomUtils.getValueOrEmptyString(relationship.getShortAlias()).equals(related)) {
 
-                psiReferences[0] = new PsiRef(element,
+                return MoquiBaseReference.createOneRefArray(element,
                         new TextRange(1,
                                 related.length()+1),
                         relationship.getShortAlias().getXmlAttributeValue());
 
-                return psiReferences;
 
             } else if (MyDomUtils.getValueOrEmptyString(relationship.getRelated()).equals(related)) {
-                psiReferences[0] = new PsiRef(element,
+//                psiReferences[0] = new MoquiBaseReference(element,
+//                        new TextRange(1,
+//                                related.length()+1),
+//                        relationship.getRelated().getXmlAttributeValue());
+
+                return MoquiBaseReference.createOneRefArray(element,
                         new TextRange(1,
                                 related.length()+1),
                         relationship.getRelated().getXmlAttributeValue());
-
-                return psiReferences;
             }
         }else {
             //${title}#${related-entity-name}
             PsiReference[] psiReferences = new PsiReference[2];
 
-            psiReferences[0] = new PsiRef(element,
+            psiReferences[0] = new MoquiBaseReference(element,
                     new TextRange(1,
                             charIndex+1),
                     relationship.getTitle().getXmlAttributeValue());
-            psiReferences[1] = new PsiRef(element,
+            psiReferences[1] = new MoquiBaseReference(element,
                     new TextRange(charIndex+2,
                             related.length()+1),
                     relationship.getRelated().getXmlAttributeValue());
             return psiReferences;
         }
-
         return PsiReference.EMPTY_ARRAY;
 
     }
@@ -229,4 +237,12 @@ public class RelationshipConverter extends ResolvingConverter<Relationship> impl
 
     }
 
+    @Override
+    public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
+        if(s==null) {
+            return super.getErrorMessage(s, context);
+        }else {
+            return "找不到[" + s + "]对应的Relationship定义。";
+        }
+    }
 }

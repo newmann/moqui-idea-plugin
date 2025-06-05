@@ -4,14 +4,17 @@ import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.SubTagList;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.EntityFindOnePresentationProvider;
 
 import java.util.List;
 @Presentation(provider = EntityFindOnePresentationProvider.class)
 public interface EntityFindOne extends AbstractEntityName {
+
     public static final String TAG_NAME = "entity-find-one";
 //    public static final String ATTR_ENTITY_NAME = "entity-name";
+
     public static final String ATTR_VALUE_FIELD = "value-field";
 //    @NotNull
 //    @Attribute(ATTR_ENTITY_NAME)

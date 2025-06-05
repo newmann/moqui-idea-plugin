@@ -11,6 +11,7 @@ import com.intellij.ui.AnimatedIcon;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.MyBundle;
 import org.moqui.idea.plugin.dom.model.Component;
 import org.moqui.idea.plugin.dom.model.DependsOn;
 import org.moqui.idea.plugin.util.ComponentUtils;
@@ -45,7 +46,7 @@ public class ComponentDepends extends JPanel {
         JBScrollPane componentTreeScrollPane = MySwingUtils.createScrollPane(componentTree);
 
         add(componentTreeScrollPane,BorderLayout.CENTER);
-        refreshButton = MySwingUtils.createButton("Refresh");
+        refreshButton = MySwingUtils.createButton(MyBundle.message("action.componentManagement.ComponentDepends.refreshBtn.caption"));
         add(refreshButton,BorderLayout.NORTH);
 
         initComponentTree();
@@ -53,7 +54,7 @@ public class ComponentDepends extends JPanel {
     }
 
     private void initComponentTree(){
-        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode("Click Refresh Button");
+        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(MyBundle.message("action.componentManagement.ComponentDepends.tree.initMsg"));
 
         DefaultTreeModel treeMode = new DefaultTreeModel(treeNode);
         this.componentTree.setModel(treeMode);

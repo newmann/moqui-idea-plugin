@@ -8,13 +8,12 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class ResourcePresentationProvider extends PresentationProvider<Resource> {
 
-  private static final String UNKNOWN = "<N/A>";
 
   @Nullable
   @Override
   public String getName(Resource coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getName().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     return MyStringUtils.formatPresentationName(Resource.TAG_NAME,str);
   }
 }

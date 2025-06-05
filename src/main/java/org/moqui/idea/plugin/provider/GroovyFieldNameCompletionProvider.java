@@ -4,13 +4,9 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.groovy.lang.psi.patterns.GroovyPatterns;
-import org.moqui.idea.plugin.dom.converter.insertHandler.AliasNameInsertionHandler;
-import org.moqui.idea.plugin.service.IndexEntity;
-import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.MyStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +37,7 @@ public class GroovyFieldNameCompletionProvider extends AbstractSimpleCompletionP
                     .withCaseSensitivity(false)
                     .withTailText("Trail1")
                     .withTypeText("Type1")
-                    .withIcon(MoquiIcons.EntityTag)
+                    .withIcon(MyIcons.EntityTag)
         );
 
         lookupElementBuilders.add(
@@ -49,7 +45,7 @@ public class GroovyFieldNameCompletionProvider extends AbstractSimpleCompletionP
                     .withCaseSensitivity(false)
                     .withTailText("Trail2")
                     .withTypeText("Type2")
-                    .withIcon(MoquiIcons.ViewEntityTag)
+                    .withIcon(MyIcons.ViewEntityTag)
         );
 
         return lookupElementBuilders;

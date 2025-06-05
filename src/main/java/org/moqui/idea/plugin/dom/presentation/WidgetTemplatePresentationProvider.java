@@ -7,14 +7,11 @@ import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class WidgetTemplatePresentationProvider extends PresentationProvider<WidgetTemplate> {
-
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(WidgetTemplate coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getName().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     return MyStringUtils.formatPresentationName(WidgetTemplate.TAG_NAME,str);
   }
 }

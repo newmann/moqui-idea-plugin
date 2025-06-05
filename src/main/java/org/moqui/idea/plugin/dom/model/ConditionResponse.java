@@ -4,11 +4,13 @@ import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.SubTag;
 import com.intellij.util.xml.SubTagList;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public interface ConditionResponse extends AttListResponse {
+
     public static final String TAG_NAME = "condition-response";
 
 

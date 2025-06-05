@@ -4,17 +4,16 @@ import com.intellij.ide.presentation.PresentationProvider;
 import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.ViewEntity;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class ViewEntityPresentationProvider extends PresentationProvider<ViewEntity> {
-
-  private static final String UNKNOWN = "<N/A>";
 
   @Nullable
   @Override
   public String getName(ViewEntity coordinates) {
-    String entityName =StringUtil.notNullize(coordinates.getPackage().getStringValue(), UNKNOWN)
+    String entityName =StringUtil.notNullize(coordinates.getPackage().getStringValue(), MyStringUtils.UNKNOWN)
             + '.'
-            + StringUtil.notNullize(coordinates.getEntityName().getStringValue(), UNKNOWN);
+            + StringUtil.notNullize(coordinates.getEntityName().getStringValue(), MyStringUtils.UNKNOWN);
     return entityName;
   }
 }

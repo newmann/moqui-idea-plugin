@@ -10,6 +10,7 @@ import com.intellij.ui.*;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.MyBundle;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
 
@@ -64,7 +65,7 @@ public class MenuManagementGUI extends JPanel {
     private void initHeader(){
         JPanel header = new JPanel(new BorderLayout());
 
-        buttonSearch = new JButton("Refresh");
+        buttonSearch = new JButton(MyBundle.message("action.menuManagement.MenuManagementGUI.searchBtn.caption"));
         header.add(buttonSearch,BorderLayout.CENTER);
 
         add(header,BorderLayout.NORTH);
@@ -72,7 +73,7 @@ public class MenuManagementGUI extends JPanel {
 
 
     private void initEntityTree(){
-        this.rootNode = new DefaultMutableTreeNode("Nothing to show");
+        this.rootNode = new DefaultMutableTreeNode(MyBundle.message("action.menuManagement.MenuManagementGUI.tree.initMsg"));
         treeMode = new DefaultTreeModel(this.rootNode);
         this.treeEntity.setModel(treeMode);
     }

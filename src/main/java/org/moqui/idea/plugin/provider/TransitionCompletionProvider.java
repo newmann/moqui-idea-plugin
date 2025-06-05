@@ -6,7 +6,7 @@ import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.util.LocationUtils;
@@ -49,14 +49,14 @@ public class TransitionCompletionProvider extends AbstractSimpleCompletionProvid
                 LookupElementBuilder.create(".")
                         .withCaseSensitivity(false)
                         .withTypeText("current Screen")
-                        .withIcon(MoquiIcons.ScreenTag)
+                        .withIcon(MyIcons.ScreenTag)
         );
         //添加SubScreensItem
         List<SubScreensItem> subScreensItemList = ScreenUtils.getSubScreensItemList(psiElement);
         subScreensItemList.forEach(item -> lookupElementBuilders.add(
                 LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
                         .withCaseSensitivity(false)
-                        .withIcon(MoquiIcons.ScreenTag)
+                        .withIcon(MyIcons.ScreenTag)
                         .withTypeText(MyDomUtils.getValueOrEmptyString(item.getLocation()))
         ));
         //添加相对路径下的Screen
@@ -66,7 +66,7 @@ public class TransitionCompletionProvider extends AbstractSimpleCompletionProvid
                 lookupElementBuilders.add(
                         LookupElementBuilder.create(MyStringUtils.removeLastDotString(item.getName()))
                                 .withCaseSensitivity(false)
-                                .withIcon(MoquiIcons.ScreenTag)
+                                .withIcon(MyIcons.ScreenTag)
                                 .withTypeText(item.getParent().getVirtualFile().getPath())
                 );
             }

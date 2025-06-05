@@ -10,7 +10,7 @@ import org.jetbrains.annotations.PropertyKey;
 import java.util.function.Supplier;
 
 public final class MyBundle {
-  private static final @NonNls String BUNDLE = "messages.MoquiDomBundle";
+  private static final String BUNDLE = "messages.CodeBundle";
   private static final DynamicBundle INSTANCE = new DynamicBundle(MyBundle.class, BUNDLE);
 
   private MyBundle() {}

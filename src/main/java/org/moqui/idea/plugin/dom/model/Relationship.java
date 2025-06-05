@@ -2,21 +2,28 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityNameReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.RelationshipPresentationProvider;
 
 import java.util.List;
-@Presentation( icon = "MoquiIcons.RelationshipTag",provider = RelationshipPresentationProvider.class)
+@Presentation( icon = "org.moqui.idea.plugin.MyIcons.RelationshipTag",provider = RelationshipPresentationProvider.class)
 public interface Relationship extends DomElement {
+    
     public static final String TAG_NAME = "relationship";
 
     public static final String ATTR_TYPE = "type";
+    
     public static final String ATTR_TITLE = "title";
+    
     public static final String ATTR_RELATED = "related";
+    
     public static final String ATTR_FK_NAME = "fk-name";
 
+    
     public static final String ATTR_SHORT_ALIAS = "short-alias";
+    
     public static final String ATTR_MUTABLE = "mutable";
 
     @NotNull

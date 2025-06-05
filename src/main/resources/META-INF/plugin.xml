@@ -94,13 +94,7 @@
       <annotator language="Groovy" implementationClass="org.moqui.idea.plugin.annotator.GroovyAnnotator"/>
       <annotator language="XML" implementationClass="org.moqui.idea.plugin.annotator.MoquiDomAnnotator"/>
 
-<!--   -->
-<!--      <definitionsScopedSearch id="myPlugin.EntitySearch"-->
-<!--                               implementation="org.moqui.idea.plugin.search.EntitySearch"/>-->
 
-<!--没有什么用，还不清楚具体原因-->
-<!--      <refactoring.elementListenerProvider implementation="org.moqui.idea.plugin.refactoring.EntityNameUpdatedRefactoringProvider"-->
-<!--                                           id="myPlugin.EntityNameUpdatedRefactoring"/>-->
 <!--      <gotoTargetRendererProvider implementation="provider.org.moqui.idea.plugin.GotoMapperXmlSchemaTypeRendererProvider" order="first"/>-->
 
 
@@ -110,7 +104,7 @@
 
 
 
-      <notificationGroup id="Custom Notification Group" displayType="BALLOON" bundle="messages.MoquiDomBundle" key="notification.group.name"/>
+      <notificationGroup id="Custom Notification Group" displayType="BALLOON" bundle="messages.PluginBundle" key="notification.group.name"/>
 
 
       <completion.contributor language="XML"
@@ -120,12 +114,8 @@
       <xml.elementDescriptorProvider implementation="org.moqui.idea.plugin.provider.EntityFacadeElementProvider"/>
       <xml.xmlExtension implementation="org.moqui.idea.plugin.contributor.EntityFacadeXmlExtension"/>
 
-<!--      <psi.referenceContributor language="XML"-->
-<!--                              implementation="org.moqui.idea.plugin.contributor.EntityFacadeXmlReferenceContributor"-->
-<!--                                order="first"/>-->
 
       <psi.referenceContributor language="Groovy" implementation="org.moqui.idea.plugin.contributor.GroovyCodeReferenceContributor"/>
-<!--      <completion.contributor language="Groovy" implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>-->
 
 <!--      <completion.contributor order="first" language="JAVA" implementationClass="org.moqui.idea.plugin.completion.contributor.JavaCompletionContributor"/>-->
 
@@ -177,7 +167,7 @@
       <toolWindow factoryClass="org.moqui.idea.plugin.action.AdminToolWindowFactory"
                   id="Moqui Admin"
                   anchor="right"
-                  icon="MoquiIcons.ToolWindow"
+                  icon="org.moqui.idea.plugin.MyIcons.ToolWindow"
 
       />
 <!--      <toolWindow factoryClass="org.moqui.idea.plugin.action.WebToolWindowFactory"-->
@@ -212,7 +202,7 @@
               isEnabledByDefault="true"
               group="VALUES_GROUP"
               providerId="xml.moqui.hints"
-              bundle="messages.MoquiDomBundle"
+              bundle="messages.PluginBundle"
               nameKey="xml.inlay.hints.textTemplate.provider.name"
               descriptionKey="xml.inlay.hints.textTemplate.provider.description"/>
       <codeInsight.daemonBoundCodeVisionProvider implementation="org.moqui.idea.plugin.provider.MoquiUsagesCodeVisionProvider"/>
@@ -235,19 +225,7 @@
 <!--      <add-to-group group-id="MainMenu" relative-to-action="ToolsMenu" anchor="after"/>-->
 
     </action>
-    <action id="ShowMoquiActionFlowDiagram" class="org.moqui.idea.plugin.action.flowManagement.ShowFlowAnAction" text="Show Flow Diagram"
-            description="Show action flow diagram">
-        <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-    </action>
-      <action id="ShowMoquiActionFormGenerator" class="org.moqui.idea.plugin.action.formGenerator.ShowFormGeneratorAnAction" text="Show Form Generator"
-              description="Show form generator">
-          <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-      </action>
 
-<!--      <action id="ReplaceText" class="org.moqui.idea.plugin.ReplaceText" text="MyReplaceTextPlugin"-->
-<!--              description="My ReplaceText Plugin">-->
-<!--          <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
-<!--      </action>-->
 
   </actions>
 
@@ -258,10 +236,9 @@
 <!--                topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>-->
 <!--    </projectListeners>-->
 
-        <projectListeners>
-            <listener
-                    class="org.moqui.idea.plugin.listener.MoquiProjectCloseListener"
-                    topic="com.intellij.openapi.project.ProjectManagerListener"/>
-        </projectListeners>
-
+    <projectListeners>
+        <listener
+                class="org.moqui.idea.plugin.listener.MoquiProjectCloseListener"
+                topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </projectListeners>
 </idea-plugin>

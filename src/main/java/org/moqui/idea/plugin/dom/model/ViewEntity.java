@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.ViewEntityPresentationProvider;
 
 import java.util.List;
-@Presentation(icon = "MoquiIcons.ViewEntityTag",provider = ViewEntityPresentationProvider.class)
+@Presentation(icon = "org.moqui.idea.plugin.MyIcons.ViewEntityTag",provider = ViewEntityPresentationProvider.class)
 public interface ViewEntity extends AbstractEntity {
     public static final String TAG_NAME = "view-entity";
 //    public static final String ATTR_ENTITY_NAME = "entity-name";

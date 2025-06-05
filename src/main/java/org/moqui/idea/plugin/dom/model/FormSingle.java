@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.FieldRefConverter;
 import org.moqui.idea.plugin.dom.presentation.FormSinglePresentationProvider;
@@ -9,27 +10,41 @@ import org.moqui.idea.plugin.dom.presentation.FormSinglePresentationProvider;
 import java.util.List;
 @Presentation(provider = FormSinglePresentationProvider.class)
 public interface FormSingle extends AbstractForm {
+    
     public static final String TAG_NAME = "form-single";
 
 //    public static final String ATTR_NAME = "name";
 //    public static final String ATTR_EXTENDS = "extends";
+    
     public static final String ATTR_OWNER_FORM = "owner-name";
 
 //    public static final String ATTR_TRANSITION = "transition";
     public static final String ATTR_MAP = "map";
+    
     public static final String ATTR_FOCUS_FIELD = "focus-field";
 
+    
     public static final String ATTR_SKIP_START = "skip-start";
+    
     public static final String ATTR_SKIP_END = "skip-end";
 
+    
     public static final String ATTR_DYNAMIC = "skip-dynamic";
+    
     public static final String ATTR_BACKGROUND_SUBMIT = "background-submit";
+    
     public static final String ATTR_BACKGROUND_RELOAD_ID = "background-reload-id";
+    
     public static final String ATTR_BACKGROUND_HIDE_ID = "background-hide-id";
+    
     public static final String ATTR_BACKGROUND_MESSAGE = "background-message";
+    
     public static final String ATTR_SERVER_STATIC = "server-static";
+    
     public static final String ATTR_BODY_PARAMETERS = "body-parameters";
+    
     public static final String ATTR_PASS_THROUGH_PARAMETERS = "pass-through-parameters";
+    
     public static final String ATTR_EXCLUDE_EMPTY_FIELDS = "exclude-empty-fields";
 //    @NotNull
 //    @Attribute(ATTR_NAME)

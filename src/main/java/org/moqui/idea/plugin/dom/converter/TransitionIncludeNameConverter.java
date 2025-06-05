@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.AbstractTransition;
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.TransitionInclude;
-import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
@@ -51,22 +51,26 @@ public class TransitionIncludeNameConverter extends ResolvingConverter.StringCon
 
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+        String transitionName = value.getStringValue();
+        if(MyStringUtils.isEmpty(transitionName)) return PsiReference.EMPTY_ARRAY;
+        TextRange textRange= TextRange.create(1,1+transitionName.length());
+
         TransitionInclude transitionInclude = MyDomUtils.getLocalDomElementByConvertContext(context,TransitionInclude.class).orElse(null);
         if(transitionInclude == null) return PsiReference.EMPTY_ARRAY;
 
-        String transitionName = value.getStringValue();
-        if(MyStringUtils.isEmpty(transitionName)) return PsiReference.EMPTY_ARRAY;
         DomFileElement<Screen> screenDomFile = ScreenUtils.getScreenFileByLocation(context.getProject(),
                 MyDomUtils.getValueOrEmptyString(transitionInclude.getLocation())).orElse(null);
-        if(screenDomFile == null) return PsiReference.EMPTY_ARRAY;
+        if(screenDomFile == null) return MoquiBaseReference.createNullRefArray(element,textRange);
 
         List<AbstractTransition> abstractTransitionList = ScreenUtils.getAbstractTransitionListFromScreen(screenDomFile.getRootElement());
         Optional<AbstractTransition> abstractTransitionOptional = ScreenUtils.getAbstractTransitionFromListByName(abstractTransitionList,transitionName);
-        PsiReference[] result = new PsiReference[1];
-        result[0] = abstractTransitionOptional
-                .map(abstractTransition -> new PsiRef(element, TextRange.create(1,1+transitionName.length()), abstractTransition.getName().getXmlAttributeValue()))
-                .orElseGet(() -> new PsiRef(element, TextRange.create(1,1+transitionName.length()), null));
-        return result;
+//        PsiReference[] result = new PsiReference[1];
+        return abstractTransitionOptional
+                .map(abstractTransition ->
+                        MoquiBaseReference.createOneRefArray(element, TextRange.create(1,1+transitionName.length()), abstractTransition.getName().getXmlAttributeValue()))
+                .orElseGet(() ->
+                        MoquiBaseReference.createNullRefArray(element, TextRange.create(1,1+transitionName.length())));
+
     }
 
 

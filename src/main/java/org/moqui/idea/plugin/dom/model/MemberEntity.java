@@ -2,22 +2,27 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityAndViewNameReferenceConverter;
 import org.moqui.idea.plugin.dom.converter.EntityNameReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.MemberEntityPresentationProvider;
 
 import java.util.List;
-@Presentation(icon = "MoquiIcons.MemberEntityTag", provider = MemberEntityPresentationProvider.class)
+@Presentation(icon = "org.moqui.idea.plugin.MyIcons.MemberEntityTag", provider = MemberEntityPresentationProvider.class)
 public interface MemberEntity extends AbstractMemberEntity {
+    
     public static final String TAG_NAME = "member-entity";
 
 //    public static final String ATTR_ENTITY_ALIAS ="entity-alias";
 
+    
     public static final String ATTR_ENTITY_NAME ="entity-name";
 
 //    public static final String ATTR_JOIN_FROM_ALIAS ="join-from-alias";
+    
     public static final String ATTR_JOIN_OPTIONAL ="join-optional";
+    
     public static final String ATTR_SUB_SELECT ="sub-select";
 //    @NotNull
 //    @Attribute(ATTR_ENTITY_ALIAS)

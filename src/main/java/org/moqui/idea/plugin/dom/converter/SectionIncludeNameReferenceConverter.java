@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.Section;
 import org.moqui.idea.plugin.dom.model.SectionInclude;
-import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
@@ -36,8 +36,8 @@ public class SectionIncludeNameReferenceConverter implements CustomReferenceConv
         Optional<Section> sectionOptional = ScreenUtils.getSectionFromScreenFileByName(screenDomFile,sectionName);
         PsiReference[] result = new PsiReference[1];
         result[0] = sectionOptional
-                .map(section -> new PsiRef(element, TextRange.create(1,1+sectionName.length()), section.getName().getXmlAttributeValue()))
-                .orElseGet(() -> new PsiRef(element, TextRange.create(1,1+sectionName.length()), null));
+                .map(section -> new MoquiBaseReference(element, TextRange.create(1,1+sectionName.length()), section.getName().getXmlAttributeValue()))
+                .orElseGet(() -> new MoquiBaseReference(element, TextRange.create(1,1+sectionName.length()), null));
         return result;
     }
 

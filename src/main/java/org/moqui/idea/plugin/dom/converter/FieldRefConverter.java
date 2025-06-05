@@ -16,9 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.AbstractForm;
 import org.moqui.idea.plugin.dom.model.Field;
-import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
 
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
     @Override
     public @Nullable String toString(@Nullable Field transition, ConvertContext context) {
         if (transition == null) return null;
-        return transition.getName().getXmlAttributeValue().getValue();
+        return MyDomUtils.getValueOrEmptyString(transition.getName());
     }
 
     @Override
@@ -52,17 +51,17 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
         if(transition == null) {
             return super.createLookupElement(transition);
         }else {
-            String s = transition.getName().getXmlAttributeValue().getValue();
+            String s = MyDomUtils.getValueOrEmptyString(transition.getName());
             return LookupElementBuilder.create(s)
                     .withCaseSensitivity(false);
 
         }
     }
 
-    @Override
-    public @Nullable PsiElement getPsiElement(@Nullable Field resolvedValue) {
-        return super.getPsiElement(resolvedValue);
-    }
+//    @Override
+//    public @Nullable PsiElement getPsiElement(@Nullable Field resolvedValue) {
+//        return super.getPsiElement(resolvedValue);
+//    }
 
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
@@ -70,17 +69,18 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
         if (related == null) return PsiReference.EMPTY_ARRAY;
 
         Optional<Field> optField = getField(related,context);
-        if (optField.isEmpty()) return PsiReference.EMPTY_ARRAY;
+        if (optField.isPresent()) {
+            final Field field = optField.get();
+            return MoquiBaseReference.createOneRefArray(element,
+                    new TextRange(1,
+                            related.length()+1),
+                    field.getName().getXmlAttributeValue());
+        }else {
+            return MoquiBaseReference.createNullRefArray(element,
+                    new TextRange(1,
+                            related.length()+1));
 
-        final Field field = optField.get();
-        PsiReference[] psiReferences = new PsiReference[1];
-        psiReferences[0] = new PsiRef(element,
-                new TextRange(1,
-                        related.length()+1),
-                field.getName().getXmlAttributeValue());
-
-        return psiReferences;
-
+        }
     }
     /**
      * 根据当前位置找到所有可用的Field
@@ -91,10 +91,7 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
     private List<Field> getFieldList(ConvertContext context) {
 
         List<Field> result = new ArrayList<>();
-        AbstractForm abstractForm = ScreenUtils.getCurrentAbstractForm(context).orElse(null);
-        if(abstractForm != null) {
-            result.addAll(ScreenUtils.getFieldListFromForm(abstractForm));
-        }
+        ScreenUtils.getCurrentAbstractForm(context).ifPresent(abstractForm -> result.addAll(ScreenUtils.getFieldListFromForm(abstractForm)));
 
 //        FormSingle formSingle = ScreenUtils.getCurrentFormSingle(context).orElse(null);
 //        if(formSingle == null){
@@ -119,8 +116,7 @@ public class FieldRefConverter extends ResolvingConverter<Field> implements Cust
         List<Field> fieldList = getFieldList(context);
         return fieldList.stream().filter(
                 item->{
-                    String str = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
-                            .orElse(MyStringUtils.EMPTY_STRING);
+                    String str = MyDomUtils.getValueOrEmptyString(item.getName());
                     return str.equals(related);
                     }
         ).findFirst();

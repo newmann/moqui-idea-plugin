@@ -2,14 +2,17 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityNameReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.EecaPresentationProvider;
 
-@Presentation(icon = "MoquiIcons.EecaTag",provider = EecaPresentationProvider.class)
+@Presentation(icon = "org.moqui.idea.plugin.MyIcons.EecaTag",provider = EecaPresentationProvider.class)
 public interface Eeca extends DomElement {
+
     public static final String TAG_NAME = "eeca";
 //    public static final String ATTR_ID = "id";
+
     public static final String ATTR_ENTITY = "entity";
 //    public static final String ATTR_ON_CREATE = "on-create";
 //    public static final String ATTR_ON_UPDATE = "on-update";

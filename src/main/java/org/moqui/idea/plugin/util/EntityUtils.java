@@ -3,6 +3,7 @@ package org.moqui.idea.plugin.util;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
@@ -15,7 +16,8 @@ import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyBundle;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
@@ -33,6 +35,8 @@ import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 
 public final class EntityUtils {
+    private static final Logger logger = Logger.getInstance(EntityUtils.class);
+
     public static final String  ENTITY_NAME_DOT = ".";
     public static final String  ENTITY_FIELD_COMMA = ",";
     private EntityUtils() {
@@ -340,18 +344,18 @@ public final class EntityUtils {
     }
 
     public static Icon getNagavitorToEntityIcon() {
-        return MoquiIcons.NavigateToEntity; //MyIcons.NAVIGATE_TO_ENTITY;
+        return MyIcons.NavigateToEntity; //MyIcons.NAVIGATE_TO_ENTITY;
     }
 
     public static Icon getNagavitorToViewIcon() {
-        return MoquiIcons.NavigateToView; //MyIcons.NAVIGATE_TO_VIEW;
+        return MyIcons.NavigateToView; //MyIcons.NAVIGATE_TO_VIEW;
     }
     public static String getNagavitorToEntityToolTips() {
-        return "Navigating to Entity definition";
+        return MyBundle.message( "util.EntityUtils.navigateToEntityDefinition");
     }
-    public static String getNagavitorToViewToolTips() {
-        return "Navigating to View definition";
-    }
+//    public static String getNagavitorToViewToolTips() {
+//        return "Navigating to View definition";
+//    }
 
     /**
      *  从对service-call的name中获取EntityName
@@ -389,7 +393,7 @@ public final class EntityUtils {
         Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project, entityName);
 
         if (optionalXmlElement.isEmpty()) {
-            holder.createProblem(attributeValue, HighlightSeverity.ERROR,"Entity is not found");
+            holder.createProblem(attributeValue, HighlightSeverity.ERROR,MyBundle.message("util.EntityUtils.entityNotFound"));
         }
 
     }
@@ -404,7 +408,7 @@ public final class EntityUtils {
         Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project, entityName);
 
         if (optionalXmlElement.isEmpty()) {
-            holder.newAnnotation(HighlightSeverity.ERROR, "Entity is not found")
+            holder.newAnnotation(HighlightSeverity.ERROR, MyBundle.message("util.EntityUtils.entityNotFound"))
                     .range(xmlAttributeValue.getTextRange())
                     .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                     .create();
@@ -444,7 +448,7 @@ public final class EntityUtils {
         existEntityList.forEach(entity -> {
             if(entity != abstractEntity){
                 if(entity.getXmlTag()!= null ) {
-                    holder.newAnnotation(HighlightSeverity.ERROR, "'" + entityName + "' is used by another entity in file " + entity.getXmlTag().getContainingFile().getVirtualFile().getPath())
+                    holder.newAnnotation(HighlightSeverity.ERROR, MyBundle.message("util.EntityUtils.entityNameIsUsed",entityName , entity.getXmlTag().getContainingFile().getVirtualFile().getPath()))
                             .range(abstractEntity.getEntityName().getXmlAttributeValue().getValueTextRange())
                             .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                             .create();
@@ -479,10 +483,34 @@ public final class EntityUtils {
 //            int start = xmlTag.getTextOffset();
             int length = xmlTag.getLocalName().length();
 
-            holder.createProblem(extendEntity, ProblemHighlightType.ERROR,"Entity is not found",
+            holder.createProblem(extendEntity, ProblemHighlightType.ERROR,MyBundle.message("util.EntityUtils.entityNotFound"),
                     TextRange.from(1, length));
         }
     }
+//    public static void inspectDetailRelationship(@NotNull Detail detail, @NotNull AnnotationHolder holder) {
+//        XmlTag xmlTag = detail.getXmlTag();
+//        if(xmlTag == null) {return;}
+//        if(detail.getRelationship().getXmlElement()==null) return;
+//
+//        String relationshipName = MyDomUtils.getValueOrEmptyString(detail.getRelationship());
+//
+//        PsiReference[] psiReferenceArray = detail.getRelationship().getXmlAttributeValue().getReferences();
+//        boolean notFoundTarget = true;
+//        for(PsiReference psiReference: psiReferenceArray) {
+////            PsiElement targetElement = psiReference.resolve();
+//            if(psiReference instanceof MoquiBaseReference ) {
+//                notFoundTarget = false;
+//                break;
+//            }
+//        }
+//        if(notFoundTarget) {
+//            holder.newAnnotation(HighlightSeverity.ERROR, "'" + relationshipName + "' is not found ")
+//                    .range(detail.getRelationship().getXmlAttributeValue().getValueTextRange())
+//                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+//                    .create();
+//        }
+//
+//    }
     public static void inspectExtendEntity(@NotNull ExtendEntity extendEntity, @NotNull AnnotationHolder holder) {
         String entityName = MyDomUtils.getValueOrEmptyString(extendEntity.getEntityName());
         XmlTag xmlTag = extendEntity.getXmlTag();
@@ -494,7 +522,7 @@ public final class EntityUtils {
         if (optionalXmlElement.isEmpty()) {
 //            int start = xmlTag.getTextOffset();
             int length = xmlTag.getLocalName().length();
-            holder.newAnnotation(HighlightSeverity.ERROR, "Entity is not found")
+            holder.newAnnotation(HighlightSeverity.ERROR, MyBundle.message("util.EntityUtils.entityNotFound"))
                     .range(TextRange.from(1, length))
                     .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                     .create();
@@ -509,27 +537,16 @@ public final class EntityUtils {
      * @return Optional<String>
      */
     public static Optional<String> getRelatedNameFromRelationship(@NotNull Relationship relationship){
-        if(relationship.getShortAlias().getXmlAttributeValue()!= null) {
-            final String alias = relationship.getShortAlias().getXmlAttributeValue().getValue();
-            if (MyStringUtils.isNotEmpty(alias)) return Optional.of(alias);
-        }
-        final String entityName = MyDomUtils.getValueOrEmptyString(relationship.getRelated());
+        final String alias = MyDomUtils.getValueOrEmptyString(relationship.getShortAlias());
+        if (MyStringUtils.isNotEmpty(alias)) return Optional.of(alias);
 
-        XmlAttributeValue titleAttr = relationship.getTitle().getXmlAttributeValue();
-        if(titleAttr == null) {
+        final String entityName = MyDomUtils.getValueOrEmptyString(relationship.getRelated());
+        final String title = MyDomUtils.getValueOrEmptyString(relationship.getTitle());
+        if(MyStringUtils.isEmpty(title)) {
             return Optional.of(entityName);
         }else {
-            final String title = titleAttr.getValue();
-            if(MyStringUtils.isEmpty(title)) {
-                return Optional.of(entityName);
-            }else {
-                return Optional.of(title+"#" + entityName);
-            }
-
+            return Optional.of(title+"#" + entityName);
         }
-
-
-
 
     }
 

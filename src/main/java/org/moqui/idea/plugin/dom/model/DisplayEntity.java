@@ -4,11 +4,13 @@ import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.Referencing;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityAndViewNameReferenceConverter;
 import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
 
 public interface DisplayEntity extends DomElement {
+
     public static final String TAG_NAME ="display-entity";
 
 //    @NotNull

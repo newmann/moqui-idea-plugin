@@ -2,18 +2,23 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.ServiceCallInMapReferenceConverter;
 import org.moqui.idea.plugin.dom.converter.ServiceCallReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.ServiceCallPresentationProvider;
 
 import java.util.List;
-@Presentation(icon = "MoquiIcons.ServiceCallTag",provider = ServiceCallPresentationProvider.class)
+@Presentation(icon = "org.moqui.idea.plugin.MyIcons.ServiceCallTag",provider = ServiceCallPresentationProvider.class)
 public interface ServiceCall extends DomElement {
+    
     public static final String TAG_NAME = "service-call";
     public static final String ATTR_NAME = "name";
+    
     public static final String ATTR_IN_MAP = "in-map";
+    
     public static final String ATTR_OUT_MAP = "out-map";
+    
     public static final String ATTR_OUT_MAP_ADD_TO_EXISTING = "out-map-add-to-existing";
     @NotNull
     @Attribute(ATTR_NAME)

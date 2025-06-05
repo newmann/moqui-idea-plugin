@@ -8,13 +8,11 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class ConditinalResponsePresentationProvider extends PresentationProvider<ConditionalResponse> {
 
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(ConditionalResponse coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getUrl().getXmlAttributeValue())
-                    .orElse(UNKNOWN);
+                    .orElse(MyStringUtils.UNKNOWN);
 
     return MyStringUtils.formatPresentationName(ConditionalResponse.TAG_NAME,str);
   }

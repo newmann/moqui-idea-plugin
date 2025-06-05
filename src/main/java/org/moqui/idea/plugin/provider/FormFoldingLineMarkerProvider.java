@@ -13,7 +13,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.Function;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.FormList;
@@ -41,7 +41,7 @@ public class FormFoldingLineMarkerProvider implements  LineMarkerProvider{
       PsiElement firstChild = xmlTag.getFirstChild();
       return new LineMarkerInfo<PsiElement>(firstChild,
               xmlTag.getTextRange(),
-              MoquiIcons.ScreenTag,
+              MyIcons.ScreenTag,
               createTooltipSupplier(),
               handler,
               GutterIconRenderer.Alignment.RIGHT,

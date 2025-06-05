@@ -4,16 +4,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
+import org.moqui.idea.plugin.dom.model.Field;
 import org.moqui.idea.plugin.dom.model.Relationship;
 import org.moqui.idea.plugin.service.IndexEntity;
-
-import java.util.Optional;
 
 /**
  * 在文件entity-facade-xml中，根据当前的PsiElement查找所在的entityName
  * 查找逻辑：
  * 1、在entity-facade-xml下的第一级Tag，tagName就是EntityName（可能是缩写）
- * 2、第二级Tag，如果是全名或第一个字母是大写的，tagName就是EntityName。如果第一个字母是小写，有可能是第一级Tag的relationship的shortAlias，如果不是，就直接找Entity，是Entity的shortAlias
+ * 2、第二级Tag，如果是全名或第一个字母是大写的，tagName就是EntityName。
+ *  如果第一个字母是小写，有可能是第一级Tag的relationship的shortAlias，有可能是Entity的字段，如果都不是，就直接找Entity，是Entity的shortAlias
  * 3、不会跨级查找，即下一级Tag名要么是上一级Tag的relationship的shortAlias，要么直接就是EntityName或Entity的shortAlias
  * 4、delete-开头的，是指删除对应entity的数据
  */
@@ -46,12 +46,15 @@ public class EntityFacadeXmlTagDescriptor {
         myEntityName = curTagName;
 
         if(!myParentTag.getName().equals(EntityFacadeXml.TAG_NAME)) {
-            if (getIsShortAlias()) {
-                //进一步判断是否为ParentTag的relationship
+            if (maybeShortAlias(myEntityName)) {
+                //进一步判断是否为ParentTag的relationship或字段
                 IndexEntity indexEntity = EntityUtils.getIndexEntityByName(psiElement.getProject(), myParentTag.getName()).orElse(null);
                 if (indexEntity != null) {
                     myRelationship = indexEntity.getRelationshipByName(curTagName).orElse(null);
-                    if (myRelationship != null) {
+                    if (myRelationship == null) {
+                        myField = indexEntity.getFieldByName(curTagName).orElse(null);
+                        myEntityName = myParentTag.getName();
+                    }else{
                         myIsRelationship = true;
                         myEntityName = MyDomUtils.getValueOrEmptyString(myRelationship.getRelated());
                     }
@@ -67,6 +70,8 @@ public class EntityFacadeXmlTagDescriptor {
     private boolean myIsRelationship = false;
     private String myEntityName = MyStringUtils.EMPTY_STRING;
 
+    private Field myField = null;
+
     public String getEntityName() {
         return myEntityName;
     }
@@ -80,7 +85,18 @@ public class EntityFacadeXmlTagDescriptor {
     }
 
     public boolean getIsShortAlias(){
-        return !myEntityName.contains(".") && !MyStringUtils.firstCharIsUpperCase(myEntityName) && !myIsRelationship ;
+        return maybeShortAlias(getEntityName()) && !getIsRelationship() && !getIsField();
+    }
+
+    private boolean maybeShortAlias(@NotNull String checkStr){
+        return !checkStr.contains(".") && !MyStringUtils.firstCharIsUpperCase(checkStr);
+    }
+    public boolean getIsField() {
+        return myField != null;
+    }
+
+    public Field getField() {
+        return myField;
     }
 
     public boolean getIsRelationship() {

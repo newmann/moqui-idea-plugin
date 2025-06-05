@@ -17,13 +17,12 @@ import com.intellij.util.xml.GenericDomValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.io.File;
 
 /**
  * 处理moqui中文件路径和文件的专用类
@@ -364,7 +363,7 @@ public final class LocationUtils {
                              .orElse(null);
                      if (widgetTemplate == null) return result.toArray(new PsiReference[0]);
 
-                     result.add(new PsiRef(element,
+                     result.add(new MoquiBaseReference(element,
                              new TextRange(startOffset, endOffset),
                              widgetTemplate.getName().getXmlAttributeValue()));
                  }
@@ -374,7 +373,7 @@ public final class LocationUtils {
                              .orElse(null);
                      if (formSingle == null) return result.toArray(new PsiReference[0]);
 
-                     result.add(new PsiRef(element,
+                     result.add(new MoquiBaseReference(element,
                              new TextRange(startOffset, endOffset),
                              formSingle.getName().getXmlAttributeValue()));
                  }
@@ -384,7 +383,7 @@ public final class LocationUtils {
                              .orElse(null);
                      if (formList == null) return result.toArray(new PsiReference[0]);
 
-                     result.add(new PsiRef(element,
+                     result.add(new MoquiBaseReference(element,
                              new TextRange(startOffset, endOffset),
                              formList.getName().getXmlAttributeValue()));
                  }
@@ -415,7 +414,7 @@ public final class LocationUtils {
                          .orElse(null);
                  if (formSingle == null) return result.toArray(new PsiReference[0]);
 
-                 result.add(new PsiRef(element,
+                 result.add(new MoquiBaseReference(element,
                          new TextRange(1, location.length()+1),
                          formSingle.getName().getXmlAttributeValue()));
              }
@@ -428,7 +427,7 @@ public final class LocationUtils {
                          .orElse(null);
                  if (formList == null) return result.toArray(new PsiReference[0]);
 
-                 result.add(new PsiRef(element,
+                 result.add(new MoquiBaseReference(element,
                          new TextRange(1, location.length()+1),
                          formList.getName().getXmlAttributeValue()));
              }
@@ -488,16 +487,22 @@ public final class LocationUtils {
         switch(location.type) {
             case TransitionName -> {
                 Optional<AbstractTransition> optTransition = ScreenUtils.getAbstractTransitionFromConvertContextByName(url,context);
-                if (optTransition.isEmpty()) return PsiReference.EMPTY_ARRAY;
+                if (optTransition.isPresent()) {
+                    final AbstractTransition transition = optTransition.get();
+                    PsiReference[] psiReferences = new PsiReference[1];
+                    psiReferences[0] = new MoquiBaseReference(element,
+                            new TextRange(1,
+                                    url.length()+1),
+                            transition.getName().getXmlAttributeValue());
 
-                final AbstractTransition transition = optTransition.get();
-                PsiReference[] psiReferences = new PsiReference[1];
-                psiReferences[0] = new PsiRef(element,
-                        new TextRange(1,
-                                url.length()+1),
-                        transition.getName().getXmlAttributeValue());
+                    return psiReferences;
 
-                return psiReferences;
+                }else {
+                    //提示错误
+                    return MoquiBaseReference.createNullRefArray(element,new TextRange(1,
+                            url.length()+1));
+                }
+
 
             }
             case RelativeScreenFile -> {
@@ -510,23 +515,23 @@ public final class LocationUtils {
                                 MyDomUtils.getValueOrEmptyString(subScreensItem.get().getLocation()));
                         file = Optional.ofNullable(subScreensItemLocation.getFile());
                     }else{ //提示错误
-                        PsiReference[] psiReferences = new PsiReference[1];
-                        psiReferences[0] = new PsiRef(element,
-                                new TextRange(1,
-                                        url.length()+1),
-                                null);
-                        return psiReferences;
+                        return MoquiBaseReference.createNullRefArray(element,new TextRange(1,
+                                url.length()+1));
                     }
                 }
                 return file.map(psiFile -> createFilePsiReference(url, element, psiFile)).orElse(PsiReference.EMPTY_ARRAY);
 
             }
             case ComponentFile, ClassPath -> {
-                if(location.file == null) return PsiReference.EMPTY_ARRAY;
+                if(location.file == null)
+                    return MoquiBaseReference.createNullRefArray(element,new TextRange(1,
+                        url.length()+1));
                 return createFilePsiReference(url,element,location.file);
             }
             case ComponentFileContent -> {
-                if(location.file == null) return PsiReference.EMPTY_ARRAY;
+                if(location.file == null)
+                    return MoquiBaseReference.createNullRefArray(element,new TextRange(1,
+                            url.length()+1));
                 return location.createComponentContentPsiReference(element,context);
             }
 
@@ -547,17 +552,20 @@ public final class LocationUtils {
                 if(attributeName.equals(AttListResponse.ATTR_URL)
                 ) {
                     //为URL的相对路径
-                    if(element.getContainingFile().getVirtualFile() == null) return PsiReference.EMPTY_ARRAY;
+                    if(element.getContainingFile().getVirtualFile() == null)
+                        return MoquiBaseReference.createNullRefArray(element,new TextRange(1,
+                                url.length()+1));
 
                     Optional<PsiFile> file = location.getRelativeFile(element.getContainingFile().getVirtualFile().getPath());
-                    return file.map(psiFile -> createFilePsiReference(url, element, psiFile)).orElse(PsiReference.EMPTY_ARRAY);
+                    return file.map(psiFile -> createFilePsiReference(url, element, psiFile))
+                            .orElse(MoquiBaseReference.createNullRefArray(element,new TextRange(1, url.length()+1)));
                 }
 
                 //在一些tag中，属性指向一个文件
                 if(HAVE_FILE_PATH_LOCATION_TAG_NAME.contains(firstTagName)) {
                     return location.getFileByLocation()
                             .map(psiFile -> createFilePsiReference(url, element, psiFile))
-                            .orElse(PsiReference.EMPTY_ARRAY);
+                            .orElse(MoquiBaseReference.createNullRefArray(element,new TextRange(1,url.length()+1)));
                 }
 
                 return PsiReference.EMPTY_ARRAY;
@@ -592,12 +600,12 @@ public final class LocationUtils {
         int startIndex = attributeString.lastIndexOf(PATH_SEPARATOR);
         if(startIndex<0) {
             //沒有其他的目录
-            result.add(new PsiRef(element,
+            result.add(new MoquiBaseReference(element,
                     new TextRange(1, attributeString.length()+1),
                     file));
         }else {
 
-            result.add(new PsiRef(element,
+            result.add(new MoquiBaseReference(element,
                     new TextRange(startIndex + 2, 1 + attributeString.length()),
                     file));
 
@@ -615,7 +623,7 @@ public final class LocationUtils {
                     continue;
                 }
 
-                result.add( new PsiRef(element,
+                result.add( new MoquiBaseReference(element,
                         new TextRange(endOffsetIndex - pathFileArray[i].length(), endOffsetIndex),
                         psiDirectory));
                 endOffsetIndex = endOffsetIndex - pathFileArray[i].length() - 1;
@@ -707,10 +715,20 @@ public final class LocationUtils {
         }
 
         if (psiFile == null) {
-            holder.newAnnotation(HighlightSeverity.ERROR, "根据路径["+ location.getLocation() +"]找不到对应的文件")
-                    .range(locationAttr.getValueTextRange())
-                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-                    .create();
+            if((location.type == LocationType.Unknown) || (location.type == LocationType.WebUrl)
+                    || (location.type == LocationType.CamelPath)
+            ) {
+                holder.newAnnotation(HighlightSeverity.WEAK_WARNING, "The location:" + location.getLocation() + " is url or Camel path, check for effectiveness on your own")
+                        .range(locationAttr.getValueTextRange())
+                        .highlightType(ProblemHighlightType.WEAK_WARNING)
+                        .create();
+
+            }else {
+                holder.newAnnotation(HighlightSeverity.ERROR, "根据路径[" + location.getLocation() + "]找不到对应的文件")
+                        .range(locationAttr.getValueTextRange())
+                        .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        .create();
+            }
             return;
         }
 
@@ -771,7 +789,7 @@ public final class LocationUtils {
                 .filter(virtualFile -> virtualFile.getName().equals("runtime"))
                 .flatMap(virtualFile -> Arrays.stream(virtualFile.getChildren()))
                 .filter(VirtualFile::isDirectory)
-                .filter(virtualFile -> virtualFile.getName().equals("base-component") || virtualFile.getName().equals("component"))
+                .filter(virtualFile -> virtualFile.getName().equals("base-component") || virtualFile.getName().equals("action.AdminToolWindowFactory.loading.components.title"))
                 .flatMap(virtualFile -> Arrays.stream(virtualFile.getChildren()))
                 .filter(VirtualFile::isDirectory)
                 .flatMap(virtualFile -> Arrays.stream(virtualFile.getChildren()))

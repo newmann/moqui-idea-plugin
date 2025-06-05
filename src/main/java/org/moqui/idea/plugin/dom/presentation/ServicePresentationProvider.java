@@ -2,7 +2,7 @@ package org.moqui.idea.plugin.dom.presentation;
 
 import com.intellij.ide.presentation.PresentationProvider;
 import com.intellij.openapi.util.text.StringUtil;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Service;
 import org.moqui.idea.plugin.util.MyDomUtils;
@@ -11,33 +11,30 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 import javax.swing.*;
 
 public class ServicePresentationProvider extends PresentationProvider<Service> {
-
-  private static final String UNKNOWN = "<N/A>";
-
   @Override
   public @Nullable Icon getIcon(Service service) {
 
     if(service.getType().exists()) {
       switch(service.getType().getStringValue()) {
         case "entity-auto":
-          return MoquiIcons.ServiceTypeEntityAuto;
+          return MyIcons.ServiceTypeEntityAuto;
         case "script":
-          return MoquiIcons.ServiceTypeScript;
+          return MyIcons.ServiceTypeScript;
         case "java":
-          return MoquiIcons.ServiceTypeJava;
+          return MyIcons.ServiceTypeJava;
         case "interface":
-          return MoquiIcons.ServiceTypeInterface;
+          return MyIcons.ServiceTypeInterface;
         case "remote-json-rpc":
-          return MoquiIcons.ServiceTypeRemoteJsonRpc;
+          return MyIcons.ServiceTypeRemoteJsonRpc;
         case "remote-rest":
-          return MoquiIcons.ServiceTypeRemoteRest;
+          return MyIcons.ServiceTypeRemoteRest;
         case "camel":
-          return MoquiIcons.ServiceTypeCamel;
+          return MyIcons.ServiceTypeCamel;
         default:
-          return MoquiIcons.ServiceTypeInline;
+          return MyIcons.ServiceTypeInline;
       }
     }else {
-      return MoquiIcons.ServiceTypeInline;
+      return MyIcons.ServiceTypeInline;
     }
 
   }
@@ -48,10 +45,10 @@ public class ServicePresentationProvider extends PresentationProvider<Service> {
     String name  = MyDomUtils.getXmlAttributeValueString(coordinates.getName().getXmlAttributeValue())
             .orElse(MyStringUtils.EMPTY_STRING);
     if(name.equals(MyStringUtils.EMPTY_STRING)) {
-      String serviceName = StringUtil.notNullize(coordinates.getVerb().getStringValue(), UNKNOWN);
+      String serviceName = StringUtil.notNullize(coordinates.getVerb().getStringValue(), MyStringUtils.UNKNOWN);
       if (coordinates.getNoun().exists()) {
         serviceName = serviceName + '#'
-                + StringUtil.notNullize(coordinates.getNoun().getStringValue(), UNKNOWN);
+                + StringUtil.notNullize(coordinates.getNoun().getStringValue(), MyStringUtils.UNKNOWN);
       }
 
       return serviceName;

@@ -8,13 +8,12 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class DefaultResponsePresentationProvider extends PresentationProvider<DefaultResponse> {
 
-  private static final String UNKNOWN = "<N/A>";
 
   @Nullable
   @Override
   public String getName(DefaultResponse coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getUrl().getXmlAttributeValue())
-                    .orElse(UNKNOWN);
+                    .orElse(MyStringUtils.UNKNOWN);
 
     return MyStringUtils.formatPresentationName(DefaultResponse.TAG_NAME,str);
   }

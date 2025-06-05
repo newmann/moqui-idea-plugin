@@ -795,6 +795,14 @@ public final class MoquiIndexService {
         checkAndUpdateService(fullName);
         return accessIndexServiceByFullName(fullName);
     }
+    public Optional<IndexService> getIndexServiceOrInterfaceByFullName(@NotNull String fullName) {
+        Optional<IndexService> indexService = getIndexServiceByFullName(fullName);
+        if(indexService.isPresent()) {
+            return indexService;
+        }else {
+            return getIndexInterfaceByFullName(fullName);
+        }
+    }
 
     private Optional<IndexService> accessIndexServiceByFullName(@NotNull String fullName) {
         return Optional.ofNullable(this.indexServiceMap.get(fullName));

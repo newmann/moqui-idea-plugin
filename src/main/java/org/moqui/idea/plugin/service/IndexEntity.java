@@ -108,6 +108,10 @@ public final class IndexEntity extends AbstractIndexEntity {
         return fieldList;
 
     }
+    public Optional<Field> getFieldByName(@NotNull String fieldName){
+        return Optional.ofNullable((Field)indexAbstractFieldMap.get(fieldName).getAbstractField());
+    }
+
     public Optional<Relationship> getRelationshipByName(@NotNull String relationshipName){
         return relationshipList.stream()
                 .filter(item->EntityUtils.isThisRelationshipRelatedName(item,relationshipName))

@@ -9,7 +9,6 @@ import org.moqui.util.MNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -24,7 +23,7 @@ public final class MyStringUtils {
     private MyStringUtils() {
         throw new UnsupportedOperationException();
     }
-
+    public static final String UNKNOWN = "<N/A>";
     public static List<String> FIELD_SORT_CHAR_LIST = List.of("+","-","^");
     public static final String FIELD_NAME_REGEXP = "^\\s*[+-^]?([A-Za-z0-9_]+)\\s*$";
     public static Pattern FIELD_NAME_PATTERN = Pattern.compile(FIELD_NAME_REGEXP);
@@ -282,5 +281,9 @@ public final class MyStringUtils {
 
     public static  boolean firstCharIsUpperCase(@NotNull String str){
         return !str.isEmpty() && Character.isUpperCase(str.charAt(0));
+    }
+
+    public static String normalizeDescription(@NotNull String str){
+        return str.replaceAll("(\\r?\\n)\\s+", "$1").replaceAll(" {2,}", " ");
     }
 }

@@ -4,19 +4,18 @@ import com.intellij.ide.presentation.PresentationProvider;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.MemberRelationship;
 import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class MemberRelationPresentationProvider extends PresentationProvider<MemberRelationship> {
-
-  private static final String UNKNOWN = "<N/A>";
 
   @Nullable
   @Override
   public String getName(MemberRelationship coordinates) {
     String name;
     name = "MR: " + MyDomUtils.getXmlAttributeValueString(coordinates.getJoinFromAlias().getXmlAttributeValue())
-            .orElse(UNKNOWN)
+            .orElse(MyStringUtils.UNKNOWN)
             +" - " + MyDomUtils.getXmlAttributeValueString(coordinates.getRelationship().getXmlAttributeValue())
-            .orElse(UNKNOWN)
+            .orElse(MyStringUtils.UNKNOWN)
     ;
     if(coordinates.getEntityAlias().exists()){
       name = name + " (Alias: " + coordinates.getEntityAlias().getStringValue()+")";

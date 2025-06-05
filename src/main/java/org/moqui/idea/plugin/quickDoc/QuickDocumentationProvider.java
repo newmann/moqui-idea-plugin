@@ -128,7 +128,7 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
                 .append(formatServiceDefinition(service));
 
         //通过IndexService来获取parameters
-        IndexService indexService = ServiceUtils.getIndexService(element.getProject(),ServiceUtils.getFullNameFromService(service))
+        IndexService indexService = ServiceUtils.getIndexServiceOrInterface(element.getProject(),ServiceUtils.getFullNameFromService(service))
                 .orElse(null);
         docBuilder.append(formatIndexServiceInOutParameter(indexService));
 //        if(indexService == null) {

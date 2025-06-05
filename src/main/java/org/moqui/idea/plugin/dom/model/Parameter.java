@@ -5,21 +5,27 @@ import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.SubTag;
 import com.intellij.util.xml.SubTagList;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.ParameterPresentationProvider;
 
 import java.util.List;
-@Presentation(icon ="MoquiIcons.ParameterTag", provider = ParameterPresentationProvider.class)
+@Presentation(icon ="org.moqui.idea.plugin.MyIcons.ParameterTag", provider = ParameterPresentationProvider.class)
 public interface Parameter extends AbstractField,AttListParameterGeneral,ParameterValidationsList {
+    
     public static final String TAG_NAME = "parameter";
 
 
 //    public static final String ATTR_NAME = "name";
 //    public static final String ATTR_TYPE = "type";
+    
     public static final String ATTR_FORMAT = "format";
     public static final String ATTR_DEFAULT = "default";
+    
     public static final String ATTR_DEFAULT_VALUE = "default-value";
+    
     public static final String ATTR_ENTITY_NAME = "entity-name";
+    
     public static final String ATTR_FIELD_NAME = "field-name";
     //for form define
 

@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.description;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomFileDescription;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Services;
@@ -27,7 +27,7 @@ public class ServicesDescription extends DomFileDescription<Services> {
     @Override
     public @Nullable Icon getFileIcon(int flags) {
 //        return super.getFileIcon(flags);
-        return MoquiIcons.ServiceTag;
+        return MyIcons.ServiceTag;
         //Icons.FILE_ICON_SERVICES;
     }
 

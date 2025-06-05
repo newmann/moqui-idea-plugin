@@ -5,6 +5,7 @@ import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.SubTagList;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.TransitionConverter;
 import org.moqui.idea.plugin.dom.presentation.DynamicDialogPresentationProvider;
@@ -12,6 +13,7 @@ import org.moqui.idea.plugin.dom.presentation.DynamicDialogPresentationProvider;
 import java.util.List;
 @Presentation(provider = DynamicDialogPresentationProvider.class)
 public interface DynamicDialog extends DomElement {
+    
     String TAG_NAME = "dynamic-dialog";
 
     @NotNull

@@ -53,6 +53,12 @@ public class MoquiDomAnnotator implements Annotator {
             EntityUtils.inspectEntityFromAttribute(relationship.getRelated(),holder);
             return;
         }
+//        if ((element instanceof Detail detail)) {
+//
+////            MyDomUtils.inspectAttributeReference(detail.getRelationship(),holder);
+//            return;
+//        }
+
         if ((element instanceof AbstractEntity abstractEntity)) {
             EntityUtils.inspectAbstractEntity(abstractEntity,holder);
             return;
@@ -105,7 +111,19 @@ public class MoquiDomAnnotator implements Annotator {
             return;
         }
 
-
+//        if(element instanceof FormSingle formSingle) {
+//            MyDomUtils.inspectAttributeReference(formSingle.getFocusField(),holder);
+//            MyDomUtils.inspectAttributeReference(formSingle.getTransition(),holder);
+//            return;
+//        }
+        if(element instanceof FieldRef fieldRef) {
+            MyDomUtils.inspectAttributeReference(fieldRef.getName(),holder);
+            return;
+        }
+//        if(element instanceof DynamicOptions dynamicOptions) {
+//            MyDomUtils.inspectAttributeReference(dynamicOptions.getTransition(),holder);
+//            return;
+//        }
 
     }
 }

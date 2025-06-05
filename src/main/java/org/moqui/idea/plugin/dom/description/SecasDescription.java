@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.description;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomFileDescription;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Secas;
@@ -25,7 +25,7 @@ public class SecasDescription extends DomFileDescription<Secas> {
     @Override
     public @Nullable Icon getFileIcon(int flags) {
 //        return super.getFileIcon(flags);
-        return MoquiIcons.SecaTag; //MyIcons.FILE_ICON_SECAS;
+        return MyIcons.SecaTag; //MyIcons.FILE_ICON_SECAS;
     }
 //    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);

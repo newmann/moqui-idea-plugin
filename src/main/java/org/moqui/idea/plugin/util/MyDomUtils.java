@@ -1,6 +1,9 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.icons.AllIcons;
+import com.intellij.lang.annotation.AnnotationHolder;
+import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
@@ -22,6 +25,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 
@@ -713,6 +717,30 @@ public final class MyDomUtils {
         return tmp.map(VirtualFile::getPath);
     }
 
+    public static void inspectAttributeReference(@NotNull GenericAttributeValue<String> attribute, @NotNull AnnotationHolder holder) {
+        XmlAttributeValue attributeValue = attribute.getXmlAttributeValue();
+
+        if(attributeValue == null) return;
+
+        String attributeName = getValueOrEmptyString(attribute);
+
+        PsiReference[] psiReferenceArray = attributeValue.getReferences();
+        boolean notFoundTarget = true;
+        for(PsiReference psiReference: psiReferenceArray) {
+//            PsiElement targetElement = psiReference.resolve();
+            if(psiReference instanceof MoquiBaseReference) {
+                notFoundTarget = false;
+                break;
+            }
+        }
+        if(notFoundTarget) {
+            holder.newAnnotation(HighlightSeverity.ERROR, "'" + attributeName + "' is not found ")
+                    .range(attributeValue.getValueTextRange())
+                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                    .create();
+        }
+
+    }
 
 
 }

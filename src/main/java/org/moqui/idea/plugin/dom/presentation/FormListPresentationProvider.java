@@ -8,13 +8,11 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class FormListPresentationProvider extends PresentationProvider<FormList> {
 
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(FormList coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getName().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     return MyStringUtils.formatPresentationName(FormList.TAG_NAME,str);
   }
 }

@@ -8,13 +8,11 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class MethodPresentationProvider extends PresentationProvider<Method> {
 
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(Method coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getType().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     return MyStringUtils.formatPresentationName(Method.TAG_NAME,str);
   }
 }

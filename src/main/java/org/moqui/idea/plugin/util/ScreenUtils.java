@@ -17,7 +17,7 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
@@ -44,7 +44,7 @@ public final class ScreenUtils {
         return MyDomUtils.isSpecialXmlFile(file, Screen.TAG_NAME,Screen.ATTR_NoNamespaceSchemaLocation,Screen.VALULE_NoNamespaceSchemaLocation);
     }
     public static Icon getNagavitorToScreenIcon() {
-        return MoquiIcons.NavigateToScreen; //MyIcons.NAVIGATE_TO_SCREEN;
+        return MyIcons.NavigateToScreen; //MyIcons.NAVIGATE_TO_SCREEN;
     }
     public static String getNagavitorToEntityToolTips() {
         return "Navigating to Screen definition";
@@ -124,8 +124,7 @@ public final class ScreenUtils {
     public static Optional<AbstractTransition> getAbstractTransitionFromListByName(@NotNull List<AbstractTransition> abstractTransitionList,@NotNull String transitionName){
         return abstractTransitionList.stream().filter(
                 item->{
-                    String str = MyDomUtils.getXmlAttributeValueString(item.getName().getXmlAttributeValue())
-                            .orElse(MyStringUtils.EMPTY_STRING);
+                    String str = MyDomUtils.getValueOrEmptyString(item.getName());
                     return str.equals(transitionName);
                 }
         ).findFirst();

@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.AllPackageConverter;
 
@@ -24,4 +25,8 @@ public interface AbstractEntity extends DomElement {
     @NotNull
     @SubTagList(Relationship.TAG_NAME)
     List<Relationship> getRelationshipList();
+
+    @NotNull
+    @SubTag(Description.TAG_NAME)
+    Description getDescription();
 }

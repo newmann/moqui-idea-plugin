@@ -7,11 +7,8 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReferenceBase;
-import com.intellij.util.IncorrectOperationException;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.util.BeginAndEndCharPattern;
 import org.moqui.idea.plugin.util.EntityScope;
@@ -23,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class AbstractEntityOrViewNameReference extends PsiReferenceBase.Immediate<PsiElement> {
+public class AbstractEntityOrViewNameReference extends MoquiBaseReference {
   public static AbstractEntityOrViewNameReference ofEntityNameReference(@NotNull PsiElement element, TextRange textRange, PsiElement resolve){
       return new AbstractEntityOrViewNameReference(element, textRange,EntityScope.ENTITY_ONLY,resolve);
   }
@@ -40,11 +37,11 @@ public class AbstractEntityOrViewNameReference extends PsiReferenceBase.Immediat
 
     private final EntityScope entityScope;
 
-  private TextRange myTextRange;
+//  private TextRange myTextRange;
 
   public AbstractEntityOrViewNameReference(@NotNull PsiElement element, TextRange textRange, EntityScope entityScope, PsiElement resolve) {
     super(element, textRange,resolve);
-    this.myTextRange = textRange;
+//    this.myTextRange = textRange;
     this.entityScope = entityScope;
 
   }
@@ -77,10 +74,10 @@ public class AbstractEntityOrViewNameReference extends PsiReferenceBase.Immediat
     return variants.toArray();
   }
   private void addEntityToVariants( Project project, List<LookupElement> variants,String filter){
-    processCollection(EntityUtils.getAllEntityFullNameCollection(project),variants,filter,MoquiIcons.EntityTag);
+    processCollection(EntityUtils.getAllEntityFullNameCollection(project),variants,filter, MyIcons.EntityTag);
   }
   private void addViewEntityToVariants( Project project, List<LookupElement> variants,String filter){
-    processCollection(EntityUtils.getAllViewEntityFullNameCollection(project),variants,filter,MoquiIcons.ViewEntityTag);
+    processCollection(EntityUtils.getAllViewEntityFullNameCollection(project),variants,filter, MyIcons.ViewEntityTag);
 
   }
   private void processCollection(Collection<String> names, List<LookupElement> variants,String filter, Icon icon){
@@ -96,11 +93,11 @@ public class AbstractEntityOrViewNameReference extends PsiReferenceBase.Immediat
 
   }
 
-  @Override
-  public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
-
-    return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
-
-//    return super.handleElementRename(newElementName);
-  }
+//  @Override
+//  public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
+//
+//    return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
+//
+////    return super.handleElementRename(newElementName);
+//  }
 }

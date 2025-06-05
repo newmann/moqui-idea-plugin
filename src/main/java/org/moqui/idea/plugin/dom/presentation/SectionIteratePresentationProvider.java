@@ -8,13 +8,11 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class SectionIteratePresentationProvider extends PresentationProvider<SectionIterate> {
 
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(SectionIterate coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getName().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     return MyStringUtils.formatPresentationName(SectionIterate.TAG_NAME,str);
   }
 }

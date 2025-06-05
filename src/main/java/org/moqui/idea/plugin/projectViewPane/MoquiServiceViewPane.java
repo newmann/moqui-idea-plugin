@@ -5,7 +5,7 @@ import com.intellij.ide.SelectInTarget;
 import com.intellij.ide.projectView.impl.ProjectAbstractTreeStructureBase;
 import com.intellij.ide.projectView.impl.ProjectViewPane;
 import com.intellij.openapi.project.Project;
-import icons.MoquiIcons;
+import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +45,7 @@ public class MoquiServiceViewPane extends ProjectViewPane {
 
     @Override
     public @NotNull Icon getIcon() {
-        return MoquiIcons.ServiceTag;
+        return MyIcons.ServiceTag;
     }
 
     @Override

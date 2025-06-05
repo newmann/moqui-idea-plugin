@@ -8,13 +8,11 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class SecaPresentationProvider extends PresentationProvider<Seca> {
 
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(Seca coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getId().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     return MyStringUtils.formatPresentationName(Seca.TAG_NAME,str);
   }
 }

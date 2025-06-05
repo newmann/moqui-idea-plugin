@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.AbstractMemberEntity;
-import org.moqui.idea.plugin.reference.PsiRef;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.util.EntityUtils;
 
 import javax.swing.*;
@@ -85,7 +85,7 @@ public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberE
 //                new TextRange(1,
 //                        aliasName.length()+1),
 //                entityCommonAttribute.getEntityAlias().getXmlAttributeValue());
-        psiReferences[0] = new PsiRef(element,
+        psiReferences[0] = new MoquiBaseReference(element,
                 new TextRange(1,
                         element.getTextLength()-1), //前后两个双英号
                 entityCommonAttribute.getEntityAlias().getXmlAttributeValue());

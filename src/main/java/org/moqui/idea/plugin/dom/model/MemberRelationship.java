@@ -11,6 +11,7 @@ import org.moqui.idea.plugin.dom.presentation.MemberRelationPresentationProvider
 
 @Presentation(provider = MemberRelationPresentationProvider.class)
 public interface MemberRelationship extends AbstractMemberEntity {
+
     public static final String TAG_NAME = "member-relationship";
 
 //    public static final String ATTR_ENTITY_ALIAS ="entity-alias";
@@ -18,7 +19,9 @@ public interface MemberRelationship extends AbstractMemberEntity {
     public static final String ATTR_RELATIONSHIP ="relationship";
 
 //    public static final String ATTR_JOIN_FROM_ALIAS ="join-from-alias";
+
     public static final String ATTR_JOIN_OPTIONAL ="join-optional";
+
     public static final String ATTR_SUB_SELECT ="sub-select";
 //    @NotNull
 //    @Attribute(ATTR_ENTITY_ALIAS)

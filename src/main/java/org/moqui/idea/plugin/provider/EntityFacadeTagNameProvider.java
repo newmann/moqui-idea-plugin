@@ -22,7 +22,7 @@ public class EntityFacadeTagNameProvider implements XmlTagNameProvider {
     public void addTagNameVariants(List<LookupElement> list, @NotNull XmlTag xmlTag, String s) {
         if(MyDomUtils.isMoquiDataDefineTag(xmlTag)) {
             Project project = xmlTag.getProject();
-            //添加所在Entity的reference，并且权重更高
+            //添加所在Entity的reference，并且权重更高，字段也可以放到tag中，但权重较低
             List<String> relationshipEntityName = new ArrayList<>();
             XmlTag parentTag = xmlTag.getParentTag();
             if(parentTag != null) {
@@ -47,6 +47,20 @@ public class EntityFacadeTagNameProvider implements XmlTagNameProvider {
                                 list.add(PrioritizedLookupElement.withPriority(lookupElement,0.1));
                             }
                     );
+                    //添加字段，只添加字段属性为text-long的字段
+                    indexEntity.getFieldList().forEach(
+                            field -> {
+                                if(MyDomUtils.getValueOrEmptyString(field.getType()).equals("text-long")) {
+                                    LookupElement lookupElement = LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(field.getName()))
+                                            .appendTailText("[text-long field]", true)
+                                            .withCaseSensitivity(true)
+                                            .withTypeText(parentTag.getName());
+
+                                    list.add(PrioritizedLookupElement.withPriority(lookupElement, 0.5));
+                                }
+                            }
+                    );
+
                 }
             }
 

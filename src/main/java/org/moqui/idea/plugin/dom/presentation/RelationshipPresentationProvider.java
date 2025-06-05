@@ -4,17 +4,16 @@ import com.intellij.ide.presentation.PresentationProvider;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Relationship;
 import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class RelationshipPresentationProvider extends PresentationProvider<Relationship> {
-
-  private static final String UNKNOWN = "<N/A>";
 
   @Nullable
   @Override
   public String getName(Relationship coordinates) {
     String name;
     name = MyDomUtils.getXmlAttributeValueString(coordinates.getRelated().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     if(coordinates.getTitle().exists()){
       name = name + " (T: " + coordinates.getTitle().getStringValue()+")";
     }

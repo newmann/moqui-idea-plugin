@@ -2,18 +2,14 @@ package org.moqui.idea.plugin.reference;
 
 
 import com.intellij.lang.ASTNode;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.impl.source.xml.TagNameReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.util.EntityFacadeXmlTagDescriptor;
 import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class EntityFacadeXmlTagNameReference extends TagNameReference {
 //    private final String myTagName;
@@ -43,10 +39,14 @@ public class EntityFacadeXmlTagNameReference extends TagNameReference {
                 if (descriptor.getIsRelationship()) {
                     return descriptor.getRelationship().getShortAlias().getXmlAttributeValue();
                 } else {
-                    if(descriptor.getIsShortAlias()) {
-                        return indexEntity.getEntity().getShortAlias().getXmlAttributeValue();
-                    }else{
-                        return indexEntity.getEntity().getEntityName().getXmlAttributeValue();
+                    if(descriptor.getIsField()) {
+                        return descriptor.getField().getXmlTag();
+                    }else {
+                        if (descriptor.getIsShortAlias()) {
+                            return indexEntity.getEntity().getShortAlias().getXmlAttributeValue();
+                        } else {
+                            return indexEntity.getEntity().getEntityName().getXmlAttributeValue();
+                        }
                     }
                 }
             }

@@ -7,14 +7,11 @@ import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class SectionPresentationProvider extends PresentationProvider<Section> {
-
-  private static final String UNKNOWN = "<N/A>";
-
   @Nullable
   @Override
   public String getName(Section coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getName().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     return MyStringUtils.formatPresentationName(Section.TAG_NAME,str);
   }
 }

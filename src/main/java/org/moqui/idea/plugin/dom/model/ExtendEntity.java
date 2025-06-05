@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.*;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.ExtendEntityNameConverter;
 import org.moqui.idea.plugin.dom.converter.ExtendEntityPackageConverter;
@@ -8,19 +9,30 @@ import org.moqui.idea.plugin.dom.converter.ExtendEntityPackageConverter;
 import java.util.List;
 
 public interface ExtendEntity extends DomElement {
+    
     public static final String TAG_NAME = "extend-entity";
+    
     public static final String ATTR_ENTITY_NAME = "entity-name";
+    
     public static final String ATTR_PACKAGE = "package";
+    
     public static final String ATTR_TABLE_NAME = "table-name";
 
+    
     public static final String ATTR_GROUP = "group";
+    
     public static final String ATTR_SEQUENCE_BANK_SIZE = "sequence-bank-size";
+    
     public static final String ATTR_SEQUENCE_PRIMARY_PREFIX = "sequence-primary-prefix";
+    
     public static final String ATTR_OPTIMISTIC_LOCK = "optimistic-lock";
+    
     public static final String ATTR_NO_UPDATE_STAMP = "no-update-stamp";
 
     public static final String ATTR_CACHE = "cache";
+    
     public static final String ATTR_AUTHORIZE_SKIP = "authorize-skip";
+    
     public static final String ATTR_ENABLE_AUDIT_LOG = "enable-audit-log";
 
 

@@ -8,13 +8,12 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class ParameterPresentationProvider extends PresentationProvider<Parameter> {
 
-  private static final String UNKNOWN = "<N/A>";
 
   @Nullable
   @Override
   public String getName(Parameter coordinates) {
     String str = MyDomUtils.getXmlAttributeValueString(coordinates.getName().getXmlAttributeValue())
-            .orElse(UNKNOWN);
+            .orElse(MyStringUtils.UNKNOWN);
     return MyStringUtils.formatPresentationName(Parameter.TAG_NAME,str);
   }
 }

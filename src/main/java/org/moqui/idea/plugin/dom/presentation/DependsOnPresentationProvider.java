@@ -8,7 +8,7 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class DependsOnPresentationProvider extends PresentationProvider<DependsOn> {
 
-  private static final String UNKNOWN = "<N/A>";
+
 
 //  @Override
 //  public @Nullable Icon getIcon(Field field) {
@@ -25,16 +25,16 @@ public class DependsOnPresentationProvider extends PresentationProvider<DependsO
   public String getName(DependsOn coordinates) {
     String showTitle;
     String field;
-    field = StringUtil.notNullize(coordinates.getField().getStringValue(), UNKNOWN);
-    if(field.equals(UNKNOWN)) {
-      showTitle = StringUtil.notNullize(coordinates.getName().getStringValue(), UNKNOWN)
+    field = StringUtil.notNullize(coordinates.getField().getStringValue(), MyStringUtils.UNKNOWN);
+    if(field.equals(MyStringUtils.UNKNOWN)) {
+      showTitle = StringUtil.notNullize(coordinates.getName().getStringValue(), MyStringUtils.UNKNOWN)
               +":"
-              +StringUtil.notNullize(coordinates.getVersion().getStringValue(), UNKNOWN);
+              +StringUtil.notNullize(coordinates.getVersion().getStringValue(), MyStringUtils.UNKNOWN);
 
     }else {
       showTitle = field
               +"-"
-              +StringUtil.notNullize(coordinates.getParameter().getStringValue(), UNKNOWN);
+              +StringUtil.notNullize(coordinates.getParameter().getStringValue(), MyStringUtils.UNKNOWN);
 
     }
 

@@ -1,21 +1,14 @@
 package org.moqui.idea.plugin.reference;
 
 
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.xml.XmlAttribute;
-import com.intellij.util.IncorrectOperationException;
-import icons.MoquiIcons;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.ServiceCall;
-import org.moqui.idea.plugin.service.IndexAbstractField;
-import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.service.IndexServiceParameter;
 import org.moqui.idea.plugin.util.*;
 
@@ -23,19 +16,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ServiceInParameterReference extends PsiReferenceBase.Immediate<PsiElement> {
+public class ServiceInParameterReference extends MoquiBaseReference {
 
     public static ServiceInParameterReference of(@NotNull PsiElement psiElement, TextRange textRange, PsiElement myResolve){
         return new ServiceInParameterReference(psiElement,textRange,myResolve);
     }
     private final Logger LOG = Logger.getInstance(ServiceInParameterReference.class);
 
-    private final TextRange myTextRange;
+//    private final TextRange myTextRange;
 //    private final PsiElement myResolve;
     public ServiceInParameterReference(@NotNull PsiElement psiElement, TextRange textRange, PsiElement myResolve) {
         super(psiElement, textRange,myResolve);
 
-        this.myTextRange = textRange;
+//        this.myTextRange = textRange;
 //        this.myResolve = myResolve;
     }
 
@@ -94,8 +87,8 @@ public class ServiceInParameterReference extends PsiReferenceBase.Immediate<PsiE
     }
 
 
-    @Override
-    public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
-        return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
-    }
+//    @Override
+//    public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
+//        return ElementManipulators.getManipulator(this.myElement).handleContentChange(this.myElement,this.myTextRange,newElementName);
+//    }
 }
