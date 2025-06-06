@@ -6,8 +6,8 @@ plugins {
   id("org.jetbrains.intellij.platform") version "2.0.1"
 }
 
-group = "com.beiyelin"
-version = "20241124.01"
+group = "org.moqui"
+version = "3.2025.1"//3 stand for moqui framework 3, 2025 stand for release year, 1 stand for plugin version
 
 repositories {
   maven { setUrl("https://maven.aliyun.com/repository/central/")}

@@ -18,6 +18,7 @@ import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.MyBundle;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.reference.ServiceCallReference;
@@ -318,7 +319,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
         ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(serviceCallName);
         if(serviceDescriptor.getVerb().isEmpty()) {
-            holder.createProblem(attributeValue, HighlightSeverity.ERROR, "This is not a valid service call");
+            holder.createProblem(attributeValue, HighlightSeverity.ERROR, MyBundle.message("util.ServiceUtils.notValidServiceCall"));
             return;
         }
 
@@ -328,7 +329,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
             if(!(STANDARD_CRUD_COMMANDER.contains(serviceDescriptor.getVerb()))) {
                 holder.createProblem(attributeValue, HighlightSeverity.ERROR,
-                        "The verb is not correctly,should use one of create/update/delete");
+                        MyBundle.message("util.ServiceUtils.crudNotCorrect"));
             }
 
             Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project,
@@ -338,14 +339,16 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
 
             if (optionalXmlElement.isEmpty()) {
-                holder.createProblem(attributeValue, HighlightSeverity.ERROR, "Missing attributeThe called Entity is not found",
+                holder.createProblem(attributeValue, HighlightSeverity.ERROR,
+                        MyBundle.message("util.ServiceUtils.missEntityName"),
                         TextRange.from(index+2,entityNameLength));
             }
         }else {
             Optional<Service> opService = ServiceUtils.getServiceByFullName(project, serviceCallName);
 
             if (opService.isEmpty()) {
-                holder.createProblem(attributeValue, HighlightSeverity.ERROR, "Called service is not found",
+                holder.createProblem(attributeValue, HighlightSeverity.ERROR,
+                        MyBundle.message("util.ServiceUtils.calledServiceNotFound"),
                         TextRange.from(1,serviceCallNameLength));
             }
         }
@@ -359,7 +362,8 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         final String serviceCallName = attributeValue.getXmlAttributeValue().getValue();
         //判断是否包含Groovy 变量，如果是，则不进行处理，仅仅提示
         if(MyStringUtils.containGroovyVariables(serviceCallName)) {
-            holder.newAnnotation(HighlightSeverity.WEAK_WARNING, "Service call name contains groovy variables")
+            holder.newAnnotation(HighlightSeverity.WEAK_WARNING,
+                            MyBundle.message("util.ServiceUtils.serviceNameContainGroovy"))
                     .range(xmlAttributeValue.getValueTextRange())
                     .highlightType(ProblemHighlightType.WEAK_WARNING)
                     .create();
@@ -372,7 +376,8 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
         ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(serviceCallName);
         if(serviceDescriptor.getVerb().isEmpty()) {
-            holder.newAnnotation(HighlightSeverity.ERROR, "This is not a valid service call")
+            holder.newAnnotation(HighlightSeverity.ERROR,
+                            MyBundle.message("util.ServiceUtils.notValidServiceCall"))
                     .range(xmlAttributeValue.getValueTextRange())
                     .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                     .create();
@@ -383,7 +388,8 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         if(serviceDescriptor.isCRUD() ) {
 
             if(!(STANDARD_CRUD_COMMANDER.contains(serviceDescriptor.getVerb()))) {
-                holder.newAnnotation(HighlightSeverity.ERROR, "The verb is not correctly,should use one of create/update/delete")
+                holder.newAnnotation(HighlightSeverity.ERROR,
+                                MyBundle.message("util.ServiceUtils.crudNotCorrect"))
                         .range(xmlAttributeValue.getValueTextRange())
                         .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         .create();
@@ -393,7 +399,8 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                     serviceDescriptor.getNoun());
 
             if (optionalXmlElement.isEmpty()) {
-                holder.newAnnotation(HighlightSeverity.ERROR, "Missing attributeThe called Entity is not found")
+                holder.newAnnotation(HighlightSeverity.ERROR,
+                                MyBundle.message("util.ServiceUtils.missEntityName"))
                         .range(xmlAttributeValue.getValueTextRange())
                         .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         .create();
@@ -402,7 +409,8 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
             Optional<Service> opService = ServiceUtils.getServiceByFullName(project, serviceCallName);
 
             if (opService.isEmpty()) {
-                holder.newAnnotation(HighlightSeverity.ERROR, "Called service is not found")
+                holder.newAnnotation(HighlightSeverity.ERROR,
+                                MyBundle.message("util.ServiceUtils.calledServiceNotFound"))
                         .range(xmlAttributeValue.getValueTextRange())
                         .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         .create();

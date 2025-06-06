@@ -8,23 +8,36 @@
   <name>Moqui Dev Tools</name>
 
   <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-  <vendor email="support@beiyelin.com" url="https://www.beiyelin.com">Beiyelin</vendor>
+  <vendor email="newmannhu@qq.com" url="https://github.com/newmann/moqui-idea-plugin">Newmann</vendor>
 
   <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
        Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
        Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
   <description><![CDATA[
-    Moqui Development Plugin<br>
-    For Moqui version 3.0.0.RC1<br>
+    Moqui Development Tools<br>
+    This tool supports IntelliJ IDEA 2023.1~2024.3, Community Edition,The Ultimate version has not been tested and should still be supported.<br>
+
+    Support the XSD standard defined in Moqui Framework 3, which is version 3.<br>
+
+    Originally recommended to execute [./gradlew setupIntellij](https://moqui.org/m/docs/framework/IDE+Setup/IntelliJ+IDEA+Setup)
+    command allows Idea to support Moqui's XML recognition. After installing this plugin,
+    it will automatically install without the need to execute this command.<br>
+
+    If this command has already been executed, it is necessary to manually delete the definitions added by the process.
+    These definitions can be deleted under Languages&Frameworks=>schemas and DTDs.<br>
+
+    No other configuration is required.<br>
+
     <em>Support following function:</em>
     <ol>
-        <li>Auto Complete </li>
+        <li>Auto Complete prompt </li>
+        <li>Jump (Ctrl+B, Ctrl+click) </li>
+        <li>Quick documentation for entity and service </li>
+        <li>Display the usage quantities of Entity, Service, and Transition </li>
+        <li>Support automatic prompts for tags and attributes in entity face xml files </li>
         <li>Rename </li>
-        <li>Ctrl+B (Ctrl+click) </li>
-        <li>Inspection</li>
-        <li>Quick documentation for entity and service</li>
-        <li>Inject Groovy to script tag and some attribute</li>
-        <li>Show usages of Entity,Service,Transition</li>
+        <li>Automatic error prompt </li>
+        <li>Folding form list and form corner </li>
     </ol>
   ]]></description>
 
