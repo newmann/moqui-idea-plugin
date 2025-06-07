@@ -6,6 +6,7 @@ import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.SubTagList;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.DisplayFormatConverter;
 import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
 
 import java.util.List;
@@ -25,7 +26,9 @@ public interface Display extends DomElement {
     @NotNull GenericAttributeValue<String> getTextMap();
     @NotNull GenericAttributeValue<String> getStyle();
     @NotNull GenericAttributeValue<String> getCurrencyUnitField();
-    @NotNull GenericAttributeValue<String> getFormat();
+    @NotNull
+    @Convert(DisplayFormatConverter.class)
+    GenericAttributeValue<String> getFormat();
     @NotNull GenericAttributeValue<String> getTextFormat();
     @NotNull GenericAttributeValue<String> getEncode();
     @NotNull GenericAttributeValue<String> getDynamicTransition();
