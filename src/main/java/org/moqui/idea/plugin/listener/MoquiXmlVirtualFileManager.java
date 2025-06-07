@@ -14,7 +14,7 @@ import org.moqui.idea.plugin.dom.model.Entities;
 import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
 
 public class MoquiXmlVirtualFileManager implements VirtualFileListener {
-    private Project project;
+    private final Project project;
     public MoquiXmlVirtualFileManager(@NotNull Project project) {
         this.project = project;
     }

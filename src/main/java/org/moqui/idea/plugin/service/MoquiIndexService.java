@@ -6,8 +6,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlTag;
+import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.xml.DomFileElement;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.listener.MoquiXmlBulkFileListener;
 import org.moqui.idea.plugin.listener.MoquiXmlVirtualFileManager;
 import org.moqui.idea.plugin.util.*;
 import com.intellij.openapi.components.Service;
@@ -73,6 +75,9 @@ public final class MoquiIndexService {
     private MoquiXmlVirtualFileManager moquiXmlVirtualFileManager = null;
 
     private final boolean isMoquiProject;
+
+    private final MessageBusConnection connection;
+
     public MoquiIndexService(Project project) {
         this.project = project;
 //        this.entityXmlFileUpdated = false;
@@ -91,11 +96,12 @@ public final class MoquiIndexService {
         //判断是否为Moqui项目，
 
         this.isMoquiProject = checkMoquiProject(project);
-
+        this.connection = project.getMessageBus().connect();
         //如果不是Moqui项目，则不进行监听
         if(this.isMoquiProject) {
-            this.moquiXmlVirtualFileManager = new MoquiXmlVirtualFileManager(project);
-            VirtualFileManager.getInstance().addVirtualFileListener(this.moquiXmlVirtualFileManager);
+//            this.moquiXmlVirtualFileManager = new MoquiXmlVirtualFileManager(project);
+//            VirtualFileManager.getInstance().addVirtualFileListener(this.moquiXmlVirtualFileManager);
+            this.connection.subscribe(VirtualFileManager.VFS_CHANGES,MoquiXmlBulkFileListener.of(project));
         }
 
     }
@@ -112,9 +118,10 @@ public final class MoquiIndexService {
 
 
     public void unRegisterListener(){
-        if(isMoquiProject) {
-            VirtualFileManager.getInstance().removeVirtualFileListener(this.moquiXmlVirtualFileManager);
-        }
+        this.connection.disconnect();
+//        if(isMoquiProject) {
+//            VirtualFileManager.getInstance().removeVirtualFileListener(this.moquiXmlVirtualFileManager);
+//        }
     }
 
     public boolean isMoquiProject() {

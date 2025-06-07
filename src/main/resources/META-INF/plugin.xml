@@ -245,7 +245,7 @@
 <!--    暂时没有什么用-->
 <!--    <projectListeners>-->
 <!--        <listener-->
-<!--                class="org.moqui.idea.plugin.listener.FileListener"-->
+<!--                class="org.moqui.idea.plugin.listener.MoquiXmlBulkFileListener"-->
 <!--                topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>-->
 <!--    </projectListeners>-->
 

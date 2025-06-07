@@ -38,6 +38,8 @@ dependencies {
   }
   // 使用 Maven Central 仓库中的依赖
   implementation("org.freemarker:freemarker:2.3.32")
+  implementation("com.sun.activation:jakarta.activation:1.2.1") //support javax.activation.MimetypesFileTypeMap
+
 //  implementation("org.jgrapht:jgrapht-core:1.5.2")
 //  implementation("com.github.tomnelson:jungrapht-visualization:1.4")
 }
