@@ -39,6 +39,7 @@ public final class EntityUtils {
 
     public static final String  ENTITY_NAME_DOT = ".";
     public static final String  ENTITY_FIELD_COMMA = ",";
+    public static final String FIELD_NAME_LAST_UPDATED_STAMP ="lastUpdatedStamp";
     private EntityUtils() {
         throw new UnsupportedOperationException();
     }
@@ -960,14 +961,27 @@ public final class EntityUtils {
     }
 
     /**
-     * 根据PsiElement 找到所在的EntityName，如果不在Entity Tag下，则返回空
+     * 根据PsiElement 找到所在的EntityName，如果不在Entity Tag 或ExtendEntity Tag下，则返回空
      * @param psiElement 当前PsiElement
-     * @param curEntity 当前的Entity
-     * @param curAttributeName 当前属性名称
      * @return Optional<String>
      */
-    public static Optional<String> getEntityNameByPsiElement(@NotNull PsiElement psiElement,@NotNull Entity curEntity, @NotNull String curAttributeName) {
-        String entityName = null;
+    public static Optional<String> getEntityNameByPsiElementInEntityXml(@NotNull PsiElement psiElement ) {
+        String curAttributeName = getCurrentAttributeName(psiElement).orElse(MyStringUtils.EMPTY_STRING);
+
+        String entityName = null ;
+        boolean isEntity = false;
+        //Entity
+        Entity curEntity = MyDomUtils.getLocalDomElementByPsiElement(psiElement,Entity.class).orElse(null);
+        ExtendEntity curExtendEntity = null;
+        if(curEntity == null){
+            //ExtendEntity
+            curExtendEntity = getLocalDomElementByPsiElement(psiElement, ExtendEntity.class).orElse(null);
+            if(curExtendEntity == null) return Optional.empty();
+        }else {
+            isEntity=true;
+
+        }
+
         //Entity-Relationship
         Relationship curRelationship = MyDomUtils.getLocalDomElementByPsiElement(psiElement,Relationship.class).orElse(null);
         if(curRelationship != null) {
@@ -976,7 +990,7 @@ public final class EntityUtils {
             KeyMap curKeyMap = getLocalDomElementByPsiElement(psiElement, KeyMap.class).orElse(null);
             if(curKeyMap != null) {
                 switch(curAttributeName) {
-                    case KeyMap.ATTR_FIELD_NAME -> entityName = MyDomUtils.getValueOrEmptyString(curEntity.getEntityName());
+                    case KeyMap.ATTR_FIELD_NAME -> entityName = MyDomUtils.getValueOrEmptyString(isEntity?curEntity.getEntityName():curExtendEntity.getEntityName());
                     case KeyMap.ATTR_RELATED -> entityName = MyDomUtils.getValueOrEmptyString(curRelationship.getRelated());
                 }
             }
@@ -988,43 +1002,88 @@ public final class EntityUtils {
                 }
             }
         }else {
-            entityName = MyDomUtils.getValueOrEmptyString(curEntity.getEntityName());
+            entityName = MyDomUtils.getValueOrEmptyString(isEntity ? curEntity.getEntityName(): curExtendEntity.getEntityName());
         }
         return Optional.ofNullable(entityName);
 
     }
-    public static Optional<String> getEntityNameByPsiElement(@NotNull PsiElement psiElement,@NotNull ExtendEntity curEntity, @NotNull String curAttributeName) {
-        String entityName = null;
-        //ExtendEntity-Relationship
-        Relationship curRelationship = getLocalDomElementByPsiElement(psiElement, Relationship.class).orElse(null);
-        if(curRelationship != null) {
-            //ExtendEntity-Relationship-keyMap（related）
-            //ExtendEntity-Relationship-keyValue（related）
-            KeyMap curKeyMap = getLocalDomElementByPsiElement(psiElement, KeyMap.class).orElse(null);
-            if(curKeyMap != null) {
-                switch(curAttributeName) {
-                    case KeyMap.ATTR_FIELD_NAME -> entityName = MyDomUtils.getValueOrEmptyString(curEntity.getEntityName());
-                    case KeyMap.ATTR_RELATED -> entityName = MyDomUtils.getValueOrEmptyString(curRelationship.getRelated());
-                }
-            }
-            //ExtendEntity-Relationship-keyValue（related）
-            KeyValue curKeyValue = getLocalDomElementByPsiElement(psiElement, KeyValue.class).orElse(null);
-            if(curKeyValue != null) {
-                if(curAttributeName.equals(KeyValue.ATTR_RELATED)) {
-                    entityName = MyDomUtils.getValueOrEmptyString(curRelationship.getRelated());
-                }
-            }
+//    public static Optional<String> getEntityNameByPsiElement(@NotNull PsiElement psiElement,@NotNull ExtendEntity curEntity, @NotNull String curAttributeName) {
+//        String entityName = null;
+//        //ExtendEntity-Relationship
+//        Relationship curRelationship = getLocalDomElementByPsiElement(psiElement, Relationship.class).orElse(null);
+//        if(curRelationship != null) {
+//            //ExtendEntity-Relationship-keyMap（related）
+//            //ExtendEntity-Relationship-keyValue（related）
+//            KeyMap curKeyMap = getLocalDomElementByPsiElement(psiElement, KeyMap.class).orElse(null);
+//            if(curKeyMap != null) {
+//                switch(curAttributeName) {
+//                    case KeyMap.ATTR_FIELD_NAME -> entityName = MyDomUtils.getValueOrEmptyString(curEntity.getEntityName());
+//                    case KeyMap.ATTR_RELATED -> entityName = MyDomUtils.getValueOrEmptyString(curRelationship.getRelated());
+//                }
+//            }
+//            //ExtendEntity-Relationship-keyValue（related）
+//            KeyValue curKeyValue = getLocalDomElementByPsiElement(psiElement, KeyValue.class).orElse(null);
+//            if(curKeyValue != null) {
+//                if(curAttributeName.equals(KeyValue.ATTR_RELATED)) {
+//                    entityName = MyDomUtils.getValueOrEmptyString(curRelationship.getRelated());
+//                }
+//            }
+//        }else {
+//            //ExtendEntity-Index-IndexField(name)
+//            entityName = MyDomUtils.getValueOrEmptyString(curEntity.getEntityName());
+//        }
+//        return Optional.ofNullable(entityName);
+//
+//    }
+public static Optional<String> getEntityNameByPsiElementInViewEntityXml(@NotNull PsiElement psiElement) {
+//        String curAttributeName = getCurrentAttributeName(psiElement).orElse(MyStringUtils.EMPTY_STRING);
+
+    //ViewEntity
+    ViewEntity curViewEntity = getLocalDomElementByPsiElement(psiElement, ViewEntity.class).orElse(null);
+    if(curViewEntity == null) return Optional.empty();
+
+    return Optional.of(MyDomUtils.getValueOrEmptyString(curViewEntity.getEntityName()));
+
+}
+
+    public static Optional<String> getEntityNameByPsiElementInAbstractEntityNameXml(@NotNull PsiElement psiElement) {
+//        String curAttributeName = getCurrentAttributeName(psiElement).orElse(MyStringUtils.EMPTY_STRING);
+
+        //Service，Seca等下的EntityFindOne
+        AbstractEntityName nameAbstract;
+        nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityFindOne.class).orElse(null);
+
+        //Service、Seca等下的EntityFind
+        //Service、Seca等下的EntityDeleteByCondition
+        //Service、Seca等下的EntityFindCount
+        //只和EntityFind等有关，就不用判断在哪个Tag下
+//        AbstractEntityName nameAbstract = null;
+        if(nameAbstract == null) {
+            nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityFind.class).orElse(null);
+        }
+        if(nameAbstract == null) {
+            nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityDeleteByCondition.class).orElse(null);
+        }
+        if(nameAbstract == null) {
+//            nameAbstract = ServiceUtils.getCurrentEntityFindCount(psiElement).orElse(null);
+            nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityFindCount.class).orElse(null);
+        }
+
+        if(nameAbstract != null) {
+            return Optional.of(MyDomUtils.getValueOrEmptyString(nameAbstract.getEntityName()));
+
         }else {
-            //ExtendEntity-Index-IndexField(name)
-            entityName = MyDomUtils.getValueOrEmptyString(curEntity.getEntityName());
+            return Optional.empty();
+
         }
-        return Optional.ofNullable(entityName);
 
     }
-    public static Optional<String> getEntityNameByPsiElement(@NotNull PsiElement psiElement,@NotNull AbstractEntityName abstractEntityName, @NotNull String curAttributeName) {
-        return Optional.of(MyDomUtils.getValueOrEmptyString(abstractEntityName.getEntityName()));
-    }
-    public static Optional<String> getEntityNameByPsiElement(@NotNull PsiElement psiElement,@NotNull Service service, @NotNull String curAttributeName) {
+    public static Optional<String> getEntityNameByPsiElementInServiceXml(@NotNull PsiElement psiElement) {
+        String curAttributeName = getCurrentAttributeName(psiElement).orElse(MyStringUtils.EMPTY_STRING);
+        //Service
+        Service curService = getLocalDomElementByPsiElement(psiElement, Service.class).orElse(null);
+        if(curService == null) return Optional.empty();
+
         String entityName = null;
         //Service下的AutoParameters
         AutoParameters curAutoParameters = getLocalDomElementByPsiElement(psiElement, AutoParameters.class).orElse(null);
@@ -1036,12 +1095,27 @@ public final class EntityUtils {
                     entityName = MyDomUtils.getValueOrEmptyString(curAutoParameters.getEntityName());
                     if(MyStringUtils.EMPTY_STRING.equals(entityName)) {
                         //如果当前的AutoParameters中没有定义entityName，则有可能是在Service的inParameters中，这时，service的noun就是EntityName
-                        entityName = MyDomUtils.getValueOrEmptyString(service.getNoun());
+                        entityName = MyDomUtils.getValueOrEmptyString(curService.getNoun());
                     }
                 }
 
             }
         }
+        return Optional.ofNullable(entityName);
+    }
+    public static Optional<String> getEntityNameByPsiElementInServiceCallXml(@NotNull PsiElement psiElement) {
+
+        //ServiceCall
+        ServiceCall curServiceCall = getLocalDomElementByPsiElement(psiElement, ServiceCall.class).orElse(null);
+        if(curServiceCall == null) return Optional.empty();
+
+        String entityName = null;
+
+        ServiceCallDescriptor serviceCallDescriptor = ServiceCallDescriptor.of(
+                MyDomUtils.getValueOrEmptyString(curServiceCall.getName())
+        );
+        if(serviceCallDescriptor.isCRUD()) entityName = serviceCallDescriptor.getNoun();
+
         return Optional.ofNullable(entityName);
     }
 
@@ -1161,6 +1235,34 @@ public final class EntityUtils {
         }
         return result;
     }
+
+    /**
+     * 从当前的psiElement找到所在的Entity或ViewEntity的名字
+     * @param psiElement 当前所在的位置
+     * @return Optional<String>
+     */
+    public static Optional<String> getEntityOrViewEntityNameByPsiElement(@NotNull PsiElement psiElement) {
+
+        Optional<String> entityNameOpt;
+
+        entityNameOpt = getEntityNameByPsiElementInEntityXml(psiElement);
+        if(entityNameOpt.isPresent()) return entityNameOpt;
+
+        entityNameOpt = getEntityNameByPsiElementInViewEntityXml(psiElement);
+        if(entityNameOpt.isPresent()) return entityNameOpt;
+
+        entityNameOpt = getEntityNameByPsiElementInAbstractEntityNameXml(psiElement);
+        if(entityNameOpt.isPresent()) return entityNameOpt;
+
+        entityNameOpt = getEntityNameByPsiElementInServiceXml(psiElement);
+        if(entityNameOpt.isPresent()) return entityNameOpt;
+
+
+        //ServiceCall
+        entityNameOpt = getEntityNameByPsiElementInServiceCallXml(psiElement);
+        return entityNameOpt;
+
+    }
     /**
      * 用于EntityFieldNameReference
      * @param psiElement 针对当前的XmlAttributeValue
@@ -1168,74 +1270,70 @@ public final class EntityUtils {
      */
 
     public static List<IndexAbstractField> getIndexAbstractFieldListByPsiElement(@NotNull PsiElement psiElement) {
-        String curAttributeName = getCurrentAttributeName(psiElement).orElse(MyStringUtils.EMPTY_STRING);
+//        String curAttributeName = getCurrentAttributeName(psiElement).orElse(MyStringUtils.EMPTY_STRING);
+//
+//        String entityName = MyStringUtils.EMPTY_STRING;
+//        //Entity
+//        Entity curEntity = MyDomUtils.getLocalDomElementByPsiElement(psiElement,Entity.class).orElse(null);
+//        if(curEntity != null) {
+//            entityName = getEntityNameByPsiElement(psiElement,curEntity,curAttributeName).orElse(MyStringUtils.EMPTY_STRING);
+//        }
+//        //ExtendEntity
+//        ExtendEntity curExtendEntity = getLocalDomElementByPsiElement(psiElement, ExtendEntity.class).orElse(null);
+//        if(curExtendEntity != null) {
+//            entityName = getEntityNameByPsiElement(psiElement,curExtendEntity,curAttributeName).orElse(MyStringUtils.EMPTY_STRING);
+//
+//        }
+//
+//        //ViewEntity
+//        ViewEntity curViewEntity = getLocalDomElementByPsiElement(psiElement, ViewEntity.class).orElse(null);
+//        if(curViewEntity != null) {
+//            return getIndexAbstractFieldListByPsiElementForViewEntity(psiElement,curViewEntity);
+//
+//        }
+//        //Service，Seca等下的EntityFindOne
+//        AbstractEntityName nameAbstract;
+//        nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityFindOne.class).orElse(null);
+//
+//        //Service、Seca等下的EntityFind
+//        //Service、Seca等下的EntityDeleteByCondition
+//        //Service、Seca等下的EntityFindCount
+//        //只和EntityFind等有关，就不用判断在哪个Tag下
+////        AbstractEntityName nameAbstract = null;
+//        if(nameAbstract == null) {
+//            nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityFind.class).orElse(null);
+//        }
+//        if(nameAbstract == null) {
+//            nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityDeleteByCondition.class).orElse(null);
+//        }
+//        if(nameAbstract == null) {
+////            nameAbstract = ServiceUtils.getCurrentEntityFindCount(psiElement).orElse(null);
+//            nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityFindCount.class).orElse(null);
+//        }
+//
+//        if(nameAbstract != null) {
+//            entityName = getEntityNameByPsiElement(psiElement,nameAbstract,curAttributeName).orElse(MyStringUtils.EMPTY_STRING);
+//
+//        }else {
+//
+//            //Service
+//            Service curService = getLocalDomElementByPsiElement(psiElement, Service.class).orElse(null);
+//            if (curService != null) {
+//                entityName = getEntityNameByPsiElement(psiElement, curService, curAttributeName).orElse(MyStringUtils.EMPTY_STRING);
+//
+//            }
+//        }
+//        //ServiceCall
+//        ServiceCall curServiceCall = getLocalDomElementByPsiElement(psiElement, ServiceCall.class).orElse(null);
+//        if(curServiceCall != null) {
+//            ServiceCallDescriptor serviceCallDescriptor = ServiceCallDescriptor.of(
+//                    MyDomUtils.getValueOrEmptyString(curServiceCall.getName())
+//            );
+//            if(serviceCallDescriptor.isCRUD()) entityName = serviceCallDescriptor.getNoun();
+//        }
+        Optional<String> entityNameOpt = getEntityOrViewEntityNameByPsiElement(psiElement);
 
-        String entityName = MyStringUtils.EMPTY_STRING;
-        //Entity
-        Entity curEntity = MyDomUtils.getLocalDomElementByPsiElement(psiElement,Entity.class).orElse(null);
-        if(curEntity != null) {
-            entityName = getEntityNameByPsiElement(psiElement,curEntity,curAttributeName).orElse(MyStringUtils.EMPTY_STRING);
-        }
-        //ExtendEntity
-        ExtendEntity curExtendEntity = getLocalDomElementByPsiElement(psiElement, ExtendEntity.class).orElse(null);
-        if(curExtendEntity != null) {
-            entityName = getEntityNameByPsiElement(psiElement,curExtendEntity,curAttributeName).orElse(MyStringUtils.EMPTY_STRING);
-
-        }
-
-        //ViewEntity
-        ViewEntity curViewEntity = getLocalDomElementByPsiElement(psiElement, ViewEntity.class).orElse(null);
-        if(curViewEntity != null) {
-            return getIndexAbstractFieldListByPsiElementForViewEntity(psiElement,curViewEntity);
-
-        }
-        //Service，Seca等下的EntityFindOne
-        AbstractEntityName nameAbstract;
-        nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityFindOne.class).orElse(null);
-
-        //Service、Seca等下的EntityFind
-        //Service、Seca等下的EntityDeleteByCondition
-        //Service、Seca等下的EntityFindCount
-        //只和EntityFind等有关，就不用判断在哪个Tag下
-//        AbstractEntityName nameAbstract = null;
-        if(nameAbstract == null) {
-            nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityFind.class).orElse(null);
-        }
-        if(nameAbstract == null) {
-            nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityDeleteByCondition.class).orElse(null);
-        }
-        if(nameAbstract == null) {
-//            nameAbstract = ServiceUtils.getCurrentEntityFindCount(psiElement).orElse(null);
-            nameAbstract = getLocalDomElementByPsiElement(psiElement, EntityFindCount.class).orElse(null);
-        }
-
-        if(nameAbstract != null) {
-            entityName = getEntityNameByPsiElement(psiElement,nameAbstract,curAttributeName).orElse(MyStringUtils.EMPTY_STRING);
-
-        }else {
-
-            //Service
-            Service curService = getLocalDomElementByPsiElement(psiElement, Service.class).orElse(null);
-            if (curService != null) {
-                entityName = getEntityNameByPsiElement(psiElement, curService, curAttributeName).orElse(MyStringUtils.EMPTY_STRING);
-
-            }
-        }
-        //ServiceCall
-        ServiceCall curServiceCall = getLocalDomElementByPsiElement(psiElement, ServiceCall.class).orElse(null);
-        if(curServiceCall != null) {
-            ServiceCallDescriptor serviceCallDescriptor = ServiceCallDescriptor.of(
-                    MyDomUtils.getValueOrEmptyString(curServiceCall.getName())
-            );
-            if(serviceCallDescriptor.isCRUD()) entityName = serviceCallDescriptor.getNoun();
-        }
-
-
-        if(MyStringUtils.isNotEmpty(entityName)) {
-            return getEntityOrViewEntityFields(psiElement.getProject(),entityName);
-        }else {
-            return new ArrayList<>();
-        }
+        return entityNameOpt.map(s -> getEntityOrViewEntityFields(psiElement.getProject(), s)).orElseGet(ArrayList::new);
 
     }
 
@@ -1265,9 +1363,12 @@ public final class EntityUtils {
 
         List<PsiReference> resultList = new ArrayList<>();
         if(indexAbstractField == null) {
-            resultList.add(EntityFieldNameReference.of(psiElement,
-                    TextRange.create(fieldDescriptor.getFieldNameBeginIndex(),fieldDescriptor.getFieldNameEndIndex()),
-                    null)); //提示错误
+            //跳过lastUpdatedStemp字段
+            if(!fieldDescriptor.getFieldName().equals(EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP)) {
+                resultList.add(EntityFieldNameReference.of(psiElement,
+                        TextRange.create(fieldDescriptor.getFieldNameBeginIndex(), fieldDescriptor.getFieldNameEndIndex()),
+                        null)); //提示错误
+            }
 
         }else {
             if (indexAbstractField.getOriginFieldName().equals(fieldDescriptor.getFieldName())) {

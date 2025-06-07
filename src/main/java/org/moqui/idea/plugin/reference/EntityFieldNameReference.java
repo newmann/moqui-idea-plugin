@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlAttribute;
 import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.util.EntityUtils;
@@ -19,6 +20,7 @@ import org.moqui.idea.plugin.util.MyStringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class EntityFieldNameReference extends MoquiBaseReference{
 
@@ -55,6 +57,29 @@ public class EntityFieldNameReference extends MoquiBaseReference{
                 );
             }
         });
+        //添加lastUpdatedStamp
+        Optional<String> entityNameOptional = EntityUtils.getEntityOrViewEntityNameByPsiElement(myElement);
+
+        if(entityNameOptional.isPresent()){
+            EntityUtils.getAbstractIndexEntityByName(myElement.getProject(),entityNameOptional.get()).ifPresent(
+                    abstractIndexEntity->{
+                        if(abstractIndexEntity instanceof IndexEntity) {
+                            if(!inputedFields.contains(EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP)) {
+                                variants.add(
+                                        LookupElementBuilder.create(EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP)
+                                                .withCaseSensitivity(false)
+                                                .withTailText(MyStringUtils.formatFieldNameTrailText("datetime"))
+                                                .withTypeText(MyDomUtils.getValueOrEmptyString(abstractIndexEntity.getShortName()))
+                                                .withIcon(MyIcons.EntityTag)
+                                );
+
+                            }
+
+                        }
+                    }
+            );
+        };
+
 
         return variants.toArray();
     }
