@@ -41,7 +41,6 @@ public class EntityFacadeLastUpdatedStampFieldAttributeDescriptor implements Xml
         return null;
     }
 
-    @NonNls
     @Override
     public String getName(PsiElement psiElement) {
         return EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP;

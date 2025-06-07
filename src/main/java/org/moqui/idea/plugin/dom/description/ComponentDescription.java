@@ -27,7 +27,7 @@ public class ComponentDescription extends DomFileDescription<Component> {
         return MyIcons.ComponentTag; //MyIcons.FILE_ICON_COMPONENT;
 //        return super.getFileIcon(flags);
     }
-//    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
+//    public EntitiesDescription(Class<Entities> rootElementClass,  String rootTagName,  String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 
 //    }

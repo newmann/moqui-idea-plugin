@@ -18,7 +18,6 @@ import org.moqui.idea.plugin.editor.ui.ScreenEditorWindow;
 import org.moqui.idea.plugin.util.ScreenUtils;
 
 public class ScreenEditorProvider implements FileEditorProvider, DumbAware {
-    @NonNls
     private static final String EDITOR_TYPE_ID = "moqui.screen.editor";
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {
@@ -44,7 +43,7 @@ public class ScreenEditorProvider implements FileEditorProvider, DumbAware {
     }
 
     @Override
-    public @NotNull @NonNls String getEditorTypeId() {
+    public @NotNull String getEditorTypeId() {
         return EDITOR_TYPE_ID;
     }
 

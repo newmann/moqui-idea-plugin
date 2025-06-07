@@ -14,7 +14,6 @@ import org.moqui.idea.plugin.util.MyDomUtils;
 import javax.swing.*;
 
 public class MoquiServiceViewPane extends ProjectViewPane {
-    @NonNls
     public static final String ID = "MoquiServiceProjectView";
     public MoquiServiceViewPane(Project project) {
         super(project);

@@ -27,7 +27,7 @@ public class EecasDescription extends DomFileDescription<Eecas> {
 //        return super.getFileIcon(flags);
         return MyIcons.EecaTag; //MyIcons.FILE_ICON_EECAS;
     }
-//    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
+//    public EntitiesDescription(Class<Entities> rootElementClass, String rootTagName, String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 
 //    }

@@ -28,7 +28,7 @@ import java.util.Optional;
 
 public class FieldRefConverter extends ResolvingConverter<Field> implements CustomReferenceConverter<Field> {
     @Override
-    public @Nullable Field fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public @Nullable Field fromString(@Nullable String s, ConvertContext context) {
         if(s == null) return null;
         return getField(s,context)
                 .orElse(null);

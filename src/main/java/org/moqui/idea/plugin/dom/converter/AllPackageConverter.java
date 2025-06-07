@@ -15,7 +15,7 @@ import java.util.Collection;
  */
 public class AllPackageConverter extends ResolvingConverter<String> {
     @Override
-    public @Nullable String fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public @Nullable String fromString(@Nullable String s, ConvertContext context) {
         return s;
     }
 

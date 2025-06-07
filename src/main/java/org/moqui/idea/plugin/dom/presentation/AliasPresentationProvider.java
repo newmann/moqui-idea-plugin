@@ -12,7 +12,7 @@ public class AliasPresentationProvider extends PresentationProvider<Alias> {
   @Nullable
   @Override
   public String getName(Alias coordinates) {
-    @NonNls String name;
+    String name;
     name = MyDomUtils.getXmlAttributeValueString(coordinates.getName().getXmlAttributeValue())
             .orElse(MyStringUtils.UNKNOWN);
     if(coordinates.getEntityAlias().exists()){

@@ -16,7 +16,7 @@ public class ServicesDescription extends DomFileDescription<Services> {
     public ServicesDescription(){
         super(Services.class,Services.TAG_NAME);
     }
-//    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
+//    public EntitiesDescription(Class<Entities> rootElementClass,  String rootTagName, String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 //    }
 //    @Override

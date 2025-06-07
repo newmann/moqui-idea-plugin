@@ -31,7 +31,7 @@ import java.util.Collection;
  */
 public class UrlConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
 //    @Override
-//    public @Nullable String fromString(@Nullable @NonNls String s, ConvertContext context) {
+//    public @Nullable String fromString(@Nullable  String s, ConvertContext context) {
 //        if(s == null) return null;
 //        if(ScreenUtils.isValidTransitionFormat(s)) {
 //            return ScreenUtils.getTransitionByName(s,context).map(item-> s).orElse(null);

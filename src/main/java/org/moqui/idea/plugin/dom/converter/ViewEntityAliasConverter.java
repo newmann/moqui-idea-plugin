@@ -30,7 +30,7 @@ import java.util.Collection;
 
 public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberEntity> implements CustomReferenceConverter<AbstractMemberEntity> {
     @Override
-    public @Nullable AbstractMemberEntity fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public @Nullable AbstractMemberEntity fromString(@Nullable String s, ConvertContext context) {
         if(s == null) return null;
         return EntityUtils.getViewEntityAbstractMemberEntityByAlias(context,s)
                 .orElse(null);

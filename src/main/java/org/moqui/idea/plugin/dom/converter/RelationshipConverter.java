@@ -35,7 +35,7 @@ import java.util.Optional;
 
 public class RelationshipConverter extends ResolvingConverter<Relationship>  implements CustomReferenceConverter<Relationship> {
     @Override
-    public @Nullable Relationship fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public @Nullable Relationship fromString(@Nullable String s, ConvertContext context) {
         if(s == null) return null;
         return getRelationship(s,context)
                 .orElse(null);

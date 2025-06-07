@@ -16,7 +16,7 @@ public class MoquiConfDescription extends DomFileDescription<MoquiConf> {
     public MoquiConfDescription(){
         super(MoquiConf.class, MoquiConf.TAG_NAME);
     }
-//    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
+//    public EntitiesDescription(Class<Entities> rootElementClass,  String rootTagName,  String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 //    }
 //    @Override

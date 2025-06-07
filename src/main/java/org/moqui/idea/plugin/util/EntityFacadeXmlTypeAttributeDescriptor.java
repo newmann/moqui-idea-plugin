@@ -40,7 +40,6 @@ public class EntityFacadeXmlTypeAttributeDescriptor implements XmlAttributeDescr
         return null;
     }
 
-    @NonNls
     @Override
     public String getName(PsiElement psiElement) {
         return getName();

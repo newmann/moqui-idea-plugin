@@ -27,7 +27,7 @@ public class ScreenDescription extends DomFileDescription<Screen> {
 //        return super.getFileIcon(flags);
         return MyIcons.ScreenTag;//MyIcons.FILE_ICON_SCREEN;
     }
-//    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
+//    public EntitiesDescription(Class<Entities> rootElementClass,  String rootTagName, String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 
 //    }

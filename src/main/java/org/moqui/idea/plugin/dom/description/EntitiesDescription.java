@@ -30,7 +30,7 @@ public class EntitiesDescription  extends DomFileDescription<Entities> {
         return MyIcons.EntityTag; //MyIcons.FILE_ICON_ENTITIES;
     }
 
-//    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
+//    public EntitiesDescription(Class<Entities> rootElementClass,  String rootTagName, String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 
 //    }

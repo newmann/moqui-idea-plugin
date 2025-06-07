@@ -11,12 +11,12 @@ import org.moqui.idea.plugin.dom.presentation.ViewEntityPresentationProvider;
 import java.util.List;
 @Presentation(icon = "org.moqui.idea.plugin.MyIcons.ViewEntityTag",provider = ViewEntityPresentationProvider.class)
 public interface ViewEntity extends AbstractEntity {
-    public static final String TAG_NAME = "view-entity";
+    String TAG_NAME = "view-entity";
 //    public static final String ATTR_ENTITY_NAME = "entity-name";
 //    public static final String ATTR_PACKAGE = "package";
-    public static final String ATTR_CACHE = "cache";
-    public static final String ATTR_AUTO_CLEAR_CACHE = "auto-clear-cache";
-    public static final String ATTR_AUTHORIZE_SKIP = "authorize-skip";
+    String ATTR_CACHE = "cache";
+    String ATTR_AUTO_CLEAR_CACHE = "auto-clear-cache";
+    String ATTR_AUTHORIZE_SKIP = "authorize-skip";
 //    @NotNull
 //    @Attribute(ATTR_ENTITY_NAME)
 //    GenericAttributeValue<String> getEntityName();

@@ -31,13 +31,11 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
     }
 
 
-    @NonNls
     @Override
     public String getQualifiedName() {
         return myXmlTag.getName();
     }
 
-    @NonNls
     @Override
     public String getDefaultName() {
         return "";
@@ -117,7 +115,7 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
 
     @Nullable
     @Override
-    public XmlAttributeDescriptor getAttributeDescriptor(@NonNls String s, @Nullable XmlTag xmlTag) {
+    public XmlAttributeDescriptor getAttributeDescriptor(String s, @Nullable XmlTag xmlTag) {
         return Arrays.stream(getAttributesDescriptors(xmlTag))
                 .filter(xmlAttributeDescriptor -> xmlAttributeDescriptor.getName().equals(s))
                 .findFirst().orElse(null);
@@ -155,7 +153,6 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
         return myXmlTag;
     }
 
-    @NonNls
     @Override
     public String getName(PsiElement psiElement) {
         return myXmlTag.getName();

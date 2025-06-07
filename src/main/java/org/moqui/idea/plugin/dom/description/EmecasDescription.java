@@ -28,7 +28,7 @@ public class EmecasDescription extends DomFileDescription<Emecas> {
         return MyIcons.EmecasTag; //MyIcons.FILE_ICON_EMECAS;
     }
 
-    //    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
+    //    public EntitiesDescription(Class<Entities> rootElementClass,  String rootTagName,  String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 
 //    }

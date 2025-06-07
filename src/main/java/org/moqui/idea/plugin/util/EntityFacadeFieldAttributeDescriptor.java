@@ -45,7 +45,6 @@ public class EntityFacadeFieldAttributeDescriptor implements XmlAttributeDescrip
         return myField.getName().getXmlAttributeValue();
     }
 
-    @NonNls
     @Override
     public String getName(PsiElement psiElement) {
         return MyDomUtils.getValueOrEmptyString(myField.getName());

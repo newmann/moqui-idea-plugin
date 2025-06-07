@@ -74,7 +74,6 @@ public final class MyDomUtils {
     }
 
     @NotNull
-    @NonNls
     public static <T extends DomElement> List<DomFileElement<T>> findDomFileElementsByRootClass(@NotNull Project project, Class<T> rootClazz) {
 
         return ApplicationManager.getApplication().runReadAction((Computable<List<DomFileElement<T>>>) ()->{

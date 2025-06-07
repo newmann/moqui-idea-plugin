@@ -27,7 +27,7 @@ public class SecasDescription extends DomFileDescription<Secas> {
 //        return super.getFileIcon(flags);
         return MyIcons.SecaTag; //MyIcons.FILE_ICON_SECAS;
     }
-//    public EntitiesDescription(Class<Entities> rootElementClass, @NonNls String rootTagName, @NonNls String @NotNull ... allPossibleRootTagNamespaces) {
+//    public EntitiesDescription(Class<Entities> rootElementClass,  String rootTagName, String @NotNull ... allPossibleRootTagNamespaces) {
 //        super(rootElementClass, rootTagName, allPossibleRootTagNamespaces);
 
 //    }

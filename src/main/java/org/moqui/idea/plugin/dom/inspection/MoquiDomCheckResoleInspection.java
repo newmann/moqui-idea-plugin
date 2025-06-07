@@ -32,7 +32,7 @@ public class MoquiDomCheckResoleInspection extends BasicDomElementsInspection<Do
     }
 
     @Override
-    public @NonNls @NotNull String getShortName() {
+    public @NotNull String getShortName() {
         return MyBundle.message("inspection.MoquiDomCheckResole");
     }
 

@@ -31,9 +31,9 @@ import java.util.Optional;
  * 处理ExtendEntity的name和package，两者是有关联的，必须对应到同一个Entity上
  */
 
-public abstract class AbstractExtendEntityAttributeConverter extends ResolvingConverter<Entity> implements CustomReferenceConverter {
+public abstract class AbstractExtendEntityAttributeConverter extends ResolvingConverter<Entity> implements CustomReferenceConverter<Entity> {
     @Override
-    public @Nullable Entity fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public @Nullable Entity fromString(@Nullable String s, ConvertContext context) {
         if(s == null) return null;
         return getEntity(context).orElse(null);
     }
