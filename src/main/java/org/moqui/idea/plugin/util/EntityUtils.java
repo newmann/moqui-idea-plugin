@@ -401,18 +401,28 @@ public final class EntityUtils {
     public static void inspectEntityFromAttribute(@NotNull GenericAttributeValue<String> attributeValue, @NotNull AnnotationHolder holder) {
         XmlAttributeValue xmlAttributeValue = attributeValue.getXmlAttributeValue();
         if (xmlAttributeValue == null) { return;}
-
-        final String entityName = attributeValue.getXmlAttributeValue().getValue();
+        //通过refreence来判断
+        if(xmlAttributeValue.getReferences().length == 0) {
+            //如果包含变量，则仅提示
+            if(MyStringUtils.containGroovyVariables(xmlAttributeValue.getValue())) {
+                holder.newAnnotation(HighlightSeverity.WEAK_WARNING, MyBundle.message("util.EntityUtils.includeGroovyVariable"))
+                        .range(xmlAttributeValue.getTextRange())
+                        .highlightType(ProblemHighlightType.WEAK_WARNING)
+                        .create();
+            }else {
+                final String entityName = attributeValue.getXmlAttributeValue().getValue();
 //        final int length = attributeValue.getXmlAttributeValue().getValueTextRange().getLength();
-        final Project project = xmlAttributeValue.getProject();
+                final Project project = xmlAttributeValue.getProject();
 
-        Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project, entityName);
+                Optional<XmlElement> optionalXmlElement = EntityUtils.getEntityOrViewEntityXmlElementByName(project, entityName);
 
-        if (optionalXmlElement.isEmpty()) {
-            holder.newAnnotation(HighlightSeverity.ERROR, MyBundle.message("util.EntityUtils.entityNotFound"))
-                    .range(xmlAttributeValue.getTextRange())
-                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-                    .create();
+                if (optionalXmlElement.isEmpty()) {
+                    holder.newAnnotation(HighlightSeverity.ERROR, MyBundle.message("util.EntityUtils.entityNotFound"))
+                            .range(xmlAttributeValue.getTextRange())
+                            .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                            .create();
+                }
+            }
         }
 
     }
@@ -841,19 +851,21 @@ public final class EntityUtils {
                 }
 
             }else {
-                if (lastDotIndex <= 0) {
-                    //没有含包名
-                    tmpStartOffset = stringPattern.getBeginChar().length();
-                    tmpEndOffset = tmpStartOffset + entityName.length();
-                } else {
-                    tmpStartOffset = stringPattern.getBeginChar().length() + lastDotIndex + 1;
-                    tmpEndOffset = stringPattern.getBeginChar().length() + entityName.length();
+                //如果是包含变量，则不提示错误
+                if(! MyStringUtils.containGroovyVariables(entityName)) {
+                    if (lastDotIndex <= 0) {
+                        //没有含包名
+                        tmpStartOffset = stringPattern.getBeginChar().length();
+                        tmpEndOffset = tmpStartOffset + entityName.length();
+                    } else {
+                        tmpStartOffset = stringPattern.getBeginChar().length() + lastDotIndex + 1;
+                        tmpEndOffset = stringPattern.getBeginChar().length() + entityName.length();
 
+                    }
+                    psiReferences.add(createEntityOrViewNameReference(element,
+                            new TextRange(tmpStartOffset, tmpEndOffset),
+                            null, entityScope));
                 }
-                psiReferences.add(createEntityOrViewNameReference(element,
-                        new TextRange(tmpStartOffset,tmpEndOffset),
-                        null,entityScope));
-
             }
 
         }

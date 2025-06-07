@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityAndViewNameReferenceConverter;
 
 public interface AbstractEntityName extends DomElement {
-   public static final String ATTR_ENTITY_NAME = "entity-name";
+   String ATTR_ENTITY_NAME = "entity-name";
     @NotNull
     @Attribute(ATTR_ENTITY_NAME)
 //    @Convert(EntityFullNameConverter.class)

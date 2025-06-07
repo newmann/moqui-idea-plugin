@@ -12,10 +12,10 @@ import java.util.List;
 @Presentation(provider = EntityFindOnePresentationProvider.class)
 public interface EntityFindOne extends AbstractEntityName {
 
-    public static final String TAG_NAME = "entity-find-one";
-//    public static final String ATTR_ENTITY_NAME = "entity-name";
+    String TAG_NAME = "entity-find-one";
+//    String ATTR_ENTITY_NAME = "entity-name";
 
-    public static final String ATTR_VALUE_FIELD = "value-field";
+    String ATTR_VALUE_FIELD = "value-field";
 //    @NotNull
 //    @Attribute(ATTR_ENTITY_NAME)
 //    @Convert(EntityFullNameConverter.class)
