@@ -32,8 +32,9 @@ public final class IndexService extends AbstractIndex {
         if(xmlElement == null) {
             this.className = MyStringUtils.EMPTY_STRING;
         }else {
-            this.className = ServiceUtils.extractClassNameFromPath(xmlElement.getContainingFile().getVirtualFile().getPath())
-                    .orElse(MyStringUtils.EMPTY_STRING);
+            Optional<String> filePathOptional = MyDomUtils.getFilePathByPsiElement(xmlElement);
+            this.className = filePathOptional.map(s -> ServiceUtils.extractClassNameFromPath(s)
+                    .orElse(MyStringUtils.EMPTY_STRING)).orElse(MyStringUtils.EMPTY_STRING);
         }
         this.packageName = getPackageNameFromClassName(this.className);
         this.functionName = this.verb + ServiceUtils.SERVICE_NAME_HASH + this.noun;

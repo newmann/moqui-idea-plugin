@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
@@ -57,6 +58,21 @@ public final class MoquiConfUtils {
                         .findFirst();
     }
 
+    /**
+     * 获取和psiElement在同一个componentxia的MoquiConf中定义的root subscreenItem，名称为itemName
+     * @param psiElement 当前psiElement
+     * @param itemName root subscreenItem的名字
+     * @return Optional<SubScreensItem>
+     */
+    public static Optional<SubScreensItem> getRootSubScreenItemByPsiElement(@NotNull PsiElement psiElement,@NotNull String itemName){
+        Optional<String> filePathByPsiElement = MyDomUtils.getFilePathByPsiElement(psiElement);//psiElement.getContainingFile().getVirtualFile().getName();
+        if(filePathByPsiElement.isEmpty()) return Optional.empty();
+
+        Optional<PsiFile> moquiConfOptional = getMoquiConfFileByComponentFileName(psiElement.getProject(),filePathByPsiElement.get());
+        if(moquiConfOptional.isEmpty()) return Optional.empty();
+
+        return getSubScreensItem(moquiConfOptional.get(),itemName);
+    }
     /**
      * 获取所有的Screen定义
      * 只需要取runtime/base-component和runtime/component下的定义，其他路径下的不需要

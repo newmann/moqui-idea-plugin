@@ -124,6 +124,8 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
      * @return Optional<String>
      */
     public static Optional<String> extractClassNameFromPath(@NotNull String path){
+        if(path.equals(MyStringUtils.EMPTY_STRING)) return Optional.empty();
+
         String pathSeparator = "/"; //idea的virtual file 的path都统一“/”
 
         if(!path.contains(pathSeparator)){
@@ -291,7 +293,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         descriptor.setNoun(MyDomUtils.getValueOrEmptyString(service.getNoun()));
         XmlElement xmlElement = service.getXmlElement();
         if(xmlElement != null) {
-            final String path = service.getXmlElement().getContainingFile().getVirtualFile().getPath();
+            final String path = MyDomUtils.getFileNameByPsiElement(service.getXmlElement()).orElse(MyStringUtils.EMPTY_STRING);//.getContainingFile().getVirtualFile().getPath();
             descriptor.setClassName(extractClassNameFromPath(path).orElse(MyStringUtils.EMPTY_STRING));
         }
 

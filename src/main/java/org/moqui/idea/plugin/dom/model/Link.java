@@ -10,7 +10,7 @@ import org.moqui.idea.plugin.dom.presentation.LinkPresentationProvider;
 
 import java.util.List;
 @Presentation(provider = LinkPresentationProvider.class)
-public interface Link extends DomElement {
+public interface Link extends AbstractUrl {
     public static final String TAG_NAME = "link";
 
     @NotNull
@@ -26,9 +26,9 @@ public interface Link extends DomElement {
 
     @NotNull GenericAttributeValue<String> getLinkType();
 
-    @NotNull
-    @Convert(UrlConverter.class)
-    GenericAttributeValue<String> getUrl();
+//    @NotNull
+//    @Convert(UrlConverter.class)
+//    GenericAttributeValue<String> getUrl();
 
     @NotNull GenericAttributeValue<String> getUrlType();
     @NotNull GenericAttributeValue<String> getUrlNoparam();

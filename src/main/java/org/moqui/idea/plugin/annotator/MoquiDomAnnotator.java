@@ -41,6 +41,10 @@ public class MoquiDomAnnotator implements Annotator {
             }
             return;
         }
+        if(element instanceof AbstractUrl) {
+            LocationUtils.inspectAbstractUrlLocation(element, holder);
+            return;
+        }
 
 
         if (element instanceof ServiceCall serviceCall) {

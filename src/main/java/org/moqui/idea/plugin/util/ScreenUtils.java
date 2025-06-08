@@ -102,6 +102,12 @@ public final class ScreenUtils {
         }
         return result;
     }
+    public static List<String> getSubScreensItemNameList(ConvertContext context) {
+        return getSubScreensItemList(context).stream()
+                .map(SubScreensItem::getName)
+                .map(MyDomUtils::getValueOrEmptyString)
+                .toList();
+    }
 
     public static Optional<SubScreensItem> getSubScreensItemByName(String itemName,ConvertContext context) {
         List<SubScreensItem> itemList = getSubScreensItemList(context);

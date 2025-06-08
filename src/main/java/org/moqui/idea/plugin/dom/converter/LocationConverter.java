@@ -9,6 +9,7 @@ import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.FormList;
 import org.moqui.idea.plugin.dom.model.FormSingle;
+import org.moqui.idea.plugin.dom.model.SubScreens;
 import org.moqui.idea.plugin.dom.model.WidgetTemplateInclude;
 import org.moqui.idea.plugin.util.LocationUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
@@ -46,6 +47,11 @@ public class LocationConverter extends ResolvingConverter.StringConverter implem
         if(formListOptional.isPresent()) {
             return ScreenUtils.getFormListNameListByConvertContext(context);
         }
+        //针对Subscreens的defaultItem属性 ，在SubScreensDefaultItemCompletionProvider中处理
+//        Optional<SubScreens> subScreensOptional = MyDomUtils.getLocalDomElementByConvertContext(context,SubScreens.class);
+//        if(subScreensOptional.isPresent()) {
+//            return ScreenUtils.getSubScreensItemNameList(context);
+//        }
 
         return new ArrayList<>();
     }

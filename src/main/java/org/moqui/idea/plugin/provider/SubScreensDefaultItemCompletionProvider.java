@@ -46,7 +46,7 @@ public class SubScreensDefaultItemCompletionProvider extends AbstractSimpleCompl
         subScreensItemList.forEach(item ->{
             lookupElementBuilders.add(
                     LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
-                            .withCaseSensitivity(false)
+                            .withCaseSensitivity(true)
                             .withIcon(MyIcons.ScreenTag)
                             .withTypeText(MyDomUtils.getValueOrEmptyString(item.getLocation()))
             );
@@ -58,7 +58,7 @@ public class SubScreensDefaultItemCompletionProvider extends AbstractSimpleCompl
             if(item.getParent()!= null) {
                 lookupElementBuilders.add(
                         LookupElementBuilder.create(MyStringUtils.removeLastDotString(item.getName()))
-                                .withCaseSensitivity(false)
+                                .withCaseSensitivity(true)
                                 .withIcon(MyIcons.ScreenTag)
                                 .withTypeText(
                                         LocationUtils.simplifyComponentRelativePath(

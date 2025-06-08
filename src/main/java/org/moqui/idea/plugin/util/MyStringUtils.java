@@ -38,8 +38,9 @@ public final class MyStringUtils {
     public static final String FRAMEWORK_COMPONENT_NAME = "framework";
     public static final String TRANSITION_NAME_REGEXP = "^[a-z][a-zA-Z0-9_-]*$";
     public static final String SCREEN_FILE_PATH_REGEXP = "(?:(?:\\.\\./)+)?[A-Z][a-zA-Z0-9_/-]+|\\.|\\.\\.";
-    public static final String CONTAIN_VARIABLE_REGEXP =".*(\\$\\{)[a-zA-Z0-9_\\-\\.](\\}).*";
-    public static final String ABSOLUTE_URL_REGEXP = "^//([a-zA-Z][\\w\\/]*)+$";
+    public static final String CONTAIN_VARIABLE_REGEXP =".*(\\$\\{)[a-zA-Z0-9_\\-\\.?:,()]+(\\}).*";
+
+    public static final String ABSOLUTE_URL_REGEXP = "^/.*";  // "^//([a-zA-Z][\\w\\/]*)+$";
     public static final String COMPONENT_CHILD_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+";
     public static final String COMPONENT_DATA_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]data[/|\\\\]?).*";
     public static final String COMPONENT_ENTITY_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]entity[/|\\\\]?).*";

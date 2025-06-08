@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.icons.AllIcons;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.application.ApplicationManager;
@@ -12,6 +11,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -21,16 +21,13 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.*;
 import com.intellij.util.xml.*;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.MoquiBaseReference;
-import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Set;
 import java.util.*;
 
@@ -564,11 +561,15 @@ public final class MyDomUtils {
 
     public static Optional<PsiFile> getPsiFileByPathName(@NotNull Project project, @NotNull String pathName)
     {
+        String fileName = new File(pathName).getName();
+
         return ApplicationManager.getApplication().runReadAction((Computable<Optional<PsiFile>>) ()->{
             GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-            Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName( pathName, true, scope);
+            Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName( fileName, true, scope);
             //不管是一个文件，还是多个同名文件，都需要对路径进行匹配验证
-            Optional<VirtualFile> vfOptional = foundFileCollection.stream().findFirst();
+            Optional<VirtualFile> vfOptional = foundFileCollection.stream()
+                    .filter(item->item.getPath().equals(pathName))
+                    .findFirst();
             return vfOptional.map(item -> PsiManager.getInstance(project).findFile(item));
 
         });
@@ -585,6 +586,7 @@ public final class MyDomUtils {
     }
     /**
      * 根据location，获取在location中定义的path和fileName，并按先后次序添加到Array中
+     * 可以处理前面字符为 "//"、 "/"、"component://"
      * @param location String
      * @return String[]
      */
@@ -599,6 +601,7 @@ public final class MyDomUtils {
         }else {
             finalPath = location.substring(doubtSlashIndex+2);
         }
+        if(finalPath.startsWith("/")) finalPath = finalPath.substring(1);
 
         return finalPath.split("/");
     }
@@ -741,5 +744,60 @@ public final class MyDomUtils {
 
     }
 
+    public static boolean containsMoquiBaseReference(@NotNull PsiReference[] psiReferences) {
+        for(PsiReference reference : psiReferences) {
+            if(reference instanceof MoquiBaseReference) return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 仅返回文件名
+     * @param psiElement 当前PsiElement
+     * @return Optional<String>
+     */
+    public static Optional<String> getFileNameByPsiElement(@NotNull PsiElement psiElement) {
+        // 在读动作中执行，确保线程安全
+        return ReadAction.compute(() -> {
+            if (!psiElement.isValid()) {
+                return Optional.empty(); // 如果PsiElement无效，返回null
+            }
+            PsiFile containingFile = psiElement.getContainingFile();
+            if (containingFile == null || !containingFile.isValid()) {
+                return Optional.empty(); // 如果包含文件无效，返回null
+            }
+            VirtualFile virtualFile = containingFile.getVirtualFile();
+            if (virtualFile != null && virtualFile.isValid()) {
+                return Optional.of(virtualFile.getName()); // 返回文件名
+            } else {
+                return Optional.empty(); // 如果VirtualFile无效，返回null
+            }
+        });
+    }
+
+    /**
+     * 返回的是路径+文件名
+     * @param psiElement 当前PsiElement
+     * @return Optional<String>
+     */
+    public static Optional<String> getFilePathByPsiElement(@NotNull PsiElement psiElement) {
+        // 在读动作中执行，确保线程安全
+        return ReadAction.compute(() -> {
+            if (!psiElement.isValid()) {
+                return Optional.empty(); // 如果PsiElement无效，返回null
+            }
+            PsiFile containingFile = psiElement.getContainingFile();
+            if (containingFile == null || !containingFile.isValid()) {
+                return Optional.empty(); // 如果包含文件无效，返回null
+            }
+            VirtualFile virtualFile = containingFile.getVirtualFile();
+            if (virtualFile != null && virtualFile.isValid()) {
+                return Optional.of(virtualFile.getPath()); // 返回文件路径
+            } else {
+                return Optional.empty(); // 如果VirtualFile无效，返回null
+            }
+        });
+    }
 
 }

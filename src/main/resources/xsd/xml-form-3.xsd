@@ -27,15 +27,15 @@ along with this software (see the LICENSE.md file). If not, see
         <xs:enumeration value="hidden"/>
     </xs:restriction></xs:simpleType>
     <!--            added by hxs-->
-    <xs:simpleType name="value-format-style">
-        <xs:restriction base="xs:token">
-            <xs:enumeration value="yyyy-MM-dd"/>
-            <xs:enumeration value="yyyy-MM-dd HH:ss"/>
-            <xs:enumeration value="0.00"/>
-            <xs:enumeration value="0.000"/>
-            <xs:enumeration value="#,##0.00"/>
-        </xs:restriction>
-    </xs:simpleType>
+<!--    <xs:simpleType name="value-format-style">-->
+<!--        <xs:restriction base="xs:token">-->
+<!--            <xs:enumeration value="yyyy-MM-dd"/>-->
+<!--            <xs:enumeration value="yyyy-MM-dd HH:ss"/>-->
+<!--            <xs:enumeration value="0.00"/>-->
+<!--            <xs:enumeration value="0.000"/>-->
+<!--            <xs:enumeration value="#,##0.00"/>-->
+<!--        </xs:restriction>-->
+<!--    </xs:simpleType>-->
 
     <xs:element name="parameter"><xs:complexType>
         <xs:attribute name="name" type="xs:string" use="required"/>
@@ -912,7 +912,7 @@ along with this software (see the LICENSE.md file). If not, see
             <xs:annotation><xs:documentation>Specifies the currency uomId (ISO code) used to format the value.
             Will only format as currency if this is specified.</xs:documentation></xs:annotation>
         </xs:attribute>
-        <xs:attribute name="format" type="value-format-style">
+        <xs:attribute name="format" type="xs:string">
             <xs:annotation><xs:documentation>Used to format the output of Number/Time/Date/Timestamp/etc objects.
                 With auto-fields-service will inherit from service parameter.</xs:documentation></xs:annotation>
         </xs:attribute>
