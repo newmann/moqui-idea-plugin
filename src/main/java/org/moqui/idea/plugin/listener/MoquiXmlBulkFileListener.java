@@ -11,6 +11,7 @@ import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.Entities;
 import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
+import org.moqui.idea.plugin.dom.model.MoquiConf;
 import org.moqui.idea.plugin.dom.model.Services;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 import org.moqui.idea.plugin.util.MyDomUtils;
@@ -43,15 +44,20 @@ public class MoquiXmlBulkFileListener implements BulkFileListener {
             PsiFile psiFile = psiManager.findFile(file);
 
             if(psiFile != null) {
+                MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+
                 switch (MyDomUtils.getRootTagName(psiFile).orElse(MyStringUtils.EMPTY_STRING)){
-                    case Services.TAG_NAME -> project.getService(MoquiIndexService.class).setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());
+                    case Services.TAG_NAME -> moquiIndexService.setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());
                     case Entities.TAG_NAME -> {
-                        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+
                         moquiIndexService.setEntityXmlFileLastUpdatedStamp(System.currentTimeMillis());
                         moquiIndexService.setServiceXmlFileLastUpdatedStamp(System.currentTimeMillis());//修改entity的xml，则service也需要更新
                     }
                     case EntityFacadeXml.TAG_NAME -> {
-
+                        moquiIndexService.setEntityFacadeXmlFileLastUpdatedStamp(System.currentTimeMillis());
+                    }
+                    case MoquiConf.TAG_NAME ->{
+                        moquiIndexService.setRootSubScreensItemXmlFileLastUpdatedStamp(System.currentTimeMillis());
                     }
                 }
 

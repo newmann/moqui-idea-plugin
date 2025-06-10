@@ -10,6 +10,9 @@ import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.MoquiConf;
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.SubScreensItem;
+import org.moqui.idea.plugin.service.IndexRootSubScreensItem;
+import org.moqui.idea.plugin.service.IndexService;
+import org.moqui.idea.plugin.service.MoquiIndexService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +76,12 @@ public final class MoquiConfUtils {
 
         return getSubScreensItem(moquiConfOptional.get(),itemName);
     }
+    public static Optional<SubScreensItem> getRootSubScreenItemByName(@NotNull Project project,@NotNull String itemName){
+        MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
+        return moquiIndexService.getIndexRootSubScreensItemByName(itemName)
+                .map(IndexRootSubScreensItem::getSubScreensItem);
+    }
+
     /**
      * 获取所有的Screen定义
      * 只需要取runtime/base-component和runtime/component下的定义，其他路径下的不需要

@@ -63,6 +63,7 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
             case ViewEntity.TAG_NAME -> generateViewEntityDoc(element);
             case Service.TAG_NAME -> generateServiceDoc(element);
             case Section.TAG_NAME -> generateSectionDoc(element);
+            case ServiceInclude.TAG_NAME -> generateServiceIncludeDoc(element);
 //            case Field.TAG_NAME -> new FieldDocumentTarget(element).toString();
 //            case Relationship.TAG_NAME -> new RelationshipDocumentTarget(element).toString();
 
@@ -154,6 +155,20 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
 
         return docBuilder.toString();
     }
+    public static String generateServiceIncludeDoc(PsiElement element) {
+        ServiceInclude serviceInclude = MyDomUtils.getLocalDomElementByPsiElement(element,ServiceInclude.class).orElse(null);
+        if (serviceInclude == null){return "Not found target Service Include.";}
+
+        HtmlBuilder docBuilder = new HtmlBuilder()
+                .append(formatServiceIncludeDefinition(serviceInclude));
+
+        //通过IndexService来获取parameters
+        IndexService indexService = ServiceUtils.getIndexService(element.getProject(),ServiceUtils.getFullNameFromServiceInclude(serviceInclude))
+                .orElse(null);
+        docBuilder.append(formatIndexServiceInOutParameter(indexService));
+        return docBuilder.toString();
+    }
+
     public static String generateSectionDoc(PsiElement element) {
         Section section = MyDomUtils.getLocalDomElementByPsiElement(element,Section.class).orElse(null);
         if (section == null){return "Not found target Section.";}

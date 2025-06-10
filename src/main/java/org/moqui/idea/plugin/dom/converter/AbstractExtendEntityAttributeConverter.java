@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
@@ -21,6 +22,7 @@ import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.dom.model.ExtendEntity;
 import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
 import javax.swing.*;
@@ -73,8 +75,7 @@ public abstract class AbstractExtendEntityAttributeConverter extends ResolvingCo
             PsiReference[] psiReferences = new PsiReference[1];
             //entityName reference
             psiReferences[0] = new MoquiBaseReference(element,
-                    new TextRange(1,
-                            value.getStringValue().length()+1),
+                    MyDomUtils.createAttributeTextRange((XmlAttributeValue)element),
                     getCreateReferenceElement(entity));
             return psiReferences;
 

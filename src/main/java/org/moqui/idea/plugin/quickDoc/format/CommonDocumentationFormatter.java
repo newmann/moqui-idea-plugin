@@ -25,7 +25,7 @@ import static com.intellij.openapi.util.text.HtmlChunk.text;
 public class CommonDocumentationFormatter {
 //    public static String formatNavigateDocWithDomElement(DomElement element, String elementName) {
 //        HtmlBuilder docBuilder = new HtmlBuilder();
-//        String containingFile = MyDomUtils.getContainingFileNameFromPsiElement(element.getXmlTag()).orElse("N/A");
+//        String containingFile = MyDomUtils.getFileNameByPsiElement(element.getXmlTag()).orElse("N/A");
 //        docBuilder.append(text("Moqui " + elementName))
 //                .br()
 //                .append(text("Defined in " + containingFile + " [component: " + "]"));
@@ -39,8 +39,8 @@ public class CommonDocumentationFormatter {
         HtmlBuilder builder = new HtmlBuilder();
         AbstractEntity abstractEntity = (AbstractEntity) element;
 
-        String fileName = MyDomUtils.getContainingFileNameFromPsiElement(element.getXmlTag()).orElse("N/A");
-        String componentName = MyDomUtils.getContainingPathFromPsiElement(element.getXmlTag())
+        String fileName = MyDomUtils.getFileNameByPsiElement(element.getXmlTag()).orElse("N/A");
+        String componentName = MyDomUtils.getFilePathByPsiElement(element.getXmlTag())
                 .flatMap(ComponentUtils::getComponentNameFromPath)
                 .orElse(MyStringUtils.EMPTY_STRING);
 
@@ -59,8 +59,8 @@ public class CommonDocumentationFormatter {
     public static HtmlChunk.Element formatServiceDefinition(Service service) {
         HtmlBuilder builder = new HtmlBuilder();
 
-        String fileName = MyDomUtils.getContainingFileNameFromPsiElement(service.getXmlTag()).orElse("N/A");
-        String componentName = MyDomUtils.getContainingPathFromPsiElement(service.getXmlTag())
+        String fileName = MyDomUtils.getFileNameByPsiElement(service.getXmlTag()).orElse("N/A");
+        String componentName = MyDomUtils.getFilePathByPsiElement(service.getXmlTag())
                 .flatMap(ComponentUtils::getComponentNameFromPath)
                 .orElse(MyStringUtils.EMPTY_STRING);
 
@@ -76,11 +76,30 @@ public class CommonDocumentationFormatter {
         }
         return builder.wrapWith("pre").wrapWith(DEFINITION_ELEMENT);
     }
+    public static HtmlChunk.Element formatServiceIncludeDefinition(ServiceInclude serviceInclude) {
+        HtmlBuilder builder = new HtmlBuilder();
+
+        String fileName = MyDomUtils.getFileNameByPsiElement(serviceInclude.getXmlTag()).orElse("N/A");
+        String componentName = MyDomUtils.getFilePathByPsiElement(serviceInclude.getXmlTag())
+                .flatMap(ComponentUtils::getComponentNameFromPath)
+                .orElse(MyStringUtils.EMPTY_STRING);
+
+        builder.append(text(ServiceUtils.getFullNameFromServiceInclude(serviceInclude)).bold())
+                .br()
+                .append(text(MyBundle.message("quickDoc.format.CommonDocumentationFormatter.defineInComponent",fileName ,componentName)).wrapWith(GRAYED_ELEMENT));
+
+        if (serviceInclude.getLocation().getValue() != null) {
+            builder.br()
+                    .append(text("Include from:"+ serviceInclude.getLocation().getValue()));
+        }
+        return builder.wrapWith("pre").wrapWith(DEFINITION_ELEMENT);
+    }
+
     public static HtmlChunk.Element formatSectionDefinition(Section section) {
         HtmlBuilder builder = new HtmlBuilder();
 
-        String fileName = MyDomUtils.getContainingFileNameFromPsiElement(section.getXmlTag()).orElse("N/A");
-        String componentName = MyDomUtils.getContainingPathFromPsiElement(section.getXmlTag())
+        String fileName = MyDomUtils.getFileNameByPsiElement(section.getXmlTag()).orElse("N/A");
+        String componentName = MyDomUtils.getFilePathByPsiElement(section.getXmlTag())
                 .flatMap(ComponentUtils::getComponentNameFromPath)
                 .orElse(MyStringUtils.EMPTY_STRING);
 
@@ -108,8 +127,8 @@ public class CommonDocumentationFormatter {
     }
     public static HtmlChunk.Element formatExtendEntity(ExtendEntity extendEntity) {
         List<Field> extendedFieldList = extendEntity.getFieldList();
-        String fileName = MyDomUtils.getContainingFileNameFromPsiElement(extendEntity.getXmlTag()).orElse("N/A");
-        String componentName = MyDomUtils.getContainingPathFromPsiElement(extendEntity.getXmlTag())
+        String fileName = MyDomUtils.getFileNameByPsiElement(extendEntity.getXmlTag()).orElse("N/A");
+        String componentName = MyDomUtils.getFilePathByPsiElement(extendEntity.getXmlTag())
                 .flatMap(ComponentUtils::getComponentNameFromPath)
                 .orElse(MyStringUtils.EMPTY_STRING);
 

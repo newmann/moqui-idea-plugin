@@ -241,7 +241,7 @@ public final class LocationUtils {
                 this.type = LocationType.WebUrl;
                 return;
             }
-            if(location.startsWith("component://")) {
+            if(location.startsWith(ComponentUtils.COMPONENT_LOCATION_PREFIX)) {
                 processComponentType(location);
                 return;
             }
@@ -347,7 +347,10 @@ public final class LocationUtils {
 
         }
          /**
-          * 为//hmadmin/User/EditUser 或 /popc/Order/Cart 这种格式的路径创建Reference
+          * 支持以下格式：
+          * //hmadmin/User/EditUser
+          * /popc/Order/Cart 这种格式的路径创建Reference
+          * /hmstatic/images/client-businessmen26.png
           * @param element 当前PsiElement
           * @param context 当前ConvertContext
           * @return PsiReference[]
@@ -362,38 +365,81 @@ public final class LocationUtils {
              int startOffset = location.indexOf(rootName)+1;
             TextRange locationTextRange = new TextRange(1,location.length()+1);
 
-            SubScreensItem rootSubScreenItem = MoquiConfUtils.getRootSubScreenItemByPsiElement(element,rootName).orElse(null);
+            SubScreensItem rootSubScreenItem = MoquiConfUtils.getRootSubScreenItemByName(project,rootName).orElse(null);
             if(rootSubScreenItem== null) return MoquiBaseReference.createNullRefArray(element,locationTextRange);
             result.add(MoquiBaseReference.of(element,
                     new TextRange(startOffset,startOffset+rootName.length()),
                     rootSubScreenItem.getName().getXmlAttributeValue()));
-            PsiFile parentFile = MyDomUtils.getFileFromLocation(project, MyDomUtils.getValueOrEmptyString(rootSubScreenItem.getLocation())).orElse(null);
-            if(parentFile == null){
-                return MoquiBaseReference.createNullRefArray(element,locationTextRange);
-            }
-            Screen parentScreen = MyDomUtils.convertPsiFileToDomFile(parentFile,Screen.class).getRootElement();
+
+            Screen parentScreen = ScreenUtils.getSubScreensItemLocationScreen(project,rootSubScreenItem).orElse(null);
+            if(parentScreen == null) return MoquiBaseReference.createNullRefArray(element,locationTextRange);
+
+//            PsiFile parentFile = MyDomUtils.getFileFromLocation(project, MyDomUtils.getValueOrEmptyString(rootSubScreenItem.getLocation())).orElse(null);
+//            if(parentFile == null){
+//                return MoquiBaseReference.createNullRefArray(element,locationTextRange);
+//            }
+//            Screen parentScreen = MyDomUtils.convertPsiFileToDomFile(parentFile,Screen.class).getRootElement();
+            PsiElement parentPsiElement = null; //用于支持文件查找
 
             startOffset = startOffset+rootName.length() + 1;
             for(int index=1; index< pathNameArray.length; index++) {
                 String itemName = pathNameArray[index];
-                //处理SubScreenItems
-                List<SubScreensItem> subScreensItemList = ScreenUtils.getSubScreensItemList(parentScreen);
-                SubScreensItem subScreensItem = subScreensItemList.stream().filter(item->itemName.equals(MyDomUtils.getValueOrEmptyString(item.getName())))
-                        .findFirst().orElse(null);
-                if(subScreensItem == null) {
-                    //没有subScreenItems，处理相对路径下的文件
-                    if(parentScreen.getXmlElement() == null){return MoquiBaseReference.createNullRefArray(element, locationTextRange);}
+                SubScreensItem subScreensItem = null;
 
-                    List<PsiFile> relativeFileList = LocationUtils.getRelativeScreenFileList(parentScreen.getXmlElement());
+                //处理SubScreenItems
+                if(parentScreen != null) {
+                    List<SubScreensItem> subScreensItemList = ScreenUtils.getSubScreensItemList(parentScreen);
+                    subScreensItem = subScreensItemList.stream().filter(item -> itemName.equals(MyDomUtils.getValueOrEmptyString(item.getName())))
+                            .findFirst().orElse(null);
+                }
+
+                if(subScreensItem == null) {
                     PsiFile relativeFile = null;
-                    for(PsiFile fileItem:relativeFileList) {
-                        if(FileUtil.getNameWithoutExtension(fileItem.getName()).equals(itemName)) {
-                            relativeFile = fileItem;
-                            break;
+                    if(parentScreen!=null) {
+                        //没有subScreenItems，处理相对路径下的Screen文件
+                        if (parentScreen.getXmlElement() == null) {
+                            return MoquiBaseReference.createNullRefArray(element, locationTextRange);
+                        }
+
+                        List<PsiFile> relativeFileList = LocationUtils.getRelativeScreenFileList(parentScreen.getXmlElement());
+                        for (PsiFile fileItem : relativeFileList) {
+                            if (FileUtil.getNameWithoutExtension(fileItem.getName()).equals(itemName)) {
+                                relativeFile = fileItem;
+                                break;
+                            }
                         }
                     }
                     if(relativeFile == null) {
-                        return MoquiBaseReference.createNullRefArray(element, locationTextRange);
+                        //没有找到Screen文件，就处理其他文件或子目录
+                        List<PsiElement> relativeElementList = null;
+                        if(parentScreen == null ) {
+                            relativeElementList = LocationUtils.getRelativePathFileList(parentPsiElement);
+                        }else {
+                            relativeElementList = LocationUtils.getRelativePathFileList(parentScreen.getXmlElement());
+                        }
+                        PsiElement relativePsiElement = null;
+                        for(PsiElement relativeElement: relativeElementList) {
+                            if(relativeElement instanceof PsiFile relativeFileElement) {
+                                if(relativeFileElement.getName().equals(itemName)) {
+                                    relativePsiElement = relativeElement;
+                                    break;
+                                }
+                            }
+                            if(relativeElement instanceof PsiDirectory relativeDirectoryElement) {
+                                if(relativeDirectoryElement.getName().equals(itemName)) {
+                                    relativePsiElement = relativeElement;
+                                    break;
+                                }
+                            }
+                        }
+                        if(relativePsiElement == null) return MoquiBaseReference.createNullRefArray(element, locationTextRange);
+
+                        parentScreen = null;
+                        parentPsiElement = relativePsiElement;
+
+                        result.add(MoquiBaseReference.of(element,
+                                new TextRange(startOffset,startOffset+itemName.length()),
+                                relativePsiElement));
                     }else {
                         parentScreen =  MyDomUtils.convertPsiFileToDomFile(relativeFile,Screen.class).getRootElement();
                         result.add(MoquiBaseReference.of(element,
@@ -407,11 +453,14 @@ public final class LocationUtils {
                             new TextRange(startOffset,startOffset+itemName.length()),
                             subScreensItem.getName().getXmlAttributeValue()));
 
-                    parentFile = MyDomUtils.getFileFromLocation(project, MyDomUtils.getValueOrEmptyString(subScreensItem.getLocation())).orElse(null);
-                    if(parentFile == null){
-                        return MoquiBaseReference.createNullRefArray(element,locationTextRange);
-                    }
-                    parentScreen = MyDomUtils.convertPsiFileToDomFile(parentFile,Screen.class).getRootElement();
+                    parentScreen = ScreenUtils.getSubScreensItemLocationScreen(project,subScreensItem).orElse(null);
+                    if(parentScreen == null) return MoquiBaseReference.createNullRefArray(element,locationTextRange);
+
+//                    parentFile = MyDomUtils.getFileFromLocation(project, MyDomUtils.getValueOrEmptyString(subScreensItem.getLocation())).orElse(null);
+//                    if(parentFile == null){
+//                        return MoquiBaseReference.createNullRefArray(element,locationTextRange);
+//                    }
+//                    parentScreen = MyDomUtils.convertPsiFileToDomFile(parentFile,Screen.class).getRootElement();
                 }
 
                 startOffset = startOffset+itemName.length() + 1;
@@ -744,17 +793,18 @@ public final class LocationUtils {
     }
 
     /**
-     * 根据当前的PsiElement，找到相对路径下所有的文件
+     * 根据当前的PsiElement，找到相对路径下所有的类型为Screen的文件
      * @param psiElement 当前PsiElement
      * @return List<PsiFile>
      */
     public static List<PsiFile> getRelativeScreenFileList(@NotNull PsiElement psiElement) {
+        if(psiElement.getContainingFile() == null) return new ArrayList<>();
 
         PsiFile file = psiElement.getContainingFile().getOriginalFile();
         String relativePath = MyStringUtils.removeLastDotString(file.getVirtualFile().getPath());
 
         List<PsiFile> result = new ArrayList<>();
-        MyDomUtils.findPsiFilesByPath(psiElement.getProject(),relativePath)
+        MyDomUtils.findPsiFileListByPath(psiElement.getProject(),relativePath)
                 .forEach(item->{
                     if(ScreenUtils.isScreenFile(item)) {
                         result.add(item);
@@ -763,6 +813,24 @@ public final class LocationUtils {
         return result;
 
     }
+    /**
+     * 根据当前的PsiElement，找到相对路径下所有的子目录和文件
+     * 当前PsiElement可以对应PsiDirectory，这是就是去Directory下面的所有子目录和文件
+     * @param psiElement 当前PsiElement
+     * @return List<PsiElement> 包含PsiFile和PsiDirectory
+     */
+    public static List<PsiElement> getRelativePathFileList(@NotNull PsiElement psiElement) {
+        String relativePath;
+        if(psiElement instanceof PsiDirectory psiDirectory) {
+            relativePath = psiDirectory.getVirtualFile().getPath();
+        }else {
+            if (psiElement.getContainingFile() == null) return new ArrayList<>();
+            PsiFile file = psiElement.getContainingFile().getOriginalFile();
+            relativePath = MyStringUtils.removeLastDotString(file.getVirtualFile().getPath());
+        }
+        return MyDomUtils.findPathAndFileListByPath(psiElement.getProject(), relativePath);
+    }
+
     /**
      * 对location进行检查
      * AbstractLocation：

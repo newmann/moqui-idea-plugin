@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * 建立Entity，ViewEntity和Service的缓存
+ * 建立Entity，ViewEntity和Service 等的缓存
  * 为了简化因为Entity等定义修改后调整这个缓存，在每次使用缓存之前检查一下缓存是否有效，如果无效，则更新整个缓存
  * 如果未来效率有问题，可以改进更新做法，进行更细致的控制
  */
@@ -48,6 +48,8 @@ public final class MoquiIndexService {
 
     private long entityFacadeXmlFileLastUpdatedStamp;
 
+    private long rootSubScreensItemLastUpdatedStamp;
+
     //最近一次全局service扫描的时间戳
 //    private long allServiceLastRefreshStamp;
 
@@ -62,6 +64,7 @@ public final class MoquiIndexService {
 
     //处理EntityFacadeXml中的Template
     private final ConcurrentHashMap<String, XmlTag> indexTextTemplateMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, IndexRootSubScreensItem> indexRootSubScreensItemMap = new ConcurrentHashMap<>();
 
     private static final Object MUTEX_ENTITY = new Object();
     private static final Object MUTEX_VIEW = new Object();
@@ -70,9 +73,10 @@ public final class MoquiIndexService {
 
     private static final Object MUTEX_TEXT_TEMPLATE = new Object();
 
+    private static final Object MUTEX_ROOT_SUBSCREENS_ITEM = new Object();
 
     private List<ViewEntity> pendingViewEntityList;
-    private MoquiXmlVirtualFileManager moquiXmlVirtualFileManager = null;
+//    private MoquiXmlVirtualFileManager moquiXmlVirtualFileManager = null;
 
     private final boolean isMoquiProject;
 
@@ -86,6 +90,7 @@ public final class MoquiIndexService {
         this.entityXmlFileLastUpdatedStamp = System.currentTimeMillis();
         this.serviceXmlFileLastUpdatedStamp = System.currentTimeMillis();
         this.entityFacadeXmlFileLastUpdatedStamp = System.currentTimeMillis();
+        this.rootSubScreensItemLastUpdatedStamp = System.currentTimeMillis();
 
 //        this.allEntityLastRefreshStamp = 0;
 //        this.allServiceLastRefreshStamp = 0;
@@ -181,33 +186,6 @@ public final class MoquiIndexService {
         return true;
 
     }
-
-//    private Map<String, AbstractIndexEntity> extractViewEntityAbstractIndexEntity(@NotNull ViewEntity viewEntity){
-//        Map<String, AbstractIndexEntity> result = new HashMap<String, AbstractIndexEntity>();
-//        String entityAlias;
-//        String entityName;
-//        AbstractIndexEntity abstractIndexEntity;
-//        //先添加MemberEntity
-//        for(MemberEntity memberEntity: viewEntity.getMemberEntityList()) {
-//            entityAlias = MyDomUtils.getValueOrEmptyString(memberEntity.getEntityAlias());
-//            entityName = MyDomUtils.getValueOrEmptyString(memberEntity.getEntityName());
-//            abstractIndexEntity = accessIndexEntityOrIndexViewEntity(entityName).orElse(null);
-//            if (abstractIndexEntity != null){
-//                result.put(entityAlias, abstractIndexEntity);
-//            }
-//        };
-//        //再添加MemberRelationship
-//        for(MemberRelationship memberRelationship: viewEntity.getMemberRelationshipList()) {
-//            entityAlias = MyDomUtils.getValueOrEmptyString(memberRelationship.getEntityAlias());
-//            entityName = getViewEntityMemberRelationshipEntityName(viewEntity, memberRelationship)
-//                    .orElse(MyStringUtils.EMPTY_STRING);
-//            abstractIndexEntity = accessIndexEntityOrIndexViewEntity(entityName).orElse(null);
-//            if (abstractIndexEntity != null){
-//                result.put(entityAlias, abstractIndexEntity);
-//            }
-//        }
-//        return  result;
-//    }
 
     /**
      * 获取指定ViewEntity的所有字段
@@ -324,8 +302,29 @@ public final class MoquiIndexService {
 
     }
 
-    private boolean addServiceToIndexServiceMap(@NotNull org.moqui.idea.plugin.dom.model.Service service){
+    private void addServiceToIndexServiceMap(@NotNull org.moqui.idea.plugin.dom.model.Service service){
         IndexService indexService = new IndexService(service);
+
+        processServiceParameter(indexService,service);
+
+        indexService.setLastRefreshStamp(System.currentTimeMillis());
+
+        indexServiceMap.put(indexService.getFullName(), indexService);
+    }
+    private void addServiceIncludeToIndexServiceMap(@NotNull ServiceInclude serviceInclude){
+        org.moqui.idea.plugin.dom.model.Service service = ServiceUtils.getServiceByServiceInclude(this.project,serviceInclude).orElse(null);
+        if(service == null) return;
+
+        IndexService indexService = new IndexService(serviceInclude,service);
+
+        processServiceParameter(indexService,service);
+
+        indexService.setLastRefreshStamp(System.currentTimeMillis());
+
+        indexServiceMap.put(indexService.getFullName(), indexService);
+
+    }
+    private void processServiceParameter(@NotNull IndexService indexService, @NotNull org.moqui.idea.plugin.dom.model.Service service){
         //处理interface
         Map<String,IndexServiceParameter> inParameterMap = new HashMap<>();
         Map<String,IndexServiceParameter> outParameterMap = new HashMap<>();
@@ -341,14 +340,8 @@ public final class MoquiIndexService {
         indexService.setInParameterMap(inParameterMap);
         indexService.setOutParameterMap(outParameterMap);
 
-        indexService.setLastRefreshStamp(System.currentTimeMillis());
-
-        indexServiceMap.put(indexService.getFullName(), indexService);
-
-        return true;
-
     }
-    private boolean addInterfaceToIndexInterfaceMap(@NotNull org.moqui.idea.plugin.dom.model.Service service){
+    private void addInterfaceToIndexInterfaceMap(@NotNull org.moqui.idea.plugin.dom.model.Service service){
         IndexService indexService = new IndexService(service);
         //处理interface
 
@@ -361,7 +354,6 @@ public final class MoquiIndexService {
 
         indexInterfaceMap.put(indexService.getFullName(), indexService);
 
-        return true;
 
     }
 
@@ -510,7 +502,7 @@ public final class MoquiIndexService {
      */
     private void checkAndUpdateView(@NotNull String viewName){
         synchronized (MUTEX_VIEW) {
-            IndexViewEntity indexViewEntity = (IndexViewEntity)accessIndexViewEntityByName(viewName).orElse(null);
+//            IndexViewEntity indexViewEntity = (IndexViewEntity)accessIndexViewEntityByName(viewName).orElse(null);
 //            if(indexViewEntity != null && indexViewEntity.getLastRefreshStamp()>= this.entityXmlFileLastUpdatedStamp ) return;
 
             ViewEntity viewEntity = EntityUtils.getViewEntityByNameFromFile(this.project, viewName).orElse(null);
@@ -532,13 +524,20 @@ public final class MoquiIndexService {
      */
     private void checkAndUpdateService(@NotNull String fullName){
         synchronized (MUTEX_SERVICE) {
-            IndexService indexService = accessIndexServiceByFullName(fullName).orElse(null);
+//            IndexService indexService = accessIndexServiceByFullName(fullName).orElse(null);
 //            if(indexService != null && indexService.getLastRefreshStamp()>= this.serviceXmlFileLastUpdatedStamp ) return;
 
             org.moqui.idea.plugin.dom.model.Service service = ServiceUtils.getServiceByFullNameFromFile(this.project, fullName).orElse(null);
             if(service==null) {
-                //从IndexServiceMap中删除
-                removeIndexServiceByName(fullName);
+                //考虑是不是ServiceInclude
+                ServiceInclude serviceInclude = ServiceUtils.getServiceIncludeByFullNameFromFile(this.project,fullName).orElse(null);
+                if(serviceInclude == null) {
+                    //从IndexServiceMap中删除
+                    removeIndexServiceByName(fullName);
+
+                }else {
+                    addServiceIncludeToIndexServiceMap(serviceInclude);
+                }
             }else {
                 if(ServiceUtils.isService(service)) {
                     //添加
@@ -554,7 +553,7 @@ public final class MoquiIndexService {
     }
     private void checkAndUpdateInterface(@NotNull String fullName){
         synchronized (MUTEX_INTERFACE) {
-            IndexService indexInterface = accessIndexInterfaceByFullName(fullName).orElse(null);
+//            IndexService indexInterface = accessIndexInterfaceByFullName(fullName).orElse(null);
 //            if(indexInterface != null && indexInterface.getLastRefreshStamp()>= this.serviceXmlFileLastUpdatedStamp ) return;
 
             org.moqui.idea.plugin.dom.model.Service service = ServiceUtils.getServiceByFullNameFromFile(this.project, fullName).orElse(null);
@@ -593,35 +592,6 @@ public final class MoquiIndexService {
         this.indexInterfaceMap.remove(name);
     }
 
-//    private synchronized void checkAndUpdateMap(){
-//        /**
-//         * 先将标志位改掉，在运行中发现线程会多次调用MoquiIndexService,如果不提前修改标志位，会多次重复执行这个过程
-//         * 更新Entity，必然更新Service，更新Sevice，不一定需要更新Entity
-//         */
-////        LOGGER.warning(Thread.currentThread().getName());
-////
-////        if (this.entityXmlFileUpdated) {
-////            this.entityXmlFileUpdated = false;
-////            this.serviceXmlFileUpdated = false;
-////
-////            refreshAllEntityMap();
-////            refreshAllServiceMap();
-////
-////        }
-////        if (this.serviceXmlFileUpdated) {
-////            this.serviceXmlFileUpdated = false;
-////            refreshAllServiceMap();
-////        }
-//
-//
-//    }
-
-//    public void setEntityXmlFileUpdated(boolean entityXmlFileUpdated){
-//        this.entityXmlFileUpdated = entityXmlFileUpdated;
-//    }
-//    public void setServiceXmlFileUpdated(boolean serviceXmlFileUpdated){
-//        this.serviceXmlFileUpdated = serviceXmlFileUpdated;
-//    }
     private Optional<Entity> accessEntityByName(@NotNull String name) {
         if(MyStringUtils.isEmpty(name)) return Optional.empty();
         return accessIndexEntityByName(name).map(IndexEntity::getEntity);
@@ -674,10 +644,7 @@ public final class MoquiIndexService {
 
     }
 
-//    public Optional<ViewEntity> getViewEntityByName(@NotNull String name) {
-//        checkAndUpdateView(name);
-//        return accessViewEntityByName(name);
-//    }
+
     private Optional<IndexViewEntity> accessIndexViewEntityByName(@NotNull String name) {
         if(MyStringUtils.isEmpty(name)) return Optional.empty();
         for(String key: this.indexViewEntityMap.keySet()) {
@@ -708,12 +675,7 @@ public final class MoquiIndexService {
     private Optional<IndexService> accessIndexServiceOrIndexInterface(@NotNull String name) {
         if(MyStringUtils.isEmpty(name)) return Optional.empty();
         Optional<IndexService> optIndexService = accessIndexServiceByName(name);
-        //            Optional<IndexService> optIndexInterface = accessIndexInterfaceByName(name);
-        //            if(optIndexInterface.isPresent()){
-        //                return Optional.of(optIndexInterface.get());
-        //            }else {
-        //                return Optional.empty();
-        //            }
+
         return optIndexService.or(() -> accessIndexInterfaceByFullName(name));
 
     }
@@ -727,17 +689,6 @@ public final class MoquiIndexService {
     public @NotNull List<IndexAbstractField> getEntityOrViewEntityFieldList(@NotNull String name){
         Optional<AbstractIndexEntity> optionalAbstractIndexEntity = getIndexEntityOrIndexViewEntity(name);
         return optionalAbstractIndexEntity.map(AbstractIndexEntity::getIndexAbstractFieldList).orElse(new ArrayList<>());
-
-//        checkAndUpdateMap();
-//        Optional<IndexEntity> indexEntity = accessIndexEntityByName(name);
-//        if(indexEntity.isPresent()) {
-//            return indexEntity.get().getAbstractFieldList();
-//        }else {
-//            Optional<IndexViewEntity> indexViewEntity = accessIndexViewEntityByName(name);
-//            return indexViewEntity.flatMap(IndexViewEntity::getAbstractFieldList);
-//
-//        }
-
 
     }
     public List<Field> getEntityFieldList(@NotNull String name){
@@ -775,19 +726,47 @@ public final class MoquiIndexService {
                     Map<String,XmlTag> fileTemplate =  EntityFacadeXmlUtils.getTextTemplateFromFile(file);
                     this.indexTextTemplateMap.putAll(fileTemplate);
                 });
-//                this.indexTextTemplateMap.putAll(
-//                        fileList.stream()
-//                                .map(EntityFacadeXmlUtils::getTextTemplateFromFile)
-//                                .flatMap(map -> map.entrySet().stream())
-//                                .collect(Collectors.toMap(
-//                                        Map.Entry::getKey,
-//                                        Map.Entry::getValue,
-//                                        (existingValue, newValue) -> existingValue
-//                                ))
-//                );
+
             }
         }
     }
+    /**
+     * 如果当前的indexRootSubScreensItemMap为空，则重新刷新数据
+     *
+     */
+    public Map<String,IndexRootSubScreensItem> getRootSubScreensItemMap(){
+        if(this.indexRootSubScreensItemMap.isEmpty()){
+            refreshRootSubScreensItem();
+        }
+        return new HashMap<>(this.indexRootSubScreensItemMap);
+    }
+    private void refreshRootSubScreensItem(){
+        synchronized (MUTEX_ROOT_SUBSCREENS_ITEM) {
+            this.indexRootSubScreensItemMap.clear();
+            List<DomFileElement<MoquiConf>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,MoquiConf.class);
+            fileElementList.forEach(
+                item->{
+                    MoquiConf moquiConf = item.getRootElement();
+                    moquiConf.getScreenFacade().getScreenList().forEach(
+                            screen ->{
+                                screen.getSubScreensItemList().forEach(
+                                        subScreensItem ->{
+                                            IndexRootSubScreensItem rootSubScreensItem = new IndexRootSubScreensItem(subScreensItem);
+                                            this.indexRootSubScreensItemMap.put(rootSubScreensItem.getName(),rootSubScreensItem);
+                                        }
+                                );
+                            }
+                    );
+                }
+            );
+        }
+    }
+    public Optional<IndexRootSubScreensItem> getIndexRootSubScreensItemByName(@NotNull String name) {
+        if(MyStringUtils.isEmpty(name)) return Optional.empty();
+
+        return Optional.ofNullable(getRootSubScreensItemMap().get(name));
+    }
+
     public Map<String,IndexEntity> getIndexEntityMap(){return new HashMap<>(this.indexEntityMap);}
     public Map<String,IndexViewEntity> getIndexViewEntityMap(){return new HashMap<>(this.indexViewEntityMap);}
 
@@ -825,105 +804,6 @@ public final class MoquiIndexService {
         }
     }
 
-//    public Optional<Set<String>> searchServicePackageNameSet(@Nullable String filterStr){
-//        checkAndUpdateMap();
-//        if(filterStr == null) {
-//            return accessServicePackageNameSet();
-//        }else{
-//        return Optional.of(
-//                this.indexServiceMap.values().stream().map(IndexService::getPackageName).filter(
-//                        packageName -> packageName.contains(filterStr)
-//                ).collect(Collectors.toSet()));
-//        }
-//    }
-//    public Optional<Set<String>> getServicePackageNameSet(){
-//        checkAndUpdateMap();
-//        return accessServicePackageNameSet();
-//    }
-//    private Optional<Set<String>> accessServicePackageNameSet(){
-//        return Optional.of
-//                (this.indexServiceMap.values().stream().map(IndexService::getPackageName).collect(Collectors.toSet())
-//                );
-//    }
-
-//    public Optional<Set<String>> getServiceClassNameSet(){
-//        checkAndUpdateMap();
-//        return accessServiceClassNameSet();
-//    }
-//    private Optional<Set<String>> accessServiceClassNameSet(){
-//        return Optional.of
-//                (this.indexServiceMap.values().stream().map(IndexService::getClassName).collect(Collectors.toSet())
-//                );
-//    }
-
-//    public Optional<Set<String>> searchServiceClassNameSet(@Nullable String filterStr){
-//        checkAndUpdateMap();
-//        if(filterStr == null) {
-//            return accessServiceClassNameSet();
-//        }else{
-//            return Optional.of(
-//                    this.indexServiceMap.values().stream().map(IndexService::getClassName).filter(
-//                            className -> className.contains(filterStr)
-//                    ).collect(Collectors.toSet()));
-//        }
-//    }
-//    public Optional<Set<String>> searchInterfaceAndServiceFullNameSet(@Nullable String filterStr){
-//        checkAndUpdateMap();
-//        Set<String> all = accessInterfaceAndServiceFullNameSet().orElse(new HashSet<>());
-//        if(all.isEmpty()) return Optional.empty();
-//
-//        if(filterStr == null) {
-//            return Optional.of(all);
-//        }else{
-//            return Optional.of(
-//                    all.stream().filter(
-//                            fullName -> fullName.contains(filterStr)
-//                    ).collect(Collectors.toSet()));
-//        }
-//    }
-
-//    public Optional<Set<String>> getInterfaceAndServiceFullNameSet(){
-//        checkAndUpdateMap();
-//        return accessInterfaceAndServiceFullNameSet();
-//    }
-//    public Optional<Set<String>> accessInterfaceAndServiceFullNameSet(){
-//        Set<String> result = new HashSet<>();
-//        result.addAll(this.indexServiceMap.keySet());
-//        result.addAll(this.indexInterfaceMap.keySet());
-//
-//        return Optional.of(result);
-//    }
-
-//    public Optional<Set<String>> searchServiceFullNameSet(@Nullable String filterStr){
-//        checkAndUpdateMap();
-//        Set<String> all = accessServiceFullNameSet().orElse(new HashSet<>());
-//        if(all.isEmpty()) return Optional.empty();
-//
-//        if(filterStr == null) {
-//            return Optional.of(all);
-//        }else{
-//            return Optional.of(
-//                    all.stream().filter(
-//                            fullName -> fullName.contains(filterStr)
-//                    ).collect(Collectors.toSet()));
-//        }
-//    }
-//    public Optional<Set<String>> getInterfaceFullNameSet(){
-//        checkAndUpdateMap();
-//        return accessInterfaceFullNameSet();
-//    }
-//    private Optional<Set<String>> accessInterfaceFullNameSet(){
-//        return Optional.of(this.indexInterfaceMap.keySet());
-//    }
-
-//    public Optional<Set<String>> getServiceFullNameSet(){
-//        checkAndUpdateMap();
-//        return accessServiceFullNameSet();
-//    }
-//
-//    private Optional<Set<String>> accessServiceFullNameSet(){
-//        return Optional.of(this.indexServiceMap.keySet());
-//    }
 
     public List<ViewEntity> getPendingViewEntityList(){return pendingViewEntityList;}
 
@@ -951,12 +831,22 @@ public final class MoquiIndexService {
         this.serviceXmlFileLastUpdatedStamp = serviceXmlFileLastUpdatedStamp;
     }
 
-    public void setEntityFacadeXmlFileLastUpdatedStamp(long serviceXmlFileLastUpdatedStamp) {
+    public void setEntityFacadeXmlFileLastUpdatedStamp(long lastUpdatedStamp) {
         //将所有的缓存删除，简单控制保障内存泄漏
         synchronized (MUTEX_TEXT_TEMPLATE) {
             this.indexTextTemplateMap.clear();
         }
 
-        this.entityFacadeXmlFileLastUpdatedStamp = serviceXmlFileLastUpdatedStamp;
+        this.entityFacadeXmlFileLastUpdatedStamp = lastUpdatedStamp;
     }
+
+    public void setRootSubScreensItemXmlFileLastUpdatedStamp(long lastUpdatedStamp) {
+        //将所有的缓存删除，简单控制保障内存泄漏
+        synchronized (MUTEX_ROOT_SUBSCREENS_ITEM) {
+            this.indexRootSubScreensItemMap.clear();
+        }
+
+        this.rootSubScreensItemLastUpdatedStamp = lastUpdatedStamp;
+    }
+
 }

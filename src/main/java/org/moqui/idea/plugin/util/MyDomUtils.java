@@ -11,7 +11,6 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -80,6 +79,33 @@ public final class MyDomUtils {
 
 
     }
+    /**
+     * 获取指定文件夹下面的所有文件和子目录
+     * @param project 当前项目
+     * @param path 指定的文件夹
+     * @return List<PsiElement>
+     */
+    @NotNull
+    public static List<PsiElement> findPathAndFileListByPath(@NotNull Project project, @NotNull String path){
+
+        return  ApplicationManager.getApplication().runReadAction((Computable<ArrayList<PsiElement>>) ()->{
+            ArrayList<PsiElement> result = new ArrayList<>();
+            PsiManager psiManager = PsiManager.getInstance(project);
+
+            VirtualFile virtualDirectory = LocalFileSystem.getInstance().findFileByPath(path);
+            if(virtualDirectory == null || !virtualDirectory.isDirectory()) {
+                return result;
+            }
+
+            PsiDirectory psiDirectory = psiManager.findDirectory(virtualDirectory);
+            if(psiDirectory != null) {
+                result.addAll(List.of(psiDirectory.getFiles()));
+                result.addAll(List.of(psiDirectory.getSubdirectories()));
+            }
+            return result;
+        });
+
+    }
 
     /**
      * 获取指定文件夹下面的所有文件
@@ -88,7 +114,7 @@ public final class MyDomUtils {
      * @return List<PsiFile>
      */
     @NotNull
-    public static List<PsiFile> findPsiFilesByPath(@NotNull Project project, @NotNull String path){
+    public static List<PsiFile> findPsiFileListByPath(@NotNull Project project, @NotNull String path){
 
         return  ApplicationManager.getApplication().runReadAction((Computable<ArrayList<PsiFile>>) ()->{
             ArrayList<PsiFile> result = new ArrayList<>();
@@ -109,10 +135,10 @@ public final class MyDomUtils {
      * 获取指定文件夹下面的所有子目录文件
      * @param project 当前项目
      * @param path 指定的文件夹
-     * @return List<PsiFile>
+     * @return List<PsiDirectory>
      */
     @NotNull
-    public static List<PsiDirectory> findPsiDirectoriesByPath(@NotNull Project project, @NotNull String path){
+    public static List<PsiDirectory> findPsiDirectoryListByPath(@NotNull Project project, @NotNull String path){
 
         return  ApplicationManager.getApplication().runReadAction((Computable<ArrayList<PsiDirectory>>) ()->{
             ArrayList<PsiDirectory> result = new ArrayList<>();
@@ -700,23 +726,19 @@ public final class MyDomUtils {
         return attributeValue == null ? Optional.empty() : Optional.of(attributeValue.getOriginalElement());
     }
 
-    public static Optional<VirtualFile> getVirtualFileFromPsiElement(@Nullable PsiElement psiElement) {
-        return getPsiFileFromPsiElement(psiElement).map(PsiFile::getVirtualFile);
-    }
+
     public static Optional<PsiFile> getPsiFileFromPsiElement(@Nullable PsiElement psiElement) {
-        if(psiElement == null){
-            return Optional.empty();
-        }else {
-            return Optional.ofNullable(psiElement.getContainingFile());
-        }
-    }
-    public static Optional<String> getContainingFileNameFromPsiElement(@Nullable PsiElement psiElement) {
-        Optional<VirtualFile > tmp = getVirtualFileFromPsiElement(psiElement);
-        return tmp.map(VirtualFile::getName);
-    }
-    public static Optional<String> getContainingPathFromPsiElement(@Nullable PsiElement psiElement) {
-        Optional<VirtualFile > tmp = getVirtualFileFromPsiElement(psiElement);
-        return tmp.map(VirtualFile::getPath);
+        if(psiElement == null)  return Optional.empty();
+        return ReadAction.compute(() -> {
+            if (!psiElement.isValid()) {
+                return Optional.empty(); // 如果PsiElement无效，返回null
+            }
+            PsiFile containingFile = psiElement.getContainingFile();
+            if (containingFile == null || !containingFile.isValid()) {
+                return Optional.empty(); // 如果包含文件无效，返回null
+            }
+            return Optional.of(containingFile);
+        });
     }
 
     public static void inspectAttributeReference(@NotNull GenericAttributeValue<String> attribute, @NotNull AnnotationHolder holder) {
@@ -757,7 +779,8 @@ public final class MyDomUtils {
      * @param psiElement 当前PsiElement
      * @return Optional<String>
      */
-    public static Optional<String> getFileNameByPsiElement(@NotNull PsiElement psiElement) {
+    public static Optional<String> getFileNameByPsiElement(@Nullable PsiElement psiElement) {
+        if(psiElement == null) return Optional.empty();
         // 在读动作中执行，确保线程安全
         return ReadAction.compute(() -> {
             if (!psiElement.isValid()) {
@@ -781,7 +804,8 @@ public final class MyDomUtils {
      * @param psiElement 当前PsiElement
      * @return Optional<String>
      */
-    public static Optional<String> getFilePathByPsiElement(@NotNull PsiElement psiElement) {
+    public static Optional<String> getFilePathByPsiElement(@Nullable PsiElement psiElement) {
+        if(psiElement == null) return Optional.empty();
         // 在读动作中执行，确保线程安全
         return ReadAction.compute(() -> {
             if (!psiElement.isValid()) {

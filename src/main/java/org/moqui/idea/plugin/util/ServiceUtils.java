@@ -6,12 +6,14 @@ import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlElement;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.GenericAttributeValue;
@@ -93,6 +95,13 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         return moquiIndexService.getServiceByFullName(fullName);
 
     }
+
+    /**
+     * 根据服务的全称，直接从xml文件中找到对应的服务定义的Service，效率比getServiceByFullName要低，一般情况下应该使用getServiceByFullName
+     * @param project 当前Project
+     * @param fullName 服务全称
+     * @return Optional<Service>
+     */
     public static Optional<Service> getServiceByFullNameFromFile(@NotNull Project project, @NotNull String fullName){
 
         ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(fullName);
@@ -113,6 +122,60 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
                     return Optional.of(service);
                 }
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * 根据名称获取ServiceInclude
+     * @param project 所在的Project
+     * @param fullName 服务名全称
+     * @return Optional<ServiceInclude>
+     */
+    public static Optional<ServiceInclude> getServiceIncludeByFullNameFromFile(@NotNull Project project, @NotNull String fullName){
+
+        ServiceCallDescriptor serviceDescriptor = ServiceCallDescriptor.of(fullName);
+
+        //如果是标准crud，则返回空
+        if(serviceDescriptor.getClassName().isEmpty()) return Optional.empty();
+
+        List<DomFileElement<Services>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Services.class);
+        for(DomFileElement<Services> fileElement : fileElementList) {
+            //判断服务在不在这个文件中
+            Optional<String> className = extractClassNameFromPath(fileElement.getFile().getVirtualFile().getPath());
+            if(className.isEmpty()) continue;
+            if(!className.get().equals(serviceDescriptor.getClassName())) continue;
+
+            for(ServiceInclude serviceInclude:fileElement.getRootElement().getServiceIncludeList()) {
+                if(MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb()).equals(serviceDescriptor.getVerb())
+                        && MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun()).equals(serviceDescriptor.getNoun())) {
+
+                    return Optional.of(serviceInclude);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+    public static Optional<Service> getServiceByServiceInclude(@NotNull Project project, @NotNull ServiceInclude serviceInclude){
+
+        String location = MyDomUtils.getValueOrEmptyString(serviceInclude.getLocation());
+        if(location.equals(MyStringUtils.EMPTY_STRING)) return Optional.empty();
+
+        LocationUtils.Location location1 = new LocationUtils.Location(project,location);
+
+        Optional<PsiFile> targetServiceFileOptional = location1.getFileByLocation();
+        if(targetServiceFileOptional.isEmpty()) return Optional.empty();
+
+        Services services = MyDomUtils.convertPsiFileToDomFile(targetServiceFileOptional.get(),Services.class)
+                .getRootElement();
+
+        String verb = MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb());
+        String none = MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun());
+        for(Service service: services.getServiceList()) {
+            if(verb.equals(MyDomUtils.getValueOrEmptyString(service.getVerb())) &&
+                none.equals(MyDomUtils.getValueOrEmptyString(service.getNoun()))) {
+                return Optional.of(service);
             }
         }
         return Optional.empty();
@@ -183,29 +246,29 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
     }
 
     /**
-     * 返回所有服务的类名称，即包含标准名称的verb#noun部分
+     * 返回所有服务的类名称，即不包含标准名称的verb#noun部分
      * @param project 当前项目
      * @return Set<String>
      */
     public static @NotNull Set<String> getServiceClassNameSet(@NotNull Project project, @Nullable String filterStr){
-
-
         List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
 
         Set<String> classNameSet = new HashSet<>();
-        fileElementList.forEach(item ->{
-            Optional<String> optClassName =extractClassNameFromPath(item.getFile().getVirtualFile().getPath());
-            if(optClassName.isPresent()) {
-                if(isNotEmpty(filterStr)){
-                    if (optClassName.get().contains(filterStr)) {
-                        classNameSet.add(optClassName.get());
-                    }
-                }else {
-                    classNameSet.add(optClassName.get());
-                }
+        for(DomFileElement<Services> item: fileElementList){
+            VirtualFile virtualFile = item.getFile().getVirtualFile();
+            if (virtualFile == null) continue;
+
+            String path = virtualFile.getPath();
+            String className = extractClassNameFromPath(path).orElse(null);
+            if (className == null) continue;
+
+            if (filterStr == null || filterStr.isEmpty()) {
+                classNameSet.add(className);
+            } else if (className.contains(filterStr)) {
+                classNameSet.add(className);
             }
-        });
-        return classNameSet;
+        };
+        return  Collections.unmodifiableSet(classNameSet);
     }
     /**
      * 返回所有可用于Interface的全名称，不仅仅type为interface的，也包括其他类型的service
@@ -250,7 +313,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
     }
 
     /**
-     * 根据className获取这个className下所有service的verb#noun列表
+     * 根据className获取这个className下所有service和serviceInclude的verb#noun列表
      */
     public static @NotNull Set<String> getServiceAction(@NotNull Project project, @NotNull  String className) {
 
@@ -273,13 +336,22 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                             );
                         }
                     }
+                    for(ServiceInclude serviceInclude: item.getRootElement().getServiceIncludeList()) {
+                        serviceNameSet.add(
+                                MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun()).isEmpty() ?
+                                        MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
+                                        :
+                                        MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
+                                                + SERVICE_NAME_HASH
+                                                + MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun())
+                        );
+                    }
 
                 }
             }
         });
 
         return serviceNameSet;
-
     }
 
     /**
@@ -293,14 +365,27 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         descriptor.setNoun(MyDomUtils.getValueOrEmptyString(service.getNoun()));
         XmlElement xmlElement = service.getXmlElement();
         if(xmlElement != null) {
-            final String path = MyDomUtils.getFileNameByPsiElement(service.getXmlElement()).orElse(MyStringUtils.EMPTY_STRING);//.getContainingFile().getVirtualFile().getPath();
+            final String path = MyDomUtils.getFilePathByPsiElement(service.getXmlElement()).orElse(MyStringUtils.EMPTY_STRING);//.getContainingFile().getVirtualFile().getPath();
             descriptor.setClassName(extractClassNameFromPath(path).orElse(MyStringUtils.EMPTY_STRING));
         }
 
         return descriptor.getServiceCallString();
 
     }
+    public static String getFullNameFromServiceInclude(@NotNull ServiceInclude service) {
+        ServiceCallDescriptor descriptor = new ServiceCallDescriptor();
+        descriptor.setVerb(MyDomUtils.getValueOrEmptyString(service.getVerb()));
 
+        descriptor.setNoun(MyDomUtils.getValueOrEmptyString(service.getNoun()));
+        XmlElement xmlElement = service.getXmlElement();
+        if(xmlElement != null) {
+            final String path = MyDomUtils.getFilePathByPsiElement(service.getXmlElement()).orElse(MyStringUtils.EMPTY_STRING);//.getContainingFile().getVirtualFile().getPath();
+            descriptor.setClassName(extractClassNameFromPath(path).orElse(MyStringUtils.EMPTY_STRING));
+        }
+
+        return descriptor.getServiceCallString();
+
+    }
 
 
     /**
@@ -629,11 +714,16 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
             }
         }else {
-            Optional<Service> serviceOptional = ServiceUtils.getServiceByFullName(project,serviceDescriptor.getServiceCallString());
-            if(serviceOptional.isPresent()) {
+            //需要用IndexService，应该要考虑到ServiceInclude
+//            Optional<Service> serviceOptional = ServiceUtils.getServiceByFullName(project,serviceDescriptor.getServiceCallString());
+            IndexService indexService = ServiceUtils.getIndexService(project,serviceDescriptor.getServiceCallString()).orElse(null);
+            if(indexService != null) {
                 //noun
                 if(serviceDescriptor.hasNoun()) {
-                    tmpElement = MyDomUtils.getPsiElementFromAttributeValue(serviceOptional.get().getNoun().getXmlAttributeValue()).orElse(null);
+                    tmpElement = MyDomUtils.getPsiElementFromAttributeValue(
+                                indexService.isServiceInclude()? indexService.getServiceInclude().getNoun().getXmlAttributeValue()
+                                        : indexService.getService().getNoun().getXmlAttributeValue()
+                            ).orElse(null);
                     if (tmpElement != null) {
                         tmpStartOffset = elementTextPattern.getBeginChar().length() + serviceDescriptor.getNounIndex();
                         tmpEndOffset = tmpStartOffset + serviceDescriptor.getNoun().length();
@@ -642,7 +732,10 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                     }
                 }
                 //verb
-                tmpElement = MyDomUtils.getPsiElementFromAttributeValue(serviceOptional.get().getVerb().getXmlAttributeValue()).orElse(null);
+                tmpElement = MyDomUtils.getPsiElementFromAttributeValue(
+                        indexService.isServiceInclude()? indexService.getServiceInclude().getVerb().getXmlAttributeValue()
+                                :indexService.getService().getVerb().getXmlAttributeValue()
+                        ).orElse(null);
                 if(tmpElement !=null) {
                     tmpStartOffset = elementTextPattern.getBeginChar().length() + serviceDescriptor.getVerbIndex();
                     tmpEndOffset = tmpStartOffset + serviceDescriptor.getVerb().length();
@@ -660,34 +753,36 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                 }
                 tmpStartOffset = elementTextPattern.getBeginChar().length() + fileNameIndex + 1;
                 tmpEndOffset = tmpStartOffset + fileName.length();
-                if(serviceOptional.get().getXmlTag() !=null)
-                    resultArray.add(new Pair<>(new TextRange(tmpStartOffset,tmpEndOffset), serviceOptional.get().getXmlTag().getContainingFile()));
 
-                //针对上级目录进行处理
-                if(fileNameIndex>0) {
-                    String path = serviceDescriptor.getClassName().substring(0,fileNameIndex);
-                    PsiDirectory psiPath = serviceOptional.get().getXmlTag().getContainingFile().getContainingDirectory();
-                    int pathDotIndex;
-                    int pathStartOffset;
-                    String tmpPath;
-                    while(!path.isEmpty()) {
-                        pathDotIndex = path.lastIndexOf(".");
-                        pathStartOffset = elementTextPattern.getBeginChar().length() + pathDotIndex + 1;
-                        if (pathDotIndex<0) {
-                            tmpPath = path;
-                            path = MyStringUtils.EMPTY_STRING;
-                        }else {
-                            tmpPath = path.substring(pathDotIndex+1);
-                            path = path.substring(0,pathDotIndex);
-                        }
+                XmlTag xmlTag = indexService.isServiceInclude()? indexService.getServiceInclude().getXmlTag(): indexService.getService().getXmlTag();
+                if(xmlTag !=null) {
+                    resultArray.add(new Pair<>(new TextRange(tmpStartOffset, tmpEndOffset), xmlTag.getContainingFile()));
 
-                        if(psiPath != null) {
-                            resultArray.add(new Pair<>(new TextRange(pathStartOffset, pathStartOffset + tmpPath.length()), psiPath));
-                            psiPath = psiPath.getParent();
+                    //针对上级目录进行处理
+                    if (fileNameIndex > 0) {
+                        String path = serviceDescriptor.getClassName().substring(0, fileNameIndex);
+                        PsiDirectory psiPath = xmlTag.getContainingFile().getContainingDirectory();
+                        int pathDotIndex;
+                        int pathStartOffset;
+                        String tmpPath;
+                        while (!path.isEmpty()) {
+                            pathDotIndex = path.lastIndexOf(".");
+                            pathStartOffset = elementTextPattern.getBeginChar().length() + pathDotIndex + 1;
+                            if (pathDotIndex < 0) {
+                                tmpPath = path;
+                                path = MyStringUtils.EMPTY_STRING;
+                            } else {
+                                tmpPath = path.substring(pathDotIndex + 1);
+                                path = path.substring(0, pathDotIndex);
+                            }
+
+                            if (psiPath != null) {
+                                resultArray.add(new Pair<>(new TextRange(pathStartOffset, pathStartOffset + tmpPath.length()), psiPath));
+                                psiPath = psiPath.getParent();
+                            }
                         }
                     }
                 }
-
 
             }
         }

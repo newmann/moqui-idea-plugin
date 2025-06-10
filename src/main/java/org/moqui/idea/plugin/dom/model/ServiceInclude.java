@@ -2,8 +2,10 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.Referencing;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.ServiceIncludeReferenceConverter;
 
 public interface ServiceInclude extends AbstractLocation {
     
@@ -16,10 +18,12 @@ public interface ServiceInclude extends AbstractLocation {
     public static final String ATTR_LOCATION = "location";
     @NotNull
     @Attribute(ATTR_VERB)
+    @Referencing(ServiceIncludeReferenceConverter.class)
     GenericAttributeValue<String> getVerb();
 
     @NotNull
     @Attribute(ATTR_NOUN)
+    @Referencing(ServiceIncludeReferenceConverter.class)
     GenericAttributeValue<String> getNoun();
 
 //    @NotNull

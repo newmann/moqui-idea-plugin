@@ -43,10 +43,10 @@ public final class ScreenUtils {
         if(file == null) return false;
         return MyDomUtils.isSpecialXmlFile(file, Screen.TAG_NAME,Screen.ATTR_NoNamespaceSchemaLocation,Screen.VALULE_NoNamespaceSchemaLocation);
     }
-    public static Icon getNagavitorToScreenIcon() {
+    public static Icon getNavigatorToScreenIcon() {
         return MyIcons.NavigateToScreen; //MyIcons.NAVIGATE_TO_SCREEN;
     }
-    public static String getNagavitorToEntityToolTips() {
+    public static String getNavigatorToEntityToolTips() {
         return "Navigating to Screen definition";
     }
 
@@ -143,11 +143,10 @@ public final class ScreenUtils {
     public static List<PsiElement> getRelatedScreenFile(@NotNull PsiElement psiElement, @NotNull String location) {
         List<PsiElement> resultList = new ArrayList<>();
         final Project project = psiElement.getProject();
-        final String componentPreStr = "component://";
         String relativePathName;
 
-        if(location.indexOf(componentPreStr)==0) {
-            relativePathName = location.substring(componentPreStr.length());
+        if(location.indexOf(ComponentUtils.COMPONENT_LOCATION_PREFIX)==0) {
+            relativePathName = location.substring(ComponentUtils.COMPONENT_LOCATION_PREFIX.length());
         } else {
             relativePathName = location;
         }
@@ -186,11 +185,11 @@ public final class ScreenUtils {
      */
     public static  Optional<DomFileElement<Screen>> getScreenFileByLocation(@NotNull Project project, @NotNull String location){
 
-        final String componentPreStr = "component://";
+
         String relativePathName;
 
-        if(location.indexOf(componentPreStr)==0) {
-            relativePathName = location.substring(componentPreStr.length());
+        if(location.indexOf(ComponentUtils.COMPONENT_LOCATION_PREFIX)==0) {
+            relativePathName = location.substring(ComponentUtils.COMPONENT_LOCATION_PREFIX.length());
         } else {
             relativePathName = location;
         }
@@ -230,16 +229,24 @@ public final class ScreenUtils {
     public static List<Section> getSectionListFromScreenFile(@NotNull DomFileElement<Screen> fileElement){
         Widgets widgets = fileElement.getRootElement().getWidgets();
         List<Section> sectionList = new ArrayList<>();
-        widgets.accept(new DomElementVisitor() {
-            @Override
-            public void visitDomElement(DomElement domElement) {
-                domElement.acceptChildren(this); //循环检查下级的DomElement
-            }
-            public void visitSection(Section section){
-                sectionList.add(section);
-            }
-        });
+
+        collectSections(widgets, sectionList);
+//        widgets.accept(new DomElementVisitor() {
+//            @Override
+//            public void visitDomElement(DomElement domElement) {
+//                domElement.acceptChildren(this); //循环检查下级的DomElement
+//            }
+//            public void visitSection(Section section){
+//                sectionList.add(section);
+//            }
+//        });
         return sectionList;
+    }
+    private static void collectSections(Widgets widgets, List<Section> result) {
+        result.addAll(widgets.getSectionList());
+        for(Section section: widgets.getSectionList()) {
+            collectSections(section.getWidgets(),result);
+        }
     }
     public static Optional<Section> getSectionFromScreenFileByName(@NotNull DomFileElement<Screen> fileElement,@NotNull String sectionName){
 
@@ -543,6 +550,21 @@ public final class ScreenUtils {
 
     }
 
+    /**
+     * 找到SubScreensItem的location对应Screen文件
+     * @param subScreensItem 待处理的SubScreensItem
+     * @return Optional<Screen>
+     */
+    public static Optional<Screen> getSubScreensItemLocationScreen(@NotNull Project project, @NotNull SubScreensItem subScreensItem) {
+
+        PsiFile parentFile = MyDomUtils.getFileFromLocation(project, MyDomUtils.getValueOrEmptyString(subScreensItem.getLocation())).orElse(null);
+        if(parentFile == null){
+            return Optional.empty();
+        }else {
+            return Optional.of(MyDomUtils.convertPsiFileToDomFile(parentFile,Screen.class).getRootElement());
+        }
+    }
+
     public static class Menu{
         private Menu parent;
         private ArrayList<Menu> children;
@@ -752,7 +774,7 @@ public final class ScreenUtils {
                 project = menu.getContainingDirectory().getProject();
             }
 
-            fileList = MyDomUtils.findPsiFilesByPath(project, path);
+            fileList = MyDomUtils.findPsiFileListByPath(project, path);
             for(PsiFile item : fileList) {
                 Menu subMenu = of(item);
                 if(subMenu!=null) {

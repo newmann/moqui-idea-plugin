@@ -25,36 +25,5 @@ public abstract class AbstractIndex {
         this.lastRefreshStamp = lastRefreshStamp;
     }
 
-//    private DomElement mainDomElement;
-
-//    public DomElement getMainDomElement() {
-//        return mainDomElement;
-//    }
-//
-//    public void setMainDomElement(DomElement mainDomElement) {
-//        this.mainDomElement = mainDomElement;
-//        this.RefreshStamp();
-//    }
-//
-//    public void RefreshStamp(){
-//        if(this.mainDomElement != null) {
-//            XmlElement xmlElement = mainDomElement.getXmlElement();
-//            if(xmlElement != null) {
-//                this.lastRefreshStamp = xmlElement.getContainingFile().getModificationStamp();
-//            }
-//        }
-//    }
-//
-//    /**
-//     * 是否需要重新刷新
-//     * @return
-//     */
-//    protected boolean shouldRefresh() {
-//        if(mainDomElement.isValid()) {return true;}
-//        XmlElement xmlElement = mainDomElement.getXmlElement();
-//        if(xmlElement == null) {return true;}
-//
-//        return lastRefreshStamp != mainDomElement.getXmlElement().getContainingFile().getModificationStamp();
-//    }
 
 }

@@ -3,6 +3,7 @@ package org.moqui.idea.plugin.service;
 import com.intellij.psi.xml.XmlElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.Service;
+import org.moqui.idea.plugin.dom.model.ServiceInclude;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
@@ -20,10 +21,35 @@ public final class IndexService extends AbstractIndex {
     private final Service service;
     private final String functionName;
 
+    private final ServiceInclude serviceInclude;
     private Map<String, IndexServiceParameter> inParameterMap = new HashMap<>();
     private Map<String, IndexServiceParameter> outParameterMap = new HashMap<>();
+    IndexService(@NotNull ServiceInclude serviceInclude,@NotNull Service includeService){
+        this.serviceInclude = serviceInclude;
+        this.service = includeService;
 
+        this.verb = MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb());
+        this.noun = MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun());
+        this.type = MyStringUtils.EMPTY_STRING;
+        XmlElement xmlElement = serviceInclude.getXmlElement();
+        if(xmlElement == null) {
+            this.className = MyStringUtils.EMPTY_STRING;
+        }else {
+            Optional<String> filePathOptional = MyDomUtils.getFilePathByPsiElement(xmlElement);
+            this.className = filePathOptional.map(s -> ServiceUtils.extractClassNameFromPath(s)
+                    .orElse(MyStringUtils.EMPTY_STRING)).orElse(MyStringUtils.EMPTY_STRING);
+        }
+        this.packageName = getPackageNameFromClassName(this.className);
+        this.functionName = this.verb + ServiceUtils.SERVICE_NAME_HASH + this.noun;
+
+        this.fullName =  this.className + ServiceUtils.SERVICE_NAME_DOT
+                +this.functionName;
+
+
+
+    }
     IndexService(@NotNull Service service){
+        this.serviceInclude = null;
         this.service =service;
         this.verb = MyDomUtils.getValueOrEmptyString(service.getVerb());
         this.noun = MyDomUtils.getValueOrEmptyString(service.getNoun());
@@ -57,6 +83,14 @@ public final class IndexService extends AbstractIndex {
         return this.className;
     }
     public String getPackageName(){return this.packageName;}
+
+    public Boolean isServiceInclude() {
+        return this.serviceInclude != null;
+    }
+
+    public ServiceInclude getServiceInclude() {
+        return serviceInclude;
+    }
 
     public String getFunctionName() {
         return functionName;
