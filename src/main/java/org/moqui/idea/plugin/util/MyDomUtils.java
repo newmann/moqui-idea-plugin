@@ -213,25 +213,6 @@ public final class MyDomUtils {
     }
 
     /**
-     * 判断当前的Tag是否为数据定义的Tag，用于EntityFacadeTagNameProvider
-     * 1、在entity-facade-xml下都是定义数据的
-     * 2、在Entity下面的seed-data部分也是定义数据的
-     * @param xmlTag
-     * @return
-     */
-    public static boolean isMoquiDataDefineTag(@NotNull XmlTag xmlTag) {
-        if (MyDomUtils.isMoquiProject(xmlTag.getProject())) {
-            Optional<String> rootNameOptional = getRootTagName(xmlTag.getContainingFile());
-            if (rootNameOptional.isPresent() && rootNameOptional.get().equals(EntityFacadeXml.TAG_NAME)) {
-                return true;
-            }else{
-                return getParentXmlTagByTagName(xmlTag,SeedData.TAG_NAME).isPresent();
-            }
-        }
-        return false;
-    }
-
-    /**
      * 按指定名称找到找到当前XmlTag的父级XmlTag
      * @param xmlTag 当前XmlTag
      * @param tagName 父级XmlTag的名称

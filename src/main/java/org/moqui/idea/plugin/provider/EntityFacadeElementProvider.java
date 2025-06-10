@@ -5,13 +5,13 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.xml.XmlElementDescriptor;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.util.EntityFacadeElementDescriptor;
-import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.EntityFacadeXmlUtils;
 
 public class EntityFacadeElementProvider implements XmlElementDescriptorProvider {
 
     @Override
     public @Nullable XmlElementDescriptor getDescriptor(XmlTag xmlTag) {
-        if(MyDomUtils.isMoquiDataDefineTag(xmlTag)){
+        if(EntityFacadeXmlUtils.isEntityFacadeDefineTag(xmlTag)){
             return EntityFacadeElementDescriptor.of(xmlTag);
         }
         return null;

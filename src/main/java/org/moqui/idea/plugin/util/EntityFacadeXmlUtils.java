@@ -2,14 +2,11 @@ package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
@@ -18,14 +15,13 @@ import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
+import org.moqui.idea.plugin.dom.model.SeedData;
 import org.moqui.idea.plugin.reference.TextTemplateReference;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 
-import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public final class EntityFacadeXmlUtils {
@@ -127,5 +123,37 @@ public final class EntityFacadeXmlUtils {
         }
         return psiReferences.toArray(new PsiReference[0]);
 
+    }
+
+    /**
+     * 判断当前的Tag是否为rootTag，
+     * EntityFacade可以在data文件中（rootTag为entity-facade-xml），
+     * 也可以在Entity定义文件中（rootTag为seed-data），
+     * @param xmlTag 当前的XmlTag
+     * @return boolean
+     */
+    public static boolean isNotEntityFacadeRootTag(@NotNull XmlTag xmlTag){
+        String tagName = xmlTag.getName();
+        return !tagName.equals(EntityFacadeXml.TAG_NAME) && !tagName.equals(SeedData.TAG_NAME);
+
+    }
+
+    /**
+     * 判断当前的Tag是否为数据定义的Tag，用于EntityFacadeTagNameProvider
+     * 1、在entity-facade-xml下都是定义数据的
+     * 2、在Entity下面的seed-data部分也是定义数据的
+     * @param xmlTag
+     * @return
+     */
+    public static boolean isEntityFacadeDefineTag(@NotNull XmlTag xmlTag) {
+//        if (MyDomUtils.isMoquiProject(xmlTag.getProject())) {
+            Optional<String> rootNameOptional = MyDomUtils.getRootTagName(xmlTag.getContainingFile());
+            if (rootNameOptional.isPresent() && rootNameOptional.get().equals(EntityFacadeXml.TAG_NAME)) {
+                return true;
+            }else{
+                return MyDomUtils.getParentXmlTagByTagName(xmlTag,SeedData.TAG_NAME).isPresent();
+            }
+//        }
+//        return false;
     }
 }

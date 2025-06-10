@@ -4,28 +4,24 @@ import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.xml.XmlTagNameProvider;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
-import org.moqui.idea.plugin.dom.model.Set;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class EntityFacadeTagNameProvider implements XmlTagNameProvider {
     @Override
     public void addTagNameVariants(List<LookupElement> list, @NotNull XmlTag xmlTag, String s) {
-        if(MyDomUtils.isMoquiDataDefineTag(xmlTag)) {
+        if(EntityFacadeXmlUtils.isEntityFacadeDefineTag(xmlTag)) {
             Project project = xmlTag.getProject();
             //添加所在Entity的reference，并且权重更高，字段也可以放到tag中，但权重较低
             List<String> relationshipEntityName = new ArrayList<>();
             XmlTag parentTag = xmlTag.getParentTag();
-            if(parentTag != null) {
+            if((parentTag != null) && EntityFacadeXmlUtils.isNotEntityFacadeRootTag(xmlTag)) {
                 IndexEntity indexEntity = EntityUtils.getIndexEntityByName(project,parentTag.getName()).orElse(null);
                 if(indexEntity != null) {
                     indexEntity.getRelationshipList().forEach(

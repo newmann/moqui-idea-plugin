@@ -108,7 +108,14 @@ public final class IndexEntity extends AbstractIndexEntity {
         return fieldList;
 
     }
+    public @NotNull List<Field> getPkFieldList(){
+        return getFieldList().stream().filter(field->MyDomUtils.getValueOrFalseBoolean(field.getIsPk())).toList();
+    }
+
     public Optional<Field> getFieldByName(@NotNull String fieldName){
+        IndexAbstractField indexAbstractField = indexAbstractFieldMap.get(fieldName);
+        if(indexAbstractField == null) return Optional.empty();
+
         return Optional.ofNullable((Field)indexAbstractFieldMap.get(fieldName).getAbstractField());
     }
 

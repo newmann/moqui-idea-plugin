@@ -3,7 +3,6 @@ package org.moqui.idea.plugin.util;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
 import org.moqui.idea.plugin.dom.model.Field;
 import org.moqui.idea.plugin.dom.model.Relationship;
 import org.moqui.idea.plugin.service.IndexEntity;
@@ -34,7 +33,7 @@ public class EntityFacadeXmlTagDescriptor {
             return;
         }
 
-        myParentTag = myCurTag.getParentTag();
+        XmlTag myParentTag = myCurTag.getParentTag();
         if(myParentTag == null){
             myIsValid = false;
             return;
@@ -45,7 +44,7 @@ public class EntityFacadeXmlTagDescriptor {
 
         myEntityName = curTagName;
 
-        if(!myParentTag.getName().equals(EntityFacadeXml.TAG_NAME)) {
+        if(EntityFacadeXmlUtils.isNotEntityFacadeRootTag(myParentTag)) {
             if (maybeShortAlias(myEntityName)) {
                 //进一步判断是否为ParentTag的relationship或字段
                 IndexEntity indexEntity = EntityUtils.getIndexEntityByName(psiElement.getProject(), myParentTag.getName()).orElse(null);
@@ -63,7 +62,6 @@ public class EntityFacadeXmlTagDescriptor {
         }
     }
     private final XmlTag myCurTag;
-    private XmlTag myParentTag;
 
     private Relationship myRelationship;
     private boolean myIsValid = true;

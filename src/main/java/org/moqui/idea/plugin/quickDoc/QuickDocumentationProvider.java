@@ -39,7 +39,7 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
 //如果是EntityFacadeXml和SeedData下的内容， 需要单独处理
         if(originalElement != null) {
             XmlTag curTag = MyDomUtils.getParentTag(originalElement).orElse(null);
-            if ((curTag != null) && MyDomUtils.isMoquiDataDefineTag(curTag)) {
+            if ((curTag != null) && EntityFacadeXmlUtils.isEntityFacadeDefineTag(curTag)) {
                 return generateEntityDoc(curTag);
             }
         }
