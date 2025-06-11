@@ -113,7 +113,7 @@
 
 
     <typedHandler implementation="org.moqui.idea.plugin.typedHandler.ServiceCallTypedHandler" id="myPlugin.ServiceCallTypedHandler"/>
-    <enterHandlerDelegate implementation="org.moqui.idea.plugin.typedHandler.MoquiEnterTypedHandler"/>
+<!-- 对操作风格有影响，暂时不处理   <enterHandlerDelegate implementation="org.moqui.idea.plugin.typedHandler.MoquiEnterTypedHandler"/>-->
 
 
 
