@@ -798,6 +798,9 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
      * 4、context + [flattenDocument:false]
      * 5、subMap + [baseWorkEffortId:child.workEffortId, parentWorkEffortId:workEffortId]
      * 6、context + [contactMechId:addressFcmList[0].contactMechId, contactMechPurposeId:'PostalPrimary']，注意[]嵌套[]
+     * 7、[returnId:returnId,
+     *                     statusId:'ReturnReceived', itemStatusIds:['ReturnReceived', 'ReturnManResp', 'ReturnCompleted', 'ReturnCancelled']]
+     *
      * @param fieldString 待处理的字符串
      * @return List<FieldDescriptor>
      */
@@ -826,13 +829,14 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                     if(inMap){
                         if(nestingCount == 0){
                             inMap = false;
+                            inField = false;
                         }else{
                             nestingCount -=1;
                         }
                     }
                 }
                 case ',' ->{
-                    if(inMap){
+                    if(inMap && nestingCount == 0){
                         fieldBeginIndex = stepIndex+1;
                         inField = true;
                     }

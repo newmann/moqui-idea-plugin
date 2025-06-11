@@ -417,15 +417,25 @@ public final class MoquiIndexService {
     }
 
     /**
-     * todo include="all",表示service的noun为entity name，包含该entity的所有字段
-     * @param autoParameters
-     * @return
+     * 根据AutoParameters的entityName属性找,如果该属性不存在，则找所属的service的noun为entity name
+     * 根据include的情况处理字段范围
+     * @param autoParameters 当前待处理的AutoParameters
+     * @return Map<String,IndexServiceParameter>
      */
     private Map<String,IndexServiceParameter> extractAutoParametersFieldMap(AutoParameters autoParameters) {
         Map<String,IndexServiceParameter> result = new HashMap<>();
         List<Field> fieldList = new ArrayList<>();
 
         String entityName = MyDomUtils.getValueOrEmptyString(autoParameters.getEntityName());
+        //如果EntityName为空，则按Service的Noun为EntityName进行处理
+        if(entityName.equals(MyStringUtils.EMPTY_STRING)) {
+            if(autoParameters.getXmlElement()==null) return result;
+            org.moqui.idea.plugin.dom.model.Service service =
+                    MyDomUtils.getLocalDomElementByPsiElement(autoParameters.getXmlElement(),
+                            org.moqui.idea.plugin.dom.model.Service.class).orElse(null);
+            if(service == null) return result;
+            entityName = MyDomUtils.getValueOrEmptyString(service.getNoun());
+        }
         Optional<IndexEntity> entity = getIndexEntityByName(entityName);
         String include = MyDomUtils.getValueOrEmptyString(autoParameters.getInclude());
 
@@ -434,17 +444,17 @@ public final class MoquiIndexService {
             switch (include) {
                 case ServiceUtils.SERVICE_AUTO_PARAMETERS_INCLUDE_NONPK-> {
                     for(Field field: fieldList){
-                        Boolean isPk = field.getIsPk().getValue();
+                        boolean isPk = MyDomUtils.getValueOrFalseBoolean(field.getIsPk());
 
-                        if ((isPk == null) || Boolean.FALSE.equals(isPk)) {
+                        if (!isPk) {
                             result.put(MyDomUtils.getValueOrEmptyString(field.getName()), new IndexServiceParameter(field));
                         }
                     }
                 }
                 case ServiceUtils.SERVICE_AUTO_PARAMETERS_INCLUDE_PK-> {
                     for(Field field: fieldList){
-                        Boolean isPk = field.getIsPk().getValue();
-                        if ((Boolean.TRUE.equals(isPk))) {
+                        boolean isPk = MyDomUtils.getValueOrFalseBoolean(field.getIsPk());
+                        if (isPk) {
                             result.put(MyDomUtils.getValueOrEmptyString(field.getName()), new IndexServiceParameter(field));
                         }
                     }
