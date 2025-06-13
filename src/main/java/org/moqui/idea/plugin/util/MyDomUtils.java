@@ -8,6 +8,7 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
@@ -17,6 +18,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.*;
 import com.intellij.util.xml.*;
@@ -74,7 +76,15 @@ public final class MyDomUtils {
 
         return ApplicationManager.getApplication().runReadAction((Computable<List<DomFileElement<T>>>) ()->{
             GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-            return DomService.getInstance().getFileElements(rootClazz,project,scope);
+//            GlobalSearchScope scope = GlobalSearchScope.projectScope(project);//仅搜索当前项目的源码文件（不包括依赖库）
+            try {
+                return DomService.getInstance().getFileElements(rootClazz, project, scope);
+            } catch (Exception e) {
+                // 处理可能发生的异常
+                LOGGER.error(e.getMessage(),e);
+//                e.printStackTrace();
+                return new ArrayList<>();
+            }
         });
 
 
@@ -182,7 +192,8 @@ public final class MyDomUtils {
         if(file instanceof XmlFile xmlFile) {
             VirtualFile virtualFile = xmlFile.getVirtualFile();
             if(virtualFile != null && virtualFile.isInLocalFileSystem()) { //判断文件是否已经加载
-                XmlTag rootTag = ReadAction.compute(xmlFile::getRootTag);
+//                XmlTag rootTag = ReadAction.compute(xmlFile::getRootTag);
+                XmlTag rootTag = xmlFile.getRootTag();
                 if (rootTag == null) return false;
                 if(attributeName == null) {
                     return rootTagName.equals(rootTag.getName());
@@ -806,3 +817,4 @@ public final class MyDomUtils {
     }
 
 }
+

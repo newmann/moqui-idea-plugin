@@ -1,5 +1,7 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
@@ -21,6 +23,7 @@ import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.MyBundle;
+import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.reference.ServiceCallReference;
@@ -233,6 +236,13 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         return Optional.of(classStr);
 
     }
+    public static Optional<String> extractClassNameByPsiElement(@Nullable PsiElement psiElement) {
+        if(psiElement == null) {
+            return Optional.empty();
+        }else {
+            return MyDomUtils.getFilePathByPsiElement(psiElement).flatMap(ServiceUtils::extractClassNameFromPath);
+        }
+    }
     public static Optional<String> extractPackageNameFromPath(@NotNull String path){
         Optional<String> optClassName = extractClassNameFromPath(path);
         return optClassName.map(className->{
@@ -248,12 +258,13 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
     /**
      * 返回所有服务的类名称，即不包含标准名称的verb#noun部分
      * @param project 当前项目
-     * @return Set<String>
+    *  @param filterStr 查找条件字符串
+     * @return  HashMap<String,Services> String就是Services对应的类名，Services是对应的定义
      */
-    public static @NotNull Set<String> getServiceClassNameSet(@NotNull Project project, @Nullable String filterStr){
+    public static @NotNull HashMap<String,Services> getServiceClassNameMap(@NotNull Project project, @Nullable String filterStr){
         List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
 
-        Set<String> classNameSet = new HashSet<>();
+        HashMap<String,Services> classNameMap = new HashMap<>();
         for(DomFileElement<Services> item: fileElementList){
             VirtualFile virtualFile = item.getFile().getVirtualFile();
             if (virtualFile == null) continue;
@@ -262,14 +273,13 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
             String className = extractClassNameFromPath(path).orElse(null);
             if (className == null) continue;
 
-            if (filterStr == null || filterStr.isEmpty()) {
-                classNameSet.add(className);
-            } else if (className.contains(filterStr)) {
-                classNameSet.add(className);
+            if (filterStr == null || filterStr.isEmpty() || className.contains(filterStr) ) {
+                classNameMap.put(className,item.getRootElement());
             }
         };
-        return  Collections.unmodifiableSet(classNameSet);
+        return  classNameMap;
     }
+
     /**
      * 返回所有可用于Interface的全名称，不仅仅type为interface的，也包括其他类型的service
      * @param project 当前Project
@@ -353,7 +363,55 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
         return serviceNameSet;
     }
+    public static @NotNull List<String> getServiceActionList(@NotNull Services services) {
+        List<String> serviceNameSet = new ArrayList<>();
 
+//        String className =extractClassNameByPsiElement(services.getXmlTag()).orElse(MyStringUtils.EMPTY_STRING);
+//        if(MyStringUtils.isNotEmpty(className)) {
+
+            for (Service service : services.getServiceList()) {
+                if (isService(service)) {
+                    serviceNameSet.add(
+//                            className + "." +
+                                    (MyDomUtils.getValueOrEmptyString(service.getNoun()).isEmpty() ?
+                                    MyDomUtils.getValueOrEmptyString(service.getVerb())
+                                    :
+                                    MyDomUtils.getValueOrEmptyString(service.getVerb())
+                                            + SERVICE_NAME_HASH
+                                            + MyDomUtils.getValueOrEmptyString(service.getNoun()))
+                    );
+                }
+            }
+            for (ServiceInclude serviceInclude : services.getServiceIncludeList()) {
+                serviceNameSet.add(
+//                        className + "." +
+                                (MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun()).isEmpty() ?
+                                MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
+                                :
+                                MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
+                                        + SERVICE_NAME_HASH
+                                        + MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun()))
+                );
+            }
+//        }
+        return serviceNameSet;
+    }
+    public static @NotNull List<String> getServiceActionNounList(@NotNull Services services,@NotNull String verb) {
+        List<String> serviceNameSet = new ArrayList<>();
+
+        for (Service service : services.getServiceList()) {
+            if (isService(service) && MyDomUtils.getValueOrEmptyString(service.getVerb()).equals(verb)) {
+                serviceNameSet.add(MyDomUtils.getValueOrEmptyString(service.getNoun()));
+            }
+        }
+        for (ServiceInclude serviceInclude : services.getServiceIncludeList()) {
+            if(MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb()).equals(verb)) {
+                serviceNameSet.add(MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun()));
+            }
+        }
+
+        return serviceNameSet;
+    }
     /**
      * 从Service对应的DomElement中拼接出完整名称服务名称
      * 统一的名称格式是：｛classPackage｝.{verb}#{noun}

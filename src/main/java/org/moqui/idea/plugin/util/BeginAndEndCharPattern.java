@@ -7,6 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 import static org.moqui.idea.plugin.util.MyStringUtils.EMPTY_STRING;
 
+/**
+ * 将字符串开始的"、\、<等字符和结尾的"、\等字符去掉，获取中间的字符内容
+ */
 public class BeginAndEndCharPattern {
     public static BeginAndEndCharPattern of(@NotNull String checkString){
         return new BeginAndEndCharPattern(checkString);
