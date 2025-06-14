@@ -295,9 +295,9 @@ public final class MyStringUtils {
      * 如果配字符串为 aaa.bbb,则返回ccc
      * 如果匹配字符串为aaa.bbb.cc,则返回空
      * 如果匹配字符串为aaa，则返回bbb.ccc
-     * @param targetStr
-     * @param filterStr
-     * @return
+     * @param targetStr 待处理的字符串
+     * @param filterStr 匹配字符串
+     * @return Optional<String>
      */
     public static Optional<String> filterClassStyleString(@NotNull String targetStr, @NotNull String filterStr){
         int filterLength = filterStr.length();

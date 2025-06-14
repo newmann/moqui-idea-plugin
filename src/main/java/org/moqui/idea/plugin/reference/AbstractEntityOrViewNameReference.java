@@ -31,7 +31,7 @@ public class AbstractEntityOrViewNameReference extends MoquiBaseReference {
       return new AbstractEntityOrViewNameReference(element, text,EntityScope.ENTITY_AND_VIEW,resolve);
   }
 
-  private final Logger LOG = Logger.getInstance(AbstractEntityOrViewNameReference.class);
+//  private final Logger LOGGER = Logger.getInstance(AbstractEntityOrViewNameReference.class);
 
     private final EntityScope entityScope;
 
@@ -83,14 +83,12 @@ public class AbstractEntityOrViewNameReference extends MoquiBaseReference {
             .filter(item -> item.startsWith(filter))
 //            .map(item->(filter.isEmpty()) ? item: item.substring(filter.length()+1))
             .forEach(
-              item -> {
-                  MyStringUtils.filterClassStyleString(item, filter).ifPresent(
-                        newItem -> variants.add(
-                          LookupElementBuilder.create(newItem).withIcon(icon)
-                          .withCaseSensitivity(true)
-                          .withInsertHandler(ClearTailInsertHandler.of())
-                        ));
-              }
+              item -> MyStringUtils.filterClassStyleString(item, filter).ifPresent(
+                    newItem -> variants.add(
+                      LookupElementBuilder.create(newItem).withIcon(icon)
+                      .withCaseSensitivity(true)
+                      .withInsertHandler(ClearTailInsertHandler.of())
+                    ))
             );
   }
 

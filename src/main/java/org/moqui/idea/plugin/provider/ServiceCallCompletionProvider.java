@@ -3,7 +3,6 @@ package org.moqui.idea.plugin.provider;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -20,10 +19,10 @@ import org.moqui.idea.plugin.insertHandler.AutoShowByCharInsertHandler;
 import org.moqui.idea.plugin.insertHandler.ClearTailInsertHandler;
 import org.moqui.idea.plugin.util.*;
 
-import java.util.*;
+import java.util.HashMap;
 
 public class ServiceCallCompletionProvider extends CompletionProvider<CompletionParameters> {
-    private final  static Logger LOGGER = Logger.getInstance(ServiceCallCompletionProvider.class);
+//    private final  static Logger LOGGER = Logger.getInstance(ServiceCallCompletionProvider.class);
     public static ServiceCallCompletionProvider of(){
         return new ServiceCallCompletionProvider() ;
     }
@@ -141,15 +140,12 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
 //                        }
 //
                         MyStringUtils.filterClassStyleString(item,filterPackageName).ifPresent(
-                                newItem ->{
-                                    result.addElement(LookupElementBuilder.create(newItem)
-                                            .withCaseSensitivity(true)
-                                            .withIcon(MyIcons.EntityTag)
-                                            .withInsertHandler(ClearTailInsertHandler.of())
+                                newItem -> result.addElement(LookupElementBuilder.create(newItem)
+                                        .withCaseSensitivity(true)
+                                        .withIcon(MyIcons.EntityTag)
+                                        .withInsertHandler(ClearTailInsertHandler.of())
 
-                                    );
-
-                                }
+                                )
                         );
                     }else {
                         result.addElement(LookupElementBuilder.create(crudString+item)
@@ -189,22 +185,6 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
                     });
         }
     }
-    private static void addServiceCallVerbNounLookupElement(@NotNull Project project, @NotNull String filterClassName, @NotNull CompletionResultSet result){
-        HashMap<String, Services> servicesMap = ServiceUtils.getServiceClassNameMap(project, filterClassName);
-        if (servicesMap.size()==1) {
-            //当前className是个完整的名称，则取该class下的所有服务
-            ServiceUtils.getServiceActionList(servicesMap.get(filterClassName))
-                    .forEach((item)-> {
-                        result.addElement(
-                                LookupElementBuilder.create(item)
-                                        .withCaseSensitivity(true)
-                                        .withIcon(MyIcons.ServiceTag)
-                                        .withInsertHandler(ClearTailInsertHandler.of())
-                        );
-                    });
-        }
-    }
-
 
     private static void addServiceCallLookupElement(@NotNull Project project, @NotNull String filterClassName,boolean inputAtEnd,@NotNull CompletionResultSet result){
         HashMap<String, Services> servicesMap = ServiceUtils.getServiceClassNameMap(project, filterClassName);
@@ -254,14 +234,12 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
 //                                );
 //                            }
                             MyStringUtils.filterClassStyleString(item,filterClassName).ifPresent(
-                                    newItem->{
-                                        result.addElement(
-                                                LookupElementBuilder.create(newItem)
-                                                        .withCaseSensitivity(true)
-                                                        .withIcon(MyIcons.ServiceTag)
-                                                        .withInsertHandler(AutoShowByCharInsertHandler.ofDot())
-                                        );
-                                    }
+                                    newItem-> result.addElement(
+                                            LookupElementBuilder.create(newItem)
+                                                    .withCaseSensitivity(true)
+                                                    .withIcon(MyIcons.ServiceTag)
+                                                    .withInsertHandler(AutoShowByCharInsertHandler.ofDot())
+                                    )
                             );
 
                         }else {
@@ -279,13 +257,11 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
     }
     private static void addStandardCrudLookupElement(@NotNull CompletionResultSet result){
 
-        ServiceUtils.STANDARD_CRUD_COMMANDER.forEach( item->{
-            result.addElement(LookupElementBuilder.create(item)
-                    .withCaseSensitivity(false)
-                    .withTypeText("Entity CRUD")
-                    .withInsertHandler(AutoShowByCharInsertHandler.ofHash())
-            );
-        });
+        ServiceUtils.STANDARD_CRUD_COMMANDER.forEach( item-> result.addElement(LookupElementBuilder.create(item)
+                .withCaseSensitivity(false)
+                .withTypeText("Entity CRUD")
+                .withInsertHandler(AutoShowByCharInsertHandler.ofHash())
+        ));
 
     }
 //    public abstract List<LookupElementBuilder> findCompletionItem(@NotNull PsiElement psiElement);

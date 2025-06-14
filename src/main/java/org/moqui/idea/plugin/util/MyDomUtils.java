@@ -8,7 +8,6 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
@@ -19,7 +18,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.*;
 import com.intellij.util.xml.*;
@@ -54,7 +52,7 @@ public final class MyDomUtils {
     ));
 
 
-    private static Logger LOGGER = Logger.getInstance(MyDomUtils.class);
+    private static final Logger LOGGER = Logger.getInstance(MyDomUtils.class);
 
     private MyDomUtils() {
         throw new UnsupportedOperationException();
