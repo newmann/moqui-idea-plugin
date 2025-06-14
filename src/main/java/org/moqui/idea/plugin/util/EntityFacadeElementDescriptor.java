@@ -98,8 +98,9 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
      * 获取父级实体中不需要再输入的字段，
      * 1、如果relationship中有定义，则根据定义获取过滤的字段名称，
      * 2、如果relationship中没有定义，则取当前实体的PK
-     * @param xmlTag
-     * @return
+     * 3、如果不是relationship则直接取父实体的PK
+     * @param xmlTag 待处理的实体
+     * @return  List<String> 待处理实体可以不用输入的字符列表
      */
     private List<String> getTagParentsEntityPKList(@NotNull XmlTag xmlTag){
         List<String> resultList = new ArrayList<>();
@@ -108,11 +109,12 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
         XmlTag parentTag = xmlTag.getParentTag();
 
         EntityFacadeXmlTagDescriptor curTagDescriptor = EntityFacadeXmlTagDescriptor.of(xmlTag);
+
         IndexEntity curIndexEntity = EntityUtils.getIndexEntityByName(project,curTagDescriptor.getEntityName()).orElse(null);
         if(curIndexEntity == null) return resultList;
 
         while(parentTag!= null && EntityFacadeXmlUtils.isNotEntityFacadeRootTag(parentTag)){
-            EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(parentTag);
+            EntityFacadeXmlTagDescriptor  parentTagDescriptor = EntityFacadeXmlTagDescriptor.of(parentTag);
 //            EntityUtils.getIndexEntityByName(project, descriptor.getEntityName())
 //                    .ifPresent(indexEntity -> indexEntity.getFieldList()
 //                            .stream()
@@ -120,27 +122,41 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
 //                            .forEach(
 //                            field -> resultList.add(MyDomUtils.getValueOrEmptyString(field.getName())))
 //                    );
-            IndexEntity indexEntity = EntityUtils.getIndexEntityByName(project,descriptor.getEntityName()).orElse(null);
-            if(indexEntity == null) break;
-            Relationship relationship = indexEntity.getRelationshipByName(curTagDescriptor.getTagName()).orElse(null);
+            IndexEntity parentIndexEntity = EntityUtils.getIndexEntityByName(project,parentTagDescriptor.getEntityName()).orElse(null);
+            if(parentIndexEntity == null) break;
+            Relationship relationship = parentIndexEntity.getRelationshipByName(curTagDescriptor.getTagName()).orElse(null);
 
-            if(relationship!= null) {
-                for(KeyMap keyMap:relationship.getKeyMapList()) {
-                    String relatedFieldName = MyDomUtils.getValueOrEmptyString(keyMap.getRelated());
+            if(relationship== null) {
+                for(Field pkField: parentIndexEntity.getPkFieldList()) {
+                    resultList.add(MyDomUtils.getValueOrEmptyString(pkField.getName()));
+                }
 
-                    if(relatedFieldName.equals(MyStringUtils.EMPTY_STRING)) {
-                        if(curIndexEntity.getPkFieldList().size()==1) {
-                            resultList.add(MyDomUtils.getValueOrEmptyString(curIndexEntity.getPkFieldList().get(0).getName()));
-                        }else {
-                            resultList.add(MyDomUtils.getValueOrEmptyString(keyMap.getFieldName()));//这个时候，keyMap的fieldName和PK一样
+            }else{
+                if(relationship.getKeyMapList().isEmpty()) {
+                    //没有配置KeyMap，就是表示当前表的pk和主表中的字段名一样。
+                    for(Field pkField: curIndexEntity.getPkFieldList()) {
+                        resultList.add(MyDomUtils.getValueOrEmptyString(pkField.getName()));
+                    }
+
+                }else {
+                    for (KeyMap keyMap : relationship.getKeyMapList()) {
+                        String relatedFieldName = MyDomUtils.getValueOrEmptyString(keyMap.getRelated());
+
+                        if (relatedFieldName.equals(MyStringUtils.EMPTY_STRING)) {
+                            if (curIndexEntity.getPkFieldList().size() == 1) {
+                                resultList.add(MyDomUtils.getValueOrEmptyString(curIndexEntity.getPkFieldList().get(0).getName()));
+                            } else {
+                                resultList.add(MyDomUtils.getValueOrEmptyString(keyMap.getFieldName()));//这个时候，keyMap的fieldName和PK一样
+                            }
+                        } else {
+                            resultList.add(relatedFieldName);
                         }
-                    }else {
-                        resultList.add(relatedFieldName);
                     }
                 }
             }
 
-            curIndexEntity = indexEntity;//每一层考虑本层的对应关系
+            curIndexEntity = parentIndexEntity;//每一层考虑本层的对应关系
+            curTagDescriptor = parentTagDescriptor;
             parentTag = parentTag.getParentTag();
         }
         return resultList;
