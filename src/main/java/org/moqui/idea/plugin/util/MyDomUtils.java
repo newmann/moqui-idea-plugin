@@ -9,6 +9,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileTypes.StdFileTypes;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
@@ -79,7 +80,9 @@ public final class MyDomUtils {
 //            GlobalSearchScope scope = GlobalSearchScope.projectScope(project);//仅搜索当前项目的源码文件（不包括依赖库）
             try {
                 return DomService.getInstance().getFileElements(rootClazz, project, scope);
-            } catch (Exception e) {
+            }catch (ProcessCanceledException e) {
+                throw e;
+            }catch (Exception e) {
                 // 处理可能发生的异常
                 LOGGER.error(e.getMessage(),e);
 //                e.printStackTrace();

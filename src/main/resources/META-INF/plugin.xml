@@ -122,6 +122,8 @@
 
       <completion.contributor language="XML"
                               implementationClass="org.moqui.idea.plugin.contributor.MoquiAttributeCompletionContributor"/>
+      <completion.contributor language="Groovy"
+                              implementationClass="org.moqui.idea.plugin.contributor.GroovyCodeCompletionContributor"/>
 
       <xml.tagNameProvider id="EntityFacadeTagNameProvider" implementation="org.moqui.idea.plugin.provider.EntityFacadeTagNameProvider"/>
       <xml.elementDescriptorProvider implementation="org.moqui.idea.plugin.provider.EntityFacadeElementProvider"/>

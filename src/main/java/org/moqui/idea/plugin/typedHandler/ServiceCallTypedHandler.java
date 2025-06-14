@@ -20,6 +20,11 @@ public class ServiceCallTypedHandler extends TypedHandlerDelegate {
     public Result charTyped(char c, @NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
         LOGGER.warn("In ServiceCallTypedHandler, input char"+ c);
 
+//        if(c == '.') {
+//            LOGGER.warn("In ServiceCallTypedHandler, begin autoPopupMemberLookup");
+//            AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
+//            return Result.STOP;
+//        }
         if(!MyDomUtils.isMoquiXmlFile(file)) return Result.CONTINUE;
         final PsiElement at = file.findElementAt(editor.getCaretModel().getOffset()-1);
 //        if (at == null || !(at.getParent() instanceof XmlTag)) {
@@ -36,7 +41,7 @@ public class ServiceCallTypedHandler extends TypedHandlerDelegate {
 //
 //                }
                 case '#' -> {
-                    LOGGER.warn("In ServiceCallTypedHandler, begin autoPopupMemberLookup");
+//                    LOGGER.warn("In ServiceCallTypedHandler, begin autoPopupMemberLookup");
                     AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
                     return Result.STOP;
 
@@ -62,7 +67,6 @@ public class ServiceCallTypedHandler extends TypedHandlerDelegate {
             }
         }
         return Result.CONTINUE;
-
     }
 
 }

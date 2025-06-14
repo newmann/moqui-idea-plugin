@@ -9,6 +9,7 @@ import org.moqui.util.MNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -286,5 +287,28 @@ public final class MyStringUtils {
 
     public static String normalizeDescription(@NotNull String str){
         return str.replaceAll("(\\r?\\n)\\s+", "$1").replaceAll(" {2,}", " ");
+    }
+
+    /**
+     * 按class类名模式过滤字符串，比如，目标字符串为aaa.bbb.ccc
+     * 如果匹配字符串为空，则返回aaa.bbb.ccc
+     * 如果配字符串为 aaa.bbb,则返回ccc
+     * 如果匹配字符串为aaa.bbb.cc,则返回空
+     * 如果匹配字符串为aaa，则返回bbb.ccc
+     * @param targetStr
+     * @param filterStr
+     * @return
+     */
+    public static Optional<String> filterClassStyleString(@NotNull String targetStr, @NotNull String filterStr){
+        int filterLength = filterStr.length();
+        if(filterLength == 0) {
+            return Optional.of(targetStr);
+        }else {
+            if (filterLength + 1 < targetStr.length())
+                if (targetStr.charAt(filterLength) == '.') //必须是完整的名称
+                    return  Optional.of(targetStr.substring(filterLength + 1));
+        }
+
+        return Optional.empty();
     }
 }

@@ -10,10 +10,8 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.util.BeginAndEndCharPattern;
-import org.moqui.idea.plugin.util.EntityScope;
-import org.moqui.idea.plugin.util.EntityUtils;
-import org.moqui.idea.plugin.util.MyStringUtils;
+import org.moqui.idea.plugin.insertHandler.ClearTailInsertHandler;
+import org.moqui.idea.plugin.util.*;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -81,16 +79,19 @@ public class AbstractEntityOrViewNameReference extends MoquiBaseReference {
 
   }
   private void processCollection(Collection<String> names, List<LookupElement> variants,String filter, Icon icon){
-    names.stream().filter(item-> filter.isEmpty() || item.startsWith(filter))
-            .map(item->filter.isEmpty() ? item: item.substring(filter.length()+1))
+    names.stream().filter(item-> item.length() > filter.length())
+            .filter(item -> item.startsWith(filter))
+//            .map(item->(filter.isEmpty()) ? item: item.substring(filter.length()+1))
             .forEach(
-            item -> {variants.add(LookupElementBuilder
-                        .create(item).withIcon(icon)
-                        .withCaseSensitivity(true)
-                );
-            }
-    );
-
+              item -> {
+                  MyStringUtils.filterClassStyleString(item, filter).ifPresent(
+                        newItem -> variants.add(
+                          LookupElementBuilder.create(newItem).withIcon(icon)
+                          .withCaseSensitivity(true)
+                          .withInsertHandler(ClearTailInsertHandler.of())
+                        ));
+              }
+            );
   }
 
 //  @Override
