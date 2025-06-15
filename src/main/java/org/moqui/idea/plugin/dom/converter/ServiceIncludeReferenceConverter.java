@@ -1,23 +1,17 @@
 package org.moqui.idea.plugin.dom.converter;
 
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttribute;
-import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
-import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.GenericDomValue;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.dom.model.Service;
+import org.moqui.idea.plugin.dom.model.ServiceInclude;
 import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.MyStringUtils;
-import org.moqui.idea.plugin.util.ScreenUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
-
-import java.util.Optional;
 
 /**
  * 处理ServiceInclude的verb和nonu的reference问题

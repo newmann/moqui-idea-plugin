@@ -5,10 +5,7 @@ import com.intellij.openapi.util.NlsSafe;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.xml.XmlAttributeDescriptor;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.Field;
 
 public class EntityFacadeLastUpdatedStampFieldAttributeDescriptor implements XmlAttributeDescriptor {
     public static EntityFacadeLastUpdatedStampFieldAttributeDescriptor of(){
@@ -47,7 +44,7 @@ public class EntityFacadeLastUpdatedStampFieldAttributeDescriptor implements Xml
     }
 
     @Override
-    public @NlsSafe String getName() {
+    public String getName() {
         return EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP;
     }
 

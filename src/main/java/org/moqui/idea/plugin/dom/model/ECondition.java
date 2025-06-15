@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.*;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityFieldNameReferenceConverter;
 import org.moqui.idea.plugin.dom.converter.ViewEntityAliasConverter;
@@ -20,6 +19,7 @@ public interface ECondition extends DomElement {
 
     public static final String ATTR_TO_FIELD_NAME = "to-field-name";
     public static final String ATTR_VALUE = "value";
+    public static final String ATTR_FROM = "from";
 
     public static final String ATTR_IGNORE_CASE = "ignore-case";
 
@@ -58,7 +58,9 @@ public interface ECondition extends DomElement {
     @Attribute(ATTR_OR_NULL)
     GenericAttributeValue<Boolean> getOrNull();
 
-    @NotNull GenericAttributeValue<String> getFrom();
+    @NotNull
+    @Attribute(ATTR_FROM)
+    GenericAttributeValue<String> getFrom();
     @NotNull GenericAttributeValue<Boolean> getIgnoreIfEmpty();
     @NotNull GenericAttributeValue<String> getIgnore();
 

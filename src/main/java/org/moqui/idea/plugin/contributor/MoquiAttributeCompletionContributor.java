@@ -21,6 +21,7 @@ public class MoquiAttributeCompletionContributor extends CompletionContributor {
     extend(CompletionType.BASIC, SubScreensDefaultItemCompletionProvider.SUB_SCREENS_DEFAULT_ITEM_PATTERN, SubScreensDefaultItemCompletionProvider.of());
     extend(CompletionType.BASIC,ServiceCallCompletionProvider.SERVICE_CALL_PATTERN,ServiceCallCompletionProvider.of());
 
+//    extend(CompletionType.BASIC, VariableCompletionProvider.VARIABLE_PATTERN,VariableCompletionProvider.of());
   }
 
 }

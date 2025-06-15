@@ -3,7 +3,6 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.SubTagList;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.ServicesPresentationProvider;
 

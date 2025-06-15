@@ -2,8 +2,8 @@ package org.moqui.idea.plugin.dom.presentation;
 
 import com.intellij.ide.presentation.PresentationProvider;
 import com.intellij.openapi.util.text.StringUtil;
-import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.Field;
 import org.moqui.idea.plugin.util.MyStringUtils;
 

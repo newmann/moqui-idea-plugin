@@ -4,7 +4,6 @@ import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.Parameter;
-import org.moqui.idea.plugin.util.MyDomUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;

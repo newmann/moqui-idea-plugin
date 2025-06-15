@@ -3,9 +3,9 @@ package org.moqui.idea.plugin.dom.description;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomFileDescription;
-import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.Eecas;
 import org.moqui.idea.plugin.util.EecaUtils;
 

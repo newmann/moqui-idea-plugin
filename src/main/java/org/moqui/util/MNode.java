@@ -149,16 +149,14 @@ public class MNode implements TemplateNodeModel, TemplateSequenceModel, Template
     public MNode(Node node) {
         nodeName = (String) node.name();
         Set attrEntries = node.attributes().entrySet();
-        for (Object entryObj : attrEntries) if (entryObj instanceof Map.Entry) {
-            Map.Entry entry = (Map.Entry) entryObj;
+        for (Object entryObj : attrEntries) if (entryObj instanceof Map.Entry entry) {
             if (entry.getKey() != null)
                 attributeMap.put(entry.getKey().toString(), entry.getValue() != null ? entry.getValue().toString() : null);
         }
         for (Object childObj : node.children()) {
             if (childObj instanceof Node) {
                 append((Node) childObj);
-            } else if (childObj instanceof NodeList) {
-                NodeList nl = (NodeList) childObj;
+            } else if (childObj instanceof NodeList nl) {
                 for (Object nlEntry : nl) {
                     if (nlEntry instanceof Node) {
                         append((Node) nlEntry);
@@ -243,8 +241,7 @@ public class MNode implements TemplateNodeModel, TemplateSequenceModel, Template
 
         curList = new ArrayList<>();
         int childListSize = childList.size();
-        for (int i = 0; i < childListSize; i++) {
-            MNode curChild = childList.get(i);
+        for (MNode curChild : childList) {
             if (name.equals(curChild.nodeName)) curList.add(curChild);
         }
         childrenByName.put(name, curList);
@@ -256,12 +253,11 @@ public class MNode implements TemplateNodeModel, TemplateSequenceModel, Template
         ArrayList<MNode> fullList = children(name);
         ArrayList<MNode> filteredList = new ArrayList<>();
         int fullListSize = fullList.size();
-        for (int i = 0; i < fullListSize; i++) {
-            MNode node = fullList.get(i);
+        for (MNode node : fullList) {
             boolean allEqual = true;
             for (int j = 0; j < attrNvLength; j += 2) {
                 String attrValue = node.attribute(attrNamesValues[j]);
-                String argValue = attrNamesValues[j+1];
+                String argValue = attrNamesValues[j + 1];
                 if (attrValue == null) {
                     if (argValue != null) {
                         allEqual = false;
@@ -281,9 +277,8 @@ public class MNode implements TemplateNodeModel, TemplateSequenceModel, Template
     public ArrayList<MNode> children(Closure<Boolean> condition) {
         ArrayList<MNode> curList = new ArrayList<>();
         if (childList == null) return curList;
-        int childListSize = childList.size();
-        for (int i = 0; i < childListSize; i++) {
-            MNode curChild = childList.get(i);
+//        int childListSize = childList.size();
+        for (MNode curChild : childList) {
             if (condition == null || condition.call(curChild)) curList.add(curChild);
         }
         return curList;
@@ -293,7 +288,7 @@ public class MNode implements TemplateNodeModel, TemplateSequenceModel, Template
         if (name == null) return false;
         if (childrenByName != null) {
             ArrayList<MNode> curList = childrenByName.get(name);
-            if (curList != null && curList.size() > 0) return true;
+            if (curList != null && !curList.isEmpty()) return true;
         }
 
         int childListSize = childList.size();
@@ -771,7 +766,8 @@ public class MNode implements TemplateNodeModel, TemplateSequenceModel, Template
         return sb.toString();
     }
     public void addToSb(StringBuilder sb, int level) {
-        for (int i = 0; i < level; i++) sb.append("    ");
+//        for (int i = 0; i < level; i++) sb.append("    ");
+        sb.append("    ".repeat(level));
         sb.append('<').append(nodeName);
         for (Map.Entry<String, String> entry : attributeMap.entrySet())
             sb.append(' ').append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");
@@ -785,7 +781,8 @@ public class MNode implements TemplateNodeModel, TemplateSequenceModel, Template
                 }
                 if (childList.size() > 1) {
                     sb.append("\n");
-                    for (int i = 0; i < level; i++) sb.append("    ");
+//                    for (int i = 0; i < level; i++) sb.append("    ");
+                    sb.append("    ".repeat(level));
                 }
             }
             sb.append("</").append(nodeName).append('>');
@@ -799,9 +796,8 @@ public class MNode implements TemplateNodeModel, TemplateSequenceModel, Template
         Node theNode = null;
         if (nodeObj instanceof Node) {
             theNode = (Node) nodeObj;
-        } else if (nodeObj instanceof NodeList) {
-            NodeList nl = (NodeList) nodeObj;
-            if (nl.size() > 0) theNode = (Node) nl.get(0);
+        } else if (nodeObj instanceof NodeList nl) {
+            if (!nl.isEmpty()) theNode = (Node) nl.get(0);
         }
         if (theNode == null) return "";
         List<String> textList = theNode.localText();

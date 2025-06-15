@@ -2,8 +2,8 @@ package org.moqui.idea.plugin.dom.presentation;
 
 import com.intellij.ide.presentation.PresentationProvider;
 import com.intellij.openapi.util.text.StringUtil;
-import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.Service;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
@@ -15,23 +15,23 @@ public class ServicePresentationProvider extends PresentationProvider<Service> {
   public @Nullable Icon getIcon(Service service) {
 
     if(service.getType().exists()) {
-      switch(service.getType().getStringValue()) {
-        case "entity-auto":
-          return MyIcons.ServiceTypeEntityAuto;
-        case "script":
-          return MyIcons.ServiceTypeScript;
-        case "java":
-          return MyIcons.ServiceTypeJava;
-        case "interface":
-          return MyIcons.ServiceTypeInterface;
-        case "remote-json-rpc":
-          return MyIcons.ServiceTypeRemoteJsonRpc;
-        case "remote-rest":
-          return MyIcons.ServiceTypeRemoteRest;
-        case "camel":
-          return MyIcons.ServiceTypeCamel;
-        default:
-          return MyIcons.ServiceTypeInline;
+      switch(MyDomUtils.getValueOrEmptyString(service.getType())) {
+        case "entity-auto"->{return MyIcons.ServiceTypeEntityAuto;}
+
+        case "script"->{return MyIcons.ServiceTypeScript;}
+
+        case "java"->{return MyIcons.ServiceTypeJava;}
+
+        case "interface"->{return MyIcons.ServiceTypeInterface;}
+
+        case "remote-json-rpc"->{return MyIcons.ServiceTypeRemoteJsonRpc;}
+
+        case "remote-rest"->{return MyIcons.ServiceTypeRemoteRest;}
+
+        case "camel"->{return MyIcons.ServiceTypeCamel;}
+
+        default->{return MyIcons.ServiceTypeInline;}
+
       }
     }else {
       return MyIcons.ServiceTypeInline;

@@ -4,7 +4,6 @@ import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.NameValue;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.presentation.SectionPresentationProvider;
 

@@ -11,7 +11,6 @@ import org.moqui.idea.plugin.dom.model.MoquiConf;
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.SubScreensItem;
 import org.moqui.idea.plugin.service.IndexRootSubScreensItem;
-import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 
 import java.util.ArrayList;

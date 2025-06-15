@@ -9,7 +9,6 @@ import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.FormList;
 import org.moqui.idea.plugin.dom.model.FormSingle;
-import org.moqui.idea.plugin.dom.model.SubScreens;
 import org.moqui.idea.plugin.dom.model.WidgetTemplateInclude;
 import org.moqui.idea.plugin.util.LocationUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;

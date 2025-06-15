@@ -5,10 +5,7 @@ import com.intellij.openapi.util.NlsSafe;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.xml.XmlAttributeDescriptor;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.Field;
 
 public class EntityFacadeXmlTypeAttributeDescriptor implements XmlAttributeDescriptor {
     public static EntityFacadeXmlTypeAttributeDescriptor of(){
@@ -46,7 +43,7 @@ public class EntityFacadeXmlTypeAttributeDescriptor implements XmlAttributeDescr
     }
 
     @Override
-    public @NlsSafe String getName() {
+    public String getName() {
         return "type";
     }
 

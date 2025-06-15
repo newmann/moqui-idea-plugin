@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.dom.presentation;
 
 import com.intellij.ide.presentation.PresentationProvider;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Alias;
 import org.moqui.idea.plugin.util.MyDomUtils;

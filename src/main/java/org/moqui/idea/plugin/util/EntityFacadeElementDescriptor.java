@@ -208,7 +208,7 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
     }
 
     @Override
-    public @NlsSafe String getName() {
+    public String getName() {
         return myXmlTag.getName();
     }
 

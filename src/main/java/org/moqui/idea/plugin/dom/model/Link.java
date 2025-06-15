@@ -5,7 +5,6 @@ import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.EntityAndViewNameReferenceConverter;
 import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
-import org.moqui.idea.plugin.dom.converter.UrlConverter;
 import org.moqui.idea.plugin.dom.presentation.LinkPresentationProvider;
 
 import java.util.List;

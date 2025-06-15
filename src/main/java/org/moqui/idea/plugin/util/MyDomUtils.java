@@ -328,12 +328,12 @@ public final class MyDomUtils {
         if(psiElement instanceof XmlAttribute xmlAttribute) {
             return Optional.of(xmlAttribute.getName());
         }else {
-            XmlAttribute xmlAttribute = PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class);
+            XmlAttribute xmlAttribute = ReadAction.compute(()->PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class));
             return Optional.ofNullable(xmlAttribute == null? null : xmlAttribute.getName());
         }
     }
     public static Optional<XmlAttribute> getCurrentAttribute(@NotNull PsiElement psiElement){
-        return Optional.ofNullable(PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class));
+        return ReadAction.compute(()-> Optional.ofNullable(PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class)));
     }
     public static Optional<String> getCurrentTagName(@NotNull PsiElement psiElement){
         return getParentTag(psiElement).map(XmlTag::getName);
@@ -350,7 +350,9 @@ public final class MyDomUtils {
         if(psiElement instanceof XmlTag) {
             xmlTag = (XmlTag) psiElement;
         }else {
-            xmlTag = PsiTreeUtil.getParentOfType(psiElement, XmlTag.class);
+            xmlTag =  ReadAction.compute(
+                    () ->PsiTreeUtil.getParentOfType(psiElement, XmlTag.class)
+            );
         }
 
         return Optional.ofNullable(xmlTag);
@@ -450,7 +452,7 @@ public final class MyDomUtils {
     }
     public static Optional<Boolean> getXmlAttributeValueBoolean(GenericAttributeValue<Boolean> value){
         if(value == null) return Optional.empty();
-        return ApplicationManager.getApplication().runReadAction((Computable<Optional<Boolean>>) ()->{
+        return ReadAction.compute(()->{
             if(value.getXmlAttributeValue() == null) return Optional.empty();
             return Optional.ofNullable(value.getValue());
         });
@@ -634,17 +636,20 @@ public final class MyDomUtils {
      * @return List<XmlTag>
      */
     public static @NotNull List<XmlTag> getSubTagList(@NotNull XmlTag xmlTag, @NotNull String tagName){
-        List<XmlTag> tagList = new ArrayList<>();
-        XmlTag[] xmlTags = xmlTag.getSubTags();
+        return ReadAction.compute(()->{
+            List<XmlTag> tagList = new ArrayList<>();
+            XmlTag[] xmlTags = xmlTag.getSubTags();
 
-        for(XmlTag xmlTagItem : xmlTags) {
-            if(xmlTagItem.getName().equals(tagName)) {
-                tagList.add(xmlTagItem);
-            }else {
-                tagList.addAll(getSubTagList(xmlTagItem, tagName));
+            for(XmlTag xmlTagItem : xmlTags) {
+                if(xmlTagItem.getName().equals(tagName)) {
+                    tagList.add(xmlTagItem);
+                }else {
+                    tagList.addAll(getSubTagList(xmlTagItem, tagName));
+                }
             }
-        }
-        return tagList;
+            return tagList;
+
+        });
     }
 
     /**
@@ -817,5 +822,23 @@ public final class MyDomUtils {
         });
     }
 
+    /**
+     * 根据当前所在的xmlTag，找到同级别的前一个xmlTag
+     * @param xmlTag
+     * @return
+     */
+    public static Optional<XmlTag> getPreSiblingXmlTag(@NotNull XmlTag xmlTag) {
+
+            PsiElement prevSibling = ReadAction.compute(xmlTag::getPrevSibling);
+
+            // 循环向上查找直到找到前一个XmlTag或者没有更多之前的兄弟元素
+            while (prevSibling != null) {
+                if (prevSibling instanceof XmlTag foundTag) {
+                    return Optional.of(foundTag);
+                }
+                prevSibling = ReadAction.compute(prevSibling::getPrevSibling);
+            }
+            return Optional.empty(); // 如果没有找到符合条件的XmlTag
+    }
 }
 
