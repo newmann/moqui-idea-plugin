@@ -10,11 +10,13 @@ import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlPatterns;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.xml.XmlAttribute;
+import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.MyIcons;
-import org.moqui.idea.plugin.dom.model.ServiceCall;
-import org.moqui.idea.plugin.dom.model.Services;
+import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.insertHandler.AutoShowByCharInsertHandler;
 import org.moqui.idea.plugin.insertHandler.ClearTailInsertHandler;
 import org.moqui.idea.plugin.util.*;
@@ -29,13 +31,17 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
     public static final PsiElementPattern<PsiElement, PsiElementPattern.Capture<PsiElement>> SERVICE_CALL_PATTERN =
             PlatformPatterns.psiElement()
                     .inside(
-                    XmlPatterns.xmlAttributeValue(ServiceCall.ATTR_NAME)
-//                            .inside(
-//                            XmlPatterns.xmlTag().withLocalName(ServiceCall.TAG_NAME).inside(
-//                                    XmlPatterns.xmlTag().withLocalName(Screen.TAG_NAME)
-//                            )
-//                    )
-            );
+                            XmlPatterns.xmlAttributeValue().andOr(
+                                XmlPatterns.xmlAttributeValue(ServiceCall.ATTR_NAME)
+                                        .inside(
+                                                XmlPatterns.xmlTag().withLocalName(ServiceCall.TAG_NAME,Service.TAG_NAME)
+                                        ),
+                                XmlPatterns.xmlAttributeValue(Seca.ATTR_SERVICE)
+                                                        .inside(
+                                                                XmlPatterns.xmlTag().withLocalName(Seca.TAG_NAME)
+                                                        )
+                            )
+                    );
 
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet result) {

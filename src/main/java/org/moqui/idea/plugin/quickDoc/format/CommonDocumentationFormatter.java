@@ -19,8 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.intellij.lang.documentation.DocumentationMarkup.*;
-import static com.intellij.openapi.util.text.HtmlChunk.nbsp;
-import static com.intellij.openapi.util.text.HtmlChunk.text;
+import static com.intellij.openapi.util.text.HtmlChunk.*;
 
 public class CommonDocumentationFormatter {
 //    public static String formatNavigateDocWithDomElement(DomElement element, String elementName) {
@@ -46,9 +45,11 @@ public class CommonDocumentationFormatter {
 
         builder.append(text((isView ? "view" : "entity") + " name="))
                 .append(text("\"" + MyDomUtils.getValueOrEmptyString(abstractEntity.getEntityName()) + "\"").bold())
+//                .appendLink("#jumpToTarget","\"" + MyDomUtils.getValueOrEmptyString(abstractEntity.getEntityName()) + "\"")
                 .append(nbsp())
                 .append(text("package-name=\"" + MyDomUtils.getValueOrEmptyString(abstractEntity.getPackage()) + "\""))
                 .br()
+//                .append(INFORMATION_ICON)
                 .append(text(MyBundle.message("quickDoc.format.CommonDocumentationFormatter.defineInComponent",fileName ,componentName)).wrapWith(GRAYED_ELEMENT));
         if (abstractEntity.getDescription().getValue() != null) {
             builder.br()

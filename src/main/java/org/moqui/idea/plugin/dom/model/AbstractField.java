@@ -2,6 +2,7 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.dom.converter.ParameterTypeConverter;
 
 /**
  * Field，Alias，Parameter的父类，以便进行统一处理
@@ -16,5 +17,6 @@ public interface AbstractField extends DomElement {
     GenericAttributeValue<String> getName();
     @NotNull
     @Attribute(ATTR_TYPE)
+    @Convert(ParameterTypeConverter.class)
     GenericAttributeValue<String> getType();
 }

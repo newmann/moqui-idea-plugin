@@ -4,6 +4,7 @@ import com.intellij.lang.documentation.AbstractDocumentationProvider;
 import com.intellij.openapi.util.text.HtmlBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,14 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
     @Nls String generateHoverDoc(@NotNull PsiElement element, @Nullable PsiElement originalElement) {
         return generateDoc(element, originalElement);
     }
+
+//    @Override
+//    public @Nullable PsiElement getDocumentationElementForLink(PsiManager psiManager, String link, PsiElement context) {
+//        if(link.equals("#jumpToEntity")) {
+//
+//        }
+//        return super.getDocumentationElementForLink(psiManager, link, context);
+//    }
 
     @Override
     public @Nullable
