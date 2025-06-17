@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.FieldRefConverter;
+import org.moqui.idea.plugin.dom.converter.FieldRefReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.FormSinglePresentationProvider;
 
 import java.util.List;
@@ -64,7 +64,7 @@ public interface FormSingle extends AbstractForm {
     GenericAttributeValue<String> getMap();
     @NotNull
     @Attribute(ATTR_FOCUS_FIELD)
-    @Convert(FieldRefConverter.class)
+    @Referencing(FieldRefReferenceConverter.class)
     GenericAttributeValue<String> getFocusField();
     @NotNull
     @Attribute(ATTR_SKIP_START)

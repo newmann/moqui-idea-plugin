@@ -970,7 +970,15 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
     public static @NotNull List<IndexServiceParameter> getServiceInParamterList(@NotNull Project project, @NotNull String serviceName){
         return getIndexService(project,serviceName).map(IndexService::getInParametersAbstractFieldList).orElse(new ArrayList<>());
     }
-
+    /**
+     * 获取Service的OutParameter
+     * @param project 当前Project
+     * @param serviceName Service full Name
+     * @return List<IndexServiceParameter>
+     */
+    public static @NotNull List<IndexServiceParameter> getServiceOutParamterList(@NotNull Project project, @NotNull String serviceName){
+        return getIndexService(project,serviceName).map(IndexService::getOutParametersAbstractFieldList).orElse(new ArrayList<>());
+    }
     /**
      * 创建map中字段的reference
      * @param psiElement 当前属性的PsiElement

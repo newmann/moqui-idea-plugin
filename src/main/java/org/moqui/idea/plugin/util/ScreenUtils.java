@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.service.IndexService;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -495,9 +496,10 @@ public final class ScreenUtils {
 
     /**
      * 获取FormSingle的Field定义，
+     * todo DBForm如何支持？
      */
-    public static List<Field> getFieldListFromForm(@NotNull AbstractForm abstractForm){
-        List<Field> result = new ArrayList<>();
+    public static List<AbstractField> getFieldListFromForm(@NotNull AbstractForm abstractForm){
+        List<AbstractField> result = new ArrayList<>();
         final String extendsStr = MyDomUtils.getXmlAttributeValueString(abstractForm.getExtends()).orElse(MyStringUtils.EMPTY_STRING);
         if(MyStringUtils.isNotEmpty(extendsStr)){
             //根据extends，找到FormSingle的定义，如果没有#，就是在本文件中找
@@ -527,6 +529,26 @@ public final class ScreenUtils {
         }
 
         result.addAll(abstractForm.getFieldList());
+        //添加AutoFieldFromService
+        if(abstractForm instanceof FormSingle formSingle) {
+            Project project = formSingle.getXmlElement().getProject();
+            for(AutoFieldsService fieldsService: formSingle.getAutoFieldsServiceList()) {
+                String serviceName = MyDomUtils.getValueOrEmptyString(fieldsService.getServiceName());
+                if(MyStringUtils.isNotEmpty(serviceName)) {
+                    ServiceUtils.getServiceInParamterList(project,serviceName).forEach(item->{
+                        result.add(item.getAbstractField());
+                    });
+                }
+            }
+            for(AutoFieldsEntity fieldsEntity: formSingle.getAutoFieldsEntityList()) {
+                String entityName = MyDomUtils.getValueOrEmptyString(fieldsEntity.getEntityName());
+                if(MyStringUtils.isNotEmpty(entityName)) {
+                    EntityUtils.getEntityOrViewEntityFields(project,entityName).forEach(item->{
+                        result.add(item.getAbstractField());
+                    });
+                }
+            }
+        }
         return result;
     }
 

@@ -17,7 +17,7 @@ public class ServiceCallTypedHandler extends TypedHandlerDelegate {
     @NotNull
     @Override
     public Result charTyped(char c, @NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
-        LOGGER.warn("In ServiceCallTypedHandler, input char"+ c);
+//        LOGGER.warn("In ServiceCallTypedHandler, input char"+ c);
 
 //        if(c == '.') {
 //            LOGGER.warn("In ServiceCallTypedHandler, begin autoPopupMemberLookup");

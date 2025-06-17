@@ -404,7 +404,7 @@ public final class MyDomUtils {
     public static <T extends DomElement> Optional<T> getLocalDomElementByConvertContext(@NotNull ConvertContext context, @NotNull Class<T> targetClass){
         final XmlElement curElement = context.getXmlElement();
         if(curElement == null) return Optional.empty();
-        return Optional.ofNullable(DomUtil.findDomElement(curElement,targetClass));
+        return Optional.ofNullable(ReadAction.compute(()->DomUtil.findDomElement(curElement,targetClass)));
 
     }
     public static <T extends DomElement> Optional<T> getLocalDomElementByPsiElement(@NotNull PsiElement psiElement, @NotNull Class<T> targetClass){
