@@ -39,7 +39,11 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
                                 XmlPatterns.xmlAttributeValue(Seca.ATTR_SERVICE)
                                                         .inside(
                                                                 XmlPatterns.xmlTag().withLocalName(Seca.TAG_NAME)
-                                                        )
+                                                        ),
+                                XmlPatterns.xmlAttributeValue(AutoFieldsService.ATTR_SERVICE_NAME)
+                                        .inside(
+                                                XmlPatterns.xmlTag().withLocalName(AutoFieldsService.TAG_NAME)
+                                        )
                             )
                     );
 
