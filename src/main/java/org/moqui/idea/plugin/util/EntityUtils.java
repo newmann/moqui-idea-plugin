@@ -429,8 +429,8 @@ public final class EntityUtils {
 
     /**
      * 核查Entity和View的名称是否存在重复
-     * @param abstractEntity
-     * @param holder
+     * @param abstractEntity 待核查的Entity或View
+     * @param holder AnnotationHolder
      */
     public static void inspectAbstractEntity(@NotNull AbstractEntity abstractEntity, @NotNull AnnotationHolder holder) {
         String entityName = MyDomUtils.getValueOrEmptyString(abstractEntity.getEntityName());
@@ -684,8 +684,6 @@ public final class EntityUtils {
      * @return Optional<AbstractIndexEntity> 根据alias查找到Entity或ViewEntity
      */
     public static Optional<AbstractIndexEntity> getViewEntityAbstractIndexEntityByAlias(@NotNull ViewEntity viewEntity, @NotNull String alias) {
-        final String[] aliasEntityName = new String[1];
-
         final Project project;
         if(viewEntity.getXmlElement() ==null) {
             return Optional.empty();

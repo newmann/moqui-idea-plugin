@@ -11,6 +11,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -36,7 +37,7 @@ import static org.moqui.idea.plugin.util.ComponentUtils.COMPONENT_LOCATION_PREFI
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 public final class MyDomUtils {
-
+    public static final Key<Object> MOQUI_REFERENCE_CREATED_KEY = Key.create("moqui.reference.created.key");
     public static String MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
     public static Map<String,String> MOQUI_XML_FILE_ROOT_TAGS = new HashMap<>(Map.of(
             Entities.TAG_NAME,Entities.VALUE_NoNamespaceSchemaLocation,
@@ -839,6 +840,13 @@ public final class MyDomUtils {
                 prevSibling = ReadAction.compute(prevSibling::getPrevSibling);
             }
             return Optional.empty(); // 如果没有找到符合条件的XmlTag
+    }
+
+    public static <T> Optional<T> getReferenceDataFromPsiElement(@NotNull PsiElement psiElement, Class<T> targetType) {
+        Object savedObject = psiElement.getUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY);
+        return targetType.isInstance(savedObject)
+                ? Optional.of(targetType.cast(savedObject))
+                : Optional.empty();
     }
 }
 

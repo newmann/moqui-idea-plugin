@@ -8,6 +8,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.util.MyDomUtils;
 
 public class MoquiBaseReference extends PsiReferenceBase.Immediate<PsiElement> {
 
@@ -34,10 +35,13 @@ public class MoquiBaseReference extends PsiReferenceBase.Immediate<PsiElement> {
     protected final PsiElement myResolve;
 
     public MoquiBaseReference(@NotNull PsiElement psiElement, TextRange textRange, PsiElement myResolve) {
+
         super(psiElement, textRange,myResolve);
 
         this.myTextRange = textRange;
         this.myResolve = myResolve;
+
+//        psiElement.putUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY,"created");
     }
 
 //    @NotNull

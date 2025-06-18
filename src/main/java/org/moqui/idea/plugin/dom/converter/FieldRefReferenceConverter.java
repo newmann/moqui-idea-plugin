@@ -1,15 +1,18 @@
 package org.moqui.idea.plugin.dom.converter;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
+import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericDomValue;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.AbstractField;
 import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.util.MyDomUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 import org.moqui.idea.plugin.util.ScreenUtils;
 
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ import java.util.Optional;
 
 
 public class FieldRefReferenceConverter implements CustomReferenceConverter<String> {
+    private final static Logger LOGGER = Logger.getInstance(FieldRefReferenceConverter.class);
 //    @Override
 //    public @Nullable AbstractField fromString(@Nullable String s, ConvertContext context) {
 //        if(s == null) return null;
@@ -47,10 +51,24 @@ public class FieldRefReferenceConverter implements CustomReferenceConverter<Stri
 
     @Override
     public @NotNull PsiReference[] createReferences(GenericDomValue genericDomValue, PsiElement psiElement, ConvertContext convertContext) {
-
         String valueStr = genericDomValue.getStringValue();
         if(valueStr == null) return PsiReference.EMPTY_ARRAY;
-        AbstractField abstractField = getField(valueStr,convertContext).orElse(null);
+
+//        Object savedObject = psiElement.getUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY);
+//
+//        AbstractField abstractField;
+//        if(savedObject instanceof AbstractField) {
+//            abstractField = (AbstractField) savedObject;
+//        }else{
+//            abstractField = null;
+//        }
+        AbstractField abstractField = MyDomUtils.getReferenceDataFromPsiElement(psiElement,AbstractField.class).orElse(null);
+
+        if(abstractField == null || !abstractField.isValid()) {
+//            if(abstractField != null) LOGGER.warn("重新找对应的Field");
+            abstractField = getField(valueStr,convertContext).orElse(null);
+            psiElement.putUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY,abstractField);
+        }
 
         if(abstractField == null) {
             return MoquiBaseReference.createNullRefArray(psiElement,
