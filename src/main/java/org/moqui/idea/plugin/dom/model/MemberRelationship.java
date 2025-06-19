@@ -1,12 +1,9 @@
 package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTag;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.RelationshipConverter;
+import org.moqui.idea.plugin.dom.converter.RelationshipReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.MemberRelationPresentationProvider;
 
 @Presentation(provider = MemberRelationPresentationProvider.class)
@@ -29,7 +26,7 @@ public interface MemberRelationship extends AbstractMemberEntity {
 
     @NotNull
     @Attribute(ATTR_RELATIONSHIP)
-    @Convert(RelationshipConverter.class)
+    @Referencing(RelationshipReferenceConverter.class)
     GenericAttributeValue<String> getRelationship();
 //
 //    @NotNull

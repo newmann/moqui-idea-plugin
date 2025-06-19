@@ -9,7 +9,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlAttribute;
 import org.moqui.idea.plugin.MyIcons;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.Entity;
 import org.moqui.idea.plugin.service.IndexAbstractField;
 import org.moqui.idea.plugin.service.IndexEntity;
 import org.moqui.idea.plugin.util.EntityUtils;
@@ -43,7 +42,7 @@ public class EntityFieldNameReference extends MoquiBaseReference{
         List<LookupElement> variants = new ArrayList<>();
         List<String> inputedFields = getInputtedFieldSet(myElement);
 
-        List<IndexAbstractField> indexAbstractFieldList = EntityUtils.getIndexAbstractFieldListByPsiElement(myElement);
+        List<IndexAbstractField> indexAbstractFieldList = EntityUtils.getIndexAbstractFieldListByFieldElement(myElement);
 
         indexAbstractFieldList.forEach(item ->{
             String fieldName = MyDomUtils.getValueOrEmptyString(item.getName());
@@ -58,7 +57,7 @@ public class EntityFieldNameReference extends MoquiBaseReference{
             }
         });
         //添加lastUpdatedStamp
-        Optional<String> entityNameOptional = EntityUtils.getEntityOrViewEntityNameByPsiElement(myElement);
+        Optional<String> entityNameOptional = EntityUtils.getEntityOrViewEntityNameByFieldElement(myElement);
 
         if(entityNameOptional.isPresent()){
             EntityUtils.getAbstractIndexEntityByName(myElement.getProject(),entityNameOptional.get()).ifPresent(

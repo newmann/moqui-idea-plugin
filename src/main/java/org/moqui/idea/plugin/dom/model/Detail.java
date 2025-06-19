@@ -1,12 +1,9 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTagList;
+import com.intellij.util.xml.*;
 import com.intellij.util.xmlb.annotations.Attribute;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.RelationshipConverter;
+import org.moqui.idea.plugin.dom.converter.RelationshipReferenceConverter;
 
 import java.util.List;
 
@@ -21,7 +18,7 @@ public interface Detail extends DomElement {
 
     @NotNull
     @Attribute(ATTR_RELATIONSHIP)
-    @Convert(RelationshipConverter.class)
+    @Referencing(RelationshipReferenceConverter.class)
     GenericAttributeValue<String> getRelationship();
     
     @NotNull

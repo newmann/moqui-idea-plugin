@@ -38,7 +38,7 @@ public class EntityFieldNameReferenceConverter implements CustomReferenceConvert
                 }
             }
 
-            indexAbstractField = EntityUtils.getIndexAbstractFieldByConvertContext(fieldDescriptor.getFieldName(), convertContext).orElse(null);
+            indexAbstractField = EntityUtils.getIndexAbstractFieldByFieldContext(fieldDescriptor.getFieldName(), convertContext).orElse(null);
         }
 
         return EntityUtils.createFieldNameReference(psiElement,fieldDescriptor,indexAbstractField);

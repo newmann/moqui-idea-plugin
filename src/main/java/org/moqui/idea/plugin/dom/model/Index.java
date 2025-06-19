@@ -7,15 +7,15 @@ import java.util.List;
 
 public interface Index extends DomElement {
     
-    public static final String TAG_NAME = "index";
+    String TAG_NAME = "index";
 
-    public static final String ATTR_NAME ="name";
-
-    
-    public static final String ATTR_UNIQUE ="unique";
+    String ATTR_NAME ="name";
 
     
-    public static final String ATTR_JOIN_FROM_ALIAS ="join-from-alias";
+    String ATTR_UNIQUE ="unique";
+
+    
+    String ATTR_JOIN_FROM_ALIAS ="join-from-alias";
 
     @NotNull
     @Attribute(ATTR_NAME)

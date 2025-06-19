@@ -185,28 +185,44 @@ public final class MyDomUtils {
 
     }
 
+    /**
+     * 根据当前的PsiElement判断所属哪个文件
+     * @param psiElement 当前PsiElement
+     * @param rootTagName 根Tag名称
+     * @return boolean
+     */
+    public static boolean isSpecialXmlFile(@NotNull PsiElement psiElement,@NotNull String rootTagName){
+        PsiFile file = psiElement.getContainingFile();
+        if(file == null) {
+            return false;
+        }else {
+            return isSpecialXmlFile(file,rootTagName,null,null);
+        }
+
+    }
 
     public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName){
         return isSpecialXmlFile(file,rootTagName,null,null);
     }
     public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName,@Nullable String attributeName,@Nullable String attributeValue){
-
-        if(file instanceof XmlFile xmlFile) {
-            VirtualFile virtualFile = xmlFile.getVirtualFile();
-            if(virtualFile != null && virtualFile.isInLocalFileSystem()) { //判断文件是否已经加载
+        return ReadAction.compute(()->{
+            if(file instanceof XmlFile xmlFile) {
+                VirtualFile virtualFile = xmlFile.getVirtualFile();
+                if(virtualFile != null && virtualFile.isInLocalFileSystem()) { //判断文件是否已经加载
 //                XmlTag rootTag = ReadAction.compute(xmlFile::getRootTag);
-                XmlTag rootTag = xmlFile.getRootTag();
-                if (rootTag == null) return false;
-                if(attributeName == null) {
-                    return rootTagName.equals(rootTag.getName());
-                }else {
-                    if (!rootTagName.equals(rootTag.getName())) return false;
-                    String value = rootTag.getAttributeValue(attributeName);
-                    return (value != null) && value.equals(attributeValue);
+                    XmlTag rootTag = xmlFile.getRootTag();
+                    if (rootTag == null) return false;
+                    if(attributeName == null) {
+                        return rootTagName.equals(rootTag.getName());
+                    }else {
+                        if (!rootTagName.equals(rootTag.getName())) return false;
+                        String value = rootTag.getAttributeValue(attributeName);
+                        return (value != null) && value.equals(attributeValue);
+                    }
                 }
             }
-        }
-        return false;
+            return false;
+        });
 
     }
 
@@ -409,10 +425,10 @@ public final class MyDomUtils {
 
     }
     public static <T extends DomElement> Optional<T> getLocalDomElementByPsiElement(@NotNull PsiElement psiElement, @NotNull Class<T> targetClass){
-        return Optional.ofNullable(DomUtil.findDomElement(psiElement,targetClass));
+        return Optional.ofNullable(ReadAction.compute(()->DomUtil.findDomElement(psiElement,targetClass)));
     }
     public static <T extends DomElement> Optional<T> getLocalDomElementByPsiElement(@NotNull PsiElement psiElement, @NotNull Class<T> targetClass,boolean strict){
-        return Optional.ofNullable(DomUtil.findDomElement(psiElement,targetClass,strict));
+        return Optional.ofNullable(ReadAction.compute(()->DomUtil.findDomElement(psiElement,targetClass,strict)));
     }
 
     public static <T extends DomElement> Optional<T> getLocalDomElementByXmlTag(@NotNull XmlTag xmlTag, @NotNull Class<T> targetClass){
@@ -847,6 +863,18 @@ public final class MyDomUtils {
         return targetType.isInstance(savedObject)
                 ? Optional.of(targetType.cast(savedObject))
                 : Optional.empty();
+    }
+    /**
+     * 从PsiElement中获取MoquiBaseReference，如果有多个，则取第一个，
+     * 这里的PsiElement一般都是XmlAttributeValue对应的PsiElement
+     * @param psiElement 待处理的PsiElement
+     * @return Optional<MoquiBaseReference>
+     */
+    public static Optional<MoquiBaseReference> getMoquiBaseReferenceFromPsiElement(@NotNull PsiElement psiElement){
+        for(PsiReference psiReference: psiElement.getReferences()) {
+            if(psiReference instanceof MoquiBaseReference moquiBaseReference) return Optional.of(moquiBaseReference);
+        }
+        return Optional.empty();
     }
 }
 

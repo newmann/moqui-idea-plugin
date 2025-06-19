@@ -65,7 +65,7 @@ public class AliasNameCompletionProvider extends AbstractSimpleCompletionProvide
         for (AbstractMemberEntity abstractMemberEntity : abstractMemberEntityCollection) {
             alias = MyDomUtils.getValueOrEmptyString(abstractMemberEntity.getEntityAlias());
 
-            abstractIndexEntity = EntityUtils.getViewEntityAbstractIndexEntityByAlias(viewEntity, alias).orElse(null);
+            abstractIndexEntity = EntityUtils.getAbstractIndexEntityFromViewEntityByAlias(viewEntity, alias).orElse(null);
 
             if (abstractIndexEntity != null) {
                 indexAbstractFieldList = abstractIndexEntity.getIndexAbstractFieldList();

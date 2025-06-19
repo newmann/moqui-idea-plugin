@@ -14,9 +14,13 @@ import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.AbstractMemberEntity;
+import org.moqui.idea.plugin.dom.model.MemberEntity;
+import org.moqui.idea.plugin.dom.model.MemberRelationship;
 import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 import javax.swing.*;
 import java.util.Collection;
@@ -52,11 +56,27 @@ public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberE
         if(entity == null) {
             return super.createLookupElement(entity);
         }else{
-            String s = entity.getEntityAlias().getStringValue();
-            Icon icon = AllIcons.Ide.Gift;//todo 配置一个更合适的icon
-            return LookupElementBuilder.create(entity,s)
+            String alias = entity.getEntityAlias().getStringValue();
+            Icon icon = MyIcons.ViewEntityTag;
+            String trail = MyStringUtils.EMPTY_STRING;
+            String type = MyStringUtils.EMPTY_STRING;
+
+            if(entity instanceof MemberEntity memberEntity) {
+                icon = MyIcons.EntityTag;
+                type = memberEntity.getEntityName().getStringValue();
+                trail = "[MemberEntity]";
+            }
+            if(entity instanceof MemberRelationship memberRelationship) {
+                icon = MyIcons.RelationshipTag;
+                type = memberRelationship.getRelationship().getStringValue();
+                trail = "[MemberRelationship]";
+            }
+            return LookupElementBuilder.create(entity,alias)
                     .withIcon(icon)
-                    .withCaseSensitivity(false);
+                    .withCaseSensitivity(false)
+                    .withTypeText(type)
+                    .withTailText(trail)
+                    ;
         }
     }
 
