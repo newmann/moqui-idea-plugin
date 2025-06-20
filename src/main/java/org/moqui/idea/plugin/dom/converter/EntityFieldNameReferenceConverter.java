@@ -22,24 +22,21 @@ public class EntityFieldNameReferenceConverter implements CustomReferenceConvert
         FieldDescriptor fieldDescriptor = FieldDescriptor.of(valueStr, 1, valueStr.length() + 1);
         //判断是否需要创建Reference，
         if(needNotCreatePsiReference(psiElement)) return PsiReference.EMPTY_ARRAY;
-        IndexAbstractField indexAbstractField = MyDomUtils.getReferenceDataFromPsiElement(psiElement,IndexAbstractField.class).orElse(null);
-        if(indexAbstractField == null || !indexAbstractField.getAbstractField().isValid()) {
-            //判断ServiceCall
-            ServiceCall serviceCall = MyDomUtils.getLocalDomElementByConvertContext(convertContext, ServiceCall.class).orElse(null);
-            if (serviceCall != null) {
-                ServiceCallDescriptor serviceCallDescriptor = ServiceCallDescriptor.of(MyDomUtils.getValueOrEmptyString(serviceCall.getName()));
-                if (!serviceCallDescriptor.isCRUD()) {
-                    //这里好像很难优化,暂时不处理
-                    IndexService indexService = ServiceUtils.getIndexService(convertContext.getProject(), serviceCallDescriptor.getServiceCallString()).orElse(null);
-                    if (indexService != null) {
-                        IndexServiceParameter serviceParameter = indexService.getInParametersByName(fieldDescriptor.getFieldName()).orElse(null);
-                        return ServiceUtils.createMapNameReference(psiElement, fieldDescriptor, serviceParameter);
-                    }
+        //判断ServiceCall
+        ServiceCall serviceCall = MyDomUtils.getLocalDomElementByConvertContext(convertContext, ServiceCall.class).orElse(null);
+        if (serviceCall != null) {
+            ServiceCallDescriptor serviceCallDescriptor = ServiceCallDescriptor.of(MyDomUtils.getValueOrEmptyString(serviceCall.getName()));
+            if (!serviceCallDescriptor.isCRUD()) {
+                //这里好像很难优化,暂时不处理
+                IndexService indexService = ServiceUtils.getIndexService(convertContext.getProject(), serviceCallDescriptor.getServiceCallString()).orElse(null);
+                if (indexService != null) {
+                    IndexServiceParameter serviceParameter = indexService.getInParametersByName(fieldDescriptor.getFieldName()).orElse(null);
+                    return ServiceUtils.createMapNameReference(psiElement, fieldDescriptor, serviceParameter);
                 }
             }
-
-            indexAbstractField = EntityUtils.getIndexAbstractFieldByFieldContext(fieldDescriptor.getFieldName(), convertContext).orElse(null);
         }
+
+        IndexAbstractField indexAbstractField = EntityUtils.getIndexAbstractFieldByFieldContext(fieldDescriptor.getFieldName(), convertContext).orElse(null);
 
         return EntityUtils.createFieldNameReference(psiElement,fieldDescriptor,indexAbstractField);
 

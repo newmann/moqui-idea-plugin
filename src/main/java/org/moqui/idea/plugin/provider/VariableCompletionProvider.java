@@ -4,7 +4,6 @@ import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.project.Project;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlPatterns;
@@ -14,14 +13,10 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.insertHandler.AutoShowByCharInsertHandler;
-import org.moqui.idea.plugin.insertHandler.ClearTailInsertHandler;
-import org.moqui.idea.plugin.util.*;
+import org.moqui.idea.plugin.util.MyDomUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -51,10 +46,12 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet result) {
 
-        PsiElement psiElement = parameters.getPosition();
+        PsiElement psiElement = parameters.getOriginalPosition();
+        if(psiElement == null) return;
         if(! MyDomUtils.isMoquiProject(psiElement.getProject())) return;
-
-        addLookup(getVariableList(psiElement),result);
+        XmlTag curTag = MyDomUtils.getParentTag(psiElement).orElse(null);
+        if(curTag == null) return;
+        addLookup(getVariableList(curTag),result);
 
     }
 
@@ -94,14 +91,16 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
      * 3、从父级别Tag开始向前找同级别的兄弟Tag，获取定义的Variable
      * 4、重复查找，一直找到根Tag，service中是action，
      * 5、获取service的in和out参数
-     * @param psiElement 当前PsiElement
+     * @param tag 当前XmlTag
      * @return List<VariableLookupItem>
      */
-    public List<VariableLookupItem> getVariableList(@NotNull PsiElement psiElement){
+    public List<VariableLookupItem> getVariableList(@NotNull XmlTag tag){
+
         List<VariableLookupItem> result = new ArrayList<>();
 //        if(! (psiElement instanceof XmlAttributeValue xmlAttributeValue)) return result;
-        XmlTag curTag = MyDomUtils.getParentTag(psiElement).orElse(null);
-        if(curTag == null) return result;
+//        XmlTag curTag = MyDomUtils.getParentTag(psiElement).orElse(null);
+//        if(curTag == null) return result;
+        XmlTag curTag = tag;
 
         while(true) {
 
@@ -110,13 +109,14 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
                 extractVariableFromTag(siblingTag, result);
                 siblingTag = MyDomUtils.getPreSiblingXmlTag(siblingTag).orElse(null);
             }
-            curTag = MyDomUtils.getParentTag(curTag).orElse(null);
+            curTag = MyDomUtils.getTagParentTag(curTag).orElse(null);
 
             if(curTag == null) break;
             if( curTag.getName().equals(Action.TAG_NAME)) break;
         }
 
         return new ArrayList<>();
+
     }
 
     /**

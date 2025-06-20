@@ -363,6 +363,8 @@ public final class MyDomUtils {
      * @return Optional<XmlTag>
      */
     public static Optional<XmlTag> getParentTag(@NotNull PsiElement psiElement){
+        if (! ReadAction.compute(psiElement::isValid)) return Optional.empty();
+
         XmlTag xmlTag;
         if(psiElement instanceof XmlTag) {
             xmlTag = (XmlTag) psiElement;
@@ -376,6 +378,16 @@ public final class MyDomUtils {
 
     }
 
+    /**
+     * 获取所在tag的上级tag，
+     * @param psiElement 当前PsiElement，可以是XmlTag本身，也可以是XmlAttribute等
+     * @return Optional<XmlTag>
+     */
+    public static Optional<XmlTag> getTagParentTag(@NotNull PsiElement psiElement){
+        XmlTag xmlTag = getParentTag(psiElement).orElse(null);
+        if(xmlTag != null) xmlTag = ReadAction.compute(xmlTag::getParentTag);
+        return Optional.ofNullable(xmlTag);
+    }
     public static Optional<XmlAttribute> getCurrentAttribute(ConvertContext context) {
         final XmlElement curElement = context.getXmlElement();
         if(curElement == null) return Optional.empty();
@@ -788,7 +800,6 @@ public final class MyDomUtils {
 
         return false;
     }
-
     /**
      * 仅返回文件名
      * @param psiElement 当前PsiElement
@@ -845,17 +856,19 @@ public final class MyDomUtils {
      * @return
      */
     public static Optional<XmlTag> getPreSiblingXmlTag(@NotNull XmlTag xmlTag) {
+            return ReadAction.compute(()->{
+                PsiElement prevSibling = xmlTag.getPrevSibling();
 
-            PsiElement prevSibling = ReadAction.compute(xmlTag::getPrevSibling);
-
-            // 循环向上查找直到找到前一个XmlTag或者没有更多之前的兄弟元素
-            while (prevSibling != null) {
-                if (prevSibling instanceof XmlTag foundTag) {
-                    return Optional.of(foundTag);
+                // 循环向上查找直到找到前一个XmlTag或者没有更多之前的兄弟元素
+                while (prevSibling != null) {
+                    if (prevSibling instanceof XmlTag foundTag) {
+                        return Optional.of(foundTag);
+                    }
+                    prevSibling = prevSibling.getPrevSibling();
                 }
-                prevSibling = ReadAction.compute(prevSibling::getPrevSibling);
-            }
-            return Optional.empty(); // 如果没有找到符合条件的XmlTag
+                return Optional.empty(); // 如果没有找到符合条件的XmlTag
+
+            });
     }
 
     public static <T> Optional<T> getReferenceDataFromPsiElement(@NotNull PsiElement psiElement, Class<T> targetType) {
@@ -864,6 +877,10 @@ public final class MyDomUtils {
                 ? Optional.of(targetType.cast(savedObject))
                 : Optional.empty();
     }
+    public static void putReferenceDataToPsiElement(@NotNull PsiElement psiElement,Object data) {
+        psiElement.putUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY,data);
+    }
+
     /**
      * 从PsiElement中获取MoquiBaseReference，如果有多个，则取第一个，
      * 这里的PsiElement一般都是XmlAttributeValue对应的PsiElement

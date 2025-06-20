@@ -67,7 +67,8 @@ public class FieldRefReferenceConverter implements CustomReferenceConverter<Stri
         if(abstractField == null || !abstractField.isValid()) {
 //            if(abstractField != null) LOGGER.warn("重新找对应的Field");
             abstractField = getField(valueStr,convertContext).orElse(null);
-            psiElement.putUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY,abstractField);
+            MyDomUtils.putReferenceDataToPsiElement(psiElement,abstractField);
+//            psiElement.putUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY,abstractField);
         }
 
         if(abstractField == null) {

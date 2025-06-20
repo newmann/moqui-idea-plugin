@@ -80,17 +80,23 @@ public class RelationshipReferenceConverter implements CustomReferenceConverter<
 
     @Override
     public  @NotNull PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
+
         String related = value.getStringValue();
         if(related == null) return PsiReference.EMPTY_ARRAY;
 
-        Optional<Relationship> opRelationship = getRelationship(related,element);
+        Relationship relationship;
+        relationship = MyDomUtils.getReferenceDataFromPsiElement(element,Relationship.class).orElse(null);
+        if(relationship == null || !relationship.isValid()) {
+            relationship = getRelationship(related, element).orElse(null);
 
-        if (opRelationship.isEmpty()) {
-            //报错
-            return MoquiBaseReference.createNullRefArray(element,new TextRange(1,related.length()+1));
-        };
+            MyDomUtils.putReferenceDataToPsiElement(element,relationship);
 
-        final Relationship relationship = opRelationship.get();
+            if (relationship == null) {
+                //报错
+                return MoquiBaseReference.createNullRefArray(element, new TextRange(1, related.length() + 1));
+            };
+        }
+
 
         int charIndex = related.indexOf("#");
         if(charIndex< 0) {
