@@ -81,9 +81,12 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
     }
     public static String generateEntityDoc(PsiElement element) {
         Entity entity;
-        if(element instanceof XmlTag) {
-            EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(element);
-            entity = EntityUtils.getEntityByName(element.getProject(),descriptor.getEntityName()).orElse(null);
+        if(element instanceof XmlTag xmlTag) {
+
+            entity  = EntityFacadeXmlUtils.getFacadeEntityFromXmlTag(xmlTag)
+                    .flatMap(descriptor->EntityUtils.getEntityByName(element.getProject(),descriptor.getEntityName()))
+                    .orElse(null);
+//            entity = EntityUtils.getEntityByName(element.getProject(),entityName).orElse(null);
 
 //            entity = EntityUtils.getEntityByName(element.getProject(),
 //                    MyDomUtils.getEntityNameInEntityFacadeXml(element).orElse(MyStringUtils.EMPTY_STRING)).orElse(null);

@@ -817,6 +817,18 @@ public final class MoquiIndexService {
 
     public List<ViewEntity> getPendingViewEntityList(){return pendingViewEntityList;}
 
+    public long getEntityXmlFileLastUpdatedStamp() {
+        return entityXmlFileLastUpdatedStamp;
+    }
+
+    public long getEntityFacadeXmlFileLastUpdatedStamp() {
+        return entityFacadeXmlFileLastUpdatedStamp;
+    }
+
+    public long getServiceXmlFileLastUpdatedStamp() {
+        return serviceXmlFileLastUpdatedStamp;
+    }
+
     public void setEntityXmlFileLastUpdatedStamp(long entityXmlFileLastUpdatedStamp) {
         //将所有的缓存删除，简单控制保障内存泄漏
         synchronized (MUTEX_ENTITY) {

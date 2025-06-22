@@ -38,6 +38,7 @@ import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 public final class MyDomUtils {
     public static final Key<Object> MOQUI_REFERENCE_CREATED_KEY = Key.create("moqui.reference.created.key");
+
     public static String MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
     public static Map<String,String> MOQUI_XML_FILE_ROOT_TAGS = new HashMap<>(Map.of(
             Entities.TAG_NAME,Entities.VALUE_NoNamespaceSchemaLocation,
@@ -881,6 +882,7 @@ public final class MyDomUtils {
         psiElement.putUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY,data);
     }
 
+
     /**
      * 从PsiElement中获取MoquiBaseReference，如果有多个，则取第一个，
      * 这里的PsiElement一般都是XmlAttributeValue对应的PsiElement
@@ -894,4 +896,5 @@ public final class MyDomUtils {
         return Optional.empty();
     }
 }
+
 

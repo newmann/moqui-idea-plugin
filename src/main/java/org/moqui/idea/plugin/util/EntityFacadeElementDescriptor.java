@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsSafe;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
@@ -66,7 +65,7 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
                     //只有当前tag不是field时，才添加
                     if (!descriptor.getIsField()) {
                         //对主键字段进行控制，如果主键在父级实体中存在，则不显示。注意，父级实体可能有多个
-                        List<String> parentEntityPKList = getTagParentsEntityPKList(xmlTag);
+                        List<String> parentEntityPKList = getParentTagOffedFieldList(xmlTag);
                         EntityUtils.getIndexEntityByName(xmlTag.getProject(), descriptor.getEntityName())
                                 .ifPresent(indexEntity -> {
                                             indexEntity.getFieldList()
@@ -102,7 +101,7 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
      * @param xmlTag 待处理的实体
      * @return  List<String> 待处理实体可以不用输入的字符列表
      */
-    private List<String> getTagParentsEntityPKList(@NotNull XmlTag xmlTag){
+    private List<String> getParentTagOffedFieldList(@NotNull XmlTag xmlTag){
         List<String> resultList = new ArrayList<>();
 
         Project project = xmlTag.getProject();
@@ -134,20 +133,27 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
             }else{
                 if(relationship.getKeyMapList().isEmpty()) {
                     //没有配置KeyMap，就是表示当前表的pk和主表中的字段名一样。
+                    //但需要考虑两者数量不一致的情况，需要匹配两者之间的名称，一致则放入
                     for(Field pkField: curIndexEntity.getPkFieldList()) {
-                        resultList.add(MyDomUtils.getValueOrEmptyString(pkField.getName()));
-                    }
+                        for(Field parentPkField: parentIndexEntity.getPkFieldList()) {
+                            String pkFieldName =MyDomUtils.getValueOrEmptyString(pkField.getName());
 
+                            if(pkFieldName.equals(MyDomUtils.getValueOrEmptyString(parentPkField.getName())))
+                                resultList.add(pkFieldName);
+
+                        }
+                    }
                 }else {
                     for (KeyMap keyMap : relationship.getKeyMapList()) {
                         String relatedFieldName = MyDomUtils.getValueOrEmptyString(keyMap.getRelated());
 
                         if (relatedFieldName.equals(MyStringUtils.EMPTY_STRING)) {
-                            if (curIndexEntity.getPkFieldList().size() == 1) {
-                                resultList.add(MyDomUtils.getValueOrEmptyString(curIndexEntity.getPkFieldList().get(0).getName()));
-                            } else {
+                            //这时候表示keyMap和related的名字一致，直接讲keyMap放到可以跳过的字段即可。进一步判断是否和PK对应，应该不需要。
+//                            if (curIndexEntity.getPkFieldList().size() == 1) {
+//                                resultList.add(MyDomUtils.getValueOrEmptyString(curIndexEntity.getPkFieldList().get(0).getName()));
+//                            } else {
                                 resultList.add(MyDomUtils.getValueOrEmptyString(keyMap.getFieldName()));//这个时候，keyMap的fieldName和PK一样
-                            }
+//                            }
                         } else {
                             resultList.add(relatedFieldName);
                         }

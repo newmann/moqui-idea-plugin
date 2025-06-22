@@ -32,6 +32,7 @@ public class EntityFacadeXmlTagNameReference extends TagNameReference {
     @Override
     public PsiElement resolve() {
 //        if(MyStringUtils.isEmpty(myEntityName)) return super.resolve();
+
         EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(myASTNode.getPsi());
         if(descriptor.getIsValid()) {
             IndexEntity indexEntity = EntityUtils.getIndexEntityByName(myASTNode.getPsi().getProject(), descriptor.getEntityName()).orElse(null);

@@ -22,7 +22,10 @@ public class EntityFacadeTagNameProvider implements XmlTagNameProvider {
             List<String> relationshipEntityName = new ArrayList<>();
             XmlTag parentTag = xmlTag.getParentTag();
             if((parentTag != null) && EntityFacadeXmlUtils.isNotEntityFacadeRootTag(xmlTag)) {
-                IndexEntity indexEntity = EntityUtils.getIndexEntityByName(project,parentTag.getName()).orElse(null);
+                //parentTag有可能是relationship，所以不能直接根据名称来，应该通过reference找到对应的位置，判断是否为relationship
+                EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(parentTag);
+
+                IndexEntity indexEntity = EntityUtils.getIndexEntityByName(project,descriptor.getEntityName()).orElse(null);
                 if(indexEntity != null) {
                     indexEntity.getRelationshipList().forEach(
                             relationship -> {

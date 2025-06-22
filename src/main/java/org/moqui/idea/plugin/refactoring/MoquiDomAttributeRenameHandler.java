@@ -31,8 +31,10 @@ public class MoquiDomAttributeRenameHandler extends PsiElementRenameHandler {
         PsiElement element = elements.length == 1 ? elements[0] : null;
         if (element == null) element = findTarget(dataContext);
 
-        RenameDialog.showRenameDialog(dataContext, new RenameDialog(project, element, null, CommonDataKeys.EDITOR.getData(dataContext)));
+        if(element != null) {
+            RenameDialog.showRenameDialog(dataContext, new RenameDialog(project, element, null, CommonDataKeys.EDITOR.getData(dataContext)));
 
+        }
     }
 
     private static PsiElement findTarget(DataContext dataContext){
