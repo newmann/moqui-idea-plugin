@@ -4,10 +4,12 @@ import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlPatterns;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
@@ -24,7 +26,8 @@ import java.util.List;
  * 有点复杂，还没有更好的办法来处理
  */
 public class VariableCompletionProvider extends CompletionProvider<CompletionParameters> {
-//    private final  static Logger LOGGER = Logger.getInstance(ServiceCallCompletionProvider.class);
+
+    private final  static Logger LOGGER = Logger.getInstance(ServiceCallCompletionProvider.class);
     public static VariableCompletionProvider of(){
         return new VariableCompletionProvider() ;
     }
@@ -46,11 +49,13 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet result) {
 
-        PsiElement psiElement = parameters.getOriginalPosition();
-        if(psiElement == null) return;
+        PsiElement psiElement = parameters.getPosition();
+//        if(psiElement == null) return;
+
         if(! MyDomUtils.isMoquiProject(psiElement.getProject())) return;
         XmlTag curTag = MyDomUtils.getParentTag(psiElement).orElse(null);
         if(curTag == null) return;
+        LOGGER.warn("开始读取变量名");
         addLookup(getVariableList(curTag),result);
 
     }
@@ -58,9 +63,9 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
     private void addLookup(@NotNull List<VariableLookupItem> lookupItemList,@NotNull CompletionResultSet result){
         lookupItemList.forEach(item->{
             result.addElement(LookupElementBuilder.create(item.name)
-                            .withTypeText(item.type)
+                            .withTypeText(item.fromTagName)
                     .withCaseSensitivity(true)
-                    .withTailText(item.fromTagName)
+                    .withTailText(item.type == null? null: "[" + item.type +"]")
             );
         });
     }
@@ -101,21 +106,22 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
 //        XmlTag curTag = MyDomUtils.getParentTag(psiElement).orElse(null);
 //        if(curTag == null) return result;
         XmlTag curTag = tag;
-
         while(true) {
 
             XmlTag siblingTag = MyDomUtils.getPreSiblingXmlTag(curTag).orElse(null);
             while (siblingTag != null) {
+                LOGGER.warn("开始处理Tag："+ siblingTag.getName());
+
                 extractVariableFromTag(siblingTag, result);
                 siblingTag = MyDomUtils.getPreSiblingXmlTag(siblingTag).orElse(null);
             }
             curTag = MyDomUtils.getTagParentTag(curTag).orElse(null);
 
             if(curTag == null) break;
-            if( curTag.getName().equals(Action.TAG_NAME)) break;
+            if( curTag.getName().equals(Actions.TAG_NAME)) break;
         }
 
-        return new ArrayList<>();
+        return result;
 
     }
 
@@ -148,7 +154,8 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
     public void extractVariableFromTag(@NotNull XmlTag xmlTag, @NotNull List<VariableLookupItem> result){
         switch (xmlTag.getName()) {
             case Set.TAG_NAME -> {
-                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Set.class).ifPresent(item -> result.add(VariableLookupItem.of(
+                LOGGER.warn("处理Set");
+                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, Set.class,false).ifPresent(item -> result.add(VariableLookupItem.of(
                         MyDomUtils.getValueOrEmptyString(item.getField()),
                         null,
                         Set.TAG_NAME,
@@ -156,7 +163,8 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
                 )));
             }
             case EntityFindOne.TAG_NAME -> {
-                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFindOne.class).ifPresent(item -> result.add(VariableLookupItem.of(
+                LOGGER.warn("处理EntityFindOne");
+                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFindOne.class,false).ifPresent(item -> result.add(VariableLookupItem.of(
                         MyDomUtils.getValueOrEmptyString(item.getValueField()),
                         "EntityValue",
                         EntityFindOne.TAG_NAME,
@@ -165,7 +173,7 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
 
             }
             case EntityFind.TAG_NAME -> {
-                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFind.class).ifPresent(item -> result.add(VariableLookupItem.of(
+                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFind.class,false).ifPresent(item -> result.add(VariableLookupItem.of(
                         MyDomUtils.getValueOrEmptyString(item.getList()),
                         "EntityValueList",
                         EntityFind.TAG_NAME,
@@ -174,7 +182,7 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
 
             }
             case EntityFindCount.TAG_NAME -> {
-                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFindCount.class).ifPresent(item -> result.add(VariableLookupItem.of(
+                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFindCount.class,false).ifPresent(item -> result.add(VariableLookupItem.of(
                         MyDomUtils.getValueOrEmptyString(item.getCountField()),
                         null,
                         EntityFind.TAG_NAME,
@@ -184,7 +192,7 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
             }
 
             case EntityFindRelatedOne.TAG_NAME -> {
-                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFindRelatedOne.class).ifPresent(item -> result.add(VariableLookupItem.of(
+                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFindRelatedOne.class,false).ifPresent(item -> result.add(VariableLookupItem.of(
                         MyDomUtils.getValueOrEmptyString(item.getToValueField()),
                         "EntityValue",
                         EntityFindRelatedOne.TAG_NAME,
@@ -193,7 +201,7 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
 
             }
             case EntityFindRelated.TAG_NAME -> {
-                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFindRelated.class).ifPresent(item -> result.add(VariableLookupItem.of(
+                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityFindRelated.class,false).ifPresent(item -> result.add(VariableLookupItem.of(
                         MyDomUtils.getValueOrEmptyString(item.getToList()),
                         "EntityValueList",
                         EntityFind.TAG_NAME,
@@ -202,7 +210,7 @@ public class VariableCompletionProvider extends CompletionProvider<CompletionPar
 
             }
             case EntityMakeValue.TAG_NAME -> {
-                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityMakeValue.class).ifPresent(item -> result.add(VariableLookupItem.of(
+                MyDomUtils.getLocalDomElementByPsiElement(xmlTag, EntityMakeValue.class,false).ifPresent(item -> result.add(VariableLookupItem.of(
                         MyDomUtils.getValueOrEmptyString(item.getValueField()),
                         "EntityValue",
                         EntityFindRelatedOne.TAG_NAME,

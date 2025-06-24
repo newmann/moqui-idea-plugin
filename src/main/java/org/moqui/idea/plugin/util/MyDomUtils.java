@@ -364,14 +364,14 @@ public final class MyDomUtils {
      * @return Optional<XmlTag>
      */
     public static Optional<XmlTag> getParentTag(@NotNull PsiElement psiElement){
-        if (! ReadAction.compute(psiElement::isValid)) return Optional.empty();
+//        if (! ReadAction.compute(psiElement::isValid)) return Optional.empty();
 
         XmlTag xmlTag;
         if(psiElement instanceof XmlTag) {
             xmlTag = (XmlTag) psiElement;
         }else {
-            xmlTag =  ReadAction.compute(
-                    () ->PsiTreeUtil.getParentOfType(psiElement, XmlTag.class)
+            xmlTag =  ApplicationManager.getApplication().runReadAction(
+                    (Computable<XmlTag>) () ->PsiTreeUtil.getParentOfType(psiElement, XmlTag.class)
             );
         }
 

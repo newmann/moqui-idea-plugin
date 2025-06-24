@@ -482,27 +482,29 @@ public final class MoquiIndexService {
     private void checkAndUpdateEntity(@NotNull String entityName){
         synchronized (MUTEX_ENTITY) {
             IndexEntity indexEntity = accessIndexEntityByName(entityName).orElse(null);
-//            if(indexEntity != null && indexEntity.getLastRefreshStamp()>= this.entityXmlFileLastUpdatedStamp ) return;
+            if(indexEntity != null ) return;
+//            新规则是直接删除，所以无需更新，要么存在，要么不存在
 
             Entity entity = EntityUtils.getEntityByNameFromFile(this.project, entityName).orElse(null);
-            if(entity==null) {
-                removeIndexEntityByName(entityName);
+            if (entity == null) {
+//                    removeIndexEntityByName(entityName);
                 return;
             }
 
+
             //传入的entityName有可能是shortAlias,而ExtendEntity定义中不一定有shortAlias
-            List<ExtendEntity> extendEntityList =EntityUtils.getExtendEntityListByNameFromFile(this.project,MyDomUtils.getValueOrEmptyString(entity.getEntityName()));
+            List<ExtendEntity> extendEntityList = EntityUtils.getExtendEntityListByNameFromFile(this.project, MyDomUtils.getValueOrEmptyString(entity.getEntityName()));
             //添加
-            if (indexEntity == null) {
-                indexEntity = new IndexEntity(entity,extendEntityList);
-                this.indexEntityMap.put(indexEntity.fullName,indexEntity);
-            }
-            else {
-                //更新
-                indexEntity.setEntity(entity);
-                indexEntity.setExtendEntityList(extendEntityList);
-                indexEntity.RefreshEntity();
-            }
+//                if (indexEntity == null) {
+            indexEntity = new IndexEntity(entity, extendEntityList);
+            this.indexEntityMap.put(indexEntity.fullName, indexEntity);
+//                } else {
+//                    //更新
+//                    indexEntity.setEntity(entity);
+//                    indexEntity.setExtendEntityList(extendEntityList);
+//                    indexEntity.RefreshEntity();
+//                }
+
 
         }
 
@@ -512,18 +514,18 @@ public final class MoquiIndexService {
      */
     private void checkAndUpdateView(@NotNull String viewName){
         synchronized (MUTEX_VIEW) {
-//            IndexViewEntity indexViewEntity = (IndexViewEntity)accessIndexViewEntityByName(viewName).orElse(null);
-//            if(indexViewEntity != null && indexViewEntity.getLastRefreshStamp()>= this.entityXmlFileLastUpdatedStamp ) return;
+//            新规则是直接删除，所以无需更新，要么存在，要么不存在
+            IndexViewEntity indexViewEntity = accessIndexViewEntityByName(viewName).orElse(null);
+            if(indexViewEntity != null  ) return;
 
             ViewEntity viewEntity = EntityUtils.getViewEntityByNameFromFile(this.project, viewName).orElse(null);
-            if(viewEntity==null) {
+            if (viewEntity == null) {
                 //从IndexViewEntityMap中删除
                 removeIndexViewEntityByName(viewName);
-            }else {
+            } else {
                 //添加
                 addViewEntityToIndexViewEntityMap(viewEntity);
             }
-
         }
 
     }
@@ -534,8 +536,9 @@ public final class MoquiIndexService {
      */
     private void checkAndUpdateService(@NotNull String fullName){
         synchronized (MUTEX_SERVICE) {
-//            IndexService indexService = accessIndexServiceByFullName(fullName).orElse(null);
-//            if(indexService != null && indexService.getLastRefreshStamp()>= this.serviceXmlFileLastUpdatedStamp ) return;
+            //            新规则是直接删除，所以无需更新，要么存在，要么不存在
+            IndexService indexService = accessIndexServiceByFullName(fullName).orElse(null);
+            if(indexService != null ) return;
 
             org.moqui.idea.plugin.dom.model.Service service = ServiceUtils.getServiceByFullNameFromFile(this.project, fullName).orElse(null);
             if(service==null) {
@@ -563,8 +566,8 @@ public final class MoquiIndexService {
     }
     private void checkAndUpdateInterface(@NotNull String fullName){
         synchronized (MUTEX_INTERFACE) {
-//            IndexService indexInterface = accessIndexInterfaceByFullName(fullName).orElse(null);
-//            if(indexInterface != null && indexInterface.getLastRefreshStamp()>= this.serviceXmlFileLastUpdatedStamp ) return;
+            IndexService indexInterface = accessIndexInterfaceByFullName(fullName).orElse(null);
+            if(indexInterface != null) return;
 
             org.moqui.idea.plugin.dom.model.Service service = ServiceUtils.getServiceByFullNameFromFile(this.project, fullName).orElse(null);
             if(service==null) {
