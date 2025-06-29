@@ -29,6 +29,7 @@ import java.util.Collection;
  *                 url-type="plain" link-type="anchor" target-window="_blank" text="Search String Reference"/>
  * 4、指向动态菜单路径：<default-response url="//${appRoot}/Accounting/FinancialAccount/FindFinancialAccount"/>
  */
+@Deprecated
 public class UrlConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
 //    @Override
 //    public @Nullable String fromString(@Nullable  String s, ConvertContext context) {

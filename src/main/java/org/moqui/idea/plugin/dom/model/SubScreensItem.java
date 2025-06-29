@@ -6,9 +6,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface SubScreensItem extends AbstractLocation {
     
-    public static final String TAG_NAME = "subscreens-item";
+    String TAG_NAME = "subscreens-item";
 //    public static final String ATTR_LOCATION = "location";
-    public static final String ATTR_NAME = "name";
+    String ATTR_NAME = "name";
 //    @NotNull
 //    @SubTagList(ConditionalDefault.TAG_NAME)
 //    List<ConditionalDefault> getConditionalDefaultList();

@@ -8,8 +8,8 @@ import org.moqui.idea.plugin.dom.converter.SectionIncludeNameReferenceConverter;
 
 public interface SectionInclude extends AbstractLocation {
     
-    public static final String TAG_NAME = "section-include";
-    public static final String ATTR_NAME = "name";
+    String TAG_NAME = "section-include";
+    String ATTR_NAME = "name";
     @NotNull
     @Referencing(SectionIncludeNameReferenceConverter.class)
     @Attribute(ATTR_NAME)

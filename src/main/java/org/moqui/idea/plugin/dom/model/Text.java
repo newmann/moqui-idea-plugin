@@ -4,7 +4,7 @@ import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 
 public interface Text extends AbstractLocation {
-    public static final String TAG_NAME = "text";
+    String TAG_NAME = "text";
 
     @NotNull GenericAttributeValue<String> getType();
 

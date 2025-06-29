@@ -6,14 +6,14 @@ import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.LocationConverter;
 
-public interface ServiceLocation extends DomElement {
+public interface ServiceLocation extends AbstractLocation {
     
-    public static final String TAG_NAME = "service-location";
+    String TAG_NAME = "service-location";
 
     @NotNull GenericAttributeValue<String> getName();
-    @NotNull
-    @Convert(LocationConverter.class)
-    GenericAttributeValue<String> getLocation();
+//    @NotNull
+//    @Convert(LocationConverter.class)
+//    GenericAttributeValue<String> getLocation();
 
 
 

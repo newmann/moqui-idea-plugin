@@ -8,13 +8,13 @@ import org.moqui.idea.plugin.dom.converter.ServiceIncludeReferenceConverter;
 
 public interface ServiceInclude extends AbstractLocation {
     
-    public static final String TAG_NAME = "service-include";
+    String TAG_NAME = "service-include";
     
-    public static final String ATTR_VERB = "verb";
+    String ATTR_VERB = "verb";
     
-    public static final String ATTR_NOUN = "noun";
+    String ATTR_NOUN = "noun";
     
-    public static final String ATTR_LOCATION = "location";
+//    public static final String ATTR_LOCATION = "location";
     @NotNull
     @Attribute(ATTR_VERB)
     @Referencing(ServiceIncludeReferenceConverter.class)

@@ -34,6 +34,7 @@ import java.util.*;
 
 import static com.intellij.psi.xml.XmlTokenType.*;
 import static org.moqui.idea.plugin.util.ComponentUtils.COMPONENT_LOCATION_PREFIX;
+import static org.moqui.idea.plugin.util.MyStringUtils.firstCharIsUpperCase;
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 public final class MyDomUtils {
@@ -519,11 +520,13 @@ public final class MyDomUtils {
      * 2、moqui/runtime/component/SimpleScreens/screen/SimpleScreens/Supplier/EditSupplier.xml
      * 3、//system/Security/UserAccountDetail，
      * 4、component://tools/screen/System.xml
+     * 5、//apps/system/SystemMessage/Message/SystemMessageDetail
      * 根据location找到对应的PsiFile
      * @param location String
      * @return Optional<PsiFile>
      */
     public static Optional<PsiFile> getFileFromLocation(Project project, @NotNull String location){
+
 
         return ApplicationManager.getApplication().runReadAction((Computable<Optional<PsiFile>>) ()->{
 
@@ -547,25 +550,32 @@ public final class MyDomUtils {
                     // system，对应到runtime/base-component/tools/screen/System
                     // tools，对应到runtime/base-component/tools/screen/Tools
                     pathName = realLocation.substring(2);
-                    int firstSlashIndex = pathName.indexOf("/");
-
-                    //如果不存在，则存在错误，直接返回
-                    if (firstSlashIndex < 0) {
+                    pathName = processBaseComponentPath(pathName).orElse(null);
+                    if(pathName == null) {
+                        //如果处理失败，则返回空
                         return Optional.empty();
                     }
-
-                    String firstPath = pathName.substring(0, firstSlashIndex);
-                    pathName = pathName.substring(firstSlashIndex + 1);
-                    switch (firstPath) {
-                        case "system":
-                            pathName = "runtime/base-component/tools/screen/System/" + pathName;
-                            break;
-                        case "tools":
-                            pathName = "runtime/base-component/tools/screen/Tools/" + pathName;
-                            break;
-                        default:
-                            return Optional.empty();
-                    }
+//                    int firstSlashIndex = pathName.indexOf("/");
+//
+//                    //如果不存在，则存在错误，直接返回
+//                    if (firstSlashIndex < 0) {
+//                        return Optional.empty();
+//                    }
+//
+//                    String firstPath = pathName.substring(0, firstSlashIndex);
+//                    pathName = pathName.substring(firstSlashIndex + 1);
+//                    switch (firstPath) {
+//                        case "system":
+//                            pathName = "runtime/base-component/tools/screen/System/" + pathName;
+//                            break;
+//                        case "tools":
+//                            pathName = "runtime/base-component/tools/screen/Tools/" + pathName;
+//                            break;
+//                        case "apps","qapps":
+//
+//                        default:
+//                            return Optional.empty();
+//                    }
 
 
                 } else {
@@ -610,6 +620,30 @@ public final class MyDomUtils {
 //        });
     }
 
+    private static Optional<String> processBaseComponentPath(@NotNull String pathName) {
+
+        // system，对应到runtime/base-component/tools/screen/System
+        // tools，对应到runtime/base-component/tools/screen/Tools
+
+        int firstSlashIndex = pathName.indexOf("/");
+
+        //如果不存在，则存在错误，直接返回
+        if (firstSlashIndex < 0) {
+            return Optional.empty();
+        }
+
+        String firstPath = pathName.substring(0, firstSlashIndex);
+        pathName = pathName.substring(firstSlashIndex + 1);
+
+        return switch (firstPath) {
+            case "system" -> Optional.of("runtime/base-component/tools/screen/System/" + pathName);
+            case "tools" -> Optional.of(pathName = "runtime/base-component/tools/screen/Tools/" + pathName);
+            case "apps", "qapps" -> processBaseComponentPath(pathName);
+            default -> Optional.empty();
+        };
+
+
+    }
     public static Optional<PsiFile> getPsiFileByPathName(@NotNull Project project, @NotNull String pathName)
     {
         String fileName = new File(pathName).getName();

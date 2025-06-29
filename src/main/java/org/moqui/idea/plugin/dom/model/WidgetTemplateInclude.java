@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface WidgetTemplateInclude extends AbstractLocation {
 
-    public static final String TAG_NAME = "widget-template-include";
+    String TAG_NAME = "widget-template-include";
 //    public static final String ATTR_LOCATION = "location";
 
 

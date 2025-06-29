@@ -249,6 +249,7 @@ public final class ScreenUtils {
     }
     private static void collectSections(Widgets widgets, List<Section> result) {
         result.addAll(widgets.getSectionList());
+        result.addAll(widgets.getSectionIterateList());
         for(Section section: widgets.getSectionList()) {
             collectSections(section.getWidgets(),result);
         }

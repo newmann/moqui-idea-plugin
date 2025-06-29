@@ -30,10 +30,11 @@ public class SubScreensDefaultItemCompletionProvider extends AbstractSimpleCompl
 
     public static final PsiElementPattern<PsiElement, PsiElementPattern.Capture<PsiElement>> SUB_SCREENS_DEFAULT_ITEM_PATTERN =
             PlatformPatterns.psiElement().inside(
-                    XmlPatterns.xmlAttributeValue(SubScreens.ATTR_DEFAULT_ITEM).inside(
-                            XmlPatterns.xmlTag().withLocalName(SubScreens.TAG_NAME).inside(
-                                    XmlPatterns.xmlTag().withLocalName(Screen.TAG_NAME)
-                            )
+                    XmlPatterns.xmlAttributeValue(SubScreens.ATTR_DEFAULT_ITEM)
+                            .withSuperParent(2,
+                                XmlPatterns.xmlTag().withLocalName(SubScreens.TAG_NAME).inside(
+                                        XmlPatterns.xmlTag().withLocalName(Screen.TAG_NAME)
+                                )
                     )
             );
     @Override
@@ -48,7 +49,7 @@ public class SubScreensDefaultItemCompletionProvider extends AbstractSimpleCompl
                     LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
                             .withCaseSensitivity(true)
                             .withIcon(MyIcons.ScreenTag)
-                            .withTypeText(MyDomUtils.getValueOrEmptyString(item.getLocation()))
+                            .withTypeText(SubScreensItem.TAG_NAME)
             );
 
         });

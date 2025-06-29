@@ -8,7 +8,7 @@ import org.moqui.idea.plugin.dom.converter.LocationConverter;
 
 public interface ScreenTextOutput extends DomElement {
 
-    public static final String TAG_NAME = "screen-text-output";
+    String TAG_NAME = "screen-text-output";
 
     @NotNull GenericAttributeValue<String> getType();
     @NotNull GenericAttributeValue<String> getMimeType();

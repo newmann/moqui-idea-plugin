@@ -3,6 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.LocationConverter;
+import org.moqui.idea.plugin.dom.converter.LocationReferenceConverter;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public interface SubScreens extends DomElement {
 
     @NotNull
     @Attribute(ATTR_DEFAULT_ITEM)
-    @Convert(LocationConverter.class)
+    @Referencing(LocationReferenceConverter.class)
     GenericAttributeValue<String> getDefaultItem();
 
     @NotNull GenericAttributeValue<String> getAlwaysUseFullPath();

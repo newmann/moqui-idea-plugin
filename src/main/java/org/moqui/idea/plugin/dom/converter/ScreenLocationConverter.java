@@ -16,6 +16,7 @@ import java.util.Collection;
 /**
  * 指向可用的Screen文件
  */
+@Deprecated
 public class ScreenLocationConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter {
     @Override
     public @NotNull Collection<? extends String> getVariants(ConvertContext context) {
