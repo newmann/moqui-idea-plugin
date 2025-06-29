@@ -33,16 +33,16 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
                     .inside(
                             XmlPatterns.xmlAttributeValue().andOr(
                                 XmlPatterns.xmlAttributeValue(ServiceCall.ATTR_NAME)
-                                        .inside(
-                                                XmlPatterns.xmlTag().withLocalName(ServiceCall.TAG_NAME,Service.TAG_NAME)
+                                        .withSuperParent(
+                                                2,XmlPatterns.xmlTag().withLocalName(ServiceCall.TAG_NAME,Service.TAG_NAME)
                                         ),
                                 XmlPatterns.xmlAttributeValue(Seca.ATTR_SERVICE)
-                                                        .inside(
-                                                                XmlPatterns.xmlTag().withLocalName(Seca.TAG_NAME)
+                                                        .withSuperParent(
+                                                               2, XmlPatterns.xmlTag().withLocalName(Seca.TAG_NAME)
                                                         ),
                                 XmlPatterns.xmlAttributeValue(AutoFieldsService.ATTR_SERVICE_NAME)
-                                        .inside(
-                                                XmlPatterns.xmlTag().withLocalName(AutoFieldsService.TAG_NAME)
+                                        .withSuperParent(
+                                               2, XmlPatterns.xmlTag().withLocalName(AutoFieldsService.TAG_NAME)
                                         )
                             )
                     );
