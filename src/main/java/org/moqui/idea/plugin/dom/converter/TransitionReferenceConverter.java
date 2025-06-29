@@ -27,24 +27,24 @@ import java.util.stream.Collectors;
  * 3、还可以指向定义好的subscreens：案例：moqui-framework\runtime\component\SimpleScreens\screen\MyAccount\User\TimeEntries.xml
  *      subscreens-item name="EditTimeEntry"
  */
-public class TransitionConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
+public class TransitionReferenceConverter implements CustomReferenceConverter<String> {
 
 
 
-    @Override
-    public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
-        if(s==null) {
-            return super.getErrorMessage(s, context);
-        }else {
-            return "找不到[" + s + "]对应的transition定义。";
-        }
-    }
-
-    @Override
-    public @NotNull Collection<String> getVariants(ConvertContext context) {
-        return getTransitionList(context).stream().map(AbstractTransition::getName)
-                .map(MyDomUtils::getValueOrEmptyString).collect(Collectors.toSet());
-    }
+//    @Override
+//    public @InspectionMessage String getErrorMessage(@Nullable String s, ConvertContext context) {
+//        if(s==null) {
+//            return super.getErrorMessage(s, context);
+//        }else {
+//            return "找不到[" + s + "]对应的transition定义。";
+//        }
+//    }
+//
+//    @Override
+//    public @NotNull Collection<String> getVariants(ConvertContext context) {
+//        return getTransitionList(context).stream().map(AbstractTransition::getName)
+//                .map(MyDomUtils::getValueOrEmptyString).collect(Collectors.toSet());
+//    }
 
 //    @Override
 //    public @Nullable String toString(@Nullable AbstractTransition transition, ConvertContext context) {
@@ -79,34 +79,34 @@ public class TransitionConverter extends ResolvingConverter.StringConverter impl
      * @param context
      * @return
      */
-    private List<AbstractTransition> getTransitionList(ConvertContext context) {
-
-        List<AbstractTransition> result = new ArrayList<AbstractTransition>();
-
-
-        Screen screen = ScreenUtils.getCurrentScreen(context).orElse(null);
-        if(screen != null){
-            result.addAll(screen.getTransitionList());
-            result.addAll(screen.getTransitionIncludeList());
-        }
-        return result;
-    }
+//    private List<AbstractTransition> getTransitionList(ConvertContext context) {
+//
+//        List<AbstractTransition> result = new ArrayList<AbstractTransition>();
+//
+//
+//        Screen screen = ScreenUtils.getCurrentScreen(context).orElse(null);
+//        if(screen != null){
+//            result.addAll(screen.getTransitionList());
+//            result.addAll(screen.getTransitionIncludeList());
+//        }
+//        return result;
+//    }
     /**
      * 根据当前位置对应的Transition
      * @param related
      * @param context
      * @return
      */
-    private Optional<AbstractTransition> getTransition(String related, ConvertContext context) {
-        List<AbstractTransition> transitionList = getTransitionList(context);
-        return transitionList.stream().filter(
-                item->{
-                    String str = MyDomUtils.getValueOrEmptyString(item.getName());
-                    return str.equals(related);
-                    }
-        ).findFirst();
-
-    }
+//    private Optional<AbstractTransition> getTransition(String related, ConvertContext context) {
+//        List<AbstractTransition> transitionList = getTransitionList(context);
+//        return transitionList.stream().filter(
+//                item->{
+//                    String str = MyDomUtils.getValueOrEmptyString(item.getName());
+//                    return str.equals(related);
+//                    }
+//        ).findFirst();
+//
+//    }
 
 
 }

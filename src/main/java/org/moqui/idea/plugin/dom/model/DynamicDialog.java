@@ -1,12 +1,9 @@
 package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.ide.presentation.Presentation;
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTagList;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.TransitionConverter;
+import org.moqui.idea.plugin.dom.converter.TransitionReferenceConverter;
 import org.moqui.idea.plugin.dom.presentation.DynamicDialogPresentationProvider;
 
 import java.util.List;
@@ -27,7 +24,7 @@ public interface DynamicDialog extends DomElement {
     @NotNull GenericAttributeValue<String> getHeight();
 
     @NotNull
-    @Convert(TransitionConverter.class)
+    @Referencing(TransitionReferenceConverter.class)
     GenericAttributeValue<String> getTransition();
 
     @NotNull GenericAttributeValue<String> getParameterMap();

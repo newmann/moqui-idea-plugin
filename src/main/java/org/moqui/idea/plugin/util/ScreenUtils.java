@@ -70,7 +70,7 @@ public final class ScreenUtils {
      */
     public static List<AbstractTransition> getAbstractTransitionListFromConvertContext(ConvertContext context) {
 
-        Screen screen = ScreenUtils.getCurrentScreen(context).orElse(null);
+        Screen screen = getCurrentScreen(context).orElse(null);
         return getAbstractTransitionListFromScreen(screen);
     }
     public static List<AbstractTransition> getAbstractTransitionListFromScreen(@Nullable Screen screen) {
@@ -82,6 +82,11 @@ public final class ScreenUtils {
             result.addAll(screen.getTransitionIncludeList());
         }
         return result;
+    }
+    public static List<AbstractTransition> getAbstractTransitionListFromPsiElement(PsiElement psiElement) {
+
+        Screen screen = getCurrentScreen(psiElement).orElse(null);
+        return getAbstractTransitionListFromScreen(screen);
     }
 
     /**

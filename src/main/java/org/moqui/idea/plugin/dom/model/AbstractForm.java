@@ -3,7 +3,7 @@ package org.moqui.idea.plugin.dom.model;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.LocationConverter;
-import org.moqui.idea.plugin.dom.converter.TransitionConverter;
+import org.moqui.idea.plugin.dom.converter.TransitionReferenceConverter;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public interface AbstractForm extends DomElement {
 
     @NotNull
     @Attribute(ATTR_TRANSITION)
-    @Convert(TransitionConverter.class)
+    @Referencing(TransitionReferenceConverter.class)
     GenericAttributeValue<String> getTransition();
 
     @NotNull

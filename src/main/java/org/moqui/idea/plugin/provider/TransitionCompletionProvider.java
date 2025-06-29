@@ -33,7 +33,7 @@ public class TransitionCompletionProvider extends AbstractSimpleCompletionProvid
 
     public static final PsiElementPattern<PsiElement, PsiElementPattern.Capture<PsiElement>> TRANSITION_PATTERN =
             PlatformPatterns.psiElement().inside(
-                    XmlPatterns.xmlAttributeValue(AbstractForm.ATTR_TRANSITION).inside(
+                    XmlPatterns.xmlAttributeValue(AbstractForm.ATTR_TRANSITION).withSuperParent(2,
                             XmlPatterns.xmlTag().withLocalName(FormSingle.TAG_NAME,FormList.TAG_NAME,DynamicContainer.TAG_NAME,
                                     DynamicDialog.TAG_NAME,DynamicOptions.TAG_NAME).inside(
                                     XmlPatterns.xmlTag().withLocalName(Screen.TAG_NAME)
@@ -51,25 +51,36 @@ public class TransitionCompletionProvider extends AbstractSimpleCompletionProvid
                         .withTypeText("current Screen")
                         .withIcon(MyIcons.ScreenTag)
         );
+
+        //添加Transition
+        ScreenUtils.getAbstractTransitionListFromPsiElement(psiElement).forEach(
+                item -> lookupElementBuilders.add(
+                        LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
+                                .withCaseSensitivity(false)
+                                .withIcon(MyIcons.TransitionTag)
+                                .withTypeText(Transition.TAG_NAME)
+                )
+        );
+
         //添加SubScreensItem
-        List<SubScreensItem> subScreensItemList = ScreenUtils.getSubScreensItemList(psiElement);
-        subScreensItemList.forEach(item -> lookupElementBuilders.add(
-                LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
+        ScreenUtils.getSubScreensItemList(psiElement).forEach(
+                item -> lookupElementBuilders.add(
+                    LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
                         .withCaseSensitivity(false)
                         .withIcon(MyIcons.ScreenTag)
                         .withTypeText(MyDomUtils.getValueOrEmptyString(item.getLocation()))
         ));
         //添加相对路径下的Screen
-        List<PsiFile> relativeFileList = LocationUtils.getRelativeScreenFileList(psiElement);
-        relativeFileList.forEach(item->{
-            if(item.getParent() != null) {
-                lookupElementBuilders.add(
-                        LookupElementBuilder.create(MyStringUtils.removeLastDotString(item.getName()))
-                                .withCaseSensitivity(false)
-                                .withIcon(MyIcons.ScreenTag)
-                                .withTypeText(item.getParent().getVirtualFile().getPath())
-                );
-            }
+        LocationUtils.getRelativeScreenFileList(psiElement).forEach(
+                item->{
+                    if(item.getParent() != null) {
+                        lookupElementBuilders.add(
+                                LookupElementBuilder.create(MyStringUtils.removeLastDotString(item.getName()))
+                                        .withCaseSensitivity(false)
+                                        .withIcon(MyIcons.ScreenTag)
+                                        .withTypeText(item.getParent().getVirtualFile().getPath())
+                        );
+                    }
         });
 
 
