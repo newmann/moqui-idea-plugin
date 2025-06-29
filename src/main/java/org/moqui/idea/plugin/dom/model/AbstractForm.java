@@ -10,10 +10,9 @@ import java.util.List;
 
 public interface AbstractForm extends DomElement {
 
-    public static final String ATTR_NAME = "name";
-    public static final String ATTR_EXTENDS = "extends";
-
-    public static final String ATTR_TRANSITION = "transition";
+    String ATTR_NAME = "name";
+    String ATTR_EXTENDS = "extends";
+    String ATTR_TRANSITION = "transition";
 
     @NotNull
     @Attribute(ATTR_NAME)

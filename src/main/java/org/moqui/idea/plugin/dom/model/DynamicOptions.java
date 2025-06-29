@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DynamicOptions extends DomElement {
 
-    public static final String TAG_NAME = "dynamic-options";
+    String TAG_NAME = "dynamic-options";
 
     @NotNull
     @SubTagList(DependsOn.TAG_NAME)

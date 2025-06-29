@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.service.IndexService;
 
 import javax.swing.*;
 import java.util.ArrayList;

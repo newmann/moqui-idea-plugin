@@ -1,25 +1,12 @@
 package org.moqui.idea.plugin.dom.converter;
 
-import com.intellij.codeInspection.util.InspectionMessage;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
-import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.moqui.idea.plugin.dom.model.AbstractTransition;
-import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.util.LocationUtils;
-import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.ScreenUtils;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 1、指向本screen的transition.name

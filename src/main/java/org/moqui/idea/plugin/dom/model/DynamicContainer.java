@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DynamicContainer extends DomElement {
     
-    public static final String TAG_NAME = "dynamic-container";
+    String TAG_NAME = "dynamic-container";
 
     @NotNull
     @SubTagList(Parameter.TAG_NAME)
