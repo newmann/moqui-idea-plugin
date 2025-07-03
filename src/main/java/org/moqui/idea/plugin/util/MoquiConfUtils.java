@@ -1,6 +1,7 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -101,4 +102,17 @@ public final class MoquiConfUtils {
         return result;
 
     }
+
+    /**
+     * 获取指定位置的所有Screen定义，这里的location必须是按component://格式定义的路径，和MoquiConf.xml中定义的一致
+     * @param project 当前project
+     * @param location 按component://格式定义的路径
+     * @return List<Screen>
+     */
+    public static List<Screen> getAllScreensByLocation(@NotNull Project project,@NotNull String location){
+        return getAllScreens(project).stream()
+                .filter(item->MyDomUtils.getValueOrEmptyString(ReadAction.compute(item::getLocation)).equals(location))
+                .toList();
+    }
+
 }

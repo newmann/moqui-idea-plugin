@@ -15,17 +15,15 @@ import org.moqui.idea.plugin.MyBundle;
 import org.moqui.idea.plugin.dom.model.Component;
 import org.moqui.idea.plugin.dom.model.DependsOn;
 import org.moqui.idea.plugin.util.ComponentUtils;
+import org.moqui.idea.plugin.util.MoquiUrl;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MySwingUtils;
-import org.moqui.idea.plugin.util.ScreenUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -88,7 +86,7 @@ public class ComponentDepends extends JPanel {
         refreshButton.setIcon(new AnimatedIcon.Default());
         ProgressManager.getInstance().run(
                 new Task.Backgroundable(myProject, componentTree,"Loading component depends...",false,null){
-                    ArrayList<ScreenUtils.Menu> menuArrayList;
+                    ArrayList<MoquiUrl> menuArrayList;
                     @Override
                     public void run(@NotNull ProgressIndicator indicator) {
                         rootNode = new DefaultMutableTreeNode("Root");

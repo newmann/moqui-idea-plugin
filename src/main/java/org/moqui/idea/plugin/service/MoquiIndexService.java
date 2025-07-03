@@ -1,6 +1,8 @@
 package org.moqui.idea.plugin.service;
 
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.components.Service;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -8,19 +10,15 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.xml.DomFileElement;
+import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.listener.MoquiXmlBulkFileListener;
-import org.moqui.idea.plugin.listener.MoquiXmlVirtualFileManager;
 import org.moqui.idea.plugin.util.*;
-import com.intellij.openapi.components.Service;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * 建立Entity，ViewEntity和Service 等的缓存
@@ -133,7 +131,7 @@ public final class MoquiIndexService {
         return isMoquiProject;
     }
 
-    private boolean addViewEntityToIndexViewEntityMap(@NotNull ViewEntity viewEntity){
+    private void addViewEntityToIndexViewEntityMap(@NotNull ViewEntity viewEntity){
         Map<String,AbstractIndexEntity> aliasEntityMap = new HashMap<>();
 
         for(MemberEntity memberEntity: viewEntity.getMemberEntityList()){
@@ -174,7 +172,7 @@ public final class MoquiIndexService {
                 }
             }
         }
-        if(!pending.isEmpty()) return false;
+        if(!pending.isEmpty()) return ;
         IndexViewEntity indexViewEntity = new IndexViewEntity(viewEntity);
         indexViewEntity.setAbstractIndexEntityMap(aliasEntityMap);
 
@@ -183,7 +181,6 @@ public final class MoquiIndexService {
         indexViewEntity.setLastRefreshStamp(System.currentTimeMillis());
 
         this.indexViewEntityMap.put(indexViewEntity.getFullName(), indexViewEntity);
-        return true;
 
     }
 
@@ -733,7 +730,7 @@ public final class MoquiIndexService {
             this.indexTextTemplateMap.clear();
 //            List<DomFileElement<EntityFacadeXml>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,EntityFacadeXml.class);
             List<PsiFile> fileList= EntityFacadeXmlUtils.getAllEntityFacadeXmlFileList(project);
-            if(fileList.size()> 0 ) {
+            if(!fileList.isEmpty()) {
 
                 fileList.forEach(file->{
                     Map<String,XmlTag> fileTemplate =  EntityFacadeXmlUtils.getTextTemplateFromFile(file);

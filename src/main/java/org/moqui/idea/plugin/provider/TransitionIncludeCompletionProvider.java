@@ -13,6 +13,7 @@ import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.Transition;
 import org.moqui.idea.plugin.dom.model.TransitionInclude;
 import org.moqui.idea.plugin.util.LocationUtils;
+import org.moqui.idea.plugin.util.MoquiFile;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.ServiceUtils;
 
@@ -43,7 +44,7 @@ public class TransitionIncludeCompletionProvider extends AbstractSimpleCompletio
 
         List<DomFileElement<Screen>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(psiElement.getProject(), Screen.class);
         for(DomFileElement<Screen> screenDomFileElement: fileElementList) {
-            LocationUtils.MoquiFile moquiFile = LocationUtils.ofMoquiFile(screenDomFileElement.getFile().getContainingFile());
+            MoquiFile moquiFile = MoquiFile.of(screenDomFileElement.getFile().getContainingFile());
             for(Transition transition: screenDomFileElement.getRootElement().getTransitionList()) {
                 String transitionName = MyDomUtils.getValueOrEmptyString(transition.getName());
                 String lookupString = LocationUtils.simplifyComponentRelativePath(moquiFile.getRelativePath())+ ServiceUtils.SERVICE_NAME_HASH + transitionName;

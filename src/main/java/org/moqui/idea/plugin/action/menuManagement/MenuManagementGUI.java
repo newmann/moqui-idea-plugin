@@ -11,8 +11,8 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.MyBundle;
+import org.moqui.idea.plugin.util.MoquiUrl;
 import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.ScreenUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -165,13 +165,13 @@ public class MenuManagementGUI extends JPanel {
 
         ProgressManager.getInstance().run(
                 new Task.Backgroundable(myProject, treeEntity,"Loading menu tree...",false,null){
-                    ArrayList<ScreenUtils.Menu> menuArrayList;
+                    ArrayList<MoquiUrl> menuArrayList;
                     @Override
                     public void run(@NotNull ProgressIndicator indicator) {
                         rootNode = new DefaultMutableTreeNode("Root");
 
-                        menuArrayList = ScreenUtils.Menu.findAllMenuArrayList(MenuManagementGUI.this.myProject);
-                        for(ScreenUtils.Menu menu : menuArrayList) {
+                        menuArrayList = MoquiUrl.getAllUrlArrayList(MenuManagementGUI.this.myProject);
+                        for(MoquiUrl menu : menuArrayList) {
                             addMenuToTreeNode(rootNode, menu);
                         }
 
@@ -192,18 +192,18 @@ public class MenuManagementGUI extends JPanel {
         );
     }
 
-    private void addMenuToTreeNode(@NotNull DefaultMutableTreeNode parentNode, @NotNull ScreenUtils.Menu menu) {
+    private void addMenuToTreeNode(@NotNull DefaultMutableTreeNode parentNode, @NotNull MoquiUrl menu) {
 
         DefaultMutableTreeNode node = createTreeNodeForMenu(parentNode,menu);
-        ArrayList<ScreenUtils.Menu> childMenus = menu.getChildren();
+        ArrayList<MoquiUrl> childMenus = menu.getChildren();
         if(childMenus != null) {
-            for (ScreenUtils.Menu childMenu : childMenus) {
+            for (MoquiUrl childMenu : childMenus) {
                 addMenuToTreeNode(node, childMenu);
             }
         }
     }
 
-    private DefaultMutableTreeNode createTreeNodeForMenu(@NotNull DefaultMutableTreeNode parentNode, @NotNull ScreenUtils.Menu menu){
+    private DefaultMutableTreeNode createTreeNodeForMenu(@NotNull DefaultMutableTreeNode parentNode, @NotNull MoquiUrl menu){
         MenuTreeNode menuTreeNode = new MenuTreeNode(menu);
         
         DefaultMutableTreeNode node = new DefaultMutableTreeNode(menuTreeNode);
@@ -233,7 +233,7 @@ public class MenuManagementGUI extends JPanel {
         public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             if(value instanceof DefaultMutableTreeNode node) {
                 if(node.getUserObject() instanceof MenuTreeNode menuTreeNode) {
-                    ScreenUtils.Menu menu = menuTreeNode.getMenu();
+                    MoquiUrl menu = menuTreeNode.getMenu();
                     if (menu.getIcon() != null) {
                         setIcon(menu.getIcon());
                     }

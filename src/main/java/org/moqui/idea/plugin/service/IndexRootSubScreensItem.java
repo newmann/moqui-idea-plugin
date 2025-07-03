@@ -1,17 +1,10 @@
 package org.moqui.idea.plugin.service;
 
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.model.*;
-import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.dom.model.SubScreensItem;
 import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.MyStringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-
-public final class IndexRootSubScreensItem extends AbstractIndexEntity {
+public final class IndexRootSubScreensItem extends AbstractIndex {
 
     final private SubScreensItem subScreensItem;
 

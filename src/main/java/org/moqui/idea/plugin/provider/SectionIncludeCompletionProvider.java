@@ -12,10 +12,7 @@ import org.moqui.idea.plugin.dom.converter.insertHandler.ScreenIncludeInsertionH
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.Section;
 import org.moqui.idea.plugin.dom.model.SectionInclude;
-import org.moqui.idea.plugin.util.LocationUtils;
-import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.ScreenUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
+import org.moqui.idea.plugin.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +42,7 @@ public class SectionIncludeCompletionProvider extends AbstractSimpleCompletionPr
 
         List<DomFileElement<Screen>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(psiElement.getProject(), Screen.class);
         for(DomFileElement<Screen> screenDomFileElement: fileElementList) {
-            LocationUtils.MoquiFile moquiFile = LocationUtils.ofMoquiFile(screenDomFileElement.getFile().getContainingFile());
+            MoquiFile moquiFile = MoquiFile.of(screenDomFileElement.getFile().getContainingFile());
             for(Section section: ScreenUtils.getSectionListFromScreenFile(screenDomFileElement)) {
                 String sectionName = MyDomUtils.getValueOrEmptyString(section.getName());
                 String lookupString = LocationUtils.simplifyComponentRelativePath(moquiFile.getRelativePath())+ ServiceUtils.SERVICE_NAME_HASH + sectionName;

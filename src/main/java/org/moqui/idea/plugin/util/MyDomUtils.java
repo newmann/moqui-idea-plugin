@@ -637,7 +637,7 @@ public final class MyDomUtils {
 
         return switch (firstPath) {
             case "system" -> Optional.of("runtime/base-component/tools/screen/System/" + pathName);
-            case "tools" -> Optional.of(pathName = "runtime/base-component/tools/screen/Tools/" + pathName);
+            case "tools" -> Optional.of("runtime/base-component/tools/screen/Tools/" + pathName);
             case "apps", "qapps" -> processBaseComponentPath(pathName);
             default -> Optional.empty();
         };

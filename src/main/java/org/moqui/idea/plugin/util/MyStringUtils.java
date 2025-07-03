@@ -21,6 +21,8 @@ import static org.jetbrains.plugins.groovy.lang.completion.GrDummyIdentifierProv
  * The type String utils.
  */
 public final class MyStringUtils {
+    public static final String ROOT_SCREEN_LOCATION="component://webroot/screen/webroot.xml";
+    public static final String ROOT_URL = "/";
     private MyStringUtils() {
         throw new UnsupportedOperationException();
     }
@@ -40,6 +42,7 @@ public final class MyStringUtils {
     public static final String TRANSITION_NAME_REGEXP = "^[a-z][a-zA-Z0-9_-]*$";
     public static final String SCREEN_FILE_PATH_REGEXP = "(?:(?:\\.\\./)+)?[A-Z][a-zA-Z0-9_/-]+|\\.|\\.\\.";
     public static final String CONTAIN_VARIABLE_REGEXP =".*(\\$\\{)[a-zA-Z0-9_\\-\\.?:,()]+(\\}).*";
+
 
     public static final String ABSOLUTE_URL_REGEXP = "^/.*";  // "^//([a-zA-Z][\\w\\/]*)+$";
     public static final String COMPONENT_CHILD_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+";

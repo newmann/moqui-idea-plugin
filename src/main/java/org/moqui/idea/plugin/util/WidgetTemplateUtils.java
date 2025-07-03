@@ -54,7 +54,7 @@ public final class WidgetTemplateUtils {
         List<String> result = new ArrayList<>();
 
         widgetTemplatesList.forEach(item-> {
-            LocationUtils.MoquiFile moquiFile = LocationUtils.ofMoquiFile(item.getFile().getContainingFile());
+            MoquiFile moquiFile = MoquiFile.of(item.getFile().getContainingFile());
             String componentRelativePath = moquiFile.getComponentRelativePath();
             result.addAll(item.getRootElement().getWidgetTemplateList().stream().map(wt-> componentRelativePath + "#"
                     + MyDomUtils.getValueOrEmptyString(wt.getName())).toList());
