@@ -11,13 +11,10 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
-import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.*;
@@ -28,19 +25,14 @@ import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.MoquiBaseReference;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 
-import java.io.File;
 import java.util.Set;
 import java.util.*;
 
 import static com.intellij.psi.xml.XmlTokenType.*;
-import static org.moqui.idea.plugin.util.ComponentUtils.COMPONENT_LOCATION_PREFIX;
-import static org.moqui.idea.plugin.util.MyStringUtils.firstCharIsUpperCase;
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 public final class MyDomUtils {
-    public static final Key<Object> MOQUI_REFERENCE_CREATED_KEY = Key.create("moqui.reference.created.key");
 
-    public static String MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
     public static Map<String,String> MOQUI_XML_FILE_ROOT_TAGS = new HashMap<>(Map.of(
             Entities.TAG_NAME,Entities.VALUE_NoNamespaceSchemaLocation,
             Services.TAG_NAME,Services.VALUE_NoNamespaceSchemaLocation,
@@ -235,7 +227,7 @@ public final class MyDomUtils {
                 XmlTag rootTag = ReadAction.compute(xmlFile::getRootTag);
                 if (rootTag == null) return false;
                 if (!MOQUI_XML_FILE_ROOT_TAGS.containsKey(rootTag.getName())) return false;
-                String value = rootTag.getAttributeValue(MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation);
+                String value = rootTag.getAttributeValue(MyStringUtils.MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation);
                 if (value == null) value = MyStringUtils.EMPTY_STRING;
                 return MOQUI_XML_FILE_ROOT_TAGS.containsValue(value);
             }
@@ -514,182 +506,6 @@ public final class MyDomUtils {
         }
     }
 
-    /**
-     * location格式：
-     * 1、component://SimpleScreens/template/party/PartyForms.xml（指向一个文件 ）
-     * 2、moqui/runtime/component/SimpleScreens/screen/SimpleScreens/Supplier/EditSupplier.xml
-     * 3、//system/Security/UserAccountDetail，
-     * 4、component://tools/screen/System.xml
-     * 5、//apps/system/SystemMessage/Message/SystemMessageDetail
-     * 根据location找到对应的PsiFile
-     * @param location String
-     * @return Optional<PsiFile>
-     */
-    public static Optional<PsiFile> getFileFromLocation(Project project, @NotNull String location){
-
-
-        return ApplicationManager.getApplication().runReadAction((Computable<Optional<PsiFile>>) ()->{
-
-            if(MyStringUtils.isEmpty(location)) return Optional.empty();
-            //如果location中包含#，则取#之前的内容作为正式的location
-            int poundIndex = location.indexOf("#");
-            if(poundIndex<0) {
-                poundIndex = location.length();
-            }
-            final String realLocation = location.substring(0,poundIndex);
-
-
-            int doubleSlashIndex = realLocation.indexOf("//");
-            //有双斜杠，是绝对路径
-            String pathName;
-            if (doubleSlashIndex<0) {
-                pathName = realLocation;
-            }else{
-                if (realLocation.startsWith("//")) {
-                    //前两位是//，表示这个路径为内置的component，分别为
-                    // system，对应到runtime/base-component/tools/screen/System
-                    // tools，对应到runtime/base-component/tools/screen/Tools
-                    pathName = realLocation.substring(2);
-                    pathName = processBaseComponentPath(pathName).orElse(null);
-                    if(pathName == null) {
-                        //如果处理失败，则返回空
-                        return Optional.empty();
-                    }
-//                    int firstSlashIndex = pathName.indexOf("/");
-//
-//                    //如果不存在，则存在错误，直接返回
-//                    if (firstSlashIndex < 0) {
-//                        return Optional.empty();
-//                    }
-//
-//                    String firstPath = pathName.substring(0, firstSlashIndex);
-//                    pathName = pathName.substring(firstSlashIndex + 1);
-//                    switch (firstPath) {
-//                        case "system":
-//                            pathName = "runtime/base-component/tools/screen/System/" + pathName;
-//                            break;
-//                        case "tools":
-//                            pathName = "runtime/base-component/tools/screen/Tools/" + pathName;
-//                            break;
-//                        case "apps","qapps":
-//
-//                        default:
-//                            return Optional.empty();
-//                    }
-
-
-                } else {
-                    //前面是component://，表示对应到runtime/component下，但需要注意的是，tools和webroot是在runtime/base-component下
-                    if (realLocation.startsWith(COMPONENT_LOCATION_PREFIX)) {
-
-                        pathName = realLocation.substring(COMPONENT_LOCATION_PREFIX.length());
-                    } else {
-                        //有问题，不处理
-                        return Optional.empty();
-                    }
-                }
-            }
-            //获取文件名
-            int lastSlashIndex = pathName.lastIndexOf("/");
-            String searchName;
-            if(lastSlashIndex<0) {
-                searchName = pathName;
-            }else {
-                searchName = pathName.substring(lastSlashIndex+1);
-            }
-            //如果tempName中不含“.”，则添加.xml作为文件后缀
-            if(!searchName.contains(".")){
-                searchName = searchName +".xml";
-            }
-
-            GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-            Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName( searchName, true, scope);
-
-         //不管是一个文件，还是多个同名文件，都需要对路径进行匹配验证
-
-        final String finalPathName = pathName;
-        VirtualFile virtualFile = foundFileCollection.stream().filter(item -> item.getPath().contains(finalPathName)).findFirst().orElse(null);
-        if(virtualFile == null) {return Optional.empty();}
-
-//        DumbService dumbService = DumbService.getInstance(project);
-//        return dumbService.runReadActionInSmartMode(()->{
-            PsiFile targetFile = PsiManager.getInstance(project).findFile(virtualFile);
-            return Optional.ofNullable(targetFile);
-        });
-
-//        });
-    }
-
-    private static Optional<String> processBaseComponentPath(@NotNull String pathName) {
-
-        // system，对应到runtime/base-component/tools/screen/System
-        // tools，对应到runtime/base-component/tools/screen/Tools
-
-        int firstSlashIndex = pathName.indexOf("/");
-
-        //如果不存在，则存在错误，直接返回
-        if (firstSlashIndex < 0) {
-            return Optional.empty();
-        }
-
-        String firstPath = pathName.substring(0, firstSlashIndex);
-        pathName = pathName.substring(firstSlashIndex + 1);
-
-        return switch (firstPath) {
-            case "system" -> Optional.of("runtime/base-component/tools/screen/System/" + pathName);
-            case "tools" -> Optional.of("runtime/base-component/tools/screen/Tools/" + pathName);
-            case "apps", "qapps" -> processBaseComponentPath(pathName);
-            default -> Optional.empty();
-        };
-
-
-    }
-    public static Optional<PsiFile> getPsiFileByPathName(@NotNull Project project, @NotNull String pathName)
-    {
-        String fileName = new File(pathName).getName();
-
-        return ApplicationManager.getApplication().runReadAction((Computable<Optional<PsiFile>>) ()->{
-            GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-            Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName( fileName, true, scope);
-            //不管是一个文件，还是多个同名文件，都需要对路径进行匹配验证
-            Optional<VirtualFile> vfOptional = foundFileCollection.stream()
-                    .filter(item->item.getPath().equals(pathName))
-                    .findFirst();
-            return vfOptional.map(item -> PsiManager.getInstance(project).findFile(item));
-
-        });
-
-    }
-    public static Optional<VirtualFile> getVirtualFileByPathName(@NotNull Project project, @NotNull String pathName)
-    {
-        return ApplicationManager.getApplication().runReadAction((Computable<Optional<VirtualFile>>) ()->{
-            return Optional.ofNullable(VfsUtil.findFileByIoFile(new File(pathName),true));
-//            GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-//            return FilenameIndex.getVirtualFilesByName( pathName, true, scope).stream().findFirst();
-        });
-
-    }
-    /**
-     * 根据location，获取在location中定义的path和fileName，并按先后次序添加到Array中
-     * 可以处理前面字符为 "//"、 "/"、"component://"
-     * @param location String
-     * @return String[]
-     */
-    public static String[] getPathFileFromLocation(@NotNull String location){
-
-//        ArrayList<String> result = new ArrayList<>();
-
-        int doubtSlashIndex = location.indexOf("//");
-        String finalPath;
-        if(doubtSlashIndex<0) {
-            finalPath = location;
-        }else {
-            finalPath = location.substring(doubtSlashIndex+2);
-        }
-        if(finalPath.startsWith("/")) finalPath = finalPath.substring(1);
-
-        return finalPath.split("/");
-    }
 
 
 
@@ -907,13 +723,13 @@ public final class MyDomUtils {
     }
 
     public static <T> Optional<T> getReferenceDataFromPsiElement(@NotNull PsiElement psiElement, Class<T> targetType) {
-        Object savedObject = psiElement.getUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY);
+        Object savedObject = psiElement.getUserData(MyStringUtils.MOQUI_REFERENCE_CREATED_KEY);
         return targetType.isInstance(savedObject)
                 ? Optional.of(targetType.cast(savedObject))
                 : Optional.empty();
     }
     public static void putReferenceDataToPsiElement(@NotNull PsiElement psiElement,Object data) {
-        psiElement.putUserData(MyDomUtils.MOQUI_REFERENCE_CREATED_KEY,data);
+        psiElement.putUserData(MyStringUtils.MOQUI_REFERENCE_CREATED_KEY,data);
     }
 
 

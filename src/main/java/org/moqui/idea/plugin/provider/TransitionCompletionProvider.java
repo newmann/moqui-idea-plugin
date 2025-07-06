@@ -46,7 +46,7 @@ public class TransitionCompletionProvider extends AbstractSimpleCompletionProvid
         //添加自身
         lookupElementBuilders.add(
                 LookupElementBuilder.create(".")
-                        .withCaseSensitivity(false)
+                        .withCaseSensitivity(true)
                         .withTypeText("current Screen")
                         .withIcon(MyIcons.ScreenTag)
         );
@@ -55,7 +55,7 @@ public class TransitionCompletionProvider extends AbstractSimpleCompletionProvid
         ScreenUtils.getAbstractTransitionListFromPsiElement(psiElement).forEach(
                 item -> lookupElementBuilders.add(
                         LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
-                                .withCaseSensitivity(false)
+                                .withCaseSensitivity(true)
                                 .withIcon(MyIcons.TransitionTag)
                                 .withTypeText(Transition.TAG_NAME)
                 )
@@ -65,7 +65,7 @@ public class TransitionCompletionProvider extends AbstractSimpleCompletionProvid
         ScreenUtils.getSubScreensItemList(psiElement).forEach(
                 item -> lookupElementBuilders.add(
                     LookupElementBuilder.create(MyDomUtils.getValueOrEmptyString(item.getName()))
-                        .withCaseSensitivity(false)
+                        .withCaseSensitivity(true)
                         .withIcon(MyIcons.ScreenTag)
                         .withTypeText(MyDomUtils.getValueOrEmptyString(item.getLocation()))
         ));
@@ -75,7 +75,7 @@ public class TransitionCompletionProvider extends AbstractSimpleCompletionProvid
                     if(item.getParent() != null) {
                         lookupElementBuilders.add(
                                 LookupElementBuilder.create(MyStringUtils.removeLastDotString(item.getName()))
-                                        .withCaseSensitivity(false)
+                                        .withCaseSensitivity(true)
                                         .withIcon(MyIcons.ScreenTag)
                                         .withTypeText(item.getParent().getVirtualFile().getPath())
                         );

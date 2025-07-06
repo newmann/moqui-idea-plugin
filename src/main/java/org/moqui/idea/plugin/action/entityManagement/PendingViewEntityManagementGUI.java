@@ -11,7 +11,6 @@ import org.moqui.idea.plugin.dom.model.MemberRelationship;
 import org.moqui.idea.plugin.dom.model.ViewEntity;
 import org.moqui.idea.plugin.service.IndexViewEntity;
 import org.moqui.idea.plugin.service.MoquiIndexService;
-import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
@@ -216,7 +215,7 @@ public class PendingViewEntityManagementGUI extends JPanel {
     }
 
     private void addIndexEntityToTreeNode(@NotNull IndexViewEntity entity) {
-        String[] path = entity.getPackageName().split("\\"+ EntityUtils.ENTITY_NAME_DOT);
+        String[] path = entity.getPackageName().split("\\"+ MyStringUtils.ENTITY_NAME_DOT);
         DefaultMutableTreeNode node;
         if(path.length>0) {
             node = getOrCreateTreeNode(this.rootNode,path[0]);

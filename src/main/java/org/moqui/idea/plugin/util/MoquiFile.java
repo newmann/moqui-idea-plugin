@@ -43,7 +43,7 @@ public final class MoquiFile {
         VirtualFile file = containingFile.getVirtualFile();
         this.path = file.getPath();
         this.fileFullName = file.getName();
-        int index = this.path.lastIndexOf(LocationUtils.PATH_SEPARATOR);
+        int index = this.path.lastIndexOf(MyStringUtils.PATH_SEPARATOR);
         if (index < 0) {
             this.containingPath = MyStringUtils.EMPTY_STRING;
         } else {
@@ -78,7 +78,7 @@ public final class MoquiFile {
     }
 
     public String getContainingSubScreensPath() {
-        return this.containingPath + LocationUtils.PATH_SEPARATOR + this.fileName;
+        return this.containingPath + MyStringUtils.PATH_SEPARATOR + this.fileName;
     }
 
     public String getFileName() {
@@ -122,7 +122,7 @@ public final class MoquiFile {
         if (this.relativePath.equals(MyStringUtils.EMPTY_STRING)) {
             return MyStringUtils.EMPTY_STRING;
         } else {
-            return ComponentUtils.COMPONENT_LOCATION_PREFIX + relativePath;
+            return MyStringUtils.COMPONENT_LOCATION_PREFIX + relativePath;
         }
     }
 

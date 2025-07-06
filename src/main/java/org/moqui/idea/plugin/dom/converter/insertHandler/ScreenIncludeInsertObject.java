@@ -1,7 +1,7 @@
 package org.moqui.idea.plugin.dom.converter.insertHandler;
 
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.util.ComponentUtils;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 /**
  * 用来解决transition-include，section-include的数据传递问题
@@ -43,6 +43,6 @@ public class ScreenIncludeInsertObject {
         this.relativePath = relativePath;
     }
     public String getLocation(){
-        return ComponentUtils.COMPONENT_LOCATION_PREFIX + relativePath;
+        return MyStringUtils.COMPONENT_LOCATION_PREFIX + relativePath;
     }
 }

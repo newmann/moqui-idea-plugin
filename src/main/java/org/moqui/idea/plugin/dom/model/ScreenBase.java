@@ -1,11 +1,9 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.LocationConverter;
+import org.moqui.idea.plugin.dom.converter.LocationReferenceConverter;
 
 public interface ScreenBase extends DomElement {
 
@@ -56,7 +54,8 @@ public interface ScreenBase extends DomElement {
     GenericAttributeValue<String> getDefaultMenuInclude();
     @NotNull
     @Attribute(ATTR_MENU_IMAGE)
-    @Convert(LocationConverter.class)
+//    @Convert(LocationConverter.class)
+    @Referencing(LocationReferenceConverter.class)
     GenericAttributeValue<String> getMenuImage();
 
     @NotNull

@@ -63,9 +63,9 @@ public class EntityFieldNameReference extends MoquiBaseReference{
             EntityUtils.getAbstractIndexEntityByName(myElement.getProject(),entityNameOptional.get()).ifPresent(
                     abstractIndexEntity->{
                         if(abstractIndexEntity instanceof IndexEntity) {
-                            if(!inputedFields.contains(EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP)) {
+                            if(!inputedFields.contains(MyStringUtils.FIELD_NAME_LAST_UPDATED_STAMP)) {
                                 variants.add(
-                                        LookupElementBuilder.create(EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP)
+                                        LookupElementBuilder.create(MyStringUtils.FIELD_NAME_LAST_UPDATED_STAMP)
                                                 .withCaseSensitivity(false)
                                                 .withTailText(MyStringUtils.formatFieldNameTrailText("datetime"))
                                                 .withTypeText(MyDomUtils.getValueOrEmptyString(abstractIndexEntity.getShortName()))

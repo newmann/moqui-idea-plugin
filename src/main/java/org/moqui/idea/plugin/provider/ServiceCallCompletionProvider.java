@@ -68,8 +68,8 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
 
     }
     private void lookupService(@NotNull Project project, @NotNull String inputStr, boolean inputAtEnd, @NotNull CompletionResultSet result){
-        int hashIndex = inputStr.indexOf(ServiceUtils.SERVICE_NAME_HASH);
-        String[] hashSplit = inputStr.split(ServiceUtils.SERVICE_NAME_HASH);
+        int hashIndex = inputStr.indexOf(MyStringUtils.SERVICE_NAME_HASH);
+        String[] hashSplit = inputStr.split(MyStringUtils.SERVICE_NAME_HASH);
 
         if(hashIndex >= 0) {
             //#存在，需要进行进一步判断
@@ -86,7 +86,7 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
                     int backPointIndex = hashSplit[1].lastIndexOf('.');
                     filterPackageName = backPointIndex > 0 ? hashSplit[1].substring(0, backPointIndex) : "";
                 }
-                addEntityLookupElement(project,hashSplit[0]+ServiceUtils.SERVICE_NAME_HASH, filterPackageName,inputAtEnd,result);
+                addEntityLookupElement(project,hashSplit[0]+ MyStringUtils.SERVICE_NAME_HASH, filterPackageName,inputAtEnd,result);
 
             }else{
                 //Service Call,如果verb#noun完整,则不处理
@@ -181,7 +181,7 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
                             );
                         }else {
                             result.addElement(
-                                    LookupElementBuilder.create(verb + ServiceUtils.SERVICE_NAME_HASH + item)
+                                    LookupElementBuilder.create(verb + MyStringUtils.SERVICE_NAME_HASH + item)
                                             .withCaseSensitivity(true)
                                             .withIcon(MyIcons.ServiceTag)
                                             .withInsertHandler(ClearTailInsertHandler.of())
@@ -209,7 +209,7 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
 
                         }else {
                             result.addElement(
-                                    LookupElementBuilder.create(filterClassName+ServiceUtils.SERVICE_NAME_DOT+item)
+                                    LookupElementBuilder.create(filterClassName+ MyStringUtils.SERVICE_NAME_DOT+item)
                                             .withCaseSensitivity(true)
                                             .withIcon(MyIcons.ServiceTag)
                                             .withInsertHandler(ClearTailInsertHandler.of())

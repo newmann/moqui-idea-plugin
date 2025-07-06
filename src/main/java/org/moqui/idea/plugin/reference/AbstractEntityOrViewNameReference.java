@@ -4,7 +4,6 @@ package org.moqui.idea.plugin.reference;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
@@ -51,7 +50,7 @@ public class AbstractEntityOrViewNameReference extends MoquiBaseReference {
 
 //    boolean isDot = inputString.endsWith(EntityUtils.ENTITY_NAME_DOT);
 
-    int lastDotIndex = inputString.lastIndexOf(EntityUtils.ENTITY_NAME_DOT);
+    int lastDotIndex = inputString.lastIndexOf(MyStringUtils.ENTITY_NAME_DOT);
 
     if(lastDotIndex>0) {
       inputString = inputString.substring(0,lastDotIndex);

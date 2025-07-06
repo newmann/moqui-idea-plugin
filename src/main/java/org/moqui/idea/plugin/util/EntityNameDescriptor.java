@@ -14,7 +14,7 @@ public class EntityNameDescriptor {
     }
 
     EntityNameDescriptor(@NotNull String fullName){
-        int index = fullName.lastIndexOf(EntityUtils.ENTITY_NAME_DOT);
+        int index = fullName.lastIndexOf(MyStringUtils.ENTITY_NAME_DOT);
         if (index<0) {
             myEntityName = fullName;
             myPackageName = MyStringUtils.EMPTY_STRING;
@@ -62,7 +62,7 @@ public class EntityNameDescriptor {
         if(MyStringUtils.isEmpty(myPackageName)) {
             return myEntityName;
         }else {
-            return myPackageName + EntityUtils.ENTITY_NAME_DOT + myEntityName;
+            return myPackageName + MyStringUtils.ENTITY_NAME_DOT + myEntityName;
         }
 
     }

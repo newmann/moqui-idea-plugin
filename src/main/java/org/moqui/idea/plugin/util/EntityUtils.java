@@ -32,16 +32,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.moqui.idea.plugin.util.MyDomUtils.*;
-import static org.moqui.idea.plugin.util.MyStringUtils.firstCharIsUpperCase;
 import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 
 public final class EntityUtils {
     private static final Logger LOGGER = Logger.getInstance(EntityUtils.class);
 
-    public static final String  ENTITY_NAME_DOT = ".";
-    public static final String  ENTITY_FIELD_COMMA = ",";
-    public static final String FIELD_NAME_LAST_UPDATED_STAMP ="lastUpdatedStamp";
     private EntityUtils() {
         throw new UnsupportedOperationException();
     }
@@ -96,12 +92,12 @@ public final class EntityUtils {
      */
     public static String getFullNameFromEntity(AbstractEntity entity) {
         return MyDomUtils.getValueOrEmptyString(entity.getPackage())
-                + ENTITY_NAME_DOT + MyDomUtils.getValueOrEmptyString(entity.getEntityName());
+                + MyStringUtils.ENTITY_NAME_DOT + MyDomUtils.getValueOrEmptyString(entity.getEntityName());
     }
 
     public static String getFullNameFromExtendEntity(ExtendEntity entity) {
         return MyDomUtils.getValueOrEmptyString(entity.getPackage())
-                + ENTITY_NAME_DOT + MyDomUtils.getValueOrEmptyString(entity.getEntityName());
+                + MyStringUtils.ENTITY_NAME_DOT + MyDomUtils.getValueOrEmptyString(entity.getEntityName());
     }
 
 
@@ -331,7 +327,7 @@ public final class EntityUtils {
 
 
     public static String getFullName(@NotNull String name, @NotNull String packageName){
-        return packageName + ENTITY_NAME_DOT + name;
+        return packageName + MyStringUtils.ENTITY_NAME_DOT + name;
     }
 
     public static List<PsiElement> getRelatedEntity(@NotNull PsiElement psiElement, @NotNull String fullName) {
@@ -879,7 +875,7 @@ public final class EntityUtils {
      *
      */
     public static boolean isFullName(@NotNull String name) {
-        return name.indexOf(ENTITY_NAME_DOT) > 0;
+        return name.indexOf(MyStringUtils.ENTITY_NAME_DOT) > 0;
     }
 
     /**
@@ -908,7 +904,7 @@ public final class EntityUtils {
 
         int totalLength = fieldString.length();
         for(int i =0; i< totalLength;i++){
-            if(fieldString.startsWith(EntityUtils.ENTITY_FIELD_COMMA, i)){
+            if(fieldString.startsWith(MyStringUtils.ENTITY_FIELD_COMMA, i)){
                 if(!inVariable) {
                     FieldDescriptor fieldDescriptor = new FieldDescriptor(fieldNameSB.toString(),fieldBeginIndex + offset,i + offset);
 
@@ -1348,7 +1344,7 @@ public static Optional<String> getEntityNameByFieldElementInViewEntityXml(@NotNu
         List<PsiReference> resultList = new ArrayList<>();
         if(indexAbstractField == null) {
             //跳过lastUpdatedStemp字段
-            if(!fieldDescriptor.getFieldName().equals(EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP)) {
+            if(!fieldDescriptor.getFieldName().equals(MyStringUtils.FIELD_NAME_LAST_UPDATED_STAMP)) {
                 resultList.add(EntityFieldNameReference.of(psiElement,
                         TextRange.create(fieldDescriptor.getFieldNameBeginIndex(), fieldDescriptor.getFieldNameEndIndex()),
                         null)); //提示错误

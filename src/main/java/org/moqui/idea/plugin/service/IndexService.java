@@ -40,9 +40,9 @@ public final class IndexService extends AbstractIndex {
                     .orElse(MyStringUtils.EMPTY_STRING)).orElse(MyStringUtils.EMPTY_STRING);
         }
         this.packageName = getPackageNameFromClassName(this.className);
-        this.functionName = this.verb + ServiceUtils.SERVICE_NAME_HASH + this.noun;
+        this.functionName = this.verb + MyStringUtils.SERVICE_NAME_HASH + this.noun;
 
-        this.fullName =  this.className + ServiceUtils.SERVICE_NAME_DOT
+        this.fullName =  this.className + MyStringUtils.SERVICE_NAME_DOT
                 +this.functionName;
 
 
@@ -63,9 +63,9 @@ public final class IndexService extends AbstractIndex {
                     .orElse(MyStringUtils.EMPTY_STRING)).orElse(MyStringUtils.EMPTY_STRING);
         }
         this.packageName = getPackageNameFromClassName(this.className);
-        this.functionName = this.verb + ServiceUtils.SERVICE_NAME_HASH + this.noun;
+        this.functionName = this.verb + MyStringUtils.SERVICE_NAME_HASH + this.noun;
 
-        this.fullName =  this.className + ServiceUtils.SERVICE_NAME_DOT
+        this.fullName =  this.className + MyStringUtils.SERVICE_NAME_DOT
                 +this.functionName;
 
     }
@@ -147,7 +147,7 @@ public final class IndexService extends AbstractIndex {
     }
 
     private @NotNull String getPackageNameFromClassName(@NotNull String className) {
-        int index = className.lastIndexOf(ServiceUtils.SERVICE_NAME_DOT);
+        int index = className.lastIndexOf(MyStringUtils.SERVICE_NAME_DOT);
         if(index >0) {
             return className.substring(0,index);
         }else {

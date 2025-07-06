@@ -15,7 +15,6 @@ import java.util.Optional;
 
 
 public final class ComponentUtils {
-    public static String COMPONENT_LOCATION_PREFIX = "component://";
     private ComponentUtils() {
         throw new UnsupportedOperationException();
     }
@@ -44,6 +43,29 @@ public final class ComponentUtils {
 
 
     }
+
+    /**
+     * 根据组件名称获取组件的路径
+     * @param project 当前Project
+     * @param componentName 组件名称
+     * @return Optional<String>
+     */
+    public static Optional<String> getComponentPathByName(@NotNull Project project, @NotNull String componentName) {
+        List<DomFileElement<Component>> fileElementList  = MyDomUtils.findDomFileElementsByRootClass(project, Component.class);
+        for(DomFileElement<Component> fileElement : fileElementList) {
+            Component component = fileElement.getRootElement();
+            String name = ReadAction.compute(()->component.getName().getStringValue());
+            if(name.equals(componentName)) {
+                String pathName = MyDomUtils.getFilePathByPsiElement(fileElement.getRootElement().getXmlTag()).orElse(MyStringUtils.EMPTY_STRING);
+                if(MyStringUtils.isEmpty(pathName)) {
+                    return Optional.empty();
+                }
+                String path = pathName.substring(0,pathName.lastIndexOf(MyStringUtils.PATH_SEPARATOR));
+                return Optional.of(path);
+            }
+        }
+        return Optional.empty();
+    }
     public static Optional<String> getComponentNameFromPath(@NotNull String path){
         String[] splitArray;
         if(path.contains(MyStringUtils.COMPONENT_PATH_TAG)) {
@@ -57,7 +79,7 @@ public final class ComponentUtils {
         }
 
         if(splitArray.length == 2) {
-            return Optional.of(splitArray[1].split(LocationUtils.PATH_SEPARATOR)[0]);//取第一个“/”之前的内容，如果没有，则取全部
+            return Optional.of(splitArray[1].split(MyStringUtils.PATH_SEPARATOR)[0]);//取第一个“/”之前的内容，如果没有，则取全部
         }else {
             return Optional.empty();
         }

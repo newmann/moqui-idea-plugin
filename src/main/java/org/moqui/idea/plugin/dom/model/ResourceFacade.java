@@ -1,11 +1,9 @@
 package org.moqui.idea.plugin.dom.model;
 
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTagList;
+import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.LocationConverter;
+import org.moqui.idea.plugin.dom.converter.LocationReferenceConverter;
 
 import java.util.List;
 
@@ -16,7 +14,8 @@ public interface ResourceFacade extends DomElement {
 
 
     @NotNull
-    @Convert(LocationConverter.class)
+//    @Convert(LocationConverter.class)
+    @Referencing(LocationReferenceConverter.class)
     GenericAttributeValue<String> getXmlActionsTemplateLocation();
 
     @NotNull GenericAttributeValue<String> getXmlFoHandlerFactory();

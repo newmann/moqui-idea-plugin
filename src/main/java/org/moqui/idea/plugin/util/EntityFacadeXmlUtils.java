@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -26,10 +25,6 @@ import java.util.stream.Collectors;
 
 
 public final class EntityFacadeXmlUtils {
-    public static String LocalizedMessage_Field_Local = "locale";
-    public static String LocalizedMessage_Field_Original = "original";
-    public static String LocalizedMessage_Field_Localized = "localized";
-    public static final Key<Object> MOQUI_FACADE_ENTITY_KEY = Key.create("moqui.facade.entity.key");
     private EntityFacadeXmlUtils() {
         throw new UnsupportedOperationException();
     }
@@ -70,13 +65,13 @@ public final class EntityFacadeXmlUtils {
                     .filter(it -> isLocalizedMessageTag(it.getName()))
                     .toList();
             xmlTagList = xmlTagList.stream()
-                    .filter(it -> MyDomUtils.getValueOrEmptyString(it.getAttribute(LocalizedMessage_Field_Local)).equals("default"))
+                    .filter(it -> MyDomUtils.getValueOrEmptyString(it.getAttribute(MyStringUtils.LocalizedMessage_Field_Local)).equals("default"))
                     .toList();
 
             result =  xmlTagList.stream()
 //                    .filter(it -> it.getName().equals("moqui.basic.LocalizedMessage") || it.getName().equals("LocalizedMessage"))
 //                    .filter(it -> MyDomUtils.getValueOrEmptyString(it.getAttribute(LocalizedMessage_Field_Local)).equals("default"))
-                    .collect(Collectors.toMap((xmlTag -> MyDomUtils.getValueOrEmptyString(xmlTag.getAttribute(LocalizedMessage_Field_Original))), Function.identity(), (n1, n2) -> n1));
+                    .collect(Collectors.toMap((xmlTag -> MyDomUtils.getValueOrEmptyString(xmlTag.getAttribute(MyStringUtils.LocalizedMessage_Field_Original))), Function.identity(), (n1, n2) -> n1));
 
         }else {
             result = new HashMap<>();
@@ -113,7 +108,7 @@ public final class EntityFacadeXmlUtils {
         XmlTag xmlTag = getAllTextTemplateMap(element.getProject()).get(textContent);
 
         if((xmlTag != null) ){
-            XmlAttribute targetAttribute = xmlTag.getAttribute(LocalizedMessage_Field_Original);
+            XmlAttribute targetAttribute = xmlTag.getAttribute(MyStringUtils.LocalizedMessage_Field_Original);
             if(targetAttribute != null) {
                 XmlAttributeValue targetAttributeValue = targetAttribute.getValueElement();
                 if(targetAttributeValue != null) {
@@ -159,10 +154,10 @@ public final class EntityFacadeXmlUtils {
     }
 
     public static void putFacadeEntityToXmlTag(@NotNull XmlTag xmlTag,EntityFacadeXmlTagDescriptor descriptor) {
-        xmlTag.putUserData(MOQUI_FACADE_ENTITY_KEY,descriptor);
+        xmlTag.putUserData(MyStringUtils.MOQUI_FACADE_ENTITY_KEY,descriptor);
     }
     public static  Optional<EntityFacadeXmlTagDescriptor> getFacadeEntityFromXmlTag(@NotNull XmlTag xmlTag) {
-        Object object =  xmlTag.getUserData(MOQUI_FACADE_ENTITY_KEY);
+        Object object =  xmlTag.getUserData(MyStringUtils.MOQUI_FACADE_ENTITY_KEY);
 
         if(object instanceof EntityFacadeXmlTagDescriptor refData ) {
             if(refData.getIsValid()) return Optional.of(refData);

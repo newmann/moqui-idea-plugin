@@ -77,6 +77,10 @@ public final class ScreenUtils{
         }
         return result;
     }
+
+    /**
+     * 根据当前位置找到所在screen的所有可用的AbstractTransition
+     */
     public static List<AbstractTransition> getAbstractTransitionListFromPsiElement(PsiElement psiElement) {
 
         Screen screen = getCurrentScreen(psiElement).orElse(null);
@@ -89,10 +93,16 @@ public final class ScreenUtils{
     public static List<SubScreensItem> getSubScreensItemList(ConvertContext context) {
         return getSubScreensItemList(getCurrentScreen(context).orElse(null));
     }
+    /**
+     * 根据当前位置找到所在screen的所有可用的SubScreensItem
+     */
     public static List<SubScreensItem> getSubScreensItemList(PsiElement element) {
 
         return getSubScreensItemList(getCurrentScreen(element).orElse(null));
     }
+    /**
+     * 找到screen的所有可用的SubScreensItem
+     */
     public static List<SubScreensItem> getSubScreensItemList(Screen screen) {
 
         List<SubScreensItem> result = new ArrayList<>();
@@ -145,8 +155,8 @@ public final class ScreenUtils{
         final Project project = psiElement.getProject();
         String relativePathName;
 
-        if(location.indexOf(ComponentUtils.COMPONENT_LOCATION_PREFIX)==0) {
-            relativePathName = location.substring(ComponentUtils.COMPONENT_LOCATION_PREFIX.length());
+        if(location.indexOf(MyStringUtils.COMPONENT_LOCATION_PREFIX)==0) {
+            relativePathName = location.substring(MyStringUtils.COMPONENT_LOCATION_PREFIX.length());
         } else {
             relativePathName = location;
         }
@@ -188,8 +198,8 @@ public final class ScreenUtils{
 
         String relativePathName;
 
-        if(location.indexOf(ComponentUtils.COMPONENT_LOCATION_PREFIX)==0) {
-            relativePathName = location.substring(ComponentUtils.COMPONENT_LOCATION_PREFIX.length());
+        if(location.indexOf(MyStringUtils.COMPONENT_LOCATION_PREFIX)==0) {
+            relativePathName = location.substring(MyStringUtils.COMPONENT_LOCATION_PREFIX.length());
         } else {
             relativePathName = location;
         }
@@ -513,7 +523,7 @@ public final class ScreenUtils{
                 final String location = extendsStr.substring(0, poundIndex);
                 extendFormName = extendsStr.substring(poundIndex + 1);
 
-                psiFile = MyDomUtils.getFileFromLocation(abstractFormXmlElement.getProject(), location).orElse(null);
+                psiFile = LocationUtils.getFileFromLocation(abstractFormXmlElement.getProject(), location).orElse(null);
             }else {
                 extendFormName = extendsStr;
                 psiFile = abstractFormXmlElement.getContainingFile();
@@ -579,7 +589,7 @@ public final class ScreenUtils{
      */
     public static Optional<Screen> getSubScreensItemLocationScreen(@NotNull Project project, @NotNull SubScreensItem subScreensItem) {
 
-        PsiFile parentFile = MyDomUtils.getFileFromLocation(project, MyDomUtils.getValueOrEmptyString(subScreensItem.getLocation())).orElse(null);
+        PsiFile parentFile = LocationUtils.getFileFromLocation(project, MyDomUtils.getValueOrEmptyString(subScreensItem.getLocation())).orElse(null);
         if(parentFile == null){
             return Optional.empty();
         }else {

@@ -39,12 +39,6 @@ import static org.moqui.idea.plugin.util.MyStringUtils.isNotEmpty;
 
 
 public final class ServiceUtils {
-    public static final String SERVICE_NAME_HASH = "#";
-    public static final String SERVICE_NAME_DOT = ".";
-    public static final String SERVICE_INTERFACE = "interface";
-
-    public static final String SERVICE_AUTO_PARAMETERS_INCLUDE_NONPK = "nonpk";
-    public static final String SERVICE_AUTO_PARAMETERS_INCLUDE_PK = "pk";
 
     private ServiceUtils() {
         throw new UnsupportedOperationException();
@@ -66,7 +60,7 @@ public final class ServiceUtils {
         if(!service.isValid()) return false;
         String type = MyDomUtils.getValueOrEmptyString(service.getType());
 
-        return SERVICE_INTERFACE.equals(type);
+        return MyStringUtils.SERVICE_INTERFACE.equals(type);
     }
     public static boolean isNotInterface(@Nullable Service service) {
         return service != null && !isInterface(service);
@@ -243,7 +237,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
     public static Optional<String> extractPackageNameFromPath(@NotNull String path){
         Optional<String> optClassName = extractClassNameFromPath(path);
         return optClassName.map(className->{
-           int index = className.lastIndexOf(SERVICE_NAME_DOT);
+           int index = className.lastIndexOf(MyStringUtils.SERVICE_NAME_DOT);
            if(index>0) {
                return className.substring(0,index);
            }else {
@@ -314,7 +308,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
     public static @NotNull Set<String> getServiceFullNameAction(@NotNull Project project, @NotNull  String className) {
 
         return getServiceAction(project,className).stream()
-                .map(item-> className+ SERVICE_NAME_DOT+ item)
+                .map(item-> className+ MyStringUtils.SERVICE_NAME_DOT+ item)
                 .collect(Collectors.toSet());
 
     }
@@ -338,7 +332,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                                             MyDomUtils.getValueOrEmptyString(service.getVerb())
                                         :
                                             MyDomUtils.getValueOrEmptyString(service.getVerb())
-                                                + SERVICE_NAME_HASH
+                                                + MyStringUtils.SERVICE_NAME_HASH
                                             + MyDomUtils.getValueOrEmptyString(service.getNoun())
                             );
                         }
@@ -349,7 +343,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                                         MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
                                         :
                                         MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
-                                                + SERVICE_NAME_HASH
+                                                + MyStringUtils.SERVICE_NAME_HASH
                                                 + MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun())
                         );
                     }
@@ -374,7 +368,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                                     MyDomUtils.getValueOrEmptyString(service.getVerb())
                                     :
                                     MyDomUtils.getValueOrEmptyString(service.getVerb())
-                                            + SERVICE_NAME_HASH
+                                            + MyStringUtils.SERVICE_NAME_HASH
                                             + MyDomUtils.getValueOrEmptyString(service.getNoun()))
                     );
                 }
@@ -386,7 +380,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
                                 MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
                                 :
                                 MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
-                                        + SERVICE_NAME_HASH
+                                        + MyStringUtils.SERVICE_NAME_HASH
                                         + MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun()))
                 );
             }
@@ -695,13 +689,13 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
 
             if (psiReferences.isEmpty()) {
 
-                int lastDotIndex = stringPattern.getContent().lastIndexOf(SERVICE_NAME_DOT);
+                int lastDotIndex = stringPattern.getContent().lastIndexOf(MyStringUtils.SERVICE_NAME_DOT);
                 tmpEndOffset = stringPattern.getBeginChar().length() + stringPattern.getContent().length();
 
                 if(lastDotIndex>=0) {
                     tmpStartOffset = lastDotIndex + stringPattern.getBeginChar().length()+1;
                 }else {
-                    int hashIndex = stringPattern.getContent().lastIndexOf(SERVICE_NAME_HASH);
+                    int hashIndex = stringPattern.getContent().lastIndexOf(MyStringUtils.SERVICE_NAME_HASH);
                     if (hashIndex>=0) {
                         tmpStartOffset = hashIndex+ stringPattern.getBeginChar().length()+1;
                     }else {

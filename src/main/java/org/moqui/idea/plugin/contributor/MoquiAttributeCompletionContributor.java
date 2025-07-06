@@ -22,6 +22,9 @@ public class MoquiAttributeCompletionContributor extends CompletionContributor {
     extend(CompletionType.BASIC,ServiceCallCompletionProvider.SERVICE_CALL_PATTERN,ServiceCallCompletionProvider.of());
     extend(CompletionType.BASIC,FieldRefCompletionProvider.FIELD_REF_NAME_PATTERN,FieldRefCompletionProvider.of());
     extend(CompletionType.BASIC,RelationshipCompletionProvider.RELATIONSHIP_PATTERN,RelationshipCompletionProvider.of());
+    extend(CompletionType.BASIC,UrlCompletionProvider.URL_PATTERN,UrlCompletionProvider.of());
+    extend(CompletionType.BASIC,LinkUrlCompletionProvider.LINK_URL_PATTERN,LinkUrlCompletionProvider.of());
+    extend(CompletionType.BASIC,ImageUrlCompletionProvider.IMAGE_URL_PATTERN,ImageUrlCompletionProvider.of());
 //    extend(CompletionType.BASIC, VariableCompletionProvider.VARIABLE_PATTERN,VariableCompletionProvider.of());
   }
 

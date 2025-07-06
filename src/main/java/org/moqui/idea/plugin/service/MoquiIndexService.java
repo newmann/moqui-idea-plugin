@@ -439,7 +439,7 @@ public final class MoquiIndexService {
         if(entity.isPresent()) {
             fieldList = entity.get().getFieldList();
             switch (include) {
-                case ServiceUtils.SERVICE_AUTO_PARAMETERS_INCLUDE_NONPK-> {
+                case MyStringUtils.SERVICE_AUTO_PARAMETERS_INCLUDE_NONPK-> {
                     for(Field field: fieldList){
                         boolean isPk = MyDomUtils.getValueOrFalseBoolean(field.getIsPk());
 
@@ -448,7 +448,7 @@ public final class MoquiIndexService {
                         }
                     }
                 }
-                case ServiceUtils.SERVICE_AUTO_PARAMETERS_INCLUDE_PK-> {
+                case MyStringUtils.SERVICE_AUTO_PARAMETERS_INCLUDE_PK-> {
                     for(Field field: fieldList){
                         boolean isPk = MyDomUtils.getValueOrFalseBoolean(field.getIsPk());
                         if (isPk) {

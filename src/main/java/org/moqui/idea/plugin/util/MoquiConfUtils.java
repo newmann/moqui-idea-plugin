@@ -43,7 +43,7 @@ public final class MoquiConfUtils {
         String componentName = parts[1].substring(0, index);
         String confName = parts[0]+MyStringUtils.COMPONENT_PATH_TAG+componentName+"/MoquiConf.xml";
 
-        return MyDomUtils.getPsiFileByPathName(project,confName);
+        return LocationUtils.getPsiFileByPathName(project,confName);
     }
 
     /**

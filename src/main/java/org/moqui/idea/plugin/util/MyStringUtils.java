@@ -1,5 +1,6 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,27 @@ import static org.jetbrains.plugins.groovy.lang.completion.GrDummyIdentifierProv
 public final class MyStringUtils {
     public static final String ROOT_SCREEN_LOCATION="component://webroot/screen/webroot.xml";
     public static final String ROOT_URL = "/";
+    public static final String BASE_URL = "//";
+    public static final String CURRENT_PATH = ".";
+    public static final String PARENT_PATH = "..";
+
+    public static final String PATH_SEPARATOR = "/";
+    public static final String SERVICE_NAME_HASH = "#";
+    public static final String SERVICE_NAME_DOT = ".";
+    public static final String SERVICE_INTERFACE = "interface";
+    public static final String SERVICE_AUTO_PARAMETERS_INCLUDE_PK = "pk";
+    public static final String SERVICE_AUTO_PARAMETERS_INCLUDE_NONPK = "nonpk";
+    public static final Key<Object> MOQUI_FACADE_ENTITY_KEY = Key.create("moqui.facade.entity.key");
+    public static final String  ENTITY_NAME_DOT = ".";
+    public static final String  ENTITY_FIELD_COMMA = ",";
+    public static final String FIELD_NAME_LAST_UPDATED_STAMP ="lastUpdatedStamp";
+    public static final Key<Object> MOQUI_REFERENCE_CREATED_KEY = Key.create("moqui.reference.created.key");
+    public static String COMPONENT_LOCATION_PREFIX = "component://";
+    public static String LocalizedMessage_Field_Local = "locale";
+    public static String LocalizedMessage_Field_Original = "original";
+    public static String LocalizedMessage_Field_Localized = "localized";
+    public static String MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
+
     private MyStringUtils() {
         throw new UnsupportedOperationException();
     }
@@ -45,6 +67,7 @@ public final class MyStringUtils {
 
 
     public static final String ABSOLUTE_URL_REGEXP = "^/.*";  // "^//([a-zA-Z][\\w\\/]*)+$";
+    public static final String RELATIVE_URL_REGEXP = "^\\..*";
     public static final String COMPONENT_CHILD_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+";
     public static final String COMPONENT_DATA_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]data[/|\\\\]?).*";
     public static final String COMPONENT_ENTITY_PATH_REGEXP = ".*([/|\\\\]runtime[/|\\\\]component[/|\\\\])[a-zA-Z0-9_\\-\\.]+([/|\\\\]entity[/|\\\\]?).*";
@@ -196,7 +219,33 @@ public final class MyStringUtils {
             return target;
         }
     }
+    /**
+     * 将路径最后一个path删除，如果没有，则返回原值
+     * 注意处理//和/开头的路径， 比如//a 和/b 就应该直接返回
+     *
+     * @param target 待处理的路径
+     * @return 处理后的字符串
+     */
 
+    public static String removeLastPath(@NotNull String target){
+        StringBuilder preStr = new StringBuilder(EMPTY_STRING);
+        for(int i=0; i < target.length(); i++){
+            if(target.charAt(i) == PATH_SEPARATOR.charAt(0)) {
+                preStr.append(PATH_SEPARATOR);
+            }else {
+                break;//遇到第一个不是 / 就直接返回
+            }
+        }
+
+        String targetWithoutPre = target.substring(preStr.length());
+
+        int index = targetWithoutPre.lastIndexOf(PATH_SEPARATOR);
+        if(index >= 0) {
+            return preStr + targetWithoutPre.substring(0,index);
+        }else {
+            return target;
+        }
+    }
     public static @NotNull
     String removeDummy(@Nullable String str) {
         if (str == null) {

@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.util.NlsContexts;
-import com.intellij.openapi.util.NlsSafe;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.xml.XmlAttributeDescriptor;
@@ -40,12 +39,12 @@ public class EntityFacadeLastUpdatedStampFieldAttributeDescriptor implements Xml
 
     @Override
     public String getName(PsiElement psiElement) {
-        return EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP;
+        return MyStringUtils.FIELD_NAME_LAST_UPDATED_STAMP;
     }
 
     @Override
     public String getName() {
-        return EntityUtils.FIELD_NAME_LAST_UPDATED_STAMP;
+        return MyStringUtils.FIELD_NAME_LAST_UPDATED_STAMP;
     }
 
     @Override

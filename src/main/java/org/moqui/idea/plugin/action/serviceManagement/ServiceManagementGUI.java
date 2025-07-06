@@ -11,7 +11,6 @@ import org.moqui.idea.plugin.service.IndexServiceParameter;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -19,7 +18,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -178,7 +176,7 @@ public class ServiceManagementGUI extends JPanel {
     }
 
     private void addIndexServiceToTreeNode(@NotNull IndexService service) {
-        String[] path = service.getClassName().split("\\"+ ServiceUtils.SERVICE_NAME_DOT);
+        String[] path = service.getClassName().split("\\"+ MyStringUtils.SERVICE_NAME_DOT);
         DefaultMutableTreeNode node;
         if(path.length>0) {
             node = getOrCreateTreeNode(this.rootNode,path[0]);

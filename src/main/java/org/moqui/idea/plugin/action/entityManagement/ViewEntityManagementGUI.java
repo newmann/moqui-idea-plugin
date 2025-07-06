@@ -12,7 +12,6 @@ import org.moqui.idea.plugin.dom.model.MemberEntity;
 import org.moqui.idea.plugin.dom.model.MemberRelationship;
 import org.moqui.idea.plugin.service.IndexViewEntity;
 import org.moqui.idea.plugin.service.MoquiIndexService;
-import org.moqui.idea.plugin.util.EntityUtils;
 import org.moqui.idea.plugin.util.MyDomUtils;
 import org.moqui.idea.plugin.util.MyStringUtils;
 
@@ -22,7 +21,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -212,7 +210,7 @@ public class ViewEntityManagementGUI extends JPanel {
     }
 
     private void addIndexEntityToTreeNode(@NotNull IndexViewEntity entity) {
-        String[] path = entity.getPackageName().split("\\"+ EntityUtils.ENTITY_NAME_DOT);
+        String[] path = entity.getPackageName().split("\\"+ MyStringUtils.ENTITY_NAME_DOT);
         DefaultMutableTreeNode node;
         if(path.length>0) {
             node = getOrCreateTreeNode(this.rootNode,path[0]);

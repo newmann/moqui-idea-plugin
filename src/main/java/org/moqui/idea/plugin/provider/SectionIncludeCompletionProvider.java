@@ -45,7 +45,7 @@ public class SectionIncludeCompletionProvider extends AbstractSimpleCompletionPr
             MoquiFile moquiFile = MoquiFile.of(screenDomFileElement.getFile().getContainingFile());
             for(Section section: ScreenUtils.getSectionListFromScreenFile(screenDomFileElement)) {
                 String sectionName = MyDomUtils.getValueOrEmptyString(section.getName());
-                String lookupString = LocationUtils.simplifyComponentRelativePath(moquiFile.getRelativePath())+ ServiceUtils.SERVICE_NAME_HASH + sectionName;
+                String lookupString = LocationUtils.simplifyComponentRelativePath(moquiFile.getRelativePath())+ MyStringUtils.SERVICE_NAME_HASH + sectionName;
                 ScreenIncludeInsertObject screenIncludeInsertObject = ScreenIncludeInsertObject.of(moquiFile.getComponentName(),
                         moquiFile.getRelativePath(),sectionName);
                 lookupElementBuilders.add(

@@ -12,10 +12,7 @@ import org.moqui.idea.plugin.dom.converter.insertHandler.ScreenIncludeInsertionH
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.Transition;
 import org.moqui.idea.plugin.dom.model.TransitionInclude;
-import org.moqui.idea.plugin.util.LocationUtils;
-import org.moqui.idea.plugin.util.MoquiFile;
-import org.moqui.idea.plugin.util.MyDomUtils;
-import org.moqui.idea.plugin.util.ServiceUtils;
+import org.moqui.idea.plugin.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +44,7 @@ public class TransitionIncludeCompletionProvider extends AbstractSimpleCompletio
             MoquiFile moquiFile = MoquiFile.of(screenDomFileElement.getFile().getContainingFile());
             for(Transition transition: screenDomFileElement.getRootElement().getTransitionList()) {
                 String transitionName = MyDomUtils.getValueOrEmptyString(transition.getName());
-                String lookupString = LocationUtils.simplifyComponentRelativePath(moquiFile.getRelativePath())+ ServiceUtils.SERVICE_NAME_HASH + transitionName;
+                String lookupString = LocationUtils.simplifyComponentRelativePath(moquiFile.getRelativePath())+ MyStringUtils.SERVICE_NAME_HASH + transitionName;
                 ScreenIncludeInsertObject transitionIncludeInsertObject = ScreenIncludeInsertObject.of(moquiFile.getComponentName(),
                         moquiFile.getRelativePath(),transitionName);
                 lookupElementBuilders.add(
