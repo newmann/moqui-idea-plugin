@@ -65,7 +65,7 @@ public class ServiceCallTypedHandler extends TypedHandlerDelegate {
 //                }
             }
         }else {
-            if(c == '/') {
+            if(c == '/' || c == '.') {
                 AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null);
                 return Result.STOP;
             }

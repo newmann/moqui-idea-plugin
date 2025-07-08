@@ -34,7 +34,7 @@ public class GroovyFieldNameCompletionProvider extends AbstractSimpleCompletionP
 
         lookupElementBuilders.add(
             LookupElementBuilder.create("fieldName1")
-                    .withCaseSensitivity(false)
+                    .withCaseSensitivity(true)
                     .withTailText("Trail1")
                     .withTypeText("Type1")
                     .withIcon(MyIcons.EntityTag)
@@ -42,7 +42,7 @@ public class GroovyFieldNameCompletionProvider extends AbstractSimpleCompletionP
 
         lookupElementBuilders.add(
             LookupElementBuilder.create("fieldName2")
-                    .withCaseSensitivity(false)
+                    .withCaseSensitivity(true)
                     .withTailText("Trail2")
                     .withTypeText("Type2")
                     .withIcon(MyIcons.ViewEntityTag)

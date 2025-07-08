@@ -70,7 +70,7 @@ public class EntityFacadeTagNameProvider implements XmlTagNameProvider {
                         String fullName = EntityUtils.getFullNameFromEntity(entity);
                         //不建议使用Entity的全称，因为无法为pacakgeName创建PsiReference，在修改名称是会有问题，所以推荐直接用简称或EntityName
 //                        list.add(LookupElementBuilder.create(fullName)
-//                                .withCaseSensitivity(false)
+//                                .withCaseSensitivity(true)
 //                        );
                         String entityName = MyDomUtils.getValueOrEmptyString(entity.getEntityName());
 

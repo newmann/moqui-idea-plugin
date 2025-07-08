@@ -81,7 +81,7 @@ public class AliasNameCompletionProvider extends AbstractSimpleCompletionProvide
                         lookupElementBuilders.add(
                                 LookupElementBuilder.create(aliasInsertObject, fieldName)
                                         .withInsertHandler(AliasNameInsertionHandler.INSTANCE)
-                                        .withCaseSensitivity(false)
+                                        .withCaseSensitivity(true)
                                         .withIcon(icon)
                                         .withTypeText(alias)
                         );

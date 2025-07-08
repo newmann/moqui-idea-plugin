@@ -65,7 +65,7 @@ public class ServiceInParameterReference extends MoquiBaseReference {
             if(!inputtedFields.contains(fieldName)) {
                 lookupElementBuilders.add(
                         LookupElementBuilder.create(fieldName)
-                                .withCaseSensitivity(false)
+                                .withCaseSensitivity(true)
                                 .withTypeText(MyDomUtils.getValueOrEmptyString(item.getType()))
                 );
             }

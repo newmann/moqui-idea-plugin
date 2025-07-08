@@ -87,7 +87,7 @@ public class EntityFieldNameReference extends MoquiBaseReference{
 //        indexAbstractFieldList.forEach(item->{
 //
 //            lookupList.add(LookupElementBuilder.create(item.getName())
-//                    .withCaseSensitivity(false)
+//                    .withCaseSensitivity(true)
 //                    .withTailText(MyStringUtils.formatFieldNameTrailText(MyDomUtils.getValueOrEmptyString(item.getType())))
 //                    .withIcon(item.getInAbstractIndexEntity() instanceof IndexEntity ? MoquiIcons.EntityTag: MoquiIcons.ViewEntityTag)
 //                    .withTypeText(item.getInAbstractIndexEntity() == null? "N/A": item.getInAbstractIndexEntity().getShortName()));

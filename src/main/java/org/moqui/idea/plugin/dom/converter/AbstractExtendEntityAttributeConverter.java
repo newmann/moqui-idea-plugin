@@ -61,7 +61,7 @@ public abstract class AbstractExtendEntityAttributeConverter extends ResolvingCo
             return LookupElementBuilder.create(entity,s)
                     .withInsertHandler(ExtendEntityNameAndPackageInsertionHandler.INSTANCE)
                     .withIcon(icon)
-                    .withCaseSensitivity(false);
+                    .withCaseSensitivity(true);
         }else {
             return super.createLookupElement(entity);
         }

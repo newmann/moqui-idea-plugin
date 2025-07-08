@@ -73,7 +73,7 @@ public class ViewEntityAliasConverter extends ResolvingConverter<AbstractMemberE
             }
             return LookupElementBuilder.create(entity,alias)
                     .withIcon(icon)
-                    .withCaseSensitivity(false)
+                    .withCaseSensitivity(true)
                     .withTypeText(type)
                     .withTailText(trail)
                     ;

@@ -42,7 +42,15 @@ public class ImageUrlCompletionProvider extends CompletionProvider<CompletionPar
                                         ).inside(
                                             XmlPatterns.xmlTag().withLocalName(Screen.TAG_NAME)
                                     )
+                            ),
+                            XmlPatterns.xmlAttributeValue(ScreenBase.ATTR_MENU_IMAGE).withSuperParent(2,
+                                    XmlPatterns.xmlTag().withLocalName(
+                                            Screen.TAG_NAME,ScreenExtend.TAG_NAME
+                                    ).inside(
+                                            XmlPatterns.xmlTag().withLocalName(Screen.TAG_NAME)
+                                    )
                             )
+
                     )
             );
     @Override

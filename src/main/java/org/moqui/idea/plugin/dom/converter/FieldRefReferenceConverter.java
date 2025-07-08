@@ -43,7 +43,7 @@ public class FieldRefReferenceConverter implements CustomReferenceConverter<Stri
 //        }else {
 //            String s = MyDomUtils.getValueOrEmptyString(field.getName());
 //            return LookupElementBuilder.create(s)
-//                    .withCaseSensitivity(false);
+//                    .withCaseSensitivity(true);
 //
 //        }
 //    }

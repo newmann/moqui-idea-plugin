@@ -52,6 +52,10 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
         BeginAndEndCharPattern charPattern = BeginAndEndCharPattern.of(psiElement);
         String inputString = MyStringUtils.getDummyFrontString(charPattern.getContent());
 //        char inputChar = inputString.charAt(inputString.length()-1);
+        //如果结尾是两个点，则不进行补全
+        if(inputString.endsWith(MyStringUtils.SERVICE_NAME_DOT+MyStringUtils.SERVICE_NAME_DOT)) {
+            return;
+        }
 
         String allString = MyStringUtils.removeDummy(charPattern.getContent());
         boolean inputAtEnd = inputString.equals(allString);//只有将dot或#输入在最后一位，才进行特别处理

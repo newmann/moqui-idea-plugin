@@ -50,7 +50,7 @@ public class TransitionIncludeCompletionProvider extends AbstractSimpleCompletio
                 lookupElementBuilders.add(
                         LookupElementBuilder.create(transitionIncludeInsertObject, lookupString)
                                 .withInsertHandler(ScreenIncludeInsertionHandler.INSTANCE)
-                                .withCaseSensitivity(false)
+                                .withCaseSensitivity(true)
                 );
 
             }

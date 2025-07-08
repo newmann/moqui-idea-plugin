@@ -46,7 +46,7 @@ public class TransitionReferenceConverter implements CustomReferenceConverter<St
 //        }else {
 //            String s = MyDomUtils.getValueOrEmptyString(transition.getName());
 //            return LookupElementBuilder.create(s)
-//                    .withCaseSensitivity(false);
+//                    .withCaseSensitivity(true);
 //
 //        }
 //    }
