@@ -1,7 +1,6 @@
 package org.moqui.idea.plugin.util;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.structureView.SearchableTextProvider;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
@@ -12,7 +11,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.Screen;
 import org.moqui.idea.plugin.dom.model.SubScreensItem;
@@ -26,75 +24,12 @@ import java.util.*;
  *
  */
 public class MoquiUrl {
-    /**
-     * 获取MoquiUrl对应的PsiElement
-     * @param targetUrl 待处理的Url
-     * @return Optional<PsiElement>
-     */
-    public static Optional<PsiElement> getPsiElementFromMoquiUrl(@Nullable MoquiUrl targetUrl){
-        if(targetUrl != null) {
-            if(targetUrl.getSubScreensItem() != null) return Optional.ofNullable(targetUrl.getSubScreensItem().getXmlElement());
-            if(targetUrl.getScreen() != null) return Optional.ofNullable(targetUrl.getScreen().getXmlElement());
-            if(targetUrl.getContainingMoquiFile()!= null) return Optional.ofNullable(targetUrl.getContainingMoquiFile().getContainingFile());
-            if(targetUrl.getContainingDirectory() != null) return Optional.ofNullable(targetUrl.getContainingDirectory());
-        }
-        return Optional.empty();
-    }
 
-    /**
-     * 从子Url中获取指定名称的Url
-     * @param parentUrl 父url
-     * @param name 子url的名称
-     * @return Optional<MoquiUrl>
-     */
-    public static Optional<MoquiUrl> getMoquiUrlByName(@NotNull MoquiUrl parentUrl, @NotNull String name){
-        MoquiUrl targetUrl = null;
-        for(MoquiUrl url: parentUrl.getNextLevelChildren()) {
-            if(url.getName().equals(name)) {
-                targetUrl = url;
-                break;
-            }
-        }
-        return Optional.ofNullable(targetUrl);
-    }
-
-    /**
-     * 获取MoquiUrl对应的PsiFile
-     * @param targetUrl 待处理的Url
-     * @return Optional<PsiFile>
-     */
-    public static Optional<PsiFile> getContainingFileFromMoquiUrl(@Nullable MoquiUrl targetUrl){
-        if(targetUrl != null && targetUrl.getContainingMoquiFile() != null) {
-            return Optional.ofNullable(targetUrl.getContainingMoquiFile().getContainingFile());
-        }
-        return Optional.empty();
-    }
-    /**
-     * 获取MoquiUrl对应的PsiDirectory
-     * @param targetUrl 待处理的Url
-     * @return Optional<PsiDirectory>
-     */
-    public static Optional<PsiDirectory> getContainingDirectoryFromMoquiUrl(@Nullable MoquiUrl targetUrl){
-        if(targetUrl != null) {
-            return Optional.ofNullable(targetUrl.getContainingDirectory());
-        }
-        return Optional.empty();
-    }
-    public static Optional<PsiElement> getContainingPsiElementFromMoquiUrl(@Nullable MoquiUrl targetUrl){
-        if(targetUrl != null) {
-            if (targetUrl.getContainingMoquiFile()!= null) {
-                return Optional.ofNullable(targetUrl.getContainingDirectory().getContainingFile());
-            }
-            return Optional.ofNullable(targetUrl.getContainingDirectory());
-        }
-        return Optional.empty();
-    }
-
-    private static final Logger LOGGER = Logger.getInstance(ScreenUtils.class);
+    private static final Logger LOGGER = Logger.getInstance(MoquiUrl.class);
 
     private MoquiUrl parent;
     private ArrayList<MoquiUrl> children = new ArrayList<>();
-    private MoquiUrl defaultChild;
+//    private MoquiUrl defaultChild;//原来设想指向缺省目录，现在暂时用不上
 
     private SubScreensItem subScreensItem;//指向自己定义的地方，如果是子目录下，则这一项为null，只能从containingMoquiFile或containingDirectory中获取
     private Screen screen; //对应的screen tag，在MoquiConf.xml中有定义，也可能是Screen.xml文件中的root tag。
@@ -109,6 +44,9 @@ public class MoquiUrl {
     private PsiDirectory containingDirectory;
     private Project project;
 
+    private boolean fetchAllChildUrls = false; //是否获取所有子菜单
+
+    private boolean childUrlHaveBeenFetched = false; //是否已经获取过子菜单
     /**
      * 获取project的所有的menu
      * 只有在ROOT_SCREEN_LOCATION的Screen中定义的SubScreensItem才会被认为是顶级菜单，包括该文件对应的目录下Screen文件
@@ -116,7 +54,7 @@ public class MoquiUrl {
     public static ArrayList<MoquiUrl> getAllUrlArrayList(@NotNull Project project) {
         ArrayList<MoquiUrl> menus = new ArrayList<>();
 
-        MoquiUrl url = of(project, MyStringUtils.ROOT_SCREEN_LOCATION, true);
+        MoquiUrl url = ofRootScreenUrl(project, true);
 
         if (url != null) {
             menus.addAll(url.getChildren());
@@ -149,14 +87,17 @@ public class MoquiUrl {
     /**
      * 根据当前的SubScreensItem获取所有的下属子菜单
      */
-    public static MoquiUrl of(@NotNull SubScreensItem screensItem){
-        return of(screensItem,true);
+    public static MoquiUrl ofSubScreensItem(@NotNull SubScreensItem screensItem){
+        return ofSubScreensItem(screensItem,true);
     }
-    public static MoquiUrl of(@NotNull SubScreensItem screensItem, boolean fetchAllChildUrls) {
+    public static MoquiUrl ofSubScreensItem(@NotNull SubScreensItem screensItem, boolean fetchAllChildUrls) {
         if (screensItem.getXmlElement() == null) {
             return null;
         }
         MoquiUrl result = new MoquiUrl();
+        result.setProject(screensItem.getXmlElement().getProject());
+        result.setFetchAllChildUrls(fetchAllChildUrls);
+
         result.setSubScreensItem(screensItem);
         result.setName(MyDomUtils.getValueOrEmptyString(screensItem.getName()));
         String title = MyDomUtils.getValueOrEmptyString(screensItem.getMenuTitle());
@@ -169,7 +110,6 @@ public class MoquiUrl {
         result.setUrlIndex(MyDomUtils.getValueOrZero(screensItem.getMenuIndex()));
 
         String location = MyDomUtils.getValueOrEmptyString(screensItem.getLocation());
-        result.setProject(screensItem.getXmlElement().getProject());
 
         //查找对应的文件
         final PsiFile psiFile = LocationUtils.getFileFromLocation(result.getProject(), location).orElse(null);
@@ -177,7 +117,12 @@ public class MoquiUrl {
             MoquiFile file = MoquiFile.of(psiFile);
             result.setContainingMoquiFile(file);
 
-
+            DomFileElement<Screen> domFile = MyDomUtils.convertPsiFileToDomFile(psiFile,Screen.class);
+            if (domFile != null) {
+                result.setScreen(domFile.getRootElement());
+            } else {
+                result.setScreen(null);
+            }
         } else {
             result.setContainingMoquiFile(null);
         }
@@ -194,28 +139,108 @@ public class MoquiUrl {
     }
 
     /**
-     * 根据Project和location获取MoquiUrl，这里的location 应该是绝对路径
+     * 路径为/对应的MoquiUrl
+     * 用component://webroot/screen/webroot.xml生成菜单即可
+     * @param project
+     * @param fetchAllChildUrls
+     * @return
+     */
+    public static MoquiUrl ofRootScreenUrl(@NotNull Project project, boolean fetchAllChildUrls) {
+        return ofString(project, MyStringUtils.ROOT_SCREEN_LOCATION, fetchAllChildUrls);
+    }
+
+    /**
+     * 路径为//对应的MoquiUrl，
+     * 由于//apps/hm/..和//hm/.. 都合法，所以需要个性化处理
+     * 即将MoquiConf中定义的component://webroot/screen/webroot/apps.xml下所有的子目录和apps本身都放到同一级别
+     * 这里只需要将文件路径传入即可， 在PsiFile的处理中进行处理
+     * @param project
+     * @param fetchAllChildUrls
+     * @return
+     */
+    public static MoquiUrl ofBaseScreenUrl(@NotNull Project project, boolean fetchAllChildUrls) {
+
+        MoquiUrl moquiUrl = ofString(project,MyStringUtils.BASE_SCREEN_LOCATION,fetchAllChildUrls);
+        if(moquiUrl == null) {
+            LOGGER.warn("Could not find base screen url for project: " + project.getName());
+            return null;
+        }
+        if(!moquiUrl.childUrlHaveBeenFetched) moquiUrl.getNextLevelChildren();
+        moquiUrl.addChildUrl(moquiUrl);
+        return moquiUrl;
+    }
+
+    /**
+     * 根据Project和location获取MoquiUrl，
      *
      * @param project 当前Project
-     * @param location 路径
+     * @param locationStr 路径
      * @param fetchAllChildUrls 是否获取所有子菜单
      * @return MoquiUrl
      */
-    public static MoquiUrl of(@NotNull Project project,@NotNull String location, boolean fetchAllChildUrls) {
-        return of(LocationUtils.ofLocation(project, location), fetchAllChildUrls);
-//        LocationUtils.Location webrootFile = LocationUtils.ofLocation(project,location);
+    public static MoquiUrl ofString(@NotNull Project project, @NotNull String locationStr, boolean fetchAllChildUrls) {
+        Location location = Location.of(project, locationStr);
+        switch (location.getType()) {
+            case AbsoluteUrl -> {
+                return ofAbsoluteUrl(location, fetchAllChildUrls);
+            }
+            case ComponentFile,ComponentFileContent -> {
+                PsiFile psiFile = ComponentUtils.getPsiFileByLocation(location).orElse(null);
+                if(psiFile == null) return null;
+                return ofPsiFile(psiFile, fetchAllChildUrls);
+            }
+            default -> {
+                LOGGER.warn("Location type is not AbsoluteUrl or ComponentFile, cannot create MoquiUrl from location: " + locationStr);
+                return null;
+            }
+        }
+
+//        Location webrootFile = LocationUtils.ofLocation(project,location);
 //        if(webrootFile.getFile()!= null) {
 //            return of(webrootFile.getFile(),fetchAllChildUrls);
 //        }else {
 //            return null;
 //        }
     }
-    public static MoquiUrl of(@NotNull LocationUtils.Location location, boolean fetchAllChildUrls) {
-        if(location.getFile()!= null) {
-            return of(location.getFile(),fetchAllChildUrls);
-        }else {
+
+    /**
+     * 根据AbsoluteUrl类型的Location获取MoquiUrl
+     * @param location AbsoloteUrl
+     * @param fetchAllChildUrls
+     * @return
+     */
+    public static MoquiUrl ofAbsoluteUrl(@NotNull Location location, boolean fetchAllChildUrls) {
+        if(location.getType() != LocationType.AbsoluteUrl) {
+            LOGGER.warn("Location type is not AbsoluteUrl, cannot create MoquiUrl from location: " + location.getLocation());
             return null;
         }
+
+//        MoquiUrl curUrl = MoquiUrl.ofRootScreenUrl(location.getProject(), false);
+        MoquiUrl curUrl = null;
+        if(location.getHeadContent().equals(MyStringUtils.ROOT_URL)) {
+             curUrl= MoquiUrl.ofRootScreenUrl(location.getProject(), fetchAllChildUrls);
+        }else if(location.getHeadContent().equals(MyStringUtils.BASE_URL)) {
+            curUrl = MoquiUrl.ofBaseScreenUrl(location.getProject(), fetchAllChildUrls);
+        }
+
+        if(curUrl == null) return null;
+
+        if(location.getPathNameArray().length == 0){
+            return  curUrl;
+        }else {
+            for (int i =0; i < location.getPathNameArray().length; i++ ) {
+                String itemName = location.getPathNameArray()[i];
+
+                curUrl = curUrl.getChildUrlByName(itemName).orElse(null);
+                if (curUrl == null) {
+                    LOGGER.warn("在绝对路径"+ location.getLocation() + "中根据itemName" +itemName + "找不到对应的MoquiUrl");
+                    return null;
+                }
+            }
+
+            return curUrl;
+        }
+
     }
 
     /**
@@ -224,8 +249,8 @@ public class MoquiUrl {
      * @param psiFile Screen所在的PsiFile
      * @return MoquiUrl
      */
-    public static MoquiUrl of(@NotNull PsiFile psiFile){
-        return of(psiFile,true);
+    public static MoquiUrl ofPsiFile(@NotNull PsiFile psiFile){
+        return ofPsiFile(psiFile,true);
     }
 
     /**
@@ -235,7 +260,7 @@ public class MoquiUrl {
      * @param fetchAllChildUrls
      * @return
      */
-    public static MoquiUrl of(@NotNull PsiFile psiFile,boolean fetchAllChildUrls) {
+    public static MoquiUrl ofPsiFile(@NotNull PsiFile psiFile, boolean fetchAllChildUrls) {
         //如果psiFile不是Screen文件，则返回null
 //        if (!ScreenUtils.isScreenFile(psiFile)) {
 //            return null;
@@ -244,7 +269,7 @@ public class MoquiUrl {
         MoquiUrl result = new MoquiUrl();
 
         result.setProject(psiFile.getProject());
-
+        result.setFetchAllChildUrls(fetchAllChildUrls);
         //查找对应的文件
         final MoquiFile file = new MoquiFile(psiFile);
         DomFileElement<Screen> domFileElement = MyDomUtils.convertPsiFileToDomFile(psiFile, Screen.class);
@@ -280,6 +305,7 @@ public class MoquiUrl {
             result.fetchChildUrls();
         }
 
+
         return result;
 
     }
@@ -287,21 +313,23 @@ public class MoquiUrl {
     /**
      * 根据目录创建Menu
      */
-    public static MoquiUrl of(@NotNull PsiDirectory psiDirectory){
-        return of(psiDirectory,true);
+    public static MoquiUrl ofPsiDirectory(@NotNull PsiDirectory psiDirectory){
+        return ofPsiDirectory(psiDirectory,true);
     }
-    public static MoquiUrl of(@NotNull PsiDirectory psiDirectory,boolean fetchAllChildUrls) {
+    public static MoquiUrl ofPsiDirectory(@NotNull PsiDirectory psiDirectory, boolean fetchAllChildUrls) {
 
         MoquiUrl result = new MoquiUrl();
 //            //查找对应的文件
 
         result.setProject(psiDirectory.getProject());
+        result.setFetchAllChildUrls(fetchAllChildUrls);
 
         result.setName(psiDirectory.getName());
         result.setTitle(psiDirectory.getName());
-        result.setIcon(AllIcons.General.Print);
+        result.setIcon(AllIcons.Nodes.Folder);
 
         result.setSubScreensItem(null);
+        result.setScreen(null);
         result.setContainingMoquiFile(null);
 
         result.setContainingDirectory(psiDirectory);
@@ -310,6 +338,23 @@ public class MoquiUrl {
         if(fetchAllChildUrls)
             result.fetchChildUrls();
         return result;
+
+    }
+
+    /**
+     * 根据PsiElement所在的文件MoquiUrl
+     * @param psiElement 当前PsiElement，从而获取所在文件
+     * @param fetchAllChildUrls 是否获取所有子菜单
+     * @return MoquiUrl
+     */
+    public static MoquiUrl ofPsiFile(@NotNull PsiElement psiElement, boolean fetchAllChildUrls) {
+        PsiFile psiFile = MyDomUtils.getPsiFileFromPsiElement(psiElement).orElse(null);
+        if(psiFile == null) {
+            //如果PsiElement所在的文件是MoquiFile，则获取对应的目录
+            LOGGER.warn("Could not find file by PsiElement: " + psiElement);
+            return null;
+        }
+        return ofPsiFile(psiFile,fetchAllChildUrls);
 
     }
 
@@ -328,19 +373,17 @@ public class MoquiUrl {
      * @param fetchAllChildUrls 是否获取所有子菜单
      * @return MoquiUrl
      */
-    public static MoquiUrl of(@NotNull PsiElement psiElement,@NotNull String relativeUrl,boolean fetchAllChildUrls) {
+    public static MoquiUrl ofRelativeUrl(@NotNull PsiElement psiElement, @NotNull String relativeUrl, boolean fetchAllChildUrls) {
         Project project = psiElement.getProject();
-        LocationUtils.Location location = LocationUtils.ofLocation(project, relativeUrl);
-        if(location.getType() != LocationUtils.LocationType.RelativeUrl) {
-            LOGGER.warn("Location type is not RelativeScreenFile, cannot create MoquiUrl from PsiElement: " + psiElement);
+        Location location = Location.of(project, relativeUrl);
+        return ofRelativeUrl(psiElement,location,fetchAllChildUrls);
+    }
+    public static MoquiUrl ofRelativeUrl(@NotNull PsiElement psiElement, @NotNull Location relativeLocation, boolean fetchAllChildUrls) {
+        if(relativeLocation.getType() != LocationType.RelativeUrl) {
+            LOGGER.warn("Location type is not RelativeScreenFile, location is " + relativeLocation.getLocation() +", cannot create MoquiUrl from PsiElement: " + psiElement);
             return null;
         }
 
-//        String startPath = LocationUtils.getMoquiPathFromPsiElement(psiElement).orElse(null);
-//        if (startPath == null) {
-//            LOGGER.warn("Cannot find Moqui path from PsiElement: " + psiElement);
-//            return null;
-//        }
         PsiDirectory startDirectory = null;
         PsiFile psiFile = MyDomUtils.getPsiFileFromPsiElement(psiElement).orElse(null);
         if(psiFile == null) {
@@ -348,10 +391,17 @@ public class MoquiUrl {
             LOGGER.warn("Could not find file by PsiElement: " + psiElement);
             return null;
         }
+        //如果是当前路径，直接返回所在的PsiFile
+        if(relativeLocation.getLocation().equals(MyStringUtils.CURRENT_PATH)) {
+            return ofPsiFile(psiFile,fetchAllChildUrls);
+        }
+
+        MoquiUrl startUrl = null;
 
         //处理相对路径
-        for(int i =0; i< location.getPathNameArray().length; i ++) {
-            String pathName = location.getPathNameArray()[i];
+        searchLoop:
+        for(int i =0; i< relativeLocation.getPathNameArray().length; i ++) {
+            String pathName = relativeLocation.getPathNameArray()[i];
             switch (pathName) {
                 case MyStringUtils.CURRENT_PATH -> {
                     //当前目录，获取PsiElement所在的文件对应的目录
@@ -368,42 +418,50 @@ public class MoquiUrl {
                     }
                 }
                 default -> {
-                    break;
+                    break searchLoop;
                 }
             }
+            if(startDirectory == null) {
+                return null;
+            }
+            MoquiUrl tmpUrl = ofPsiDirectory(startDirectory,fetchAllChildUrls);
+            tmpUrl.setParent(startUrl);
+            startUrl = tmpUrl;
         }
-        if(startDirectory == null) {
-            return null;
-        }
-        MoquiUrl startUrl = of(startDirectory,fetchAllChildUrls);
-//        if(startUrl == null) return null;
+//        MoquiUrl startUrl = ofPsiDirectory(startDirectory,fetchAllChildUrls);
+//        String startPathName = startDirectory.getVirtualFile().getPath();
+        if(startUrl == null) return null;
         //处理后续路径
-        for(int i =0; i< location.getPathNameArray().length; i ++) {
-            String pathName = location.getPathNameArray()[i];
+        for(int i =0; i< relativeLocation.getPathNameArray().length; i ++) {
+            String pathName = relativeLocation.getPathNameArray()[i];
             if(!(pathName.equals(MyStringUtils.PARENT_PATH) || pathName.equals(MyStringUtils.CURRENT_PATH))) {
-                startUrl = getMoquiUrlByName(startUrl, pathName).orElse(null);
+                startUrl = startUrl.getChildUrlByName(pathName).orElse(null);
                 if(startUrl == null) {
-                    LOGGER.warn("Cannot find MoquiUrl by name: " + pathName + " in " + startUrl);
+//                    LOGGER.warn("Cannot find MoquiUrl by name: " + pathName + " from directory: " + startPathName);
                     return null;
                 }
             }
         }
         return startUrl;
+
     }
     /**
      * 获取MoquiUrl的所有下级url
-     *
      */
     public void fetchChildUrls() {
         setChildren(fetchChildUrls(true));
+        fetchAllChildUrls = true;
+        childUrlHaveBeenFetched = true;
     }
-
+    public void addChildUrl(@NotNull MoquiUrl moquiUrl) {
+        children.add(moquiUrl);
+    }
     /**
      * 根据fetchAllChildUrls参数来决定是否获取所有子菜单
      * @param fetchAllChildUrls boolean
      * @return ArrayList<MoquiUrl>
      */
-    public ArrayList<MoquiUrl> fetchChildUrls(boolean fetchAllChildUrls) {
+    private ArrayList<MoquiUrl> fetchChildUrls(boolean fetchAllChildUrls) {
         ArrayList<MoquiUrl> menus = new ArrayList<>();
         if (containingMoquiFile == null) {
             if(containingDirectory != null) {
@@ -421,12 +479,12 @@ public class MoquiUrl {
             }
             MoquiConfUtils.getAllScreensByLocation(project, location)
                     .forEach(item -> {
-                        menus.addAll(getChildUrlsBySubScreens(this, item, fetchAllChildUrls));
+                        menus.addAll(getChildUrlsByScreen(this, item, fetchAllChildUrls));
                     });
 
             //处理自己对应的Screen
             if (screen != null)
-                menus.addAll(getChildUrlsBySubScreens(this, screen, true));
+                menus.addAll(getChildUrlsByScreen(this, screen, true));
             //处理自己对应的目录
             menus.addAll(getChildUrlsByPath(this, containingMoquiFile.getContainingSubScreensPath(), fetchAllChildUrls));
 
@@ -435,18 +493,18 @@ public class MoquiUrl {
         return menus;
     }
 
-    public static ArrayList<MoquiUrl> getChildUrlsBySubScreens(@NotNull MoquiUrl MoquiUrl, @NotNull Screen screen,boolean fetchAllChildUrls) {
+    public static ArrayList<MoquiUrl> getChildUrlsByScreen(@NotNull MoquiUrl moquiUrl, @NotNull Screen screen, boolean fetchAllChildUrls) {
         return ApplicationManager.getApplication().runReadAction((Computable<ArrayList<MoquiUrl>>) () -> {
             ArrayList<MoquiUrl> menus = new ArrayList<>();
             for (SubScreensItem item : screen.getSubScreens().getSubScreensItemList()) {
-                MoquiUrl subMenu = of(item,fetchAllChildUrls);
-                if (subMenu != null) subMenu.setParent(MoquiUrl);
+                MoquiUrl subMenu = ofSubScreensItem(item,fetchAllChildUrls);
+                if (subMenu != null) subMenu.setParent(moquiUrl);
                 menus.add(subMenu);
             }
 
             for (SubScreensItem item : screen.getSubScreensItemList()) {
-                MoquiUrl subMenu = of(item,fetchAllChildUrls);
-                if (subMenu != null) subMenu.setParent(MoquiUrl);
+                MoquiUrl subMenu = ofSubScreensItem(item,fetchAllChildUrls);
+                if (subMenu != null) subMenu.setParent(moquiUrl);
                 menus.add(subMenu);
             }
             return menus;
@@ -459,38 +517,33 @@ public class MoquiUrl {
      * 1、剔除后缀的文件名为menu的名字
      * 2、子目录名为menu名字
      */
-    public static ArrayList<MoquiUrl> getChildUrlsByPath(@NotNull MoquiUrl MoquiUrl, @NotNull String path,boolean fetchAllChildUrls) {
-        MoquiFile moquiFile = MoquiUrl.getContainingMoquiFile();
+    public static ArrayList<MoquiUrl> getChildUrlsByPath(@NotNull MoquiUrl moquiUrl, @NotNull String path,boolean fetchAllChildUrls) {
+        MoquiFile moquiFile = moquiUrl.getContainingMoquiFile();
         List<PsiFile> fileList;
         ArrayList<MoquiUrl> menus = new ArrayList<>();
 
         Project project;
         if (moquiFile != null) {
-            project = moquiFile.getContainingFile().getProject();
+            project = moquiFile.getProject();
         } else {
-            if (MoquiUrl.getContainingDirectory() == null) return menus;
-            project = MoquiUrl.getContainingDirectory().getProject();
+            project = moquiUrl.getProject();
         }
 
         Set<String> filePathNames = new HashSet<>();
         fileList = MyDomUtils.findPsiFileListByPath(project, path);
         for (PsiFile item : fileList) {
             filePathNames.add(MyStringUtils.removeLastDotString(item.getName()));
-            MoquiUrl subMenu = of(item,fetchAllChildUrls);
-            if (subMenu != null) {
-                subMenu.setParent(MoquiUrl);
-                menus.add(subMenu);
-            }
+            MoquiUrl subMenu = ofPsiFile(item,fetchAllChildUrls);
+            subMenu.setParent(moquiUrl);
+            menus.add(subMenu);
         }
         //获取目录下的子目录
         for(PsiDirectory psiDirectory: MyDomUtils.findPsiDirectoryListByPath(project,path)) {
             String dirName = psiDirectory.getName();
             if(filePathNames.contains(dirName)) continue; //如果已经有同名的文件，则不添加该目录
-            MoquiUrl subMenu = of(psiDirectory,fetchAllChildUrls);
-            if (subMenu != null) {
-                subMenu.setParent(MoquiUrl);
-                menus.add(subMenu);
-            }
+            MoquiUrl subMenu = ofPsiDirectory(psiDirectory,fetchAllChildUrls);
+            subMenu.setParent(moquiUrl);
+            menus.add(subMenu);
         }
 
         return menus;
@@ -498,16 +551,59 @@ public class MoquiUrl {
     }
 
     public ArrayList<MoquiUrl> getNextLevelChildren() {
-        return fetchChildUrls(false);
+        if(!isFetchAllChildUrls()) {
+            if (!childUrlHaveBeenFetched) {
+                setChildren(fetchChildUrls(isFetchAllChildUrls()));
+                childUrlHaveBeenFetched = true;
+            }
+        }
+        return children;
     }
+    /**
+     * 从子Url中获取指定名称的Url
+     * @param name 子url的名称
+     * @return Optional<MoquiUrl>
+     */
+    public Optional<MoquiUrl> getChildUrlByName(@NotNull String name){
+        MoquiUrl targetUrl = null;
+        for(MoquiUrl url: getNextLevelChildren()) {
+            if(url.getName().equals(name)) {
+                targetUrl = url;
+                break;
+            }
+        }
+        return Optional.ofNullable(targetUrl);
+    }
+    /**
+     * 获取MoquiUrl对应的PsiElement
+     * @return Optional<PsiElement>
+     */
+    public Optional<PsiElement> getContainingPsiElement(){
 
+//        if(getScreen() != null) return Optional.ofNullable(getScreen().getXmlElement());
+        if(getContainingMoquiFile()!= null) return Optional.ofNullable(getContainingMoquiFile().getContainingFile());
+        if(getContainingDirectory() != null) return Optional.ofNullable(getContainingDirectory());
+//        if(getSubScreensItem() != null) return Optional.ofNullable(getSubScreensItem().getXmlElement());
+
+        return Optional.empty();
+//        if (getContainingMoquiFile()!= null) {
+//            return Optional.ofNullable(getContainingMoquiFile().getContainingFile());
+//        }
+//        return Optional.ofNullable(getContainingDirectory());
+    }
     public ArrayList<MoquiUrl> getChildren() {
+        if (!isFetchAllChildUrls()) {
+            if (!childUrlHaveBeenFetched) {
+                fetchChildUrls();
+                childUrlHaveBeenFetched = true;
+            }
+        }
         return children;
     }
 
-    public MoquiUrl getDefaultChild() {
-        return defaultChild;
-    }
+//    public MoquiUrl getDefaultChild() {
+//        return defaultChild;
+//    }
 
     public MoquiUrl getParent() {
         return parent;
@@ -550,9 +646,21 @@ public class MoquiUrl {
         return containingDirectory;
     }
 
-    public void setDefaultChild(MoquiUrl defaultChild) {
-        this.defaultChild = defaultChild;
+//    public void setDefaultChild(MoquiUrl defaultChild) {
+//        this.defaultChild = defaultChild;
+//    }
+
+    public boolean isFetchAllChildUrls() {
+        return fetchAllChildUrls;
     }
+
+    public void setFetchAllChildUrls(boolean fetchAllChildUrls) {
+        this.fetchAllChildUrls = fetchAllChildUrls;
+    }
+
+//    public boolean isChildUrlHaveBeenFetched() {
+//        return childUrlHaveBeenFetched;
+//    }
 
     public void setName(String name) {
         this.name = name;

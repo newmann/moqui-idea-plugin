@@ -156,7 +156,7 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         String location = MyDomUtils.getValueOrEmptyString(serviceInclude.getLocation());
         if(location.equals(MyStringUtils.EMPTY_STRING)) return Optional.empty();
 
-        LocationUtils.Location location1 = new LocationUtils.Location(project,location);
+        Location location1 = new Location(project,location);
 
         Optional<PsiFile> targetServiceFileOptional = location1.getFileByLocation();
         if(targetServiceFileOptional.isEmpty()) return Optional.empty();

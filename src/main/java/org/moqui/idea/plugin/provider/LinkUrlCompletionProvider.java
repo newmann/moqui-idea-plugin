@@ -72,27 +72,43 @@ public class LinkUrlCompletionProvider extends CompletionProvider<CompletionPara
 
         String purePath = MyStringUtils.removeLastPath(inputStr);
 
-        LocationUtils.Location location = LocationUtils.ofLocation(project, purePath);
-        MoquiUrl moquiUrl;
+        Location location = Location.of(project, purePath);
+
         switch (location.getType()) {
             case  AbsoluteUrl ->{
-                String path;
-                if(inputStr.equals(MyStringUtils.BASE_URL) ||
-                        inputStr.equals(MyStringUtils.ROOT_URL) ||
-                        (location.getPathNameArray().length ==1) && !inputStr.endsWith(MyStringUtils.PATH_SEPARATOR) ) {
-                    path = MyStringUtils.ROOT_SCREEN_LOCATION;
-                }else {
-                    path = purePath;
-                }
-                LOGGER.warn("Current inputStr:" + inputStr +" path：" + path);
+//                String path;
+//                if(inputStr.equals(MyStringUtils.BASE_URL) ||
+//                        inputStr.equals(MyStringUtils.ROOT_URL) ||
+//                        (location.getPathNameArray().length ==1) && !inputStr.endsWith(MyStringUtils.PATH_SEPARATOR) ) {
+//                    path = MyStringUtils.ROOT_SCREEN_LOCATION;
+//                }else {
+//                    path = purePath;
+//                }
+//                LOGGER.warn("Current inputStr:" + inputStr +" path：" + path);
 
-                moquiUrl = MoquiUrl.of(project,path,false);
+                MoquiUrl moquiUrl = MoquiUrl.ofAbsoluteUrl(location,false);
+
+                if(moquiUrl != null) addChildUrlElement(moquiUrl, result);
 
             }
             case RelativeUrl -> {
-                moquiUrl = MoquiUrl.of(psiElement, purePath, false);
+                MoquiUrl moquiUrl = MoquiUrl.ofRelativeUrl(psiElement, location, false);
+                if(moquiUrl != null) {
+                    addChildUrlElement(moquiUrl, result);
+                    //相对路径可以找多次上级目录
+                    int pathNameArrayLength = location.getPathNameArray().length;
+                    if(pathNameArrayLength >=1)
+                        if(location.getPathNameArray()[pathNameArrayLength - 1].equals(MyStringUtils.PARENT_PATH)) {
+                            result.addElement(
+                                    LookupElementBuilder.create(MyStringUtils.PARENT_PATH)
+                                            .withCaseSensitivity(true)
+                                            .withTypeText("Parent screen")
+                                            .withIcon(MyIcons.ScreenTag)
+                            );
+                        }
+                }
             }
-            case TransitionName -> {
+            case TransitionLevelName -> {
                 //添加Transition
                 for(AbstractTransition item : ScreenUtils.getAbstractTransitionListFromPsiElement(psiElement)) {
                     result.addElement(
@@ -102,38 +118,11 @@ public class LinkUrlCompletionProvider extends CompletionProvider<CompletionPara
                                     .withTypeText(Transition.TAG_NAME)
                     );
                 };
-                return;
-            }
-            default -> {
-                moquiUrl = null;
+
             }
         }
-//        String path;
-//        if(inputStr.equals(MyStringUtils.BASE_URL) ||
-//                inputStr.equals(MyStringUtils.ROOT_URL) ||
-//                    (location.getPathNameArray().length ==1) && !inputStr.endsWith(MyStringUtils.PATH_SEPARATOR) ) {
-//            path = MyStringUtils.ROOT_SCREEN_LOCATION;
-//        }else {
-//            path = inputStr.substring(0, inputStr.lastIndexOf(MyStringUtils.PATH_SEPARATOR));
-//        }
-//        LOGGER.warn("Current inputStr:" + inputStr +" path：" + path);
-//
-//        MoquiUrl moquiUrl = MoquiUrl.of(project,path,false);
 
-        if(moquiUrl != null) {
-            addChildUrlElement(moquiUrl, result);
-            //相对路径可以找多次上级目录
-            int pathNameArrayLength = location.getPathNameArray().length;
-            if(pathNameArrayLength >=1)
-                if(location.getPathNameArray()[pathNameArrayLength - 1].equals(MyStringUtils.PARENT_PATH)) {
-                    result.addElement(
-                            LookupElementBuilder.create(MyStringUtils.PARENT_PATH)
-                                    .withCaseSensitivity(true)
-                                    .withTypeText("Parent screen")
-                                    .withIcon(MyIcons.ScreenTag)
-                    );
-                }
-            }
+
     }
     private void addChildUrlElement(@NotNull MoquiUrl moquiUrl, @NotNull CompletionResultSet resultSet) {
 //        LOGGER.warn("开始addChildUrl element，moquiUrl："+moquiUrl.getName());

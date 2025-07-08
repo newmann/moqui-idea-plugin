@@ -72,27 +72,27 @@ public class ImageUrlCompletionProvider extends CompletionProvider<CompletionPar
 
         String purePath = MyStringUtils.removeLastPath(inputStr);
 
-        LocationUtils.Location location = LocationUtils.ofLocation(project, purePath);
+        Location location = Location.of(project, purePath);
         MoquiUrl moquiUrl;
         switch (location.getType()) {
             case  AbsoluteUrl ->{
-                String path;
-                if(inputStr.equals(MyStringUtils.BASE_URL) ||
-                        inputStr.equals(MyStringUtils.ROOT_URL) ||
-                        (location.getPathNameArray().length ==1) && !inputStr.endsWith(MyStringUtils.PATH_SEPARATOR) ) {
-                    path = MyStringUtils.ROOT_SCREEN_LOCATION;
-                }else {
-                    path = purePath;
-                }
-                LOGGER.warn("Current inputStr:" + inputStr +" path：" + path);
+//                String path;
+//                if(inputStr.equals(MyStringUtils.BASE_URL) ||
+//                        inputStr.equals(MyStringUtils.ROOT_URL) ||
+//                        (location.getPathNameArray().length ==1) && !inputStr.endsWith(MyStringUtils.PATH_SEPARATOR) ) {
+//                    path = MyStringUtils.ROOT_SCREEN_LOCATION;
+//                }else {
+//                    path = purePath;
+//                }
+//                LOGGER.warn("Current inputStr:" + inputStr +" path：" + path);
 
-                moquiUrl = MoquiUrl.of(project,path,false);
+                moquiUrl = MoquiUrl.ofAbsoluteUrl(location,false);
 
             }
             case RelativeUrl -> {
-                moquiUrl = MoquiUrl.of(psiElement, purePath, false);
+                moquiUrl = MoquiUrl.ofRelativeUrl(psiElement, purePath, false);
             }
-            case TransitionName -> {
+            case TransitionLevelName -> {
                 //添加Transition
                 for(AbstractTransition item : ScreenUtils.getAbstractTransitionListFromPsiElement(psiElement)) {
                     result.addElement(
@@ -117,6 +117,10 @@ public class ImageUrlCompletionProvider extends CompletionProvider<CompletionPar
 //        LOGGER.warn("开始addChildUrl element，moquiUrl："+moquiUrl.getName());
 
         for(MoquiUrl childUrl: moquiUrl.getNextLevelChildren()) {
+            //判断是不是图像文件，如果不是，则跳过
+            if(moquiUrl.getContainingMoquiFile() != null && moquiUrl.getScreen()==null && moquiUrl.getSubScreensItem() == null ) {
+                if(! moquiUrl.getContainingMoquiFile().isImageFile()) continue;
+            }
             String lookupString = childUrl.getName();
             LookupElementBuilder lookupElementBuilder = LookupElementBuilder.create(moquiUrl, lookupString)
                     .withCaseSensitivity(true)

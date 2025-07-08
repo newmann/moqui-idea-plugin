@@ -100,7 +100,12 @@ public final class LocationUtils {
         }
         if(finalPath.startsWith("/")) finalPath = finalPath.substring(1);
 
-        return finalPath.split("/");
+        if(MyStringUtils.isEmpty(finalPath)) {
+            //如果路径为空，则返回空数组
+            return new String[0];
+        }else {
+            return finalPath.split("/");
+        }
     }
 
     /**
@@ -177,28 +182,6 @@ public final class LocationUtils {
                         //如果处理失败，则返回空
                         return Optional.empty();
                     }
-//                    int firstSlashIndex = pathName.indexOf("/");
-//
-//                    //如果不存在，则存在错误，直接返回
-//                    if (firstSlashIndex < 0) {
-//                        return Optional.empty();
-//                    }
-//
-//                    String firstPath = pathName.substring(0, firstSlashIndex);
-//                    pathName = pathName.substring(firstSlashIndex + 1);
-//                    switch (firstPath) {
-//                        case "system":
-//                            pathName = "runtime/base-component/tools/screen/System/" + pathName;
-//                            break;
-//                        case "tools":
-//                            pathName = "runtime/base-component/tools/screen/Tools/" + pathName;
-//                            break;
-//                        case "apps","qapps":
-//
-//                        default:
-//                            return Optional.empty();
-//                    }
-
 
                 } else {
                     //前面是component://，表示对应到runtime/component下，但需要注意的是，tools和webroot是在runtime/base-component下
@@ -242,480 +225,6 @@ public final class LocationUtils {
 //        });
     }
 
-    public enum LocationType{
-        Unknown, //根据location无法判断具体类型的，需要根据所在的context，进一步判断，
-        ComponentFile, //component://SimpleScreens/template/party/PartyForms.xml（指向一个文件 ）
-        ComponentFileContent, //component://SimpleScreens/screen/SimpleScreens/Search.xml#SearchOptions（指向文件中的某个tag），
-        RelativeUrl,//../EditFacility，同一个目录下的screen文件，
-        WebUrl,
-        TransitionName,
-        DynamicPath,
-        CamelPath,//location="moquiservice:moqui.example.ExampleServices.targetCamelExample"
-        ClassPath,//location="classpath://service/org/moqui/impl/BasicServices.xml"，service-file、service-include中使用
-                  //     和component类似，对应到某个文件，只是没有指定component名称，但应该也是唯一的
-        AbsoluteUrl,// 类似这种路径//hmadmin/User/EditUser，需要找到所在component的MoquiConf.xml中定义的菜单入口，顺着subscreen的定义路径，找到对应的screen定义文件
-                    //${appRoot}/ServiceAgreement/ServiceLocation  ${appRoot}为变量，一般在所在组建的一级入口screen文件中定义，
-                    //apps/system/Security/UserAccount/UserAccountDetail //apps是特定写法，等同于//system/Security/UserAccount/UserAccountDetail
-
-    }
-    public static Location ofLocation(@NotNull Project project,@NotNull String location){
-        return new Location(project,location);
-    }
-
-    public static Location ofLocation(@NotNull Project project,@NotNull String currentLocation,@NotNull String relativeLocation){
-        return new Location(project,currentLocation,relativeLocation);
-    }
-
-     public static final class Location{
-        private LocationType type;
-        private final String location; //传入的字符串
-        private final Project project;
-
-        private PsiElement psiElement;//文件或路径指向的 PsiElement，可能是PsiFile，也可能是PsiDirectory
-        private PsiFile file;
-        private PsiDirectory directory;
-        private boolean fileHaveSearched = false;//是否已经根据location查找过对应的PsiFile，避免重复查找
-
-        private String pathPart;//#号前面的内容，以及去掉headContent部分的内容
-        private  String contentPart;//#号后面的内容
-        private String[] pathNameArray;
-
-        private String headContent;//路径中的头部内容，可能是component://、//、/、classpath://等
-         private boolean isEmpty = false;
-         /**
-          * Location中包含有${}的变量
-          */
-
-        public Location(@NotNull Project project, @NotNull String currentLocation,@NotNull String relativeLocation){
-            this(project,currentLocation);
-            getRelativeFile(relativeLocation);
-        }
-
-         public Location(@NotNull Project  project,@NotNull String location){
-            this.project = project;
-            this.location = location;
-            if(MyStringUtils.isEmpty(location)) {
-                this.type = LocationType.Unknown;
-                isEmpty = true;
-                return;
-            }
-             if(location.matches(MyStringUtils.CONTAIN_VARIABLE_REGEXP)) {
-                 this.type = LocationType.DynamicPath;
-                 return;
-             }
-
-            if(location.startsWith("http://") || location.startsWith("https://")) {
-                this.type = LocationType.WebUrl;
-                return;
-            }
-            if(location.startsWith(MyStringUtils.COMPONENT_LOCATION_PREFIX)) {
-
-                processComponentType(location);
-                return;
-            }
-            if(location.matches(MyStringUtils.TRANSITION_NAME_REGEXP)) {
-                this.type = LocationType.TransitionName;
-                return;
-            }
-            if(location.matches(MyStringUtils.RELATIVE_URL_REGEXP)) {
-                this.type = LocationType.RelativeUrl;
-                processRelativeUrlPathType(location);
-                return;
-            }
-             if(location.matches(MyStringUtils.ABSOLUTE_URL_REGEXP)) {
-                 this.type = LocationType.AbsoluteUrl;
-                 processAbsoluteUrlType(location);
-                 return;
-             }
-
-            if(location.startsWith("classpath://")) {
-                this.type = LocationType.ClassPath;
-                processClassPathType(location);
-                return;
-            }
-            this.type = LocationType.Unknown;
-        }
-        private void processClassPathType(@NotNull String location){
-            this.headContent = "classpath://";
-            String pathPart = location.substring(headContent.length());
-            //将路径分解，每一级目录都分别对应
-            pathNameArray = getPathArrayFromLocation(pathPart);
-
-            //查找对应的文件
-//            file = getFileFromLocation(project, pathPart).orElse(null);
-
-        }
-         private void processRelativeUrlPathType(@NotNull String location){
-             //将路径分解，每一级目录都分别对应
-             pathNameArray = getPathArrayFromLocation(location);
-
-
-         }
-         private void processAbsoluteUrlType(@NotNull String location){
-            if(location.startsWith(MyStringUtils.BASE_URL)) {
-                headContent = MyStringUtils.BASE_URL;
-            }else {
-                headContent = MyStringUtils.ROOT_URL;
-            }
-            pathPart = location.substring(headContent.length());
-             //将路径分解，每一级目录都分别对应
-             pathNameArray = getPathArrayFromLocation(pathPart);
-             //查找最后一级所对应的文件
-
-         }
-        private void processComponentType(@NotNull String location){
-            this.headContent = MyStringUtils.COMPONENT_LOCATION_PREFIX;
-//            String tmp = location;
-            if(location.contains("#")) {
-                type = LocationType.ComponentFileContent;
-                String[] contentSplit = location.split("#");
-
-                pathPart = contentSplit[0];
-                contentPart = contentSplit[1];
-
-            }else {
-                pathPart = location;
-                contentPart="";
-                type = LocationType.ComponentFile;
-            }
-            pathPart = pathPart.substring(headContent.length());
-
-//            tmp = pathPart.split("//")[1];
-            //查找对应的文件，移动到getFile过程中统一处理
-//            file = getFileFromLocation(project, pathPart).orElse(null);
-            //将路径分解，每一级目录都分别对应
-            pathNameArray = getPathArrayFromLocation(pathPart);
-        }
-
-         /**
-          * 直接根据location获取可能存在的文件
-          * @return Optional<PsiFile>
-          */
-        public Optional<PsiFile> getFileByLocation(){
-            if(!fileHaveSearched) {
-                psiElement = fetchPsiElement().orElse(null);
-                fileHaveSearched = true;
-            }
-            return Optional.ofNullable(getFile());
-        }
-         /**
-          * 只能处理component和absolute url 格式：
-          * 1、component://SimpleScreens/template/party/PartyForms.xml（指向一个文件 ）
-          * 2、//system/Security/UserAccountDetail，
-          * 3、component://tools/screen/System.xml
-          * 4、//apps/system/SystemMessage/Message/SystemMessageDetail
-          * 根据location找到对应的PsiElement，可能是PsiFile，也可能是PsiDirectory
-          */
-         private Optional<PsiElement> fetchPsiElement(){
-            if((type != LocationType.ComponentFile) && (type != LocationType.ComponentFileContent) &&
-                    (type != LocationType.AbsoluteUrl)) return Optional.empty();
-
-             return ApplicationManager.getApplication().runReadAction((Computable<Optional<PsiElement>>) ()->{
-                switch (type) {
-                    case ComponentFile, ComponentFileContent -> {
-                        //如果是component file，则直接获取文件
-                        String componentPath = ComponentUtils.getComponentPathByName(project, pathNameArray[0]).orElse(null);
-                        if(componentPath == null) return Optional.empty();
-                        String fileName = componentPath  + pathPart.substring(pathNameArray[0].length());
-
-//                         GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-//                         Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName( fileName, true, scope);
-//                         if(foundFileCollection.isEmpty()) return Optional.empty();
-//                         PsiFile targetFile = PsiManager.getInstance(project).findFile(foundFileCollection.);
-//                         return Optional.ofNullable(targetFile);
-
-                        // 使用 LocalFileSystem 来找到 VirtualFile
-                        VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(fileName);
-                        if (virtualFile != null) {
-                            // 使用 PsiManager 来获取 PsiFile
-                            PsiManager psiManager = PsiManager.getInstance(project);
-                            return Optional.ofNullable(psiManager.findFile(virtualFile));
-                        }else {
-                            return Optional.empty();
-                        }
-
-
-                    }
-                    case AbsoluteUrl -> {
-                        //如果是绝对路径，则需要根据路径获取文件
-                        MoquiUrl curUrl =MoquiUrl.of(project, MyStringUtils.ROOT_SCREEN_LOCATION,false);
-                        if(curUrl == null) return Optional.empty();
-
-                        if(pathNameArray.length == 0){
-                            if(headContent.equals(MyStringUtils.ROOT_URL)) {
-                                return MoquiUrl.getContainingPsiElementFromMoquiUrl(curUrl);
-//                                PsiFile psiFile = MoquiUrl.getContainingFileFromMoquiUrl(curUrl).orElse(null);
-//                                if(psiFile == null) {
-//                                    return Optional.empty();
-//                                }else {
-//                                    return Optional.of(psiFile);
-//                                }
-
-                            }else {
-                                return  Optional.empty();
-                            }
-                        }else {
-                            for (String itemName : pathNameArray) {
-                                curUrl = MoquiUrl.getMoquiUrlByName(curUrl, itemName).orElse(null);
-                                if (curUrl == null) {
-                                    LOGGER.warn(itemName + "找不到对应的MoquiUrl");
-                                    return Optional.empty();
-                                }
-                            }
-
-                            return MoquiUrl.getContainingPsiElementFromMoquiUrl(curUrl);
-                        }
-                    }
-                    default -> {
-                        return Optional.empty();
-                    }
-                }
-
-             });
-
-//        });
-         }
-
-        public Optional<PsiFile> getRelativeFile(@NotNull String currentFilePathName){
-            if(this.type != LocationType.RelativeUrl) return Optional.empty();
-
-            String tmpString = currentFilePathName;
-            //如果结尾是文件名需要将后缀去掉
-            int tmpIndex = currentFilePathName.lastIndexOf(".xml");
-            if(tmpIndex > 0) {
-                tmpString = currentFilePathName.substring(0,tmpIndex);
-            }
-            this.pathNameArray = tmpString.split(MyStringUtils.PATH_SEPARATOR);
-            ArrayList<String> targetFileArray = new ArrayList<>(Arrays.asList(this.pathNameArray));
-
-            String[] relativeFileArray = this.location.split(MyStringUtils.PATH_SEPARATOR);
-            for (String s : relativeFileArray) {
-                if (s.equals(".")) {
-                    continue;
-                }
-                if (s.equals("..")) {
-                    tmpIndex = targetFileArray.size() - 1;
-                    if (tmpIndex < 0) continue; //一般不会出现，出现后应该错误了，这里不处理错误，后续会找不到文件
-                    //退回到上一级
-                    targetFileArray.remove(tmpIndex);
-                } else {
-                    //将路径压入
-                    targetFileArray.add(s);
-                }
-            }
-            //组合目标文件名称，将第一个去掉，因为在window和linux上对盘符的处理不同，
-            targetFileArray.remove(0);
-            String targetName = String.join(MyStringUtils.PATH_SEPARATOR, targetFileArray)+".xml";
-
-            //获取psifile
-            Optional<PsiFile> fileOptional = getFileFromLocation(project,targetName);
-
-            this.file = fileOptional.orElse(null);
-            return fileOptional;
-
-        }
-         /**
-          * 支持以下格式：
-          * //hmadmin/User/EditUser
-          * /popc/Order/Cart 这种格式的路径创建Reference
-          * /hmstatic/images/client-businessmen26.png
-          * ROOT_URL
-          * @param element 当前PsiElement
-          * @param context 当前ConvertContext
-          * @return PsiReference[]
-          */
-         public  @NotNull PsiReference[] createAbsoluteUrlPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context){
-             if(type != LocationType.AbsoluteUrl) return PsiReference.EMPTY_ARRAY;
-
-             //添加路径和文件的reference
-             List<PsiReference> result = new ArrayList<>();
-             //第一个为MoquiConf中定义的root subscreenItem
-
-             String rootName = pathNameArray[0];
-             int startOffset = location.indexOf(rootName)+1;
-            TextRange locationTextRange = new TextRange(1,location.length()+1);
-
-            MoquiUrl curUrl =MoquiUrl.of(element.getProject(), MyStringUtils.ROOT_SCREEN_LOCATION,false);
-             if(curUrl == null) return MoquiBaseReference.createNullRefArray(element,locationTextRange);
-
-            if(location.equals(MyStringUtils.ROOT_URL)) {
-                PsiElement curElement = MoquiUrl.getPsiElementFromMoquiUrl(curUrl).orElse(null);
-                result.add(MoquiBaseReference.of(element,
-                        locationTextRange,
-                        curElement));
-            }else {
-
-                for (String itemName : pathNameArray) {
-                    curUrl = MoquiUrl.getMoquiUrlByName(curUrl, itemName).orElse(null);
-                    if (curUrl == null) return MoquiBaseReference.createNullRefArray(element, locationTextRange);
-
-                    PsiElement curElement = MoquiUrl.getPsiElementFromMoquiUrl(curUrl).orElse(null);
-                    if (curElement == null) return MoquiBaseReference.createNullRefArray(element, locationTextRange);
-
-                    result.add(MoquiBaseReference.of(element,
-                            new TextRange(startOffset, startOffset + itemName.length()),
-                            curElement));
-
-                    startOffset = startOffset + itemName.length() + 1;
-                }
-            }
-
-
-             return result.toArray(new PsiReference[0]);
-         }
-
-         /**
-          * 为//component://SimpleScreens/screen/SimpleScreens/Search.xml#SearchOptions这种格式的路径创建Reference
-          * @param element 当前PsiElement
-          * @param context 当前ConvertContext
-          * @return PsiReference[]
-          */
-         public  @NotNull PsiReference[] createComponentContentPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context){
-            //添加路径和文件的reference
-            List<PsiReference> result = new ArrayList<>(Arrays.stream(createFilePsiReference(pathPart, element, getFile())).toList());
-             //添加content部分的reference
-             if(MyStringUtils.isNotEmpty(contentPart)) {
-                 String attributeName = MyDomUtils.getCurrentAttributeName(context).orElse(MyStringUtils.EMPTY_STRING);
-                 String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
-                 int startOffset = pathPart.length() + 2;
-                 int endOffset = startOffset + contentPart.length();
-
-                 //WidgetTemplateInclude（location）
-                 if(attributeName.equals(WidgetTemplateInclude.ATTR_LOCATION) && firstTagName.equals(WidgetTemplateInclude.TAG_NAME)) {
-                     WidgetTemplate widgetTemplate = WidgetTemplateUtils.getWidgetTemplateFromFileByName(getFile(), contentPart)
-                             .orElse(null);
-                     if (widgetTemplate == null) return result.toArray(new PsiReference[0]);
-
-                     result.add(new MoquiBaseReference(element,
-                             new TextRange(startOffset, endOffset),
-                             widgetTemplate.getName().getXmlAttributeValue()));
-                 }
-                 //FormSingle（extends）
-                 if(attributeName.equals(FormSingle.ATTR_EXTENDS)  && firstTagName.equals(FormSingle.TAG_NAME)) {
-                     FormSingle formSingle = ScreenUtils.getFormSingleFromScreenFileByName(getFile(), contentPart)
-                             .orElse(null);
-                     if (formSingle == null) return result.toArray(new PsiReference[0]);
-
-                     result.add(new MoquiBaseReference(element,
-                             new TextRange(startOffset, endOffset),
-                             formSingle.getName().getXmlAttributeValue()));
-                 }
-                 //FormList（extends）
-                 if(attributeName.equals(FormList.ATTR_EXTENDS) && firstTagName.equals(FormList.TAG_NAME)) {
-                     FormList formList = ScreenUtils.getFormListFromScreenFileByName(getFile(), contentPart)
-                             .orElse(null);
-                     if (formList == null) return result.toArray(new PsiReference[0]);
-
-                     result.add(new MoquiBaseReference(element,
-                             new TextRange(startOffset, endOffset),
-                             formList.getName().getXmlAttributeValue()));
-                 }
-
-             }
-             return result.toArray(new PsiReference[0]);
-         }
-
-         /**
-          * 同一个screen文件中的extend
-          * @param element 当前PsiElement
-          * @param context 当前ConvertContext
-          * @return PsiReference[]
-          */
-         public  @NotNull PsiReference[] createLocalFormExtendPsiReference( @NotNull PsiElement element,@NotNull ConvertContext context){
-
-             String attributeName = MyDomUtils.getCurrentAttributeName(context).orElse(MyStringUtils.EMPTY_STRING);
-             String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
-
-             PsiFile psiFile = context.getFile().getContainingFile();
-             List<PsiReference> result = new ArrayList<>();
-
-             if(attributeName.equals(FormSingle.ATTR_EXTENDS)  &&
-                     firstTagName.equals(FormSingle.TAG_NAME)
-             ) {
-
-                 FormSingle formSingle = ScreenUtils.getFormSingleFromScreenFileByName(psiFile, location)
-                         .orElse(null);
-                 if (formSingle == null) return result.toArray(new PsiReference[0]);
-
-                 result.add(new MoquiBaseReference(element,
-                         new TextRange(1, location.length()+1),
-                         formSingle.getName().getXmlAttributeValue()));
-             }
-
-             if(attributeName.equals(FormList.ATTR_EXTENDS)  &&
-                     firstTagName.equals(FormList.TAG_NAME)
-             ) {
-
-                 FormList formList = ScreenUtils.getFormListFromScreenFileByName(psiFile, location)
-                         .orElse(null);
-                 if (formList == null) return result.toArray(new PsiReference[0]);
-
-                 result.add(new MoquiBaseReference(element,
-                         new TextRange(1, location.length()+1),
-                         formList.getName().getXmlAttributeValue()));
-             }
-
-
-             return result.toArray(new PsiReference[0]);
-         }
-
-
-         public String getLocation() {
-             return location;
-         }
-
-         public LocationType getType() {
-             return type;
-         }
-
-         public PsiFile getFile() {
-             if(!fileHaveSearched) {
-                 psiElement = fetchPsiElement().orElse(null);
-                 fileHaveSearched = true;
-             }
-             if(psiElement instanceof PsiFile psiFile) {
-                 return psiFile;
-             }else {
-                 return null;
-             }
-         }
-
-         public Project getProject() {
-             return project;
-         }
-
-         public PsiDirectory getDirectory() {
-             if(!fileHaveSearched) {
-                 psiElement = fetchPsiElement().orElse(null);
-                 fileHaveSearched = true;
-             }
-             if(psiElement instanceof PsiDirectory psiDirectory) {
-                 return psiDirectory;
-             }else {
-                 return null;
-             }
-         }
-
-         public String getHeadContent() {
-             return headContent;
-         }
-
-         public String getContentPart() {
-             return contentPart;
-         }
-         public String getPathPart(){
-             return pathPart;
-         }
-
-         public String[] getPathNameArray() {
-             return pathNameArray;
-         }
-
-         public boolean isEmpty() {
-             return isEmpty;
-         }
-     }
-
     public static @NotNull PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
         Project project = context.getProject();
         if(project ==null) return PsiReference.EMPTY_ARRAY;
@@ -724,7 +233,7 @@ public final class LocationUtils {
         if(element.getContainingFile().getVirtualFile()==null) return PsiReference.EMPTY_ARRAY;
 
 
-        LocationUtils.Location location = new LocationUtils.Location(project,url);
+        Location location = new Location(project,url);
         String attributeName = MyDomUtils.getCurrentAttributeName(context).orElse(MyStringUtils.EMPTY_STRING);
         String firstTagName = MyDomUtils.getFirstParentTagName(context).orElse(MyStringUtils.EMPTY_STRING);
 
@@ -738,12 +247,12 @@ public final class LocationUtils {
         }
         //Subscreens的路径类型必须是RelativeScreenFile，像dashboard，会被判断为TransitionName
         if(attributeName.equals(SubScreens.ATTR_DEFAULT_ITEM) && firstTagName.equals(SubScreens.TAG_NAME)) {
-            location.type= LocationType.RelativeUrl;
+            location.setType(LocationType.RelativeUrl);
         }
 
 
-        switch(location.type) {
-            case TransitionName -> {
+        switch(location.getType()) {
+            case TransitionLevelName -> {
                 Optional<AbstractTransition> optTransition = ScreenUtils.getAbstractTransitionFromConvertContextByName(url,context);
                 if (optTransition.isPresent()) {
                     final AbstractTransition transition = optTransition.get();
@@ -756,6 +265,19 @@ public final class LocationUtils {
                     return psiReferences;
 
                 }else {
+                    //再找当前Screen的下级Screen
+                    MoquiUrl moquiUrl = MoquiUrl.ofPsiFile(element,false);
+                    if(moquiUrl != null) {
+                        Optional<MoquiUrl> childUrl = moquiUrl.getChildUrlByName(url);
+                        if(childUrl.isPresent()) {
+                            PsiElement psiElement = childUrl.get().getContainingPsiElement().orElse(null);
+                            if(psiElement != null) {
+                                return new PsiReference[]{new MoquiBaseReference(element,
+                                        new TextRange(1, url.length() + 1),
+                                        psiElement)};
+                            }
+                        }
+                    }
                     //提示错误
                     return MoquiBaseReference.createNullRefArray(element,new TextRange(1,
                             url.length()+1));
@@ -764,22 +286,23 @@ public final class LocationUtils {
 
             }
             case RelativeUrl -> {
-                Optional<PsiFile> file = location.getRelativeFile(MyDomUtils.getFilePathByPsiElement(element).orElse(MyStringUtils.EMPTY_STRING));//element.getContainingFile().getVirtualFile().getPath());
-                //如果没有找到，可能是SubScreensItem
-                if(file.isEmpty()) {
-                    Optional<SubScreensItem> subScreensItem = ScreenUtils.getSubScreensItemByName(url,context);
-                    if(subScreensItem.isPresent()) {
-                        Location subScreensItemLocation = new Location(context.getProject(),
-                                MyDomUtils.getValueOrEmptyString(subScreensItem.get().getLocation()));
-                        file = Optional.ofNullable(subScreensItemLocation.getFile());
-                        return file.map(psiFile -> createFilePsiReference(url, element, psiFile)).orElse(PsiReference.EMPTY_ARRAY);
-                    }else{ //相对路径，有可能找不到，不提示错误
-//                        return MoquiBaseReference.createNullRefArray(element,new TextRange(1,url.length()+1));
-                        return PsiReference.EMPTY_ARRAY;
-                    }
-                }else {
-                    return file.map(psiFile -> createFilePsiReference(url, element, psiFile)).orElse(PsiReference.EMPTY_ARRAY);
-                }
+                return location.createRelativeUrlPsiReference(element);
+//                Optional<PsiFile> file = location.getRelativeFile(element);//element.getContainingFile().getVirtualFile().getPath());
+//                //如果没有找到，可能是SubScreensItem
+//                if(file.isEmpty()) {
+//                    Optional<SubScreensItem> subScreensItem = ScreenUtils.getSubScreensItemByName(url,context);
+//                    if(subScreensItem.isPresent()) {
+//                        Location subScreensItemLocation = new Location(context.getProject(),
+//                                MyDomUtils.getValueOrEmptyString(subScreensItem.get().getLocation()));
+//                        file = Optional.ofNullable(subScreensItemLocation.getFile());
+//                        return file.map(psiFile -> createFilePsiReference(url, element, psiFile)).orElse(PsiReference.EMPTY_ARRAY);
+//                    }else{ //相对路径，有可能找不到，不提示错误
+////                        return MoquiBaseReference.createNullRefArray(element,new TextRange(1,url.length()+1));
+//                        return PsiReference.EMPTY_ARRAY;
+//                    }
+//                }else {
+//                    return file.map(psiFile -> createFilePsiReference(url, element, psiFile)).orElse(PsiReference.EMPTY_ARRAY);
+//                }
 
             }
             case ComponentFile, ClassPath -> {
@@ -807,7 +330,7 @@ public final class LocationUtils {
                 return PsiReference.EMPTY_ARRAY;
             }
             case AbsoluteUrl -> {
-                return location.createAbsoluteUrlPsiReference(element,context);
+                return location.createAbsoluteUrlPsiReference(element);
 
             }
             default -> {
@@ -841,7 +364,7 @@ public final class LocationUtils {
                         return MoquiBaseReference.createNullRefArray(element,new TextRange(1,
                                 url.length()+1));
 
-                    Optional<PsiFile> file = location.getRelativeFile(MyDomUtils.getFilePathByPsiElement(element).orElse(MyStringUtils.EMPTY_STRING));//element.getContainingFile().getVirtualFile().getPath());
+                    Optional<PsiFile> file = location.getRelativeFile(element);//element.getContainingFile().getVirtualFile().getPath());
                     return file.map(psiFile -> createFilePsiReference(url, element, psiFile))
                             .orElse(MoquiBaseReference.createNullRefArray(element,new TextRange(1, url.length()+1)));
                 }
@@ -1047,7 +570,7 @@ public final class LocationUtils {
         String url = MyDomUtils.getXmlAttributeValueString(locationAttr).orElse(MyStringUtils.EMPTY_STRING);
         Project project = locationAttr.getProject();
 
-        LocationUtils.Location location = new LocationUtils.Location(project, url);
+        Location location = new Location(project, url);
 
         if(location.isEmpty()) {
             //在DTD文件中定义了，不需要重复检查
@@ -1072,13 +595,13 @@ public final class LocationUtils {
         }
 
         PsiFile psiFile = location.getFile();
-        if(location.type == LocationType.Unknown) {//不知道的类型，尝试直接找文件
+        if(location.getType() == LocationType.Unknown) {//不知道的类型，尝试直接找文件
             psiFile = location.getFileByLocation().orElse(null);
         }
 
         if (psiFile == null) {
-            if((location.type == LocationType.Unknown) || (location.type == LocationType.WebUrl)
-                    || (location.type == LocationType.CamelPath)
+            if((location.getType() == LocationType.Unknown) || (location.getType() == LocationType.WebUrl)
+                    || (location.getType() == LocationType.CamelPath)
             ) {
                 holder.newAnnotation(HighlightSeverity.WEAK_WARNING, "The location:" + location.getLocation() + " is url or Camel path, check for effectiveness on your own")
                         .range(locationAttr.getValueTextRange())
@@ -1094,7 +617,7 @@ public final class LocationUtils {
             return;
         }
 
-        if(location.type!= LocationType.Unknown && MyStringUtils.isNotEmpty(location.getContentPart())) {
+        if(location.getType()!= LocationType.Unknown && MyStringUtils.isNotEmpty(location.getContentPart())) {
             boolean targetNotExist = false;
             if(element instanceof WidgetTemplateInclude) {
                 WidgetTemplate widgetTemplate = WidgetTemplateUtils.getWidgetTemplateFromFileByName(psiFile, location.getContentPart())

@@ -7,7 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class MoquiFile {
-
+    public static final String[] IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp", "svg", "tiff"};
+    private Project project;
     private final PsiFile containingFile;
     private final String path;//和idea中定义一样，含路径和名称
     private final String containingPath;//文件所在的最后一级路径
@@ -23,7 +24,7 @@ public final class MoquiFile {
 
     private final String relativePath;//
     public static @Nullable  MoquiFile of(@NotNull Project  project, @NotNull String fileUrl){
-        LocationUtils.Location location = LocationUtils.ofLocation(project,fileUrl);
+        Location location = Location.of(project,fileUrl);
         if(location.getFile() == null) {
             return null;
         }else {
@@ -40,6 +41,8 @@ public final class MoquiFile {
 
     MoquiFile(@NotNull PsiFile containingFile) {
         this.containingFile = containingFile;
+        this.project = containingFile.getProject();
+
         VirtualFile file = containingFile.getVirtualFile();
         this.path = file.getPath();
         this.fileFullName = file.getName();
@@ -105,6 +108,18 @@ public final class MoquiFile {
         return fileFullName;
     }
 
+    public Project getProject() {
+        return project;
+    }
+
+    public Boolean getComponentFile() {
+        return isComponentFile;
+    }
+
+    public Boolean getFrameworkFile() {
+        return isFrameworkFile;
+    }
+
     public Boolean getIsComponentFile() {
         return isComponentFile;
     }
@@ -128,5 +143,19 @@ public final class MoquiFile {
 
     public String getRelativePath() {
         return relativePath;
+    }
+    /**
+     * 判断当前文件是否是图片文件
+     *
+     * @return boolean
+     */
+    public boolean isImageFile() {
+        if (this.fileExtension.isEmpty()) return false;
+        for (String ext : IMAGE_EXTENSIONS) {
+            if (this.fileExtension.equalsIgnoreCase(ext)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -23,6 +23,7 @@ import static org.jetbrains.plugins.groovy.lang.completion.GrDummyIdentifierProv
  */
 public final class MyStringUtils {
     public static final String ROOT_SCREEN_LOCATION="component://webroot/screen/webroot.xml";
+    public static final String BASE_SCREEN_LOCATION="component://webroot/screen/webroot/apps.xml";
     public static final String ROOT_URL = "/";
     public static final String BASE_URL = "//";
     public static final String CURRENT_PATH = ".";
@@ -61,7 +62,7 @@ public final class MyStringUtils {
     public static final String BASE_COMPONENT_PATH_TAG = "/runtime/base-component/";
     public static final String FRAMEWORK_PATH_TAG = "/framework/";
     public static final String FRAMEWORK_COMPONENT_NAME = "framework";
-    public static final String TRANSITION_NAME_REGEXP = "^[a-z][a-zA-Z0-9_-]*$";
+    public static final String TRANSITION_LEVEL_NAME_REGEXP = "^[a-zA-Z][a-zA-Z0-9_-]*$";
     public static final String SCREEN_FILE_PATH_REGEXP = "(?:(?:\\.\\./)+)?[A-Z][a-zA-Z0-9_/-]+|\\.|\\.\\.";
     public static final String CONTAIN_VARIABLE_REGEXP =".*(\\$\\{)[a-zA-Z0-9_\\-\\.?:,()]+(\\}).*";
 

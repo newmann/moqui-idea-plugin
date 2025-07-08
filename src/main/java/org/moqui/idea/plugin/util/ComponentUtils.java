@@ -2,7 +2,10 @@ package org.moqui.idea.plugin.util;
 
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,6 +83,38 @@ public final class ComponentUtils {
 
         if(splitArray.length == 2) {
             return Optional.of(splitArray[1].split(MyStringUtils.PATH_SEPARATOR)[0]);//取第一个“/”之前的内容，如果没有，则取全部
+        }else {
+            return Optional.empty();
+        }
+
+    }
+    public static Optional<PsiFile> getPsiFileByLocation(@NotNull Project project,@NotNull String locationStr) {
+        Location location = Location.of(project, locationStr);
+        return getPsiFileByLocation(location);
+    }
+    public static Optional<PsiFile> getPsiFileByLocation(@NotNull Location location){
+        if(location.getType() != LocationType.ComponentFile && location.getType() != LocationType.ComponentFileContent) {
+            //如果不是component file，则直接返回空
+            return Optional.empty();
+        }
+
+        //如果是component file，则直接获取文件
+        String componentPath = getComponentPathByName(location.getProject(), location.getPathNameArray()[0]).orElse(null);
+        if(componentPath == null) return Optional.empty();
+        String fileName = componentPath  + location.getPathPart().substring(location.getPathNameArray()[0].length());
+
+//                         GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//                         Collection<VirtualFile> foundFileCollection = FilenameIndex.getVirtualFilesByName( fileName, true, scope);
+//                         if(foundFileCollection.isEmpty()) return Optional.empty();
+//                         PsiFile targetFile = PsiManager.getInstance(project).findFile(foundFileCollection.);
+//                         return Optional.ofNullable(targetFile);
+
+        // 使用 LocalFileSystem 来找到 VirtualFile
+        VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(fileName);
+        if (virtualFile != null) {
+            // 使用 PsiManager 来获取 PsiFile
+            PsiManager psiManager = PsiManager.getInstance(location.getProject());
+            return Optional.ofNullable(psiManager.findFile(virtualFile));
         }else {
             return Optional.empty();
         }

@@ -17,7 +17,6 @@ import org.moqui.idea.plugin.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 支持的Url
@@ -78,7 +77,7 @@ public class UrlCompletionProvider extends CompletionProvider<CompletionParamete
 
         String purePath = MyStringUtils.removeLastPath(inputStr);
 
-        LocationUtils.Location location = LocationUtils.ofLocation(project, purePath);
+        Location location = Location.of(project, purePath);
         MoquiUrl moquiUrl;
         switch (location.getType()) {
             case  AbsoluteUrl ->{
@@ -92,11 +91,11 @@ public class UrlCompletionProvider extends CompletionProvider<CompletionParamete
                 }
                 LOGGER.warn("Current inputStr:" + inputStr +" path：" + path);
 
-                moquiUrl = MoquiUrl.of(project,path,false);
+                moquiUrl = MoquiUrl.ofString(project,path,false);
 
             }
             case RelativeUrl -> {
-                moquiUrl = MoquiUrl.of(psiElement, purePath, false);
+                moquiUrl = MoquiUrl.ofRelativeUrl(psiElement, purePath, false);
             }
             default -> {
                 moquiUrl = null;
