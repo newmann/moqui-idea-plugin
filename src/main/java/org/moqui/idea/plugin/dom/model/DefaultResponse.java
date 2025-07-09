@@ -9,7 +9,7 @@ import java.util.List;
 @Presentation(provider = DefaultResponsePresentationProvider.class)
 public interface DefaultResponse extends AttListResponse {
     
-    public static final String TAG_NAME = "default-response";
+    String TAG_NAME = "default-response";
 
     @NotNull
     @SubTagList(Parameter.TAG_NAME)

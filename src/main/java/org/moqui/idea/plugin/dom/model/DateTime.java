@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface DateTime extends DomElement {
     
-    public static final String TAG_NAME = "date-time";
+    String TAG_NAME = "date-time";
 
 
     @NotNull GenericAttributeValue<String> getType();

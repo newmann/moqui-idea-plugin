@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ScreenFacade extends DomElement {
     
-    public static final String TAG_NAME = "screen-facade";
+    String TAG_NAME = "screen-facade";
 
     @NotNull GenericAttributeValue<String> getBoundaryComments();
     @NotNull GenericAttributeValue<String> getDefaultPaginateRows();

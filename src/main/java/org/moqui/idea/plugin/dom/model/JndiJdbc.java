@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface JndiJdbc extends DomElement {
     
-    public static final String TAG_NAME = "jndi-jdbc";
+    String TAG_NAME = "jndi-jdbc";
 
 
 

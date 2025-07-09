@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface Radio extends DomElement {
 
-    public static final String TAG_NAME = "radio";
+    String TAG_NAME = "radio";
 
     @NotNull
     @SubTagList(EntityOptions.TAG_NAME)

@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ElseIf extends AllOperationsList {
 
-    public static final String TAG_NAME = "else-if";
-    public static final String ATTR_CONDITION = "condition";
+    String TAG_NAME = "else-if";
+    String ATTR_CONDITION = "condition";
 
     @NotNull
     @Attribute(ATTR_CONDITION)

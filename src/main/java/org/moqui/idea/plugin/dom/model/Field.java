@@ -10,24 +10,24 @@ import org.moqui.idea.plugin.dom.presentation.FieldPresentationProvider;
 @Presentation(provider = FieldPresentationProvider.class)
 public interface Field extends AbstractField,FormFieldSingle,FormFieldList {
 
-    public static final String TAG_NAME = "field";
-//    public static final String ATTR_NAME = "name";
+    String TAG_NAME = "field";
+//    String ATTR_NAME = "name";
 
-    public static final String ATTR_COLUMN_NAME = "column-name";
-//    public static final String ATTR_TYPE = "type";
+    String ATTR_COLUMN_NAME = "column-name";
+//    String ATTR_TYPE = "type";
 
-    public static final String ATTR_IS_PK = "is-pk";
+    String ATTR_IS_PK = "is-pk";
 
-    public static final String ATTR_NOT_NULL = "not-null";
+    String ATTR_NOT_NULL = "not-null";
 
-    public static final String ATTR_ENCRYPT = "encrypt";
+    String ATTR_ENCRYPT = "encrypt";
 
-    public static final String ATTR_ENABLE_AUDIT_LOG = "enable-audit-log";
+    String ATTR_ENABLE_AUDIT_LOG = "enable-audit-log";
 
-    public static final String ATTR_ENABLE_LOCALIZATION = "enable-localization";
-    public static final String ATTR_DEFAULT = "default";
+    String ATTR_ENABLE_LOCALIZATION = "enable-localization";
+    String ATTR_DEFAULT = "default";
 
-    public static final String ATTR_CREATE_ONLY = "create-only";
+    String ATTR_CREATE_ONLY = "create-only";
 
 //    @NotNull
 //    @Attribute(ATTR_NAME)

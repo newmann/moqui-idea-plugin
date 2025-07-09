@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public interface Check extends DomElement {
-    public static final String TAG_NAME = "check";
+    String TAG_NAME = "check";
 
     @NotNull
     @SubTagList(EntityOptions.TAG_NAME)

@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface If extends AllOperationsList {
 
-    public static final String TAG_NAME = "if";
-    public static final String ATTR_CONDITION = "condition";
+    String TAG_NAME = "if";
+    String ATTR_CONDITION = "condition";
 
     @NotNull
     @Attribute(ATTR_CONDITION)

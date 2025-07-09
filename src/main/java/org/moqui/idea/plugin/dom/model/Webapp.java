@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface Webapp extends DomElement {
 
-    public static final String TAG_NAME = "webapp";
+    String TAG_NAME = "webapp";
 
     @NotNull
     GenericAttributeValue<String> getName();

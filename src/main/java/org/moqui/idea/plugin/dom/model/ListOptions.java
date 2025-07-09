@@ -8,7 +8,7 @@ import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
 
 public interface ListOptions extends DomElement {
 
-    public static final String TAG_NAME = "list-options";
+    String TAG_NAME = "list-options";
 
 
     @NotNull GenericAttributeValue<String> getList();

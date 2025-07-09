@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface AutoWidgetService extends DomElement {
     
-    public static final String TAG_NAME = "auto-widget-service";
+    String TAG_NAME = "auto-widget-service";
 
     @NotNull GenericAttributeValue<String> getServiceName();
     @NotNull GenericAttributeValue<String> getParameterName();

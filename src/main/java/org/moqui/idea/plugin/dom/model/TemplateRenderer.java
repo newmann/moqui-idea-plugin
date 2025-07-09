@@ -7,10 +7,10 @@ import org.jetbrains.annotations.NotNull;
 
 public interface TemplateRenderer extends DomElement {
 
-    public static final String TAG_NAME = "template-renderer";
+    String TAG_NAME = "template-renderer";
 
 
-    public static final String ATTR_CLASS = "class";
+    String ATTR_CLASS = "class";
 
     @NotNull GenericAttributeValue<String> getExtension();
 

@@ -7,23 +7,23 @@ import org.moqui.idea.plugin.dom.converter.ViewEntityAliasConverter;
 
 public interface ECondition extends DomElement {
 
-    public static final String TAG_NAME = "econdition";
+    String TAG_NAME = "econdition";
 
-    public static final String ATTR_ENTITY_ALIAS = "entity-alias";
+    String ATTR_ENTITY_ALIAS = "entity-alias";
 
-    public static final String ATTR_FIELD_NAME = "field-name";
+    String ATTR_FIELD_NAME = "field-name";
 
-    public static final String ATTR_OPERATOR = "operator";
+    String ATTR_OPERATOR = "operator";
 
-    public static final String ATTR_TO_ENTITY_ALIAS = "to-entity-alias";
+    String ATTR_TO_ENTITY_ALIAS = "to-entity-alias";
 
-    public static final String ATTR_TO_FIELD_NAME = "to-field-name";
-    public static final String ATTR_VALUE = "value";
-    public static final String ATTR_FROM = "from";
+    String ATTR_TO_FIELD_NAME = "to-field-name";
+    String ATTR_VALUE = "value";
+    String ATTR_FROM = "from";
 
-    public static final String ATTR_IGNORE_CASE = "ignore-case";
+    String ATTR_IGNORE_CASE = "ignore-case";
 
-    public static final String ATTR_OR_NULL = "or-null";
+    String ATTR_OR_NULL = "or-null";
     @NotNull
     @Attribute(ATTR_FIELD_NAME)
     @Referencing(EntityFieldNameReferenceConverter.class)

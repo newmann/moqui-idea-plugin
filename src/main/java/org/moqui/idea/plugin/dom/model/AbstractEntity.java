@@ -8,8 +8,8 @@ import org.moqui.idea.plugin.dom.converter.AllPackageConverter;
 import java.util.List;
 
 public interface AbstractEntity extends DomElement {
-    public static final String ATTR_ENTITY_NAME = "entity-name";
-    public static final String ATTR_PACKAGE = "package";
+    String ATTR_ENTITY_NAME = "entity-name";
+    String ATTR_PACKAGE = "package";
 
     //@Stubbed
     @NameValue

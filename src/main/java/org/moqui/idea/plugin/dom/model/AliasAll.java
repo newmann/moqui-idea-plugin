@@ -10,11 +10,11 @@ import java.util.List;
 @Presentation(provider = AliasAllPresentationProvider.class)
 public interface AliasAll extends DomElement {
     
-    public static final String TAG_NAME = "alias-all";
+    String TAG_NAME = "alias-all";
 
     
-    public static final String ATTR_ENTITY_ALIAS ="entity-alias";
-    public static final String ATTR_PREFIX ="prefix";
+    String ATTR_ENTITY_ALIAS ="entity-alias";
+    String ATTR_PREFIX ="prefix";
 
     @NotNull
     @Attribute(ATTR_ENTITY_ALIAS)

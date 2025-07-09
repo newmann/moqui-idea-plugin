@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface RootScreen extends AbstractLocation {
 
-    public static final String TAG_NAME = "root-screen";
+    String TAG_NAME = "root-screen";
 
     @NotNull
     GenericAttributeValue<String> getHost();

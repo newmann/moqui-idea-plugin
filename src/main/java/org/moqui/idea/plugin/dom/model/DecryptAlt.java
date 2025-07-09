@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface DecryptAlt extends DomElement {
     
-    public static final String TAG_NAME = "decrypt-alt";
+    String TAG_NAME = "decrypt-alt";
 
     @NotNull GenericAttributeValue<String> getCryptPass();
     @NotNull GenericAttributeValue<String> getCryptSalt();

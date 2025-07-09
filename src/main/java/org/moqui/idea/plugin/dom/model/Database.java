@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface Database extends DomElement {
 
-    public static final String TAG_NAME = "database";
+    String TAG_NAME = "database";
 
 
     @NotNull GenericAttributeValue<String> getName();

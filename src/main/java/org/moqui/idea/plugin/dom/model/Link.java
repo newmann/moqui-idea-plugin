@@ -10,7 +10,7 @@ import org.moqui.idea.plugin.dom.presentation.LinkPresentationProvider;
 import java.util.List;
 @Presentation(provider = LinkPresentationProvider.class)
 public interface Link extends AbstractUrl {
-    public static final String TAG_NAME = "link";
+    String TAG_NAME = "link";
 
     @NotNull
     @SubTagList(Parameter.TAG_NAME)

@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ToolFactory extends DomElement {
     
-    public static final String TAG_NAME = "tool-factory";
+    String TAG_NAME = "tool-factory";
     
-    public static final String ATTR_CLASS = "class";
+    String ATTR_CLASS = "class";
     @NotNull
     @Attribute(ATTR_CLASS)
     GenericAttributeValue<String> getClassAttr();

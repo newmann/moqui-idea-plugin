@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface FilterMapList extends DomElement {
     
-    public static final String TAG_NAME = "filter-map-list";
+    String TAG_NAME = "filter-map-list";
 
     @NotNull
     @SubTagList(FieldMap.TAG_NAME)

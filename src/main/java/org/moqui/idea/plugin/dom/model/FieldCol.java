@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface FieldCol extends DomElement {
 
-    public static final String TAG_NAME = "field-col";
+    String TAG_NAME = "field-col";
 
     @NotNull
     @SubTagList(FieldGroup.TAG_NAME)

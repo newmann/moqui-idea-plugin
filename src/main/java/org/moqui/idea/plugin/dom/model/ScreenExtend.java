@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ScreenExtend extends ScreenBase {
     
-    public static final String TAG_NAME = "screen-extend";
+    String TAG_NAME = "screen-extend";
 
 
 //    @NotNull

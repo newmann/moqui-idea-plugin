@@ -9,18 +9,18 @@ import org.moqui.idea.plugin.dom.presentation.EecaPresentationProvider;
 @Presentation(icon = "org.moqui.idea.plugin.MyIcons.EecaTag",provider = EecaPresentationProvider.class)
 public interface Eeca extends DomElement {
 
-    public static final String TAG_NAME = "eeca";
-//    public static final String ATTR_ID = "id";
+    String TAG_NAME = "eeca";
+//    String ATTR_ID = "id";
 
-    public static final String ATTR_ENTITY = "entity";
-//    public static final String ATTR_ON_CREATE = "on-create";
-//    public static final String ATTR_ON_UPDATE = "on-update";
-//    public static final String ATTR_ON_DELETE = "on-delete";
-//    public static final String ATTR_RUN_BEFORE = "run-before";
-//    public static final String ATTR_RUN_ON_ERROR = "run-on-error";
-//    public static final String ATTR_GET_ENTIRE_ENTITY = "get-entire-entity";
-//    public static final String ATTR_GET_ORIGINAL_VALUE = "get-original-value";
-//    public static final String ATTR_SET_RESULTS = "set-results";
+    String ATTR_ENTITY = "entity";
+//    String ATTR_ON_CREATE = "on-create";
+//    String ATTR_ON_UPDATE = "on-update";
+//    String ATTR_ON_DELETE = "on-delete";
+//    String ATTR_RUN_BEFORE = "run-before";
+//    String ATTR_RUN_ON_ERROR = "run-on-error";
+//    String ATTR_GET_ENTIRE_ENTITY = "get-entire-entity";
+//    String ATTR_GET_ORIGINAL_VALUE = "get-original-value";
+//    String ATTR_SET_RESULTS = "set-results";
     @NotNull
 //    @Attribute(ATTR_ID)
     GenericAttributeValue<String> getId();

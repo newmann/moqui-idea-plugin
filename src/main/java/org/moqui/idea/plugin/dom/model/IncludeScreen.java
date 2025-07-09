@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface IncludeScreen extends AbstractLocation {
     
-    public static final String TAG_NAME = "include-screen";
+    String TAG_NAME = "include-screen";
 
 //    @NotNull
 //    @Convert(LocationConverter.class)

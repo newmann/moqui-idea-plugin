@@ -10,10 +10,10 @@ import org.moqui.idea.plugin.dom.presentation.SectionPresentationProvider;
 @Presentation(provider = SectionPresentationProvider.class)
 public interface Section extends SectionElements {
     
-    public static final String TAG_NAME = "section";
+    String TAG_NAME = "section";
 
-    public static final String ATTR_CONDITION = "condition";
-    public static final String ATTR_NAME = "name";
+    String ATTR_CONDITION = "condition";
+    String ATTR_NAME = "name";
     @NotNull
     @NameValue
     @Attribute(ATTR_NAME)

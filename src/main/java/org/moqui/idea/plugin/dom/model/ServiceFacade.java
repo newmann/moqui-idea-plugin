@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ServiceFacade extends DomElement {
 
-    public static final String TAG_NAME = "service-facade";
+    String TAG_NAME = "service-facade";
 
     @NotNull GenericAttributeValue<String> getDistributedFactory();
     @NotNull GenericAttributeValue<String> getScheduledJobCheckTime();

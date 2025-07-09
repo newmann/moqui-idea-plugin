@@ -10,7 +10,7 @@ import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
 
 public interface DisplayEntity extends DomElement {
 
-    public static final String TAG_NAME ="display-entity";
+    String TAG_NAME ="display-entity";
 
 //    @NotNull
 //    @SubTagList(DependsOn.TAG_NAME)

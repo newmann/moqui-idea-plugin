@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface EntityCondition extends DomElement {
     
-    public static final String TAG_NAME = "entity-condition";
+    String TAG_NAME = "entity-condition";
     
-    public static final String ATTR_DISTINCT = "distinct";
+    String ATTR_DISTINCT = "distinct";
 
     @NotNull
     @Attribute(ATTR_DISTINCT)

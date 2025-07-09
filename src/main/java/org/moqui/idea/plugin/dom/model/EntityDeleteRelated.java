@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EntityDeleteRelated extends DomElement {
 
-    public static final String TAG_NAME = "entity-delete-related";
+    String TAG_NAME = "entity-delete-related";
 
 
     @NotNull GenericAttributeValue<String> getValueField();

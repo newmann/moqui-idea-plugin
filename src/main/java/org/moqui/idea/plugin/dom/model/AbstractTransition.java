@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.TransitionIncludeNameReferenceConverter;
 
 public interface AbstractTransition extends DomElement {
-    public static final String ATTR_NAME = "name";
+    String ATTR_NAME = "name";
 
     @NotNull
     @NameValue

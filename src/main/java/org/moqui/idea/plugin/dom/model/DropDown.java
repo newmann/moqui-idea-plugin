@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface DropDown extends DomElement {
 
-    public static final String TAG_NAME = "drop-down";
+    String TAG_NAME = "drop-down";
 
     @NotNull
     @SubTagList(EntityOptions.TAG_NAME)

@@ -9,9 +9,9 @@ import org.moqui.idea.plugin.dom.presentation.WidgetTemplatePresentationProvider
 @Presentation(icon = "org.moqui.idea.plugin.MyIcons.WidgetTemplate",provider = WidgetTemplatePresentationProvider.class)
 public interface WidgetTemplate extends AllWidgets,SubFields,StandaloneFieldsList {
     
-    public static final String TAG_NAME = "widget-template";
+    String TAG_NAME = "widget-template";
 
-    public static final String ATTR_NAME="name";
+    String ATTR_NAME="name";
 
     @NotNull
     @NameValue

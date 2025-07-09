@@ -5,7 +5,7 @@ import com.intellij.util.xml.SubTag;
 import org.jetbrains.annotations.NotNull;
 
 public interface Action extends DomElement {
-    public static final String TAG_NAME = "action";
+    String TAG_NAME = "action";
 
     @NotNull
     @SubTag(Dialog.TAG_NAME)

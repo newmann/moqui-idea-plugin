@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface EntityDeleteByCondition extends AbstractEntityName {
 
-    public static final String TAG_NAME = "entity-delete-by-condition";
+    String TAG_NAME = "entity-delete-by-condition";
 
 
     @NotNull

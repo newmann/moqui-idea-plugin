@@ -9,30 +9,30 @@ import java.util.List;
 
 public interface ExtendEntity extends DomElement {
     
-    public static final String TAG_NAME = "extend-entity";
+    String TAG_NAME = "extend-entity";
     
-    public static final String ATTR_ENTITY_NAME = "entity-name";
+    String ATTR_ENTITY_NAME = "entity-name";
     
-    public static final String ATTR_PACKAGE = "package";
+    String ATTR_PACKAGE = "package";
     
-    public static final String ATTR_TABLE_NAME = "table-name";
+    String ATTR_TABLE_NAME = "table-name";
 
     
-    public static final String ATTR_GROUP = "group";
+    String ATTR_GROUP = "group";
     
-    public static final String ATTR_SEQUENCE_BANK_SIZE = "sequence-bank-size";
+    String ATTR_SEQUENCE_BANK_SIZE = "sequence-bank-size";
     
-    public static final String ATTR_SEQUENCE_PRIMARY_PREFIX = "sequence-primary-prefix";
+    String ATTR_SEQUENCE_PRIMARY_PREFIX = "sequence-primary-prefix";
     
-    public static final String ATTR_OPTIMISTIC_LOCK = "optimistic-lock";
+    String ATTR_OPTIMISTIC_LOCK = "optimistic-lock";
     
-    public static final String ATTR_NO_UPDATE_STAMP = "no-update-stamp";
+    String ATTR_NO_UPDATE_STAMP = "no-update-stamp";
 
-    public static final String ATTR_CACHE = "cache";
+    String ATTR_CACHE = "cache";
     
-    public static final String ATTR_AUTHORIZE_SKIP = "authorize-skip";
+    String ATTR_AUTHORIZE_SKIP = "authorize-skip";
     
-    public static final String ATTR_ENABLE_AUDIT_LOG = "enable-audit-log";
+    String ATTR_ENABLE_AUDIT_LOG = "enable-audit-log";
 
 
     @NotNull

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface TextLine extends DomElement {
 
-    public static final String TAG_NAME = "text-line";
+    String TAG_NAME = "text-line";
 
     @NotNull
     @SubTagList(DependsOn.TAG_NAME)

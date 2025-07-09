@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface CacheList extends DomElement {
     
-    public static final String TAG_NAME = "cache-list";
+    String TAG_NAME = "cache-list";
 
     @NotNull
     GenericAttributeValue<Boolean> getWarmOnStart();

@@ -195,14 +195,22 @@ public final class MyDomUtils {
 
     }
 
+    public static Optional<PsiFile> getPsiFileFromVirtualFile(@NotNull Project project, @Nullable VirtualFile virtualFile){
+
+        if(virtualFile != null && virtualFile.isInLocalFileSystem()) {
+            PsiFile psiFile = ReadAction.compute(() ->  PsiManager.getInstance(project).findFile(virtualFile));
+            return Optional.ofNullable(psiFile);
+        }
+        return Optional.empty();
+    }
     public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName){
         return isSpecialXmlFile(file,rootTagName,null,null);
     }
     public static boolean isSpecialXmlFile(@NotNull PsiFile file,@NotNull String rootTagName,@Nullable String attributeName,@Nullable String attributeValue){
         return ReadAction.compute(()->{
             if(file instanceof XmlFile xmlFile) {
-                VirtualFile virtualFile = xmlFile.getVirtualFile();
-                if(virtualFile != null && virtualFile.isInLocalFileSystem()) { //判断文件是否已经加载
+//                VirtualFile virtualFile = xmlFile.getVirtualFile();
+//                if(virtualFile != null && virtualFile.isInLocalFileSystem()) { //判断文件是否已经加载
 //                XmlTag rootTag = ReadAction.compute(xmlFile::getRootTag);
                     XmlTag rootTag = xmlFile.getRootTag();
                     if (rootTag == null) return false;
@@ -213,7 +221,7 @@ public final class MyDomUtils {
                         String value = rootTag.getAttributeValue(attributeName);
                         return (value != null) && value.equals(attributeValue);
                     }
-                }
+//                }
             }
             return false;
         });
@@ -222,15 +230,15 @@ public final class MyDomUtils {
 
     public static boolean isMoquiXmlFile(@NotNull PsiFile file){
         if(file instanceof XmlFile xmlFile) {
-            VirtualFile virtualFile = xmlFile.getVirtualFile();
-            if(virtualFile != null && virtualFile.isInLocalFileSystem()) { //判断文件是否已经加载
+//            VirtualFile virtualFile = xmlFile.getVirtualFile();
+//            if(virtualFile != null && virtualFile.isInLocalFileSystem()) { //判断文件是否已经加载
                 XmlTag rootTag = ReadAction.compute(xmlFile::getRootTag);
                 if (rootTag == null) return false;
                 if (!MOQUI_XML_FILE_ROOT_TAGS.containsKey(rootTag.getName())) return false;
                 String value = rootTag.getAttributeValue(MyStringUtils.MOQUI_XML_FILE_ROOT_TAG_ATTR_NoNamespaceSchemaLocation);
                 if (value == null) value = MyStringUtils.EMPTY_STRING;
                 return MOQUI_XML_FILE_ROOT_TAGS.containsValue(value);
-            }
+//            }
         }
         return false;
     }

@@ -12,15 +12,15 @@ import java.util.List;
 @Presentation(icon ="org.moqui.idea.plugin.MyIcons.TransitionTag", provider = TransitionPresentationProvider.class)
 public interface Transition extends AbstractTransition {
 
-    public static final String TAG_NAME = "transition";
+    String TAG_NAME = "transition";
 
-    public static final String ATTR_READ_ONLY = "read-only";
+    String ATTR_READ_ONLY = "read-only";
 
-    public static final String ATTR_BEGIN_TRANSACTION = "begin-transaction";
+    String ATTR_BEGIN_TRANSACTION = "begin-transaction";
 
-    public static final String ATTR_METHOD = "method";
+    String ATTR_METHOD = "method";
 
-    public static final String ATTR_REGURIE_SESSION_TOKEN = "require-session-token";
+    String ATTR_REGURIE_SESSION_TOKEN = "require-session-token";
 //    @NotNull GenericAttributeValue<String> getName();
     @NotNull
     @Attribute(ATTR_METHOD)

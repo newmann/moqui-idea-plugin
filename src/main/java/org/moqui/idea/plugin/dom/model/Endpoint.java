@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Endpoint extends DomElement {
     
-    public static final String TAG_NAME = "endpoint";
+    String TAG_NAME = "endpoint";
     
-    public static final String ATTR_CLASS = "class";
+    String ATTR_CLASS = "class";
     @NotNull GenericAttributeValue<String> getPath();
 
     @NotNull

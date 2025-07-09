@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Listener extends DomElement {
     
-    public static final String TAG_NAME = "listener";
+    String TAG_NAME = "listener";
     
-    public static final String ATTR_CLASS = "class";
+    String ATTR_CLASS = "class";
     @NotNull
     @Attribute(ATTR_CLASS)
     GenericAttributeValue<String> getClassAttr();

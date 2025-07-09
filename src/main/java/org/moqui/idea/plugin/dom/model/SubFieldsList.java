@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public interface SubFieldsList extends DomElement {
-//    public static final String TAG_NAME = "SubFields";
+//    String TAG_NAME = "SubFields";
 
     @NotNull
     @SubTagList(AutoWidgetService.TAG_NAME)

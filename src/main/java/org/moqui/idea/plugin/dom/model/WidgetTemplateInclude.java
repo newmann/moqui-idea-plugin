@@ -8,7 +8,7 @@ import java.util.List;
 public interface WidgetTemplateInclude extends AbstractLocation {
 
     String TAG_NAME = "widget-template-include";
-//    public static final String ATTR_LOCATION = "location";
+//    String ATTR_LOCATION = "location";
 
 
     @NotNull

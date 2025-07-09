@@ -7,10 +7,10 @@ import org.jetbrains.annotations.NotNull;
 
 public interface TransactionInternal extends DomElement {
     
-    public static final String TAG_NAME = "transaction-internal";
+    String TAG_NAME = "transaction-internal";
 
     
-    public static final String ATTR_CLASS="class";
+    String ATTR_CLASS="class";
     @NotNull
     @Attribute(ATTR_CLASS)
     GenericAttributeValue<String> getClassAttr();

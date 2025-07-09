@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EntityMakeValue extends AbstractEntityName {
 
-    public static final String TAG_NAME = "entity-make-value";
+    String TAG_NAME = "entity-make-value";
 
 
 //    @NotNull

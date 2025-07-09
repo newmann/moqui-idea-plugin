@@ -2,7 +2,7 @@ package org.moqui.idea.plugin.dom.model;
 
 public interface FailWidgets extends WidgetElementsList {
     
-    public static final String TAG_NAME = "fail-widgets";
+    String TAG_NAME = "fail-widgets";
 
 
 //    @NotNull

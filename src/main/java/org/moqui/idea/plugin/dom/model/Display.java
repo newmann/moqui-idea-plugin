@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface Display extends DomElement {
     
-    public static final String TAG_NAME = "display";
+    String TAG_NAME = "display";
 
     @NotNull
     @SubTagList(DependsOn.TAG_NAME)

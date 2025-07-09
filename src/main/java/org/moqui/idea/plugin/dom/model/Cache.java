@@ -5,7 +5,7 @@ import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 
 public interface Cache extends DomElement {
-    public static final String TAG_NAME = "cache";
+    String TAG_NAME = "cache";
 
     @NotNull
     GenericAttributeValue<String> getName();

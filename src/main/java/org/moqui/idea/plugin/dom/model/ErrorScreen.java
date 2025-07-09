@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ErrorScreen extends DomElement {
 
-    public static final String TAG_NAME = "error-screen";
+    String TAG_NAME = "error-screen";
 
     @NotNull
     GenericAttributeValue<String> getError();

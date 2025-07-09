@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface TreeNode extends DomElement {
     
-    public static final String TAG_NAME = "tree-node";
+    String TAG_NAME = "tree-node";
 
     @NotNull
     @SubTag(Condition.TAG_NAME)

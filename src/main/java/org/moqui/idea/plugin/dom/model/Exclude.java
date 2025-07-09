@@ -9,12 +9,12 @@ import org.moqui.idea.plugin.dom.converter.EntityFieldNameReferenceConverter;
 
 public interface Exclude extends DomElement {
 
-    public static final String TAG_NAME = "exclude";
+    String TAG_NAME = "exclude";
 
 
-    public static final String ATTR_FIELD="field";
+    String ATTR_FIELD="field";
 
-    public static final String ATTR_FIELD_NAME="field-name";
+    String ATTR_FIELD_NAME="field-name";
 
     @NotNull
     @Attribute(ATTR_FIELD)

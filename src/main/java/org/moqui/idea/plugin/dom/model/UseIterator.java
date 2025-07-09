@@ -4,7 +4,7 @@ import com.intellij.util.xml.DomElement;
 
 public interface UseIterator extends DomElement {
     
-    public static final String TAG_NAME = "use-Iterator";
+    String TAG_NAME = "use-Iterator";
 
 
 }

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Cluster extends DomElement {
     
-    public static final String TAG_NAME = "cluster";
+    String TAG_NAME = "cluster";
 
     @NotNull GenericAttributeValue<String> getName();
     @NotNull GenericAttributeValue<String> getUrl();

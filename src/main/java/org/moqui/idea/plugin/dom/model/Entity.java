@@ -10,53 +10,53 @@ import java.util.List;
 @Presentation(icon = "org.moqui.idea.plugin.MyIcons.EntityTag",provider = EntityPresentationProvider.class)
 public interface Entity extends AbstractEntity {
     
-    public static final String TAG_NAME = "entity";
-//    public static final String ATTR_ENTITY_NAME = "entity-name";
-//    public static final String ATTR_PACKAGE = "package";
+    String TAG_NAME = "entity";
+//    String ATTR_ENTITY_NAME = "entity-name";
+//    String ATTR_PACKAGE = "package";
 
     
-    public static final String ATTR_TABLE_NAME = "table-name";
+    String ATTR_TABLE_NAME = "table-name";
 
     
-    public static final String ATTR_GROUP = "group";
-    public static final String ATTR_USE = "use";
+    String ATTR_GROUP = "group";
+    String ATTR_USE = "use";
 
     
-    public static final String ATTR_SEQUENCE_PRIMARY_USE_UUID = "sequence-primary-use-uuid";
+    String ATTR_SEQUENCE_PRIMARY_USE_UUID = "sequence-primary-use-uuid";
 
     
-    public static final String ATTR_SEQUENCE_BANK_SIZE = "sequence-bank-size";
+    String ATTR_SEQUENCE_BANK_SIZE = "sequence-bank-size";
     
-    public static final String ATTR_SEQUENCE_PRIMARY_STAGGER = "sequence-primary-stagger";
+    String ATTR_SEQUENCE_PRIMARY_STAGGER = "sequence-primary-stagger";
     
-    public static final String ATTR_SEQUENCE_PRIMARY_PREFIX = "sequence-primary-prefix";
+    String ATTR_SEQUENCE_PRIMARY_PREFIX = "sequence-primary-prefix";
     
-    public static final String ATTR_SEQUENCE_SECONDARY_PADDED_LENGTH = "sequence-secondary-padded-length";
+    String ATTR_SEQUENCE_SECONDARY_PADDED_LENGTH = "sequence-secondary-padded-length";
     
-    public static final String ATTR_OPTIMISTIC_LOCK = "optimistic-lock";
+    String ATTR_OPTIMISTIC_LOCK = "optimistic-lock";
     
-    public static final String ATTR_NO_UPDATE_STAMP = "no-update-stamp";
+    String ATTR_NO_UPDATE_STAMP = "no-update-stamp";
 
-    public static final String ATTR_CACHE = "cache";
+    String ATTR_CACHE = "cache";
     
-    public static final String ATTR_AUTHORIZE_SKIP = "authorize-skip";
+    String ATTR_AUTHORIZE_SKIP = "authorize-skip";
     
-    public static final String ATTR_CREATE_ONLY = "create-only";
+    String ATTR_CREATE_ONLY = "create-only";
     
-    public static final String ATTR_ENABLE_AUDIT_LOG = "enable-audit-log";
+    String ATTR_ENABLE_AUDIT_LOG = "enable-audit-log";
     
-    public static final String ATTR_SHORT_ALIAS = "short-alias";
+    String ATTR_SHORT_ALIAS = "short-alias";
 
     //for rest-api-3.xsd
 
-    public static final String ATTR_NAME = "name";
+    String ATTR_NAME = "name";
 
     @NotNull
     @Attribute(ATTR_NAME)
 //    @Convert(EntityFullNameConverter.class)
     @Referencing(EntityNameReferenceConverter.class)
     GenericAttributeValue<String> getName();
-    public static final String ATTR_MasterName = "masterName";
+    String ATTR_MasterName = "masterName";
     @NotNull
     @Attribute(ATTR_MasterName)
     GenericAttributeValue<String> getMasterName();

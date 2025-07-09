@@ -5,7 +5,7 @@ import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 
 public interface Password extends DomElement {
-    public static final String TAG_NAME = "password";
+    String TAG_NAME = "password";
 
     @NotNull GenericAttributeValue<String> getSize();
     @NotNull GenericAttributeValue<String> getMaxlength();

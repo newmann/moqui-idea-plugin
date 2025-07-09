@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface HeaderField extends SubFields,AllWidgetsList,StandaloneFieldsList {
     
-    public static final String TAG_NAME = "header-field";
+    String TAG_NAME = "header-field";
 
 //    //for AllWidgets
 //    @NotNull

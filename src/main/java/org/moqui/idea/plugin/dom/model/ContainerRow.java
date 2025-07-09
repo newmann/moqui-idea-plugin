@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ContainerRow extends DomElement {
     
-    public static final String TAG_NAME = "container-row";
+    String TAG_NAME = "container-row";
 
     @NotNull
     @SubTagList(RowCol.TAG_NAME)

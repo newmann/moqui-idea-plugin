@@ -7,11 +7,11 @@ import org.moqui.idea.plugin.dom.converter.ViewEntityAliasConverter;
 
 public interface ComplexAliasField extends DomElement {
     
-    public static final String TAG_NAME = "complex-alias-field";
+    String TAG_NAME = "complex-alias-field";
     
-    public static final String ATTR_ENTITY_ALIAS = "entity-alias";
+    String ATTR_ENTITY_ALIAS = "entity-alias";
     
-    public static final String ATTR_FIELD = "field";
+    String ATTR_FIELD = "field";
 
     @NotNull
     @Attribute(ATTR_ENTITY_ALIAS)

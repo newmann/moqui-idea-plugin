@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface InlineJdbc extends DomElement {
 
-    public static final String TAG_NAME = "inline-jdbc";
+    String TAG_NAME = "inline-jdbc";
 
 
     @NotNull GenericAttributeValue<String> getJdbcUri();

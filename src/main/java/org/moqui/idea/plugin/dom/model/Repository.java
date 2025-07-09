@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface Repository extends DomElement {
 
-    public static final String TAG_NAME = "repository";
+    String TAG_NAME = "repository";
 
     @NotNull GenericAttributeValue<String> getName();
     @NotNull GenericAttributeValue<String> getWorkspace();

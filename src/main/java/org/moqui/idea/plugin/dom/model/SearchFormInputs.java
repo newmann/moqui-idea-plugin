@@ -6,10 +6,10 @@ import org.moqui.idea.plugin.dom.converter.MultiEntityFieldNameReferenceConverte
 
 public interface SearchFormInputs extends DomElement {
     
-    public static final String TAG_NAME = "search-form-inputs";
+    String TAG_NAME = "search-form-inputs";
 
     
-    public static final String ATTR_DEFAULT_ORDER_BY = "default-order-by";
+    String ATTR_DEFAULT_ORDER_BY = "default-order-by";
     @NotNull
     @SubTag(DefaultParameters.TAG_NAME)
     DefaultParameters getDefaultParameters();

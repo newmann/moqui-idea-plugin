@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface BoxHeader extends WidgetElementsList {
     
-    public static final String TAG_NAME = "box-header";
+    String TAG_NAME = "box-header";
     @NotNull GenericAttributeValue<String> getTitle();
 
 }

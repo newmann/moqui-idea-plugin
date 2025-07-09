@@ -5,9 +5,9 @@ import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 
 public interface ActionsExtend extends CommonActions {
-    public static final String TAG_NAME = "actions-extend";
-    public static final String ATTR_TYPE = "type";
-    public static final String ATTR_WHEN = "when";
+    String TAG_NAME = "actions-extend";
+    String ATTR_TYPE = "type";
+    String ATTR_WHEN = "when";
 
     @NotNull
     @Attribute(ATTR_TYPE)

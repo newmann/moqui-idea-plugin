@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface LoginKey extends DomElement {
 
-    public static final String TAG_NAME = "login-key";
+    String TAG_NAME = "login-key";
 
     @NotNull GenericAttributeValue<String> getEncryptHashType();
     @NotNull GenericAttributeValue<String> getExpireHours();

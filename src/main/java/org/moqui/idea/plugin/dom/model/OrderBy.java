@@ -9,9 +9,9 @@ import org.moqui.idea.plugin.dom.converter.MultiEntityFieldNameReferenceConverte
 
 public interface OrderBy extends DomElement {
 
-    public static final String TAG_NAME = "order-by";
+    String TAG_NAME = "order-by";
 
-    public static final String ATTR_FIELD_NAME = "field-name";
+    String ATTR_FIELD_NAME = "field-name";
 
     @NotNull
     @Attribute(ATTR_FIELD_NAME)

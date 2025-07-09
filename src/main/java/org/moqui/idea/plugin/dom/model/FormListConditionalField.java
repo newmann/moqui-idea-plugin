@@ -4,7 +4,7 @@ import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 
 public interface FormListConditionalField extends FormListDefaultField {
-//    public static final String TAG_NAME = "form-list-conditional-field";
+//    String TAG_NAME = "form-list-conditional-field";
 
 
     @NotNull GenericAttributeValue<String> getCondition();

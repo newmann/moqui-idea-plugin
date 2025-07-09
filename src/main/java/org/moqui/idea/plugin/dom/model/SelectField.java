@@ -9,9 +9,9 @@ import org.moqui.idea.plugin.dom.converter.MultiEntityFieldNameReferenceConverte
 
 public interface SelectField extends DomElement {
     
-    public static final String TAG_NAME = "select-field";
+    String TAG_NAME = "select-field";
     
-    public static final String ATTR_FIELD_NAME = "field-name";
+    String ATTR_FIELD_NAME = "field-name";
 
 
     @NotNull

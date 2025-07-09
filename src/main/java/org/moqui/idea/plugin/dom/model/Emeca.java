@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Emeca extends DomElement {
     
-    public static final String TAG_NAME = "emeca";
+    String TAG_NAME = "emeca";
 
     @NotNull
     GenericAttributeValue<String> getRuleName();

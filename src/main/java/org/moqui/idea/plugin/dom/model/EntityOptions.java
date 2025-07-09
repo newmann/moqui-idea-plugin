@@ -9,7 +9,7 @@ import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
 
 public interface EntityOptions extends DomElement {
 
-    public static final String TAG_NAME = "entity-options";
+    String TAG_NAME = "entity-options";
 
     @NotNull
     @SubTag(EntityFind.TAG_NAME)

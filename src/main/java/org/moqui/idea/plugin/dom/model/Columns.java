@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Columns extends DomElement {
     
-    public static final String TAG_NAME = "columns";
+    String TAG_NAME = "columns";
 
-    public static final String ATTR_TYPE="type";
+    String ATTR_TYPE="type";
     @NotNull
     @Attribute(ATTR_TYPE)
     GenericAttributeValue<String> getType();

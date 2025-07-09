@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DatabaseList extends DomElement {
     
-    public static final String TAG_NAME = "database-list";
+    String TAG_NAME = "database-list";
 
 
     @NotNull

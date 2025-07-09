@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EntityData extends DomElement {
     
-    public static final String TAG_NAME = "entity-data";
+    String TAG_NAME = "entity-data";
 
     @NotNull
 //    @Convert(LocationConverter.class)

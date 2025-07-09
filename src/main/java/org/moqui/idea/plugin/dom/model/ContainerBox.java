@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ContainerBox extends WidgetElementsList {
 
-    public static final String TAG_NAME = "container-box";
+    String TAG_NAME = "container-box";
 
     @NotNull
     @SubTag(BoxHeader.TAG_NAME)

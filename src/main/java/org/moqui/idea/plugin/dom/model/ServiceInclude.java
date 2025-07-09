@@ -14,7 +14,7 @@ public interface ServiceInclude extends AbstractLocation {
     
     String ATTR_NOUN = "noun";
     
-//    public static final String ATTR_LOCATION = "location";
+//    String ATTR_LOCATION = "location";
     @NotNull
     @Attribute(ATTR_VERB)
     @Referencing(ServiceIncludeReferenceConverter.class)

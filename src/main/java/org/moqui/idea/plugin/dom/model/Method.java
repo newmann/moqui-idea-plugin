@@ -9,7 +9,7 @@ import org.moqui.idea.plugin.dom.presentation.MethodPresentationProvider;
 @Presentation(provider = MethodPresentationProvider.class)
 public interface Method extends DomElement {
 
-    public static final String TAG_NAME = "method";
+    String TAG_NAME = "method";
 
     @NotNull
     @SubTag(Service.TAG_NAME)

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface FieldRowBig extends DomElement {
     
-    public static final String TAG_NAME = "field-row-big";
+    String TAG_NAME = "field-row-big";
 
     @NotNull
     @SubTagList(FieldRef.TAG_NAME)

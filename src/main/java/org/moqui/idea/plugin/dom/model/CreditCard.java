@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface CreditCard extends DomElement {
 
-    public static final String TAG_NAME = "credit-card";
+    String TAG_NAME = "credit-card";
 
     @NotNull GenericAttributeValue<String> getTypes();
 

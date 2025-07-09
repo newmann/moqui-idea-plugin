@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface Tools extends DomElement {
     
-    public static final String TAG_NAME = "tools";
+    String TAG_NAME = "tools";
 
     @NotNull
     GenericAttributeValue<String> getEmptyDbLoad();

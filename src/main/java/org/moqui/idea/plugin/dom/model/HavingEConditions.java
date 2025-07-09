@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface HavingEConditions extends EConditions {
 
-    public static final String TAG_NAME = "having-econditions";
+    String TAG_NAME = "having-econditions";
 
     @NotNull
     @SubTagList(ECondition.TAG_NAME)

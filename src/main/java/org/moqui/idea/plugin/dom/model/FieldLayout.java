@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface FieldLayout extends DomElement {
 
-    public static final String TAG_NAME = "field-layout";
+    String TAG_NAME = "field-layout";
 
     @NotNull
     @SubTagList(FieldGroup.TAG_NAME)

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EntitySequencedIdPrimary extends DomElement {
 
-    public static final String TAG_NAME = "entity-sequenced-id-primary";
+    String TAG_NAME = "entity-sequenced-id-primary";
 
     @NotNull GenericAttributeValue<String> getValueField();
 

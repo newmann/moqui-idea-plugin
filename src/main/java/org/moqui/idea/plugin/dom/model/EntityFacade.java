@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface EntityFacade extends DomElement {
 
-    public static final String TAG_NAME = "entity-facade";
+    String TAG_NAME = "entity-facade";
 
 
     @NotNull GenericAttributeValue<String> getEntityEcaEnabled();

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface TextFind extends DomElement {
 
-    public static final String TAG_NAME = "text-find";
+    String TAG_NAME = "text-find";
     @NotNull GenericAttributeValue<String> getSize();
     @NotNull GenericAttributeValue<String> getMaxLength();
     @NotNull GenericAttributeValue<String> getDefaultValue();

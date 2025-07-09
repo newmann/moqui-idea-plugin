@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EntityUpdate extends DomElement {
 
-    public static final String TAG_NAME = "entity-update";
+    String TAG_NAME = "entity-update";
 
-    public static final String ATTR_VALUE_FIELD = "value-field";
+    String ATTR_VALUE_FIELD = "value-field";
 
     @NotNull
     @Attribute(ATTR_VALUE_FIELD)

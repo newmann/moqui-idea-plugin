@@ -9,11 +9,11 @@ import org.moqui.idea.plugin.dom.converter.EntityFieldNameReferenceConverter;
 
 public interface KeyValue extends DomElement {
 
-    public static final String TAG_NAME = "key-value";
+    String TAG_NAME = "key-value";
 
 
-    public static final String ATTR_RELATED = "related";
-    public static final String ATTR_VALUE = "value";
+    String ATTR_RELATED = "related";
+    String ATTR_VALUE = "value";
 
     @NotNull
     @Attribute(ATTR_RELATED)

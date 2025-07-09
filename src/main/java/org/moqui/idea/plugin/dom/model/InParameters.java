@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface InParameters extends DomElement {
     
-    public static final String TAG_NAME = "in-parameters";
+    String TAG_NAME = "in-parameters";
 
     @NotNull
     @SubTagList(Parameter.TAG_NAME)

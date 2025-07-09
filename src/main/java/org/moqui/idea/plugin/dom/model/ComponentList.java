@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ComponentList extends DomElement {
     
-    public static final String TAG_NAME = "component-list";
+    String TAG_NAME = "component-list";
 
     @NotNull
     @SubTagList(ComponentDir.TAG_NAME)

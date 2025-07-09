@@ -8,7 +8,7 @@ import org.moqui.idea.plugin.dom.converter.TextTemplateConverter;
 
 public interface Label extends DomElement {
 
-    public static final String TAG_NAME = "label";
+    String TAG_NAME = "label";
 //
 //    @NotNull
 //    @SubTagList(Parameter.TAG_NAME)

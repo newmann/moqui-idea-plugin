@@ -4,7 +4,7 @@ import com.intellij.util.xml.DomElement;
 
 public interface Break extends DomElement {
     
-    public static final String TAG_NAME = "break";
+    String TAG_NAME = "break";
 
 
 }

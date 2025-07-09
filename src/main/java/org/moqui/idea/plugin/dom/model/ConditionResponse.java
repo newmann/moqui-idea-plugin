@@ -10,10 +10,10 @@ import java.util.List;
 
 public interface ConditionResponse extends AttListResponse {
 
-    public static final String TAG_NAME = "condition-response";
+    String TAG_NAME = "condition-response";
 
 
-    public static final String ATTR_NAME = "name";
+    String ATTR_NAME = "name";
 
     @NotNull
     @Attribute(ATTR_NAME)

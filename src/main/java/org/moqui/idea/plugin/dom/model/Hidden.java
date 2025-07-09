@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Hidden extends DomElement {
     
-    public static final String TAG_NAME ="hidden";
+    String TAG_NAME ="hidden";
 
     @NotNull GenericAttributeValue<String> getDefaultView();
 

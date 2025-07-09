@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Return extends DomElement {
 
-    public static final String TAG_NAME = "return";
+    String TAG_NAME = "return";
     @NotNull
     GenericAttributeValue<String> getMessage();
 

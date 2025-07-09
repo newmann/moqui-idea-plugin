@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EntityCreate extends DomElement {
 
-    public static final String TAG_NAME = "entity-create";
+    String TAG_NAME = "entity-create";
 
 
     @NotNull GenericAttributeValue<String> getValueField();

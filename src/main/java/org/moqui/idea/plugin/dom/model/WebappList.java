@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface WebappList extends DomElement {
 
-    public static final String TAG_NAME = "webapp-list";
+    String TAG_NAME = "webapp-list";
 
     @NotNull
     @SubTagList(Webapp.TAG_NAME)

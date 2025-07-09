@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ElasticFacade extends DomElement {
     
-    public static final String TAG_NAME = "elastic-facade";
+    String TAG_NAME = "elastic-facade";
 
     @NotNull
     @SubTagList(Cluster.TAG_NAME)

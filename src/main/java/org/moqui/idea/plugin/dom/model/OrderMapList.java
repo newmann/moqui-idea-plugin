@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface OrderMapList extends DomElement {
 
-    public static final String TAG_NAME = "order-map-list";
+    String TAG_NAME = "order-map-list";
 
     @NotNull
     @SubTagList(OrderBy.TAG_NAME)

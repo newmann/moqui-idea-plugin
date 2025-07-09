@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ComplexAlias extends DomElement {
     
-    public static final String TAG_NAME = "complex-alias";
+    String TAG_NAME = "complex-alias";
 
 
     @NotNull GenericAttributeValue<String> getOperator();

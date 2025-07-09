@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Option extends DomElement {
 
-    public static final String TAG_NAME = "option";
+    String TAG_NAME = "option";
     @NotNull GenericAttributeValue<String> getKey();
     @NotNull GenericAttributeValue<String> getText();
 }

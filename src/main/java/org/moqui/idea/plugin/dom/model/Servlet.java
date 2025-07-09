@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface Servlet extends DomElement {
     
-    public static final String TAG_NAME = "servlet";
+    String TAG_NAME = "servlet";
     
-    public static final String ATTR_CLASS = "class";
+    String ATTR_CLASS = "class";
     @NotNull GenericAttributeValue<String> getName();
 
     @NotNull

@@ -11,7 +11,7 @@ import org.moqui.idea.plugin.dom.presentation.IdPresentationProvider;
 import java.util.List;
 @Presentation(provider = IdPresentationProvider.class)
 public interface Id extends DomElement {
-    public static final String TAG_NAME = "id";
+    String TAG_NAME = "id";
 
     @NotNull
     @SubTag(Id.TAG_NAME)

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ComponentDir extends DomElement {
     
-    public static final String TAG_NAME = "component-dir";
+    String TAG_NAME = "component-dir";
 
     @NotNull
     //@Convert(LocationConverter.class)

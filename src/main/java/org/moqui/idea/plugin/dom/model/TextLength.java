@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface TextLength extends DomElement {
 
-    public static final String TAG_NAME = "text-length";
+    String TAG_NAME = "text-length";
 
     @NotNull GenericAttributeValue<String> getMin();
     @NotNull GenericAttributeValue<String> getMax();

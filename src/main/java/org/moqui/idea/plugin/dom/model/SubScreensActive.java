@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface SubScreensActive extends DomElement {
     
-    public static final String TAG_NAME = "subscreens-active";
+    String TAG_NAME = "subscreens-active";
 
 
 

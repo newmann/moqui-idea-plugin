@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface DatabaseType extends DomElement {
 
-    public static final String TAG_NAME = "database-type";
+    String TAG_NAME = "database-type";
 
     @NotNull GenericAttributeValue<String> getType();
     @NotNull GenericAttributeValue<String> getSqlType();

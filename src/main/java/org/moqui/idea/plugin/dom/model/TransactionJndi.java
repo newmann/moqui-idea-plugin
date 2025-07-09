@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface TransactionJndi extends DomElement {
     
-    public static final String TAG_NAME = "transaction-jndi";
+    String TAG_NAME = "transaction-jndi";
 
     @NotNull GenericAttributeValue<String> getUserTransactionJndiName();
     @NotNull GenericAttributeValue<String> getTransactionManagerJndiName();

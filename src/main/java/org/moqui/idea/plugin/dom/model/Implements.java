@@ -9,11 +9,11 @@ import org.moqui.idea.plugin.dom.converter.InterfaceConverter;
 
 public interface Implements extends DomElement {
 
-    public static final String TAG_NAME = "implements";
+    String TAG_NAME = "implements";
 
-    public static final String ATTR_SERVICE = "service";
+    String ATTR_SERVICE = "service";
 
-    public static final String ATTR_REQUIRED = "required";
+    String ATTR_REQUIRED = "required";
 
     @NotNull
     @Attribute(ATTR_SERVICE)

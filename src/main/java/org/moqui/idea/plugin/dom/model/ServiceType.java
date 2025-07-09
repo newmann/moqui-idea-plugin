@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ServiceType extends DomElement {
 
-    public static final String TAG_NAME = "service-type";
+    String TAG_NAME = "service-type";
 
     @NotNull GenericAttributeValue<String> getName();
     @NotNull GenericAttributeValue<String> getRunnerClass();

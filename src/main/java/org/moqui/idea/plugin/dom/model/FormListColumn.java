@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface FormListColumn extends DomElement {
 
-    public static final String TAG_NAME = "form-list-column";
+    String TAG_NAME = "form-list-column";
 
     @NotNull
     @SubTagList(FieldRef.TAG_NAME)

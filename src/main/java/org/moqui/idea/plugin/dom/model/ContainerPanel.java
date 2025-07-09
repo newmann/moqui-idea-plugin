@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ContainerPanel extends DomElement {
 
-    public static final String TAG_NAME = "container-panel";
+    String TAG_NAME = "container-panel";
 
     @NotNull
     @SubTag(PanelHeader.TAG_NAME)

@@ -8,10 +8,10 @@ import java.util.List;
 //@Stubbed
 public interface Secas extends DomElement {
     
-    public static final String TAG_NAME = "secas";
+    String TAG_NAME = "secas";
     
-    public static final String ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
-    public static final String VALUE_NoNamespaceSchemaLocation = "http://moqui.org/xsd/service-eca-3.xsd";
+    String ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
+    String VALUE_NoNamespaceSchemaLocation = "http://moqui.org/xsd/service-eca-3.xsd";
 
     @NotNull
     @SubTagList(Seca.TAG_NAME)

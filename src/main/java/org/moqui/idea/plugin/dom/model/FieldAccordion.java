@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface FieldAccordion extends DomElement {
     
-    public static final String TAG_NAME = "field-accordion";
+    String TAG_NAME = "field-accordion";
 
     @NotNull
     @SubTagList(FieldGroup.TAG_NAME)

@@ -9,9 +9,9 @@ import org.moqui.idea.plugin.dom.converter.EntityFieldNameReferenceConverter;
 
 public interface IndexField extends DomElement {
     
-    public static final String TAG_NAME = "index-field";
+    String TAG_NAME = "index-field";
 
-    public static final String ATTR_NAME ="name";
+    String ATTR_NAME ="name";
 
     @NotNull
     @Attribute(ATTR_NAME)

@@ -9,15 +9,15 @@ import org.moqui.idea.plugin.dom.converter.EntityFieldNameReferenceConverter;
 
 public interface KeyMap extends DomElement {
     
-    public static final String TAG_NAME = "key-map";
+    String TAG_NAME = "key-map";
 
     
-    public static final String ATTR_FIELD_NAME ="field-name";
+    String ATTR_FIELD_NAME ="field-name";
 
     
-    public static final String ATTR_RELATED ="related";
+    String ATTR_RELATED ="related";
 
-//    public static final String ATTR_JOIN_FROM_ALIAS ="join-from-alias";
+//    String ATTR_JOIN_FROM_ALIAS ="join-from-alias";
 
     @NotNull
     @Attribute(ATTR_FIELD_NAME)

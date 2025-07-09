@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface NameReplace extends DomElement {
 
-    public static final String TAG_NAME = "name-replace";
+    String TAG_NAME = "name-replace";
 
     @NotNull GenericAttributeValue<String> getOriginal();
     @NotNull GenericAttributeValue<String> getReplace();

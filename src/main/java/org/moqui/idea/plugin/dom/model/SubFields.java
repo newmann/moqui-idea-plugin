@@ -5,7 +5,7 @@ import com.intellij.util.xml.SubTag;
 import org.jetbrains.annotations.NotNull;
 
 public interface SubFields extends DomElement {
-//    public static final String TAG_NAME = "SubFields";
+//    String TAG_NAME = "SubFields";
 
     @NotNull
     @SubTag(AutoWidgetService.TAG_NAME)

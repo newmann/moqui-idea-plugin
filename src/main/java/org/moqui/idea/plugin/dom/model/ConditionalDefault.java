@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ConditionalDefault extends DomElement {
     
-    public static final String TAG_NAME = "conditional-default";
+    String TAG_NAME = "conditional-default";
 
     @NotNull GenericAttributeValue<String> getCondition();
 

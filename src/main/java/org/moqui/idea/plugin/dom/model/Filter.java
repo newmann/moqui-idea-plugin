@@ -9,9 +9,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public interface Filter extends DomElement {
-    public static final String TAG_NAME = "filter";
+    String TAG_NAME = "filter";
     
-    public static final String ATTR_CLASS = "class";
+    String ATTR_CLASS = "class";
     @NotNull GenericAttributeValue<String> getName();
 
     @NotNull

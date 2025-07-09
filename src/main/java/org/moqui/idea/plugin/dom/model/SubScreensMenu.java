@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface SubScreensMenu extends DomElement {
 
-    public static final String TAG_NAME = "subscreens-menu";
+    String TAG_NAME = "subscreens-menu";
 
 
 //    @NotNull

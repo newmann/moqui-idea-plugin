@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ContextParam extends Actions {
     
-    public static final String TAG_NAME = "context-param";
+    String TAG_NAME = "context-param";
 
     @NotNull GenericAttributeValue<String> getName();
     @NotNull GenericAttributeValue<String> getValue();

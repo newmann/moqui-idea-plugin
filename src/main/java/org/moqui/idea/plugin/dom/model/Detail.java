@@ -9,12 +9,12 @@ import java.util.List;
 
 public interface Detail extends DomElement {
 
-    public static final String TAG_NAME = "detail";
+    String TAG_NAME = "detail";
 
 
-    public static final String ATTR_RELATIONSHIP="relationship";
+    String ATTR_RELATIONSHIP="relationship";
 
-    public static final String ATTR_USE_MASTER="use-master";
+    String ATTR_USE_MASTER="use-master";
 
     @NotNull
     @Attribute(ATTR_RELATIONSHIP)

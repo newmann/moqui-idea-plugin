@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface BoxBody extends WidgetElementsList {
     
-    public static final String TAG_NAME = "box-body";
+    String TAG_NAME = "box-body";
     @NotNull GenericAttributeValue<String> getHeight();
 
 }

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EntityFindRelatedOne extends DomElement {
     
-    public static final String TAG_NAME = "entity-find-related-one";
+    String TAG_NAME = "entity-find-related-one";
 
     @NotNull GenericAttributeValue<String> getValueField();
     @NotNull GenericAttributeValue<String> getRelationshipName();

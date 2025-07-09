@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 //@Stubbed
 public interface EntityFacadeXml extends DomElement {
 
-    public static final String TAG_NAME = "entity-facade-xml";
+    String TAG_NAME = "entity-facade-xml";
 
-    public static final String ATTR_TYPE = "type";
+    String ATTR_TYPE = "type";
 
     @NotNull
     @Attribute(ATTR_TYPE)

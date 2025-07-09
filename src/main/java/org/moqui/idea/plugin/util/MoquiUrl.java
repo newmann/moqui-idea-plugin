@@ -141,9 +141,9 @@ public class MoquiUrl {
     /**
      * 路径为/对应的MoquiUrl
      * 用component://webroot/screen/webroot.xml生成菜单即可
-     * @param project
-     * @param fetchAllChildUrls
-     * @return
+     * @param project 当前Project
+     * @param fetchAllChildUrls 是否获取所有子菜单
+     * @return MoquiUrl
      */
     public static MoquiUrl ofRootScreenUrl(@NotNull Project project, boolean fetchAllChildUrls) {
         return ofString(project, MyStringUtils.ROOT_SCREEN_LOCATION, fetchAllChildUrls);
@@ -154,9 +154,9 @@ public class MoquiUrl {
      * 由于//apps/hm/..和//hm/.. 都合法，所以需要个性化处理
      * 即将MoquiConf中定义的component://webroot/screen/webroot/apps.xml下所有的子目录和apps本身都放到同一级别
      * 这里只需要将文件路径传入即可， 在PsiFile的处理中进行处理
-     * @param project
-     * @param fetchAllChildUrls
-     * @return
+     * @param project 当前Project
+     * @param fetchAllChildUrls 是否获取所有子菜单
+     * @return MoquiUrl
      */
     public static MoquiUrl ofBaseScreenUrl(@NotNull Project project, boolean fetchAllChildUrls) {
 
@@ -206,8 +206,8 @@ public class MoquiUrl {
     /**
      * 根据AbsoluteUrl类型的Location获取MoquiUrl
      * @param location AbsoloteUrl
-     * @param fetchAllChildUrls
-     * @return
+     * @param fetchAllChildUrls 是否获取所有子菜单
+     * @return MoquiUrl
      */
     public static MoquiUrl ofAbsoluteUrl(@NotNull Location location, boolean fetchAllChildUrls) {
         if(location.getType() != LocationType.AbsoluteUrl) {
@@ -256,9 +256,9 @@ public class MoquiUrl {
     /**
      * 根据文件创建MoquiUrl
      * 可以不是Screen类型的file
-     * @param psiFile
-     * @param fetchAllChildUrls
-     * @return
+     * @param psiFile PsiFile
+     * @param fetchAllChildUrls 是否获取所有子菜单
+     * @return MoquiUrl
      */
     public static MoquiUrl ofPsiFile(@NotNull PsiFile psiFile, boolean fetchAllChildUrls) {
         //如果psiFile不是Screen文件，则返回null

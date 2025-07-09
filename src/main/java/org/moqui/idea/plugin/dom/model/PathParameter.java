@@ -6,10 +6,10 @@ import org.jetbrains.annotations.NotNull;
 
 public interface PathParameter extends AttListParameterGeneral {
 
-    public static final String TAG_NAME = "path-parameter";
+    String TAG_NAME = "path-parameter";
 
 
-    public static final String ATTR_NAME = "name";
+    String ATTR_NAME = "name";
 
     @NotNull
     @Attribute(ATTR_NAME)

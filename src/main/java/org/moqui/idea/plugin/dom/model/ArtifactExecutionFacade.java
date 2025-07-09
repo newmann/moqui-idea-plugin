@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ArtifactExecutionFacade extends DomElement {
     
-    public static final String TAG_NAME = "artifact-execution-facade";
+    String TAG_NAME = "artifact-execution-facade";
 
 
     @NotNull

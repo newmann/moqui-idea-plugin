@@ -7,10 +7,10 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ScriptRunner extends DomElement {
     
-    public static final String TAG_NAME = "script-runner";
+    String TAG_NAME = "script-runner";
 
     
-    public static final String ATTR_CLASS = "class";
+    String ATTR_CLASS = "class";
 
     @NotNull GenericAttributeValue<String> getExtension();
 

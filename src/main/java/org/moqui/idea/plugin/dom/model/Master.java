@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface Master extends DomElement {
     
-    public static final String TAG_NAME = "master";
+    String TAG_NAME = "master";
 
     @NotNull
     @SubTagList(Detail.TAG_NAME)

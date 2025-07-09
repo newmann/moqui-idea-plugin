@@ -8,7 +8,7 @@ import java.util.List;
 //@Stubbed
 public interface WidgetTemplates extends DomElement {
     
-    public static final String TAG_NAME = "widget-templates";
+    String TAG_NAME = "widget-templates";
 
     @NotNull
     @SubTagList(WidgetTemplate.TAG_NAME)

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ScreenOutput extends DomElement {
 
-    public static final String TAG_NAME = "screen-output";
+    String TAG_NAME = "screen-output";
 
     @NotNull GenericAttributeValue<String> getType();
     @NotNull GenericAttributeValue<String> getMimeType();

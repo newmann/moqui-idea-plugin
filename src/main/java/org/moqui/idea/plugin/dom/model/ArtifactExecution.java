@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ArtifactExecution extends DomElement {
     
-    public static final String TAG_NAME = "artifact-execution";
+    String TAG_NAME = "artifact-execution";
 
     @NotNull
     GenericAttributeValue<String> getType();

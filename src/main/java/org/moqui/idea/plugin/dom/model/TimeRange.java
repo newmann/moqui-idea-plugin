@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface TimeRange extends DomElement {
     
-    public static final String TAG_NAME = "time-range";
+    String TAG_NAME = "time-range";
 
     @NotNull GenericAttributeValue<String> getAfter();
     @NotNull GenericAttributeValue<String> getBefore();

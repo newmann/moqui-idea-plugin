@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface VisibleWhen extends DomElement {
 
-    public static final String TAG_NAME = "visible-when";
+    String TAG_NAME = "visible-when";
 
     @NotNull GenericAttributeValue<String> getField();
     @NotNull GenericAttributeValue<String> getValue();

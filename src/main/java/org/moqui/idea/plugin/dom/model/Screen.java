@@ -15,7 +15,7 @@ public interface Screen extends ScreenBase,SectionElements,AbstractLocation {
 
 
 
-    public static final String ATTR_DEFAULT_SUBSCREEN = "default-subscreen";
+    String ATTR_DEFAULT_SUBSCREEN = "default-subscreen";
     //for moqui-conf-3.xsd ScreenFacade define
 //    @NotNull
 //    @Convert(LocationConverter.class)

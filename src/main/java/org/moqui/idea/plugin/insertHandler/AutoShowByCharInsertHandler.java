@@ -11,8 +11,12 @@ import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.project.Project;
 import com.sun.jna.WString;
 import org.jetbrains.annotations.NotNull;
+import org.moqui.idea.plugin.util.MyStringUtils;
 
 public class AutoShowByCharInsertHandler implements InsertHandler<LookupElement> {
+    public static AutoShowByCharInsertHandler ofPathSeparator(){
+        return new AutoShowByCharInsertHandler(MyStringUtils.PATH_SEPARATOR);
+    }
     public static AutoShowByCharInsertHandler ofHash(){
         return new AutoShowByCharInsertHandler("#");
     }

@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface While extends AllOperationsList {
 
-    public static final String TAG_NAME = "while";
-    public static final String ATTR_CONDITION = "condition";
+    String TAG_NAME = "while";
+    String ATTR_CONDITION = "condition";
 
     @NotNull
     @Attribute(ATTR_CONDITION)

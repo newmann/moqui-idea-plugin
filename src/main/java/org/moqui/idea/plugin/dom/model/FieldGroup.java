@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface FieldGroup extends DomElement {
 
-    public static final String TAG_NAME = "field-group";
+    String TAG_NAME = "field-group";
 
 
     @NotNull GenericAttributeValue<String> getTitle();

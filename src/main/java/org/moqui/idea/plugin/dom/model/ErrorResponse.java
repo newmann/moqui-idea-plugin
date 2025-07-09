@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ErrorResponse extends AttListResponse {
 
-    public static final String TAG_NAME = "error-response";
+    String TAG_NAME = "error-response";
 
     @NotNull
     @SubTagList(Parameter.TAG_NAME)

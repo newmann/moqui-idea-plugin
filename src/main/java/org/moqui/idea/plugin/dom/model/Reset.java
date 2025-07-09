@@ -4,7 +4,7 @@ import com.intellij.util.xml.DomElement;
 
 public interface Reset extends DomElement {
 
-    public static final String TAG_NAME = "reset";
+    String TAG_NAME = "reset";
 
 
 }

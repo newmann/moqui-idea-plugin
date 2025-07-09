@@ -4,6 +4,6 @@ import com.intellij.util.xml.DomElement;
 
 public interface UrlPattern extends DomElement {
 
-    public static final String TAG_NAME ="url-pattern";
+    String TAG_NAME ="url-pattern";
 
 }

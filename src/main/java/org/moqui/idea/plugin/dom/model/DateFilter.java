@@ -8,15 +8,15 @@ import org.jetbrains.annotations.NotNull;
 
 public interface DateFilter extends DomElement {
     
-    public static final String TAG_NAME = "date-filter";
+    String TAG_NAME = "date-filter";
     
-    public static final String ATTR_VALID_DATE = "valid-date";
+    String ATTR_VALID_DATE = "valid-date";
     
-    public static final String ATTR_ENTITY_ALIAS = "entity-alias";
+    String ATTR_ENTITY_ALIAS = "entity-alias";
     
-    public static final String ATTR_FROM_FIELD_NAME = "from-field-name";
+    String ATTR_FROM_FIELD_NAME = "from-field-name";
     
-    public static final String ATTR_THRU_FIELD_NAME = "thru-field-name";
+    String ATTR_THRU_FIELD_NAME = "thru-field-name";
     @NotNull
     @Attribute(ATTR_VALID_DATE)
     GenericAttributeValue<String> getValidDate();

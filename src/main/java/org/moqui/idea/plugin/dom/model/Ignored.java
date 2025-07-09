@@ -4,7 +4,7 @@ import com.intellij.util.xml.DomElement;
 
 public interface Ignored extends DomElement {
 
-    public static final String TAG_NAME = "ignored";
+    String TAG_NAME = "ignored";
 
 
 }

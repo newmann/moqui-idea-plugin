@@ -10,20 +10,20 @@ import java.util.List;
 @Presentation( icon = "org.moqui.idea.plugin.MyIcons.RelationshipTag",provider = RelationshipPresentationProvider.class)
 public interface Relationship extends DomElement {
     
-    public static final String TAG_NAME = "relationship";
+    String TAG_NAME = "relationship";
 
-    public static final String ATTR_TYPE = "type";
+    String ATTR_TYPE = "type";
     
-    public static final String ATTR_TITLE = "title";
+    String ATTR_TITLE = "title";
     
-    public static final String ATTR_RELATED = "related";
+    String ATTR_RELATED = "related";
     
-    public static final String ATTR_FK_NAME = "fk-name";
+    String ATTR_FK_NAME = "fk-name";
 
     
-    public static final String ATTR_SHORT_ALIAS = "short-alias";
+    String ATTR_SHORT_ALIAS = "short-alias";
     
-    public static final String ATTR_MUTABLE = "mutable";
+    String ATTR_MUTABLE = "mutable";
 
     @NotNull
     @Attribute(ATTR_TYPE)

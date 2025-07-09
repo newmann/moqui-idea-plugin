@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EntitySet extends DomElement {
     
-    public static final String TAG_NAME = "entity-set";
+    String TAG_NAME = "entity-set";
     
-    public static final String ATTR_VALUE_Field = "value-field";
+    String ATTR_VALUE_Field = "value-field";
 
     @NotNull
     @Attribute(ATTR_VALUE_Field)

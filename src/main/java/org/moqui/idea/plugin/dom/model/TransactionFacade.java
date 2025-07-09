@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface TransactionFacade extends DomElement {
     
-    public static final String TAG_NAME = "transaction-facade";
+    String TAG_NAME = "transaction-facade";
 
     @NotNull GenericAttributeValue<Boolean> getUseTransactionCache();
     @NotNull GenericAttributeValue<Boolean> getUseConnectionStash();

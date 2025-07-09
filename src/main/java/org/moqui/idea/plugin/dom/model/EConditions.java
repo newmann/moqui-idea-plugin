@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface EConditions extends DomElement {
 
-    public static final String TAG_NAME = "econditions";
+    String TAG_NAME = "econditions";
 
-    public static final String ATTR_COMBINE = "combine";
+    String ATTR_COMBINE = "combine";
     @NotNull
     @Attribute(ATTR_COMBINE)
     GenericAttributeValue<String> getCombine();

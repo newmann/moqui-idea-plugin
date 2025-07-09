@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface SessionConfig extends DomElement {
     
-    public static final String TAG_NAME = "session-config";
+    String TAG_NAME = "session-config";
 
 
     @NotNull

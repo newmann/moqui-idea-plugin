@@ -4,7 +4,7 @@ import com.intellij.util.xml.DomElement;
 
 public interface InlineOther extends DomElement {
 
-    public static final String TAG_NAME = "inline-other";
+    String TAG_NAME = "inline-other";
 
 
 

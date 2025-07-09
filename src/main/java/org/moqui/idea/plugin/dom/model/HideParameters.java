@@ -10,10 +10,10 @@ import java.util.List;
 
 public interface HideParameters extends DomElement {
 
-    public static final String TAG_NAME = "hide-parameters";
+    String TAG_NAME = "hide-parameters";
 
 
-    public static final String ATTR_PARAMETER_MAP = "parameter-map";
+    String ATTR_PARAMETER_MAP = "parameter-map";
 
 
     @NotNull

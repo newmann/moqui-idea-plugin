@@ -12,63 +12,63 @@ import java.util.List;
 @Presentation(provider = FormListPresentationProvider.class)
 public interface FormList extends AbstractForm {
     
-    public static final String TAG_NAME = "form-list";
+    String TAG_NAME = "form-list";
 
-//    public static final String ATTR_NAME = "name";
-//    public static final String ATTR_EXTENDS = "extends";
-//    public static final String ATTR_TRANSITION = "transition";
-
-    
-    public static final String ATTR_TRANSITION_FIRST_ROW = "transition-first-row";
-    
-    public static final String ATTR_TRANSITION_SECOND_ROW = "transition-second-row";
-    
-    public static final String ATTR_TRANSITION_LAST_ROW = "transition-last-row";
-    
-    public static final String ATTR_MAP_FIRST_ROW = "map-first-row";
-    
-    public static final String ATTR_MAP_SECOND_ROW = "map-second-row";
-    
-    public static final String ATTR_MAP_LAST_ROW = "map-last-row";
-    
-    public static final String ATTR_MULTI = "multi";
-    public static final String ATTR_LIST = "list";
-    
-    public static final String ATTR_LIST_ENTRY = "list-entry";
-    public static final String ATTR_STYLE = "style";
-    
-    public static final String ATTR_PAGINATE = "paginate";
-    
-    public static final String ATTR_PAGINATE_ALWAYS_SHOW = "paginate-always-show";
-    
-    public static final String ATTR_FOCUS_FIELD = "focus-field";
+//    String ATTR_NAME = "name";
+//    String ATTR_EXTENDS = "extends";
+//    String ATTR_TRANSITION = "transition";
 
     
-    public static final String ATTR_SKIP_START = "skip-start";
+    String ATTR_TRANSITION_FIRST_ROW = "transition-first-row";
     
-    public static final String ATTR_SKIP_END = "skip-end";
+    String ATTR_TRANSITION_SECOND_ROW = "transition-second-row";
     
-    public static final String ATTR_SKIP_FORM = "skip-form";
+    String ATTR_TRANSITION_LAST_ROW = "transition-last-row";
     
-    public static final String ATTR_SKIP_HEADER = "skip-header";
+    String ATTR_MAP_FIRST_ROW = "map-first-row";
     
-    public static final String ATTR_SKIP_DIALOG = "skip-dialog";
+    String ATTR_MAP_SECOND_ROW = "map-second-row";
     
-    public static final String ATTR_SELECT_COLUMNS = "select-columns";
+    String ATTR_MAP_LAST_ROW = "map-last-row";
     
-    public static final String ATTR_SAVED_FINDS = "saved-finds";
+    String ATTR_MULTI = "multi";
+    String ATTR_LIST = "list";
     
-    public static final String ATTR_SHOW_CSV_BUTTON = "show-csv-button";
+    String ATTR_LIST_ENTRY = "list-entry";
+    String ATTR_STYLE = "style";
     
-    public static final String ATTR_SHOW_XLSX_BUTTON = "show-xlsx-button";
+    String ATTR_PAGINATE = "paginate";
     
-    public static final String ATTR_SHOW_TEXT_BUTTON = "show-text-button";
+    String ATTR_PAGINATE_ALWAYS_SHOW = "paginate-always-show";
     
-    public static final String ATTR_SHOW_PDF_BUTTON = "show-pdf-button";
+    String ATTR_FOCUS_FIELD = "focus-field";
+
     
-    public static final String ATTR_SHOW_ALL_BUTTON = "show-all-button";
+    String ATTR_SKIP_START = "skip-start";
     
-    public static final String ATTR_SHOW_PAGE_SIZE = "show-page-size";
+    String ATTR_SKIP_END = "skip-end";
+    
+    String ATTR_SKIP_FORM = "skip-form";
+    
+    String ATTR_SKIP_HEADER = "skip-header";
+    
+    String ATTR_SKIP_DIALOG = "skip-dialog";
+    
+    String ATTR_SELECT_COLUMNS = "select-columns";
+    
+    String ATTR_SAVED_FINDS = "saved-finds";
+    
+    String ATTR_SHOW_CSV_BUTTON = "show-csv-button";
+    
+    String ATTR_SHOW_XLSX_BUTTON = "show-xlsx-button";
+    
+    String ATTR_SHOW_TEXT_BUTTON = "show-text-button";
+    
+    String ATTR_SHOW_PDF_BUTTON = "show-pdf-button";
+    
+    String ATTR_SHOW_ALL_BUTTON = "show-all-button";
+    
+    String ATTR_SHOW_PAGE_SIZE = "show-page-size";
 
 
 //    @NotNull

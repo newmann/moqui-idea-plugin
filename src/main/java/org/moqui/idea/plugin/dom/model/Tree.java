@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface Tree extends DomElement {
 
-    public static final String TAG_NAME = "tree";
+    String TAG_NAME = "tree";
 
 
     @NotNull

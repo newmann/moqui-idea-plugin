@@ -10,22 +10,22 @@ import org.moqui.idea.plugin.dom.presentation.AliasPresentationProvider;
 @Presentation(provider = AliasPresentationProvider.class)
 public interface Alias extends AbstractField {
     
-    public static final String TAG_NAME = "alias";
+    String TAG_NAME = "alias";
 
     
-    public static final String ATTR_ENTITY_ALIAS ="entity-alias";
+    String ATTR_ENTITY_ALIAS ="entity-alias";
     
-    public static final String ATTR_FIELD="field";
-//    public static final String ATTR_NAME = "name";
+    String ATTR_FIELD="field";
+//    String ATTR_NAME = "name";
     
-    public static final String ATTR_FUNCTION = "function";
+    String ATTR_FUNCTION = "function";
     
-    public static final String ATTR_IS_AGGREGATE = "is-aggregate";
-//    public static final String ATTR_TYPE = "type";
+    String ATTR_IS_AGGREGATE = "is-aggregate";
+//    String ATTR_TYPE = "type";
     
-    public static final String ATTR_DEFAULT_DISPLAY = "default-display";
+    String ATTR_DEFAULT_DISPLAY = "default-display";
     
-    public static final String ATTR_PG_EXPRESSION = "pg-expression";
+    String ATTR_PG_EXPRESSION = "pg-expression";
     @NotNull
     @Attribute(ATTR_ENTITY_ALIAS)
     @Convert(ViewEntityAliasConverter.class)

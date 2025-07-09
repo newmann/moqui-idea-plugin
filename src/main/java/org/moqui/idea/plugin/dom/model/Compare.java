@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Compare extends AllOperationsList {
     
-    public static final String TAG_NAME = "compare";
+    String TAG_NAME = "compare";
 
     @NotNull GenericAttributeValue<String> getField();
     @NotNull GenericAttributeValue<String> getOperator();

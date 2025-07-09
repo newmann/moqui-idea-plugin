@@ -9,7 +9,7 @@ import org.moqui.idea.plugin.dom.presentation.DependsOnPresentationProvider;
 @Presentation(provider = DependsOnPresentationProvider.class)
 public interface DependsOn extends DomElement {
 
-    public static final String TAG_NAME = "depends-on";
+    String TAG_NAME = "depends-on";
 
 
     @NotNull GenericAttributeValue<String> getField();

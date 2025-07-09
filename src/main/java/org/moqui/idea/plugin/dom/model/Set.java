@@ -7,10 +7,10 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Set extends DomElement {
     
-    public static final String TAG_NAME = "set";
+    String TAG_NAME = "set";
     
-    public static final String ATTR_FIELD = "field";
-    public static final String ATTR_FROM = "from";
+    String ATTR_FIELD = "field";
+    String ATTR_FROM = "from";
     @NotNull
     @Attribute(ATTR_FIELD)
     GenericAttributeValue<String> getField();

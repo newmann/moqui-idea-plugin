@@ -29,7 +29,7 @@ import java.util.Optional;
  * 5、 location="classpath://service/org/moqui/impl/BasicServices.xml"，service-file、service-include中使用
  *     和component类似，对应到某个文件，只是没有指定component名称，但应该也是唯一的
  */
-
+@Deprecated
 public class LocationConverter extends ResolvingConverter.StringConverter implements CustomReferenceConverter<String> {
     @Override
     public @NotNull Collection<? extends String> getVariants(ConvertContext context) {

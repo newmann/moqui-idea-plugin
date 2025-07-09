@@ -4,7 +4,7 @@ import com.intellij.util.xml.DomElement;
 
 public interface Column extends DomElement {
     
-    public static final String TAG_NAME = "column";
+    String TAG_NAME = "column";
 
 
 }

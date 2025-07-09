@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface RepositoryList extends DomElement {
 
-    public static final String TAG_NAME = "repository-list";
+    String TAG_NAME = "repository-list";
 
     @NotNull
     @SubTagList(Repository.TAG_NAME)

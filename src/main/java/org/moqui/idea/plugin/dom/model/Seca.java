@@ -9,18 +9,18 @@ import org.moqui.idea.plugin.dom.presentation.SecaPresentationProvider;
 @Presentation(icon = "org.moqui.idea.plugin.MyIcons.SecaTag", provider = SecaPresentationProvider.class)
 public interface Seca extends DomElement {
 
-    public static final String TAG_NAME = "seca";
-    public static final String ATTR_ID = "id";
+    String TAG_NAME = "seca";
+    String ATTR_ID = "id";
 
-    public static final String ATTR_SERVICE = "service";
+    String ATTR_SERVICE = "service";
 
-    public static final String ATTR_WHEN = "when";
+    String ATTR_WHEN = "when";
 
-    public static final String ATTR_NAME_IS_PATTERN = "name-is-pattern";
+    String ATTR_NAME_IS_PATTERN = "name-is-pattern";
 
-    public static final String ATTR_RUN_ON_ERROR = "run_on_error";
+    String ATTR_RUN_ON_ERROR = "run_on_error";
 
-    public static final String ATTR_PRIORITY = "priority";
+    String ATTR_PRIORITY = "priority";
     @NotNull
     @Attribute(ATTR_ID)
     GenericAttributeValue<String> getId();

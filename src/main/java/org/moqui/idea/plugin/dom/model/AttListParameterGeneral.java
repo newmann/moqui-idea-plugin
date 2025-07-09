@@ -10,9 +10,9 @@ public interface AttListParameterGeneral extends DomElement {
 
 
     
-    public static final String ATTR_REQUIRED = "required";
+    String ATTR_REQUIRED = "required";
     
-    public static final String ATTR_ALLOW_HTML = "allow-html";
+    String ATTR_ALLOW_HTML = "allow-html";
 
     @NotNull
     @Attribute(ATTR_ALLOW_HTML)

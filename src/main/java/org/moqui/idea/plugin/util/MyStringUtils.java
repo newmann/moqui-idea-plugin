@@ -228,7 +228,7 @@ public final class MyStringUtils {
      * @return 处理后的字符串
      */
 
-    public static String removeLastPath(@NotNull String target){
+    public static String getParentPath(@NotNull String target){
         StringBuilder preStr = new StringBuilder(EMPTY_STRING);
         for(int i=0; i < target.length(); i++){
             if(target.charAt(i) == PATH_SEPARATOR.charAt(0)) {

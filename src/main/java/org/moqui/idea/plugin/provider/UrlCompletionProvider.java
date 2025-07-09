@@ -75,7 +75,7 @@ public class UrlCompletionProvider extends CompletionProvider<CompletionParamete
     private void lookupUrl(@NotNull Project project, @NotNull String inputStr, @NotNull PsiElement psiElement, @NotNull CompletionResultSet result){
         result = result.withPrefixMatcher(new IgnorePathPrefixMatcher(inputStr));
 
-        String purePath = MyStringUtils.removeLastPath(inputStr);
+        String purePath = MyStringUtils.getParentPath(inputStr);
 
         Location location = Location.of(project, purePath);
         MoquiUrl moquiUrl;

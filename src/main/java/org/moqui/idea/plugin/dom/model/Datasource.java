@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Datasource extends DomElement {
 
-    public static final String TAG_NAME = "datasource";
+    String TAG_NAME = "datasource";
 
 
     @NotNull GenericAttributeValue<String> getGroupName();

@@ -6,7 +6,7 @@ import org.moqui.idea.plugin.dom.converter.LocationConverter;
 import org.moqui.idea.plugin.dom.converter.LocationReferenceConverter;
 
 public interface AbstractLocation extends DomElement {
-    public static final String ATTR_LOCATION = "location";
+    String ATTR_LOCATION = "location";
 
     @NotNull
     @Attribute(ATTR_LOCATION)

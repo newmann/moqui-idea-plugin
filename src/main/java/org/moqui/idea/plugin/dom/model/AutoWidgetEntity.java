@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface AutoWidgetEntity extends DomElement {
     
-    public static final String TAG_NAME = "auto-widget-entity";
+    String TAG_NAME = "auto-widget-entity";
 
     @NotNull GenericAttributeValue<String> getEntityName();
     @NotNull GenericAttributeValue<String> getFieldName();

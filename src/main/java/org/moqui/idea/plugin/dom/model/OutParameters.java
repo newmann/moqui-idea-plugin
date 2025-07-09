@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface OutParameters extends CommonActions {
 
-    public static final String TAG_NAME = "out-parameters";
+    String TAG_NAME = "out-parameters";
 
     @NotNull
     @SubTagList(Parameter.TAG_NAME)

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ServerJndi extends DomElement {
     
-    public static final String TAG_NAME = "server-jndi";
+    String TAG_NAME = "server-jndi";
 
     @NotNull GenericAttributeValue<String> getContextProviderUrl();
     @NotNull GenericAttributeValue<String> getInitialContextFactory();

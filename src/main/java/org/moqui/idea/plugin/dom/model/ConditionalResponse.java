@@ -10,7 +10,7 @@ import java.util.List;
 @Presentation(provider = ConditinalResponsePresentationProvider.class)
 public interface ConditionalResponse extends AttListResponse {
     
-    public static final String TAG_NAME = "conditional-response";
+    String TAG_NAME = "conditional-response";
 
     @NotNull
     @SubTag(Condition.TAG_NAME)

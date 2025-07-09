@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ServerStats extends DomElement {
     
-    public static final String TAG_NAME = "server-stats";
+    String TAG_NAME = "server-stats";
 
     @NotNull
     GenericAttributeValue<String> getBinLengthSeconds();

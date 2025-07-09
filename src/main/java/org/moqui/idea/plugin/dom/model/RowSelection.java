@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface RowSelection extends DomElement {
     
-    public static final String TAG_NAME = "row-selection";
+    String TAG_NAME = "row-selection";
 
     @NotNull
     @SubTag(Action.TAG_NAME)

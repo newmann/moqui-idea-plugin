@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EConditionObject extends DomElement {
     
-    public static final String TAG_NAME = "econdition-object";
+    String TAG_NAME = "econdition-object";
 
     @NotNull GenericAttributeValue<String> getField();
 

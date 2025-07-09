@@ -11,14 +11,14 @@ import java.util.List;
 @Presentation(icon = "org.moqui.idea.plugin.MyIcons.ServiceCallTag",provider = ServiceCallPresentationProvider.class)
 public interface ServiceCall extends DomElement {
     
-    public static final String TAG_NAME = "service-call";
-    public static final String ATTR_NAME = "name";
+    String TAG_NAME = "service-call";
+    String ATTR_NAME = "name";
     
-    public static final String ATTR_IN_MAP = "in-map";
+    String ATTR_IN_MAP = "in-map";
     
-    public static final String ATTR_OUT_MAP = "out-map";
+    String ATTR_OUT_MAP = "out-map";
     
-    public static final String ATTR_OUT_MAP_ADD_TO_EXISTING = "out-map-add-to-existing";
+    String ATTR_OUT_MAP_ADD_TO_EXISTING = "out-map-add-to-existing";
     @NotNull
     @Attribute(ATTR_NAME)
     @Referencing(ServiceCallReferenceConverter.class)

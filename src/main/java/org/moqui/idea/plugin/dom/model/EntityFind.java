@@ -12,9 +12,9 @@ import java.util.List;
 @Presentation(provider = EntityFindPresentationProvider.class)
 public interface EntityFind extends AbstractEntityName {
     
-    public static final String TAG_NAME = "entity-find";
-//    public static final String ATTR_ENTITY_NAME = "entity-name";
-    public static final String ATTR_LIST = "list";
+    String TAG_NAME = "entity-find";
+//    String ATTR_ENTITY_NAME = "entity-name";
+    String ATTR_LIST = "list";
 //    @NotNull
 //    @Attribute(ATTR_ENTITY_NAME)
 //    @Convert(EntityFullNameConverter.class)

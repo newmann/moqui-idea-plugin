@@ -7,14 +7,14 @@ import org.jetbrains.annotations.NotNull;
 
 public interface MacroTemplate extends DomElement {
     
-    public static final String TAG_NAME = "macro-template";
+    String TAG_NAME = "macro-template";
 
-    public static final String ATTR_TYPE ="type";
+    String ATTR_TYPE ="type";
 
     
-    public static final String ATTR_LOCATION ="location";
+    String ATTR_LOCATION ="location";
 
-//    public static final String ATTR_JOIN_FROM_ALIAS ="join-from-alias";
+//    String ATTR_JOIN_FROM_ALIAS ="join-from-alias";
 
     @NotNull
     @Attribute(ATTR_TYPE)

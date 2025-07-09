@@ -5,7 +5,7 @@ import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 
 public interface Login extends DomElement {
-    public static final String TAG_NAME = "login";
+    String TAG_NAME = "login";
 
     @NotNull GenericAttributeValue<String> getMaxFailures();
     @NotNull GenericAttributeValue<String> getDisableMinutes();

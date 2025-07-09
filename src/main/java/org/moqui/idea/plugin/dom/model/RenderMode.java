@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface RenderMode extends DomElement {
     
-    public static final String TAG_NAME = "render-mode";
+    String TAG_NAME = "render-mode";
 
 
     @NotNull

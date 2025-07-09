@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Container extends WidgetElementsList {
     
-    public static final String TAG_NAME = "container";
+    String TAG_NAME = "container";
 
 //    @NotNull
 //    @SubTagList(EntityOptions.TAG_NAME)

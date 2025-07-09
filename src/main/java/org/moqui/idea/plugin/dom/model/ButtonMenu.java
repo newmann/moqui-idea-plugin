@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ButtonMenu extends DomElement {
     
-    public static final String TAG_NAME = "button-menu";
+    String TAG_NAME = "button-menu";
 
     @NotNull
     @SubTagList(Link.TAG_NAME)

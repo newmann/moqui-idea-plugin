@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ResourceFacade extends DomElement {
 
-    public static final String TAG_NAME = "resource-facade";
+    String TAG_NAME = "resource-facade";
 
 
 

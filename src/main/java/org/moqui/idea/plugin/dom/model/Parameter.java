@@ -12,24 +12,24 @@ import java.util.List;
 @Presentation(icon ="org.moqui.idea.plugin.MyIcons.ParameterTag", provider = ParameterPresentationProvider.class)
 public interface Parameter extends AbstractField,AttListParameterGeneral,ParameterValidationsList {
     
-    public static final String TAG_NAME = "parameter";
+    String TAG_NAME = "parameter";
 
 
-//    public static final String ATTR_NAME = "name";
-//    public static final String ATTR_TYPE = "type";
+//    String ATTR_NAME = "name";
+//    String ATTR_TYPE = "type";
     
-    public static final String ATTR_FORMAT = "format";
-    public static final String ATTR_DEFAULT = "default";
+    String ATTR_FORMAT = "format";
+    String ATTR_DEFAULT = "default";
     
-    public static final String ATTR_DEFAULT_VALUE = "default-value";
+    String ATTR_DEFAULT_VALUE = "default-value";
     
-    public static final String ATTR_ENTITY_NAME = "entity-name";
+    String ATTR_ENTITY_NAME = "entity-name";
     
-    public static final String ATTR_FIELD_NAME = "field-name";
+    String ATTR_FIELD_NAME = "field-name";
     //for form define
 
-    public static final String ATTR_FROM = "from";
-    public static final String ATTR_VALUE = "value";
+    String ATTR_FROM = "from";
+    String ATTR_VALUE = "value";
 
 
 //    @NotNull

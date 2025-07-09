@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface EditableLoad extends DomElement {
     
-    public static final String TAG_NAME = "editable-load";
+    String TAG_NAME = "editable-load";
 //
     @NotNull
     @SubTagList(Parameter.TAG_NAME)

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface Editable extends DomElement {
     
-    public static final String TAG_NAME = "editable";
+    String TAG_NAME = "editable";
 //
     @NotNull
     @SubTagList(Parameter.TAG_NAME)

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ArtifactStats extends DomElement {
     
-    public static final String TAG_NAME = "artifact-stats";
+    String TAG_NAME = "artifact-stats";
 
     @NotNull
     GenericAttributeValue<String> getType();

@@ -8,7 +8,7 @@ import org.moqui.idea.plugin.dom.presentation.ContainerDialogPresentationProvide
 @Presentation(provider = ContainerDialogPresentationProvider.class)
 public interface ContainerDialog extends WidgetElementsList {
     
-    public static final String TAG_NAME = "container-dialog";
+    String TAG_NAME = "container-dialog";
 
 //    @NotNull
 //    @SubTagList(EntityOptions.TAG_NAME)

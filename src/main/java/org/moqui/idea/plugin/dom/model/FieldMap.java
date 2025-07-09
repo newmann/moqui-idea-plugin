@@ -6,9 +6,9 @@ import org.moqui.idea.plugin.dom.converter.EntityFieldNameReferenceConverter;
 
 public interface FieldMap extends DomElement {
 
-    public static final String TAG_NAME = "field-map";
+    String TAG_NAME = "field-map";
 
-    public static final String ATTR_FIELD_NAME = "field-name";
+    String ATTR_FIELD_NAME = "field-name";
 
     @NotNull
     @Required

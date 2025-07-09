@@ -7,12 +7,12 @@ import org.jetbrains.annotations.NotNull;
 
 public interface WidgetsExtend extends WidgetElementsList {
     
-    public static final String TAG_NAME = "widgets-extend";
+    String TAG_NAME = "widgets-extend";
 
 
-    public static final String ATTR_NAME = "name";
+    String ATTR_NAME = "name";
     
-    public static final String ATTR_WHERE = "where";
+    String ATTR_WHERE = "where";
 
     @NotNull
     @Attribute(ATTR_NAME)

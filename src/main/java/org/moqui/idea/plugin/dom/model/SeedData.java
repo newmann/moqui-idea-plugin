@@ -4,7 +4,7 @@ import com.intellij.util.xml.DomElement;
 
 public interface SeedData extends DomElement {
 
-    public static final String TAG_NAME = "seed-data";
+    String TAG_NAME = "seed-data";
 
 
 }

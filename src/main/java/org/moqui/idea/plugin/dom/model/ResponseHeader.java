@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ResponseHeader extends DomElement {
 
-    public static final String TAG_NAME = "response-header";
+    String TAG_NAME = "response-header";
 
     @NotNull GenericAttributeValue<String> getType();
 

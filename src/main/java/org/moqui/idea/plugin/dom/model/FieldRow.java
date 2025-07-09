@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface FieldRow extends DomElement {
 
-    public static final String TAG_NAME = "field-row";
+    String TAG_NAME = "field-row";
 
     @NotNull
     @SubTagList(FieldRef.TAG_NAME)

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface AttListResponse extends AbstractUrl {
 
-//    public static final String ATTR_URL = "url";
+//    String ATTR_URL = "url";
 
     @NotNull
     GenericAttributeValue<String> getType();

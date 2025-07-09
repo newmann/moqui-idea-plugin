@@ -11,10 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 public final class ComponentUtils {
@@ -59,12 +56,16 @@ public final class ComponentUtils {
             Component component = fileElement.getRootElement();
             String name = ReadAction.compute(()->component.getName().getStringValue());
             if(name.equals(componentName)) {
-                String pathName = MyDomUtils.getFilePathByPsiElement(fileElement.getRootElement().getXmlTag()).orElse(MyStringUtils.EMPTY_STRING);
-                if(MyStringUtils.isEmpty(pathName)) {
-                    return Optional.empty();
-                }
-                String path = pathName.substring(0,pathName.lastIndexOf(MyStringUtils.PATH_SEPARATOR));
-                return Optional.of(path);
+                String pathName = fileElement.getFile().getVirtualFile().getCanonicalPath();
+                if(pathName == null) return Optional.empty();
+                return  Optional.of(MyStringUtils.getParentPath(pathName));
+
+//                String pathName = MyDomUtils.getFilePathByPsiElement(fileElement.getRootElement().getXmlTag()).orElse(MyStringUtils.EMPTY_STRING);
+//                if(MyStringUtils.isEmpty(pathName)) {
+//                    return Optional.empty();
+//                }
+//                String path = pathName.substring(0,pathName.lastIndexOf(MyStringUtils.PATH_SEPARATOR));
+//                return Optional.of(path);
             }
         }
         return Optional.empty();
@@ -88,9 +89,31 @@ public final class ComponentUtils {
         }
 
     }
-    public static Optional<PsiFile> getPsiFileByLocation(@NotNull Project project,@NotNull String locationStr) {
-        Location location = Location.of(project, locationStr);
-        return getPsiFileByLocation(location);
+
+    public static List<VirtualFile> getChildVirtualFileByLocation(@NotNull Project project,@NotNull Location location) {
+        List<VirtualFile> result = new ArrayList<>();
+        if(location.getType() != LocationType.ComponentFile && location.getType() != LocationType.ComponentFileContent) {
+            //如果不是component file，则直接返回空
+            return result;
+        }
+        //根据component name 获取实际路径
+        if(location.getPathNameArray().length< 1) return result;
+        String componentName = location.getPathNameArray()[0];
+        String componentPath = getComponentPathByName(project,componentName).orElse(null);
+
+        if(componentPath == null) return result;
+        String fileName = componentPath + location.getPathPart().substring(componentName.length());
+        VirtualFile virtualFile = ReadAction.compute(()->LocalFileSystem.getInstance().findFileByPath(fileName)) ;
+
+        if(virtualFile == null) return result;
+        if(virtualFile.isDirectory()) {
+            //如果是目录，则获取所有子文件
+            VirtualFile[] children = virtualFile.getChildren();
+            result.addAll(Arrays.asList(children));
+        }
+        //如果是文件，则直接返回空
+
+        return result;
     }
 
     /**
