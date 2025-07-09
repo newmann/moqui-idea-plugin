@@ -16,10 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.dom.model.*;
 import org.moqui.idea.plugin.reference.MoquiBaseReference;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.moqui.idea.plugin.util.LocationUtils.createFilePsiReference;
 import static org.moqui.idea.plugin.util.LocationUtils.getPathArrayFromLocation;
@@ -482,5 +479,21 @@ public final class Location{
 
     public boolean isEmpty() {
         return isEmpty;
+    }
+
+    /**
+     * 将headContend、pathNameArray和contentPart组合成一个完整的路径字符串
+     * @return String
+     */
+    public String composeLocationString() {
+        if(isEmpty) return MyStringUtils.EMPTY_STRING;
+        StringBuilder sb = new StringBuilder();
+        sb.append(headContent);
+        sb.append(String.join(MyStringUtils.PATH_SEPARATOR,pathNameArray));
+        if(MyStringUtils.isNotEmpty(contentPart)) {
+            sb.append("#");
+            sb.append(contentPart);
+        }
+        return sb.toString();
     }
 }

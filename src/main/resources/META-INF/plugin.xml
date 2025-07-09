@@ -72,6 +72,10 @@
       <dom.fileMetaData id="myPlugin.ScreenDescription"
                         rootTagName="screen"
                         implementation="org.moqui.idea.plugin.dom.description.ScreenDescription"/>
+      <dom.fileMetaData id="myPlugin.ScreenExtendDescription"
+                        rootTagName="screen-extend"
+                        implementation="org.moqui.idea.plugin.dom.description.ScreenExtendDescription"/>
+
       <dom.fileMetaData id="myPlugin.MoquiConfDescription"
                         rootTagName="moqui-conf"
                         implementation="org.moqui.idea.plugin.dom.description.MoquiConfDescription"/>

@@ -2,7 +2,7 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.TransitionIncludeNameConverter;
+import org.moqui.idea.plugin.dom.converter.TransitionIncludeNameReferenceConverter;
 
 public interface AbstractTransition extends DomElement {
     public static final String ATTR_NAME = "name";
@@ -10,7 +10,7 @@ public interface AbstractTransition extends DomElement {
     @NotNull
     @NameValue
     @Attribute(ATTR_NAME)
-    @Convert(TransitionIncludeNameConverter.class)
+    @Referencing(TransitionIncludeNameReferenceConverter.class)
     GenericAttributeValue<String> getName();
 
 

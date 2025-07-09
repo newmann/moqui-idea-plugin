@@ -36,7 +36,7 @@ public final class MyDomUtils {
     public static Map<String,String> MOQUI_XML_FILE_ROOT_TAGS = new HashMap<>(Map.of(
             Entities.TAG_NAME,Entities.VALUE_NoNamespaceSchemaLocation,
             Services.TAG_NAME,Services.VALUE_NoNamespaceSchemaLocation,
-            Screen.TAG_NAME,Screen.VALULE_NoNamespaceSchemaLocation,
+            Screen.TAG_NAME,Screen.VALUE_NoNamespaceSchemaLocation,
             Eecas.TAG_NAME, Eecas.VALUE_NoNamespaceSchemaLocation,
             Secas.TAG_NAME, Secas.VALUE_NoNamespaceSchemaLocation,
             Emecas.TAG_NAME, Emecas.VALUE_NoNamespaceSchemaLocation,

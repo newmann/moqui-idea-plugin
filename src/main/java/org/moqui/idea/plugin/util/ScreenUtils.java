@@ -11,12 +11,15 @@ import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
+import com.intellij.remoteDev.tests.modelGenerated.DistributedTestModel_GeneratedKt;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
+import kotlinx.html.P;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.reference.MoquiBaseReference;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -36,7 +39,7 @@ public final class ScreenUtils{
 
     public static boolean isScreenFile(@Nullable PsiFile file){
         if(file == null) return false;
-        return MyDomUtils.isSpecialXmlFile(file, Screen.TAG_NAME,Screen.ATTR_NoNamespaceSchemaLocation,Screen.VALULE_NoNamespaceSchemaLocation);
+        return MyDomUtils.isSpecialXmlFile(file, Screen.TAG_NAME,Screen.ATTR_NoNamespaceSchemaLocation,Screen.VALUE_NoNamespaceSchemaLocation);
     }
     public static Icon getNavigatorToScreenIcon() {
         return MyIcons.NavigateToScreen; //MyIcons.NAVIGATE_TO_SCREEN;
@@ -59,14 +62,50 @@ public final class ScreenUtils{
             return false;
         }
     }
+
     /**
-     * 根据当前位置找到所在screen的所有可用的Transition
+     * 根据locationStr获取AbstractTransition列表
+     * @param project 当前Project
+     * @param locationStr location字符串，格式为component://xxx/xxx.xml
+     * @return List<AbstractTransition>
+     */
+    public static List<AbstractTransition> getAbstractTransitionListFromLocation(@NotNull Project project, @NotNull String locationStr) {
+        return getAbstractTransitionListFromLocation(Location.of(project,locationStr));
+    }
+    /**
+     * 根据location获取AbstractTransition列表
+     * @param location 类型为ComponentFile或ComponentFileContent的Location
+     * @return List<AbstractTransition>
+     */
+    public static List<AbstractTransition> getAbstractTransitionListFromLocation(@NotNull Location location) {
+        List<AbstractTransition> result = new ArrayList<>();
+        if(location.getType() != LocationType.ComponentFile && location.getType() != LocationType.ComponentFileContent) return result;
+        String componentPath = location.getHeadContent()+ location.getPathPart();
+        DomFileElement<Screen> screenDomFile = ScreenUtils.getScreenFileByLocation(location.getProject(),
+                componentPath).orElse(null);
+        if (screenDomFile == null) return result;
+        result = ScreenUtils.getAbstractTransitionListFromScreen(screenDomFile.getRootElement());
+        List<PsiFile> psiFiles = ScreenExtendUtils.getScreenExtendPsiFileByLocation(location.getProject(), componentPath);
+        for(PsiFile psiFile : psiFiles) {
+            DomFileElement<ScreenExtend> extendScreenDomFile = MyDomUtils.convertPsiFileToDomFile(psiFile, ScreenExtend.class);
+            if(extendScreenDomFile != null) {
+                result.addAll(extendScreenDomFile.getRootElement().getTransitionList());
+                result.addAll(extendScreenDomFile.getRootElement().getTransitionIncludeList());
+            }
+        }
+        return result;
+    }
+    /**
+     * 根据当前位置ConvertContext找到所在screen的所有可用的Transition
      */
     public static List<AbstractTransition> getAbstractTransitionListFromConvertContext(ConvertContext context) {
 
         Screen screen = getCurrentScreen(context).orElse(null);
         return getAbstractTransitionListFromScreen(screen);
     }
+    /**
+     * 根据当前的screen的所有可用的AbstractTransition
+     */
     public static List<AbstractTransition> getAbstractTransitionListFromScreen(@Nullable Screen screen) {
 
         List<AbstractTransition> result = new ArrayList<>();
@@ -172,23 +211,7 @@ public final class ScreenUtils{
         return resultList;
     }
 
-    public static List<PsiElement> getRelatedTransitionInclude(@NotNull PsiElement psiElement,
-                                                               @NotNull String name,
-                                                               @NotNull String location) {
-        List<PsiElement> resultList = new ArrayList<>();
-        final Project project = psiElement.getProject();
 
-        Optional<DomFileElement<Screen>> optionalScreenDomFileElement = getScreenFileByLocation(project,location);
-
-        if(optionalScreenDomFileElement.isPresent()) {
-            Optional<Transition> optionalTransition = getTransitionFromDomFileElementByName(optionalScreenDomFileElement.get(),name);
-            optionalTransition.ifPresent(transition -> resultList.add(transition.getXmlElement()));
-
-        }
-
-
-        return resultList;
-    }
 
     /**
      * 根據location，找到对应的DomFileElement
@@ -458,6 +481,12 @@ public final class ScreenUtils{
             }
 
         }
+        if(! MyDomUtils.containsMoquiBaseReference(xmlAttributeName.getReferences())) {
+            holder.newAnnotation(HighlightSeverity.ERROR, "Transition name is not found")
+                    .range(xmlAttributeName.getTextRange())
+                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                    .create();
+        }
         final String location;
         XmlAttributeValue xmlAttributeLocation = transitionInclude.getLocation().getXmlAttributeValue();
         if(xmlAttributeLocation == null) {
@@ -472,33 +501,40 @@ public final class ScreenUtils{
                         .range(xmlAttributeLocation.getTextRange())
                         .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         .create();
-            }else {
-                final Optional<DomFileElement<Screen>> optionalScreenDomFileElement = getScreenFileByLocation(project,location);
-                if(optionalScreenDomFileElement.isEmpty()) {
-                    holder.newAnnotation(HighlightSeverity.ERROR, "Transition location is not found")
-                            .range(xmlAttributeLocation.getTextRange())
-                            .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-                            .create();
-//                    TextRange.from(1,transitionInclude.getLocation().getXmlAttributeValue().getValueTextRange().getLength()));
+        }
+        if(!MyDomUtils.containsMoquiBaseReference(xmlAttributeLocation.getReferences())) {
+                holder.newAnnotation(HighlightSeverity.ERROR, "Transition location is not found")
+                    .range(xmlAttributeLocation.getTextRange())
+                    .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                    .create();
 
-                }else if(!MyStringUtils.isEmpty(name)) {
-                    final Optional<Transition> optionalTransition = getTransitionFromDomFileElementByName(optionalScreenDomFileElement.get(),name);
+        }
+//            }else {
 
-                    if(optionalTransition.isEmpty()) {
-                        holder.newAnnotation(HighlightSeverity.ERROR, "Transition name is not found")
-                                .range(xmlAttributeName.getTextRange())
-                                .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-                                .create();
-
-//                        TextRange.from(1,transitionInclude.getName().getXmlAttributeValue().getValueTextRange().getLength()));
-
-                    }
-
-                }
+//                final Optional<DomFileElement<Screen>> optionalScreenDomFileElement = getScreenFileByLocation(project,location);
+//                if(optionalScreenDomFileElement.isEmpty()) {
+//                    holder.newAnnotation(HighlightSeverity.ERROR, "Transition location is not found")
+//                            .range(xmlAttributeLocation.getTextRange())
+//                            .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+//                            .create();
+//
+//                }else if(!MyStringUtils.isEmpty(name)) {
+//                    final Optional<Transition> optionalTransition = getTransitionFromDomFileElementByName(optionalScreenDomFileElement.get(),name);
+//
+//                    if(optionalTransition.isEmpty()) {
+//                        holder.newAnnotation(HighlightSeverity.ERROR, "Transition name is not found")
+//                                .range(xmlAttributeName.getTextRange())
+//                                .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+//                                .create();
+//
+//
+//                    }
+//
+//                }
 
             }
 
-        }
+//        }
 
 
 

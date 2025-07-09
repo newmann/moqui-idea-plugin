@@ -92,6 +92,13 @@ public final class ComponentUtils {
         Location location = Location.of(project, locationStr);
         return getPsiFileByLocation(location);
     }
+
+    /**
+     * 根据Location获取对应的PsiFile
+     * Location的type必须是ComponentFile或ComponentFileContent
+     * @param location Location对象
+     * @return Optional<PsiFile>
+     */
     public static Optional<PsiFile> getPsiFileByLocation(@NotNull Location location){
         if(location.getType() != LocationType.ComponentFile && location.getType() != LocationType.ComponentFileContent) {
             //如果不是component file，则直接返回空

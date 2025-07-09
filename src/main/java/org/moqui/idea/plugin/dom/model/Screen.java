@@ -10,10 +10,9 @@ import java.util.List;
 //@Stubbed
 public interface Screen extends ScreenBase,SectionElements,AbstractLocation {
 
-    public static final String TAG_NAME = "screen";
+    String TAG_NAME = "screen";
 
-    public static final String ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
-    public static final String VALULE_NoNamespaceSchemaLocation = "http://moqui.org/xsd/xml-screen-3.xsd";
+
 
 
     public static final String ATTR_DEFAULT_SUBSCREEN = "default-subscreen";

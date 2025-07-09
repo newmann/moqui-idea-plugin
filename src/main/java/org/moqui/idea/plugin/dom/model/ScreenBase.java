@@ -2,44 +2,44 @@ package org.moqui.idea.plugin.dom.model;
 
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
-import org.moqui.idea.plugin.dom.converter.LocationConverter;
 import org.moqui.idea.plugin.dom.converter.LocationReferenceConverter;
 
 public interface ScreenBase extends DomElement {
 
+    String ATTR_NoNamespaceSchemaLocation = "xsi:noNamespaceSchemaLocation";
+    String VALUE_NoNamespaceSchemaLocation = "http://moqui.org/xsd/xml-screen-3.xsd";
+    String ATTR_STANDALONE = "standalone";
     
-    public static final String ATTR_STANDALONE = "standalone";
+    String ATTR_DEFAULT_MENU_TITLE = "default-menu-title";
     
-    public static final String ATTR_DEFAULT_MENU_TITLE = "default-menu-title";
+    String ATTR_DEFAULT_MENU_INDEX = "default-menu-index";
     
-    public static final String ATTR_DEFAULT_MENU_INDEX = "default-menu-index";
+    String ATTR_DEFAULT_MENU_INCLUDE = "default-menu-include";
     
-    public static final String ATTR_DEFAULT_MENU_INCLUDE = "default-menu-include";
+    String ATTR_MENU_IMAGE = "menu-image";
     
-    public static final String ATTR_MENU_IMAGE = "menu-image";
-    
-    public static final String ATTR_MENU_IMAGE_TYPE = "menu-image-type";
+    String ATTR_MENU_IMAGE_TYPE = "menu-image-type";
 
     
-    public static final String ATTR_REQUIRE_AUTHENTICATION = "require-authentication";
+    String ATTR_REQUIRE_AUTHENTICATION = "require-authentication";
     
-    public static final String ATTR_BEGIN_TRANSACTION = "begin-transaction";
+    String ATTR_BEGIN_TRANSACTION = "begin-transaction";
     
-    public static final String ATTR_TRANSACTION_TIMEOUT = "transaction-timeout";
+    String ATTR_TRANSACTION_TIMEOUT = "transaction-timeout";
     
-    public static final String ATTR_INCLUDE_CHILD_CONTENT = "include-child-content";
+    String ATTR_INCLUDE_CHILD_CONTENT = "include-child-content";
     
-    public static final String ATTR_SCREEN_THEME_TYPE_ENUM_ID = "screen-theme-type-enum-id";
+    String ATTR_SCREEN_THEME_TYPE_ENUM_ID = "screen-theme-type-enum-id";
     
-    public static final String ATTR_HISTORY = "history";
+    String ATTR_HISTORY = "history";
     
-    public static final String ATTR_LOGIN_PATH = "login-path";
+    String ATTR_LOGIN_PATH = "login-path";
     
-    public static final String ATTR_ALLOW_EXTRA_PATH = "allow-extra-path";
+    String ATTR_ALLOW_EXTRA_PATH = "allow-extra-path";
     
-    public static final String ATTR_RENDER_MODES = "render-modes";
+    String ATTR_RENDER_MODES = "render-modes";
     
-    public static final String ATTR_SERVER_STATIC = "server-static";
+    String ATTR_SERVER_STATIC = "server-static";
     @NotNull
     @Attribute(ATTR_STANDALONE)
     GenericAttributeValue<String> getStandalone();
