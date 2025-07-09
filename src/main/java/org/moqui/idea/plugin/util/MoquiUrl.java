@@ -318,27 +318,31 @@ public class MoquiUrl {
     }
     public static MoquiUrl ofPsiDirectory(@NotNull PsiDirectory psiDirectory, boolean fetchAllChildUrls) {
 
-        MoquiUrl result = new MoquiUrl();
-//            //查找对应的文件
+//查找对应的Screen文件，如果存在，则按照Screen文件的定义来创建MoquiUrl
+        String fileName = psiDirectory.getVirtualFile().getPath() + ".xml";
+        PsiFile psiFile = LocationUtils.getPsiFileByPathName(psiDirectory.getProject(), fileName).orElse(null);
+        if(psiFile == null) {
+            MoquiUrl result = new MoquiUrl();
 
-        result.setProject(psiDirectory.getProject());
-        result.setFetchAllChildUrls(fetchAllChildUrls);
+            result.setProject(psiDirectory.getProject());
+            result.setFetchAllChildUrls(fetchAllChildUrls);
 
-        result.setName(psiDirectory.getName());
-        result.setTitle(psiDirectory.getName());
-        result.setIcon(AllIcons.Nodes.Folder);
+            result.setName(psiDirectory.getName());
+            result.setTitle(psiDirectory.getName());
+            result.setIcon(AllIcons.Nodes.Folder);
 
-        result.setSubScreensItem(null);
-        result.setScreen(null);
-        result.setContainingMoquiFile(null);
+            result.setSubScreensItem(null);
+            result.setScreen(null);
+            result.setContainingMoquiFile(null);
 
-        result.setContainingDirectory(psiDirectory);
-
-        //获取子菜单
-        if(fetchAllChildUrls)
-            result.fetchChildUrls();
-        return result;
-
+            result.setContainingDirectory(psiDirectory);
+            //获取子菜单
+            if(fetchAllChildUrls)
+                result.fetchChildUrls();
+            return result;
+        }else {
+            return ofPsiFile(psiFile,fetchAllChildUrls);
+        }
     }
 
     /**
