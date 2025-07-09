@@ -104,9 +104,13 @@ public class ComponentStyleLocationCompletionProvider extends CompletionProvider
 
         Map<String, Component> componentMap = ComponentUtils.findAllComponent(psiElement.getProject());
 
+        String typePath = "";
+        if(SUB_SCREENS_ITEM_PATTERN.accepts(psiElement)) typePath = "/screen";
+
+        final String finalTypePath = typePath;
         componentMap.forEach((key, value) -> {
             lookupElementBuilders.add(
-                    LookupElementBuilder.create(MyStringUtils.COMPONENT_LOCATION_PREFIX + key)
+                    LookupElementBuilder.create(MyStringUtils.COMPONENT_LOCATION_PREFIX + key + finalTypePath)
                             .withCaseSensitivity(true)
                             .withInsertHandler(AutoShowByCharInsertHandler.ofPathSeparator())
                             .withIcon(MyIcons.ComponentTag)
