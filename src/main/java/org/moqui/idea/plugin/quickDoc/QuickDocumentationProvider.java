@@ -49,7 +49,7 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
         if(originalElement != null) {
             XmlTag curTag = MyDomUtils.getParentTag(originalElement).orElse(null);
             if ((curTag != null) && EntityFacadeXmlUtils.isEntityFacadeDefineTag(curTag)) {
-                return generateEntityDoc(curTag);
+                return generateEntityFacadeDoc(element,curTag);
             }
         }
 
@@ -79,24 +79,54 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
             default -> null;
         };
     }
+    public static String generateEntityFacadeDoc(PsiElement element, @NotNull XmlTag originalTag){
+        EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(originalTag);
+        if(descriptor.getTagType() == null) return "Nothing to show.";
+        switch (descriptor.getTagType()){
+            case Entity -> {
+                if(descriptor.entityIsValid()) {
+                    Entity entity = EntityUtils.getEntityByName(element.getProject(),descriptor.getEntityName()).orElse(null);
+                    if(entity != null ) return generateEntityDoc(entity);
+                }
+            }
+            case Service -> {
+                if(descriptor.serviceIsValid()) {
+                    final String tagName = MyDomUtils.getCurrentTagName(element).orElse(MyStringUtils.EMPTY_STRING);
+                    switch (tagName) {
+                        case Service.TAG_NAME -> {
+                            return generateServiceDoc(element);
+                        }
+                        case ServiceInclude.TAG_NAME -> {
+                            return generateServiceIncludeDoc(element);
+                        }
+                    }
+                    ;
+                }
+//                if(descriptor.serviceIsValid()) {
+//                    Service service = ServiceUtils.getServiceByFullName(element.getProject(), descriptor.getServiceCallName()).orElse(null);
+//                    if(service != null) {
+//                        return generateServiceDoc(service);
+//                    }
+//                }
+            }
+        }
+        return "Not found target Doc.";
+    }
     public static String generateEntityDoc(PsiElement element) {
         Entity entity;
-        if(element instanceof XmlTag xmlTag) {
-
-            entity  = EntityFacadeXmlUtils.getFacadeEntityFromXmlTag(xmlTag)
-                    .flatMap(descriptor->EntityUtils.getEntityByName(element.getProject(),descriptor.getEntityName()))
-                    .orElse(null);
-//            entity = EntityUtils.getEntityByName(element.getProject(),entityName).orElse(null);
-
-//            entity = EntityUtils.getEntityByName(element.getProject(),
-//                    MyDomUtils.getEntityNameInEntityFacadeXml(element).orElse(MyStringUtils.EMPTY_STRING)).orElse(null);
-        }else {
+//        if(element instanceof XmlTag xmlTag) {
+//            entity  = EntityFacadeXmlUtils.getFacadeEntityFromXmlTag(xmlTag)
+//                    .flatMap(descriptor->EntityUtils.getEntityByName(element.getProject(),descriptor.getEntityName()))
+//                    .orElse(null);
+//        }else {
             entity = MyDomUtils.getLocalDomElementByPsiElement(element, Entity.class).orElse(null);
-        }
-
+//        }
+        return generateEntityDoc(entity);
+    }
+    private static String generateEntityDoc(@Nullable  Entity entity){
         if (entity == null){return "Not found target Entity.";}
 
-        List<ExtendEntity> extendEntityCollection = EntityUtils.getExtendEntityListByName(element.getProject(),
+        List<ExtendEntity> extendEntityCollection = EntityUtils.getExtendEntityListByName(entity.getManager().getProject(),
                 MyDomUtils.getValueOrEmptyString(entity.getEntityName()));
 
         HtmlBuilder docBuilder = new HtmlBuilder()
@@ -108,6 +138,7 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
             docBuilder.append(formatExtendEntityList(extendEntityCollection));
         }
         return docBuilder.toString();
+
     }
     public static String generateViewEntityDoc(PsiElement element) {
         ViewEntity view = MyDomUtils.getLocalDomElementByPsiElement(element,ViewEntity.class).orElse(null);
@@ -135,52 +166,47 @@ public class QuickDocumentationProvider extends AbstractDocumentationProvider {
 
     public static String generateServiceDoc(PsiElement element) {
         Service service = MyDomUtils.getLocalDomElementByPsiElement(element,Service.class).orElse(null);
+        return generateServiceDoc(service);
+//        if (service == null){return "Not found target Service.";}
+//
+//        HtmlBuilder docBuilder = new HtmlBuilder()
+//                .append(formatServiceDefinition(service));
+//
+//        //通过IndexService来获取parameters
+//        IndexService indexService = ServiceUtils.getIndexServiceOrInterface(element.getProject(),ServiceUtils.getFullNameFromService(service))
+//                .orElse(null);
+//        docBuilder.append(formatIndexServiceInOutParameter(indexService));
+//        return docBuilder.toString();
+    }
+    public static String generateServiceDoc(@Nullable Service service){
         if (service == null){return "Not found target Service.";}
 
         HtmlBuilder docBuilder = new HtmlBuilder()
                 .append(formatServiceDefinition(service));
 
         //通过IndexService来获取parameters
-        IndexService indexService = ServiceUtils.getIndexServiceOrInterface(element.getProject(),ServiceUtils.getFullNameFromService(service))
+        IndexService indexService = ServiceUtils.getIndexServiceOrInterface(service.getManager().getProject(),ServiceUtils.getFullNameFromService(service))
                 .orElse(null);
         docBuilder.append(formatIndexServiceInOutParameter(indexService));
-//        if(indexService == null) {
-//            docBuilder.append(HtmlChunk.text("Can't find IndexService"));
-//        }else {
-//            docBuilder.br().append(HtmlChunk.text("In Parameter:"));
-//            if(indexService.getInParametersAbstractFieldList().isEmpty()) {
-//                docBuilder.br().append(HtmlChunk.text("Not define in parameters"));
-//            }else {
-//                docBuilder.append(formatIndexServiceParameterList(indexService.getInParametersAbstractFieldList()));
-//            }
-//            docBuilder.br().append(HtmlChunk.text("Out Parameter:"));
-//            if(indexService.getOutParametersAbstractFieldList().isEmpty()) {
-//                docBuilder.br().append(HtmlChunk.text("Not define out parameters"));
-//            }else {
-//                docBuilder.append(formatIndexServiceParameterList(indexService.getOutParametersAbstractFieldList()));
-//            }
-//
-//
-////            docBuilder.append(formatTagValue(service.getInParameters().getXmlTag(), "In Parameters:", "Not define in parameters"));
-////            docBuilder.append(formatTagValue(service.getOutParameters().getXmlTag(), "Out Parameters:", "Not define out parameters"));
-//        }
-
         return docBuilder.toString();
     }
     public static String generateServiceIncludeDoc(PsiElement element) {
         ServiceInclude serviceInclude = MyDomUtils.getLocalDomElementByPsiElement(element,ServiceInclude.class).orElse(null);
+        return generateServiceIncludeDoc(serviceInclude);
+    }
+    public static String generateServiceIncludeDoc(@Nullable ServiceInclude serviceInclude){
         if (serviceInclude == null){return "Not found target Service Include.";}
 
         HtmlBuilder docBuilder = new HtmlBuilder()
                 .append(formatServiceIncludeDefinition(serviceInclude));
 
         //通过IndexService来获取parameters
-        IndexService indexService = ServiceUtils.getIndexService(element.getProject(),ServiceUtils.getFullNameFromServiceInclude(serviceInclude))
+        IndexService indexService = ServiceUtils.getIndexService(serviceInclude.getManager().getProject(),ServiceUtils.getFullNameFromServiceInclude(serviceInclude))
                 .orElse(null);
         docBuilder.append(formatIndexServiceInOutParameter(indexService));
         return docBuilder.toString();
-    }
 
+    }
     public static String generateSectionDoc(PsiElement element) {
         Section section = MyDomUtils.getLocalDomElementByPsiElement(element,Section.class).orElse(null);
         if (section == null){return "Not found target Section.";}

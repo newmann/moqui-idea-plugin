@@ -299,61 +299,6 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
         return classNameSet;
     }
 
-    /**
-     * 根据类名返回这个类所有的完整服务名
-     * @param project 当前Project
-     * @param className 类名
-     * @return Set<String>
-     */
-    public static @NotNull Set<String> getServiceFullNameAction(@NotNull Project project, @NotNull  String className) {
-
-        return getServiceAction(project,className).stream()
-                .map(item-> className+ MyStringUtils.SERVICE_NAME_DOT+ item)
-                .collect(Collectors.toSet());
-
-    }
-
-    /**
-     * 根据className获取这个className下所有service和serviceInclude的verb#noun列表
-     */
-    public static @NotNull Set<String> getServiceAction(@NotNull Project project, @NotNull  String className) {
-
-        List<DomFileElement<Services>> fileElementList = MyDomUtils.findDomFileElementsByRootClass(project,Services.class);
-
-        Set<String> serviceNameSet = new HashSet<>();
-        fileElementList.forEach(item ->{
-            Optional<String> optClassName =extractClassNameFromPath(item.getFile().getVirtualFile().getPath());
-            if(optClassName.isPresent()) {
-                if(className.equals(optClassName.get())){
-                    for(Service service: item.getRootElement().getServiceList()) {
-                        if(isService(service)) {
-                            serviceNameSet.add(
-                                    MyDomUtils.getValueOrEmptyString(service.getNoun()).isEmpty() ?
-                                            MyDomUtils.getValueOrEmptyString(service.getVerb())
-                                        :
-                                            MyDomUtils.getValueOrEmptyString(service.getVerb())
-                                                + MyStringUtils.SERVICE_NAME_HASH
-                                            + MyDomUtils.getValueOrEmptyString(service.getNoun())
-                            );
-                        }
-                    }
-                    for(ServiceInclude serviceInclude: item.getRootElement().getServiceIncludeList()) {
-                        serviceNameSet.add(
-                                MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun()).isEmpty() ?
-                                        MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
-                                        :
-                                        MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb())
-                                                + MyStringUtils.SERVICE_NAME_HASH
-                                                + MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun())
-                        );
-                    }
-
-                }
-            }
-        });
-
-        return serviceNameSet;
-    }
     public static @NotNull List<String> getServiceActionList(@NotNull Services services) {
         List<String> serviceNameSet = new ArrayList<>();
 
@@ -947,8 +892,55 @@ public static Optional<Service> getServiceOrInterfaceByFullName(@NotNull Project
      * @return Optional<IndexService>
      */
     public static @NotNull Optional<IndexService> getIndexService(@NotNull Project project, @NotNull String serviceName){
+
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);
         return moquiIndexService.getIndexServiceByFullName(serviceName);
+    }
+
+    /**
+     * 规范化ServiceName，因为ServiceName中有可能不含#，这是需要通过查找对应的service定义来进行匹配
+     * 规范化后的ServiceName都是含有#的形式，即verb#noun
+     * @param project 当前Project
+     * @param serviceName 待处理的ServiceName
+     * @return 规范化后的ServiceName
+     */
+    public static Optional<String> normalizeServiceName(@NotNull Project project, @NotNull String serviceName) {
+        ServiceCallDescriptor serviceCallDescriptor = ServiceCallDescriptor.of(serviceName);
+        if(serviceCallDescriptor.hasNoun()) {
+            return Optional.of(serviceCallDescriptor.getServiceCallString());
+        }else {
+            if(serviceCallDescriptor.getVerb().isEmpty()) return Optional.empty();
+
+            Map<String,Services> servicesMap = getServiceClassNameMap(project,serviceCallDescriptor.getClassName());
+            if(!servicesMap.isEmpty()) {
+                Services services = servicesMap.get(serviceCallDescriptor.getClassName());
+                if(services == null) return Optional.empty();
+
+                for(Service service: services.getServiceList()) {
+                    if(isService(service)) {
+                        String verb = MyDomUtils.getValueOrEmptyString(service.getVerb());
+                        String noun = MyDomUtils.getValueOrEmptyString(service.getNoun());
+                        if((verb+noun).equals(serviceCallDescriptor.getVerb())) {
+                            serviceCallDescriptor.setVerb(verb);
+                            serviceCallDescriptor.setNoun(noun);
+                            return Optional.of(serviceCallDescriptor.getServiceCallString());
+                        }
+                    }
+                }
+                for(ServiceInclude serviceInclude: services.getServiceIncludeList()) {
+                    String verb = MyDomUtils.getValueOrEmptyString(serviceInclude.getVerb());
+                    String noun = MyDomUtils.getValueOrEmptyString(serviceInclude.getNoun());
+                    if((verb+noun).equals(serviceCallDescriptor.getVerb())) {
+                        serviceCallDescriptor.setVerb(verb);
+                        serviceCallDescriptor.setNoun(noun);
+                        return Optional.of(serviceCallDescriptor.getServiceCallString());
+                    }
+                }
+
+            }
+            return Optional.empty();
+
+        }
     }
     public static @NotNull Optional<IndexService> getIndexServiceOrInterface(@NotNull Project project, @NotNull String serviceName){
         MoquiIndexService moquiIndexService = project.getService(MoquiIndexService.class);

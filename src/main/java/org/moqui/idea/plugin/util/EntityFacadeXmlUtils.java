@@ -160,7 +160,7 @@ public final class EntityFacadeXmlUtils {
         Object object =  xmlTag.getUserData(MyStringUtils.MOQUI_FACADE_ENTITY_KEY);
 
         if(object instanceof EntityFacadeXmlTagDescriptor refData ) {
-            if(refData.getIsValid()) return Optional.of(refData);
+            if(refData.entityIsValid()) return Optional.of(refData);
         }
 
         return Optional.empty();

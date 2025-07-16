@@ -5,11 +5,12 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.xml.TagNameReference;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.service.IndexEntity;
-import org.moqui.idea.plugin.util.EntityFacadeXmlTagDescriptor;
-import org.moqui.idea.plugin.util.EntityUtils;
+import org.moqui.idea.plugin.service.IndexService;
+import org.moqui.idea.plugin.util.*;
 
 public class EntityFacadeXmlTagNameReference extends TagNameReference {
 //    private final String myTagName;
@@ -34,26 +35,49 @@ public class EntityFacadeXmlTagNameReference extends TagNameReference {
 //        if(MyStringUtils.isEmpty(myEntityName)) return super.resolve();
 
         EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(myASTNode.getPsi());
-        if(descriptor.getIsValid()) {
-            IndexEntity indexEntity = EntityUtils.getIndexEntityByName(myASTNode.getPsi().getProject(), descriptor.getEntityName()).orElse(null);
-            if (indexEntity != null) {
-                if (descriptor.getIsRelationship()) {
-                    return descriptor.getRelationship().getShortAlias().getXmlAttributeValue();
-                } else {
-                    if(descriptor.getIsField()) {
-                        return descriptor.getField().getXmlTag();
-                    }else {
-                        if (descriptor.getIsShortAlias()) {
-                            return indexEntity.getEntity().getShortAlias().getXmlAttributeValue();
+        switch (descriptor.getTagType()) {
+            case Entity -> {
+                if(descriptor.entityIsValid()) {
+                    IndexEntity indexEntity = EntityUtils.getIndexEntityByName(myASTNode.getPsi().getProject(), descriptor.getEntityName()).orElse(null);
+                    if (indexEntity != null) {
+                        if (descriptor.getIsRelationship()) {
+                            return descriptor.getRelationship().getShortAlias().getXmlAttributeValue();
                         } else {
-                            return indexEntity.getEntity().getEntityName().getXmlAttributeValue();
+                            if(descriptor.getIsField()) {
+                                return descriptor.getField().getXmlTag();
+                            }else {
+                                if (descriptor.getIsShortAlias()) {
+                                    return indexEntity.getEntity().getShortAlias().getXmlAttributeValue();
+                                } else {
+                                    return indexEntity.getEntity().getEntityName().getXmlAttributeValue();
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+            case Service -> {
+                if(descriptor.serviceIsValid()) {
+                    IndexService indexService = ServiceUtils.getIndexService(myASTNode.getPsi().getProject(), descriptor.getServiceCallName()).orElse(null);
+                    if(indexService != null) {
+                        if(indexService.isServiceInclude()) {
+                            return indexService.getServiceInclude().getVerb().getXmlAttributeValue();
+                        }else {
+                            return indexService.getService().getVerb().getXmlAttributeValue();
                         }
                     }
                 }
             }
+        }
+
+        XmlTag xmlTag = MyDomUtils.getParentTag(myASTNode.getPsi()).orElse(null);
+        if( (xmlTag== null) || EntityFacadeXmlUtils.isEntityFacadeRootTag(xmlTag)) {
+            return super.resolve();
+        }else {
             return null;//报错
         }
-        return super.resolve();
+//        return super.resolve();
     }
     @Override
     protected int getPrefixIndex(@NotNull String name) {

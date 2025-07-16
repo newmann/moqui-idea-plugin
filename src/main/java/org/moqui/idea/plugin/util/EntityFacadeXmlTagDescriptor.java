@@ -1,12 +1,15 @@
 package org.moqui.idea.plugin.util;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.Field;
 import org.moqui.idea.plugin.dom.model.Relationship;
+import org.moqui.idea.plugin.dom.model.Service;
 import org.moqui.idea.plugin.service.IndexEntity;
+import org.moqui.idea.plugin.service.IndexService;
 import org.moqui.idea.plugin.service.MoquiIndexService;
 
 import java.util.ArrayList;
@@ -20,32 +23,49 @@ import java.util.List;
  *  如果第一个字母是小写，有可能是第一级Tag的relationship的shortAlias，有可能是Entity的字段，如果都不是，就直接找Entity，是Entity的shortAlias
  * 3、不会跨级查找，即下一级Tag名要么是上一级Tag的relationship的shortAlias，要么直接就是EntityName或Entity的shortAlias
  * 4、delete-开头的，是指删除对应entity的数据
+ * 5.有可能是ServiceCall，属性为service 的 in parameter
  */
 public class EntityFacadeXmlTagDescriptor {
     public static EntityFacadeXmlTagDescriptor of(@NotNull PsiElement psiElement){
         XmlTag curTag = MyDomUtils.getParentTag(psiElement).orElse(null);
 
-        if(curTag == null) {
-            return new EntityFacadeXmlTagDescriptor(psiElement);
+        if(curTag == null || EntityFacadeXmlUtils.isEntityFacadeRootTag(curTag)) {
+            return new EntityFacadeXmlTagDescriptor();
         }
 
         EntityFacadeXmlTagDescriptor saved = EntityFacadeXmlUtils.getFacadeEntityFromXmlTag(curTag).orElse(null);
-        if(saved != null && saved.getIsValid()) return saved;
+        if(saved != null && saved.entityIsValid() && saved.getEntityName().equals(curTag.getName())) return saved;
 
         return new EntityFacadeXmlTagDescriptor(psiElement);
+    }
+    private final static Logger LOGGER = Logger.getInstance(EntityFacadeXmlTagDescriptor.class);
+    private EntityFacadeXmlTagDescriptor() {
+        myCurTag = null;
+        myProject = null;
+        myIsValid = false;
+        myRelationship = null;
+        myField = null;
+        myEntityName = MyStringUtils.EMPTY_STRING;
     }
 
     private EntityFacadeXmlTagDescriptor(@NotNull PsiElement psiElement){
 
         myCurTag = MyDomUtils.getParentTag(psiElement).orElse(null);
 
-        if(myCurTag == null) {
-            myIsValid = false;
+        if(myCurTag == null || EntityFacadeXmlUtils.isEntityFacadeRootTag(myCurTag)) {
             myProject = null;
-            return;
+            myIsValid = false;
+            myRelationship = null;
+            myField = null;
+            myEntityName = MyStringUtils.EMPTY_STRING;
+            return ;
         }
+
+        //将当前curTag的EntityFacadeXmlTagDescriptor删除
+        EntityFacadeXmlUtils.putFacadeEntityToXmlTag(myCurTag,null);
+
         this.myProject = psiElement.getProject();
-        this.myEntityXmlFileLastUpdatedStamp = myProject.getService(MoquiIndexService.class).getEntityFacadeXmlFileLastUpdatedStamp();
+        this.myEntityXmlFileLastUpdatedStamp = myProject.getService(MoquiIndexService.class).getEntityXmlFileLastUpdatedStamp();
 
         //将所有无效parentTag重新扫描
         List<XmlTag> updateXmlTag = new ArrayList<>();
@@ -54,12 +74,12 @@ public class EntityFacadeXmlTagDescriptor {
         while(true) {
             if (parentTag == null) {
                 myIsValid = false;
-                return;
+                break;
             }
             if(EntityFacadeXmlUtils.isEntityFacadeRootTag(parentTag)) break;
 
             savedDescriptor = EntityFacadeXmlUtils.getFacadeEntityFromXmlTag(parentTag).orElse(null);
-            if(savedDescriptor != null && savedDescriptor.getIsValid()) break;
+            if(savedDescriptor != null && savedDescriptor.entityIsValid()) break;
 
             updateXmlTag.add(parentTag);
             parentTag = MyDomUtils.getTagParentTag(parentTag).orElse(null);
@@ -68,7 +88,7 @@ public class EntityFacadeXmlTagDescriptor {
         for(int i= updateXmlTag.size()-1; i>=0; i--) {
             XmlTag curTag = updateXmlTag.get(i);
             savedDescriptor = of(curTag);
-            if(savedDescriptor.getIsValid()) {
+            if(savedDescriptor.entityIsValid()) {
                 EntityFacadeXmlUtils.putFacadeEntityToXmlTag(curTag,savedDescriptor);
             }else{
                 myIsValid = false;
@@ -82,6 +102,11 @@ public class EntityFacadeXmlTagDescriptor {
 
         myEntityName = curTagName;
 
+        if(MyStringUtils.isEmpty(myEntityName) ) {
+            myIsValid = false;
+            return;
+        }
+
 
         if (maybeShortAlias(myEntityName)) {
             //进一步判断是否为ParentTag的relationship或字段
@@ -93,35 +118,83 @@ public class EntityFacadeXmlTagDescriptor {
                 myRelationship = indexEntity.getRelationshipByName(curTagName).orElse(null);
                 if (myRelationship == null) {
                     myField = indexEntity.getFieldByName(curTagName).orElse(null);
-                    myEntityName = savedDescriptor.getEntityName();
+                    if(myField != null) {
+                        //如果是Field，则myEntityName就是当前的Field的EntityName
+                        myEntityName = savedDescriptor.getEntityName();
+                    }
                 }else{
                     myIsRelationship = true;
                     myEntityName = MyDomUtils.getValueOrEmptyString(myRelationship.getRelated());
                 }
             }
         }
+
+        //判断当前的myEntityName是否是一个有效的EntityName
+        IndexEntity indexEntity = EntityUtils.getIndexEntityByName(psiElement.getProject(), myEntityName).orElse(null);
+
+        myTagType = EntityFacadeXmlTagType.Entity;
+        if(indexEntity == null) {
+            myIsValid = false;
+            //判断当前是否为ServiceCall
+            final String serviceName = ServiceUtils.normalizeServiceName(psiElement.getProject(),myCurTag.getName()).orElse(null);
+            if(serviceName != null) {
+                IndexService indexService = ServiceUtils.getIndexService(psiElement.getProject(), serviceName).orElse(null);
+                if (indexService != null) {
+                    LOGGER.warn("EntityFacadeXmlTagDescriptor: Entity not found for tag {" + myCurTag.getName() + "}, but found service");
+                    myIsValid = true;
+                    myTagType = EntityFacadeXmlTagType.Service;
+                    myServiceCallName = serviceName;
+                    this.myServiceXmlFileLastUpdatedStamp = myProject.getService(MoquiIndexService.class).getServiceXmlFileLastUpdatedStamp();
+                }
+            }
+
+            if(!myIsValid) return;
+        }
+
         //将当前实例写入xmlTag
         EntityFacadeXmlUtils.putFacadeEntityToXmlTag(myCurTag,this);
+
     }
+    private EntityFacadeXmlTagType myTagType = EntityFacadeXmlTagType.Entity;
     private final XmlTag myCurTag;
     private final Project myProject;
     private Relationship myRelationship;
     private boolean myIsValid = true;
     private boolean myIsRelationship = false;
     private String myEntityName = MyStringUtils.EMPTY_STRING;
-    private long myEntityXmlFileLastUpdatedStamp;
+    private long myEntityXmlFileLastUpdatedStamp = 0L;
+    private long myServiceXmlFileLastUpdatedStamp = 0L;
     private Field myField = null;
+
+
+    private String myServiceCallName = MyStringUtils.EMPTY_STRING;
+
+
+
+    public EntityFacadeXmlTagType getTagType() {
+        return myTagType;
+    }
+
+    public String getServiceCallName() {
+        return myServiceCallName;
+    }
 
     public String getEntityName() {
         return myEntityName;
     }
 
-    public boolean getIsValid() {
+    public boolean entityIsValid() {
         return myIsValid && entityXmlFileIsNotUpdated();
     }
 
     public boolean entityXmlFileIsNotUpdated(){
-        return myProject != null && myProject.getService(MoquiIndexService.class).getEntityFacadeXmlFileLastUpdatedStamp() == this.myEntityXmlFileLastUpdatedStamp;
+        return myProject != null && myProject.getService(MoquiIndexService.class).getEntityXmlFileLastUpdatedStamp() == this.myEntityXmlFileLastUpdatedStamp;
+    }
+    public boolean serviceIsValid() {
+        return myIsValid && serviceXmlFileIsNotUpdated();
+    }
+    public boolean serviceXmlFileIsNotUpdated(){
+        return myProject != null && myProject.getService(MoquiIndexService.class).getServiceXmlFileLastUpdatedStamp() == this.myServiceXmlFileLastUpdatedStamp;
     }
     public Relationship getRelationship() {
         return myRelationship;

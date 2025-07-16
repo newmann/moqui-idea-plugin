@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.EntityFacadeXml;
 import org.moqui.idea.plugin.util.EntityScope;
 import org.moqui.idea.plugin.util.EntityUtils;
-
+@Deprecated
 public class EntityFacadeXmlReferenceProvider extends PsiReferenceProvider {
     private static Logger logger = Logger.getInstance(EntityFacadeXmlReferenceProvider.class);
     public static EntityFacadeXmlReferenceProvider of(){

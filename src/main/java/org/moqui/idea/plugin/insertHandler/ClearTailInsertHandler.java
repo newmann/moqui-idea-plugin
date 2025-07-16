@@ -31,7 +31,8 @@ public class ClearTailInsertHandler implements InsertHandler<LookupElement> {
     }
     private int findNextQuote(CharSequence text, int start) {
         for (int i = start; i < text.length(); i++) {
-            if (text.charAt(i) == '"') return i;
+            char c = text.charAt(i);
+            if (c == '"' || c=='>' || c=='<' || c == '\n' || c == '\r') return i;
         }
         return -1;
     }

@@ -64,19 +64,36 @@ public class EntityFacadeElementDescriptor implements XmlElementDescriptor {
                     EntityFacadeXmlTagDescriptor descriptor = EntityFacadeXmlTagDescriptor.of(xmlTag);
                     //只有当前tag不是field时，才添加
                     if (!descriptor.getIsField()) {
-                        //对主键字段进行控制，如果主键在父级实体中存在，则不显示。注意，父级实体可能有多个
-                        List<String> parentEntityPKList = getParentTagOffedFieldList(xmlTag);
-                        EntityUtils.getIndexEntityByName(xmlTag.getProject(), descriptor.getEntityName())
-                                .ifPresent(indexEntity -> {
-                                            indexEntity.getFieldList()
-                                                    .stream()
-                                                    .filter(field -> !parentEntityPKList.contains(MyDomUtils.getValueOrEmptyString(field.getName())))
-                                                    .forEach(
-                                                            field -> resultList.add(EntityFacadeFieldAttributeDescriptor.of(field)));
-                                            //添加lastUpdatedStamp字段
-                                            resultList.add(EntityFacadeLastUpdatedStampFieldAttributeDescriptor.of());
-                                        }
-                                );
+                        switch (descriptor.getTagType()) {
+                            case Entity -> {
+                                //对主键字段进行控制，如果主键在父级实体中存在，则显示，但不是必须录入。注意，父级实体可能有多个
+                                List<String> parentEntityPKList = getParentTagOffedFieldList(xmlTag);
+                                EntityUtils.getIndexEntityByName(xmlTag.getProject(), descriptor.getEntityName())
+                                        .ifPresent(indexEntity -> {
+                                                    indexEntity.getFieldList()
+                                                            .stream()
+//                                                    .filter(field -> !parentEntityPKList.contains(MyDomUtils.getValueOrEmptyString(field.getName())))
+                                                            .forEach(
+                                                                    field -> {
+                                                                        if (parentEntityPKList.contains(MyDomUtils.getValueOrEmptyString(field.getName()))) {
+                                                                            resultList.add(EntityFacadeFieldAttributeDescriptor.ofField(field, true)); //主键设为非必须录入内容，可录可不录
+                                                                        } else {
+                                                                            resultList.add(EntityFacadeFieldAttributeDescriptor.ofField(field));
+                                                                        }
+                                                                    });
+                                                    //添加lastUpdatedStamp字段
+                                                    resultList.add(EntityFacadeLastUpdatedStampFieldAttributeDescriptor.of());
+                                                }
+                                        );
+
+                            }
+                            case Service -> {
+                                ServiceUtils.getServiceInParamterList(xmlTag.getProject(),descriptor.getServiceCallName())
+                                        .forEach(parameter -> {
+                                            resultList.add(EntityFacadeFieldAttributeDescriptor.ofParameter(parameter));
+                                        });
+                            }
+                        }
 
                     }
                     //            String entityName = MyDomUtils.getEntityNameInEntityFacadeXml(xmlTag).orElse(MyStringUtils.EMPTY_STRING);

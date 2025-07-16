@@ -9,7 +9,11 @@ import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlPatterns;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.xml.XmlTag;
+import com.intellij.psi.xml.XmlToken;
 import com.intellij.util.ProcessingContext;
+import com.intellij.util.xml.XmlName;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.MyIcons;
 import org.moqui.idea.plugin.dom.model.*;
@@ -42,12 +46,25 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
                                         )
                             )
                     );
+    public static final PsiElementPattern<PsiElement, PsiElementPattern.Capture<PsiElement>> ENTITY_FACADE_TAG_PATTERN =
+            PlatformPatterns.psiElement()
+                    .inside(
+                            XmlPatterns.xmlTag().andOr(
+                                XmlPatterns.xmlTag().inside(
+                                      XmlPatterns.xmlTag().withLocalName(EntityFacadeXml.TAG_NAME)
+                                ),
+                                XmlPatterns.xmlTag().inside(
+                                        XmlPatterns.xmlTag().withLocalName(SeedData.TAG_NAME).inside(XmlPatterns.xmlTag().withLocalName(Entities.TAG_NAME))
+                                )
+                            ));
 
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet result) {
 
         PsiElement psiElement = parameters.getPosition();
         if(! MyDomUtils.isMoquiProject(psiElement.getProject())) return;
+
+        if(isEntityFacadeNoTag(psiElement)) return;
 
         BeginAndEndCharPattern charPattern = BeginAndEndCharPattern.of(psiElement);
         String inputString = MyStringUtils.getDummyFrontString(charPattern.getContent());
@@ -71,7 +88,26 @@ public class ServiceCallCompletionProvider extends CompletionProvider<Completion
 //        }
 
     }
+
+    private boolean isEntityFacadeNoTag(@NotNull PsiElement psiElement) {
+        if(ENTITY_FACADE_TAG_PATTERN.accepts(psiElement)) {
+            if(psiElement instanceof XmlToken xmlToken) {
+                return !(xmlToken.getParent() instanceof XmlTag);
+            };
+        }
+
+        return false;
+    }
+    private boolean isEntityFacadeTag(@NotNull PsiElement psiElement) {
+        if(ENTITY_FACADE_TAG_PATTERN.accepts(psiElement)) {
+            if(psiElement instanceof XmlToken xmlToken)
+                return xmlToken.getParent() instanceof XmlTag;
+        }
+        return false;
+    }
     private void lookupService(@NotNull Project project, @NotNull String inputStr, boolean inputAtEnd, @NotNull CompletionResultSet result){
+        result.withPrefixMatcher(new IgnoreDotPrefixMatcher(inputStr));
+
         int hashIndex = inputStr.indexOf(MyStringUtils.SERVICE_NAME_HASH);
         String[] hashSplit = inputStr.split(MyStringUtils.SERVICE_NAME_HASH);
 

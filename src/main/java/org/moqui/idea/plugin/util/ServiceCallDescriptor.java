@@ -29,6 +29,7 @@ public class ServiceCallDescriptor {
      * 如果是CRUD服务，格式为：
      * verb#entityName
      * 针对crud服务，返回的className为空
+     *
      */
     public ServiceCallDescriptor(@NotNull String fullName){
         final int index = fullName.lastIndexOf(SERVICE_NAME_HASH);
@@ -45,8 +46,6 @@ public class ServiceCallDescriptor {
                 myVerb = MyStringUtils.EMPTY_STRING;
                 myClassName = fullName;
             }
-            myIsCRUD = false;
-
         }else {
             myNounIndex = index + 1;
             myNoun = fullName.substring(myNounIndex);

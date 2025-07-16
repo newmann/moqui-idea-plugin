@@ -327,7 +327,12 @@ public final class MoquiIndexService {
         Map<String,IndexServiceParameter> outParameterMap = new HashMap<>();
         for(Implements implementsItem: service.getImplementsList()){
             IndexService interfaceService = getIndexInterfaceByFullName(MyDomUtils.getValueOrEmptyString(implementsItem.getService())).orElse(null);
-            if (interfaceService != null) {
+            //不仅仅interface，service可以是另外service的implements
+            if (interfaceService == null) {
+                interfaceService = getIndexServiceByFullName(MyDomUtils.getValueOrEmptyString(implementsItem.getService())).orElse(null);
+            }
+
+            if(interfaceService != null){
                 inParameterMap.putAll(interfaceService.getInParameterMap());
                 outParameterMap.putAll(interfaceService.getOutParameterMap());
             }

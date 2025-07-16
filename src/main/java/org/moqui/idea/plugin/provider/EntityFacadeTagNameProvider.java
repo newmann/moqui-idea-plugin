@@ -76,9 +76,9 @@ public class EntityFacadeTagNameProvider implements XmlTagNameProvider {
 
                         if(!relationshipEntityName.contains(entityName)) { //添加在Relationship中不存在的Entity
                             list.add(LookupElementBuilder.create(fullName)
-                                    .appendTailText("[entity]", true)
+//                                    .appendTailText("[entity]", true)
                                     .withCaseSensitivity(true)
-//                                    .withTypeText(fullName)
+                                    .withTypeText("Entity")
                             );
                             String shortAlias = MyDomUtils.getValueOrEmptyString(entity.getShortAlias());
                             if (MyStringUtils.isNotEmpty(shortAlias)) {

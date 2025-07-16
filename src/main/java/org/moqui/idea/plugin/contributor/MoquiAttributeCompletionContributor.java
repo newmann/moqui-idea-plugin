@@ -26,6 +26,9 @@ public class MoquiAttributeCompletionContributor extends CompletionContributor {
     extend(CompletionType.BASIC,LinkUrlCompletionProvider.LINK_URL_PATTERN,LinkUrlCompletionProvider.of());
     extend(CompletionType.BASIC,ImageUrlCompletionProvider.IMAGE_URL_PATTERN,ImageUrlCompletionProvider.of());
     extend(CompletionType.BASIC,ComponentStyleLocationCompletionProvider.SUB_SCREENS_ITEM_PATTERN,ComponentStyleLocationCompletionProvider.of());
+
+
+    extend(CompletionType.BASIC,ServiceCallCompletionProvider.ENTITY_FACADE_TAG_PATTERN,ServiceCallCompletionProvider.of());
 //    extend(CompletionType.BASIC, VariableCompletionProvider.VARIABLE_PATTERN,VariableCompletionProvider.of());
   }
 
