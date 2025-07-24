@@ -64,7 +64,7 @@ public final class MyStringUtils {
     public static final String FRAMEWORK_COMPONENT_NAME = "framework";
     public static final String TRANSITION_LEVEL_NAME_REGEXP = "^[a-zA-Z][a-zA-Z0-9_-]*$";
     public static final String SCREEN_FILE_PATH_REGEXP = "(?:(?:\\.\\./)+)?[A-Z][a-zA-Z0-9_/-]+|\\.|\\.\\.";
-    public static final String CONTAIN_VARIABLE_REGEXP =".*(\\$\\{)[a-zA-Z0-9_\\-\\.?:,()]+(\\}).*";
+    public static final String CONTAIN_VARIABLE_REGEXP =".*(\\$\\{)[a-zA-Z0-9_\\-\\.?:,() ]+(\\}).*";
 
 
     public static final String ABSOLUTE_URL_REGEXP = "^/.*";  // "^//([a-zA-Z][\\w\\/]*)+$";

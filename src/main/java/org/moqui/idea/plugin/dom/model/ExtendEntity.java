@@ -1,12 +1,14 @@
 package org.moqui.idea.plugin.dom.model;
 
+import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.converter.ExtendEntityNameConverter;
 import org.moqui.idea.plugin.dom.converter.ExtendEntityPackageConverter;
+import org.moqui.idea.plugin.dom.presentation.ExtendEntityPresentationProvider;
 
 import java.util.List;
-
+@Presentation(icon = "org.moqui.idea.plugin.MyIcons.EntityTag",provider = ExtendEntityPresentationProvider.class)
 public interface ExtendEntity extends DomElement {
     
     String TAG_NAME = "extend-entity";
