@@ -12,6 +12,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.xml.DomFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.moqui.idea.plugin.dom.model.*;
+import org.moqui.idea.plugin.listener.MoquiXmlAsyncFileListener;
 import org.moqui.idea.plugin.listener.MoquiXmlBulkFileListener;
 import org.moqui.idea.plugin.util.*;
 
